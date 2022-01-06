@@ -6,8 +6,8 @@ audience: SG9, LEWG
 author:
   - name: Hui Xie
     email: <hui.xie1990@gmail.com>
-  - name: Levent Yilmaz
-    email: <your@email.com>
+  - name: S. Levent Yilmaz
+    email: <levent.yilmaz@gmail.com>
 toc: true
 ---
 
