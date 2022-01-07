@@ -3,7 +3,7 @@
 namespace std::ranges {
 template <range... R>
 struct concat_view {
-    int* begin() {}
-    int* end() {}
+    int* begin() { return nullptr;}
+    int* end() {return nullptr;}
 };
 } // namespace std::ranges
