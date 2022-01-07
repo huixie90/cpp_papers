@@ -7,7 +7,11 @@ if (MSVC)
    set(CMAKE_CXX_STANDARD 23)
    add_compile_options(/MP)
 else()
+   set(CMAKE_CXX_STANDARD 23)
    set(CXX_STANDARD_REQUIRED TRUE)
+   add_compile_options(-Wall -Wextra -Werror -stdlib=libc++)
+   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
+
 endif()
 
 # git clone Catch2, cmake & install to $INSTALL.

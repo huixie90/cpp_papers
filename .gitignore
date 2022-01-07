@@ -8,6 +8,8 @@
 *.cpp.json
 cxx-bucket-vs*/
 .vs/
+.vscode/
+.cache/
 out/
 .gdb_history
 build-*
