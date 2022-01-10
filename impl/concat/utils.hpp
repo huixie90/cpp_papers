@@ -17,7 +17,9 @@ requires(sizeof...(Ts) != 2) auto test() -> std::tuple<Ts...>;
 } // namespace tuple_or_pair_test
 
 // exposition only utilities from zip_view (zip_view is not implemented yet in libc++)
-// http://eel.is/c++draft/ranges#range.zip.view
+// http://eel.is/c++draft/ranges#range.zip.view (perhaps we can reuse in the spec)
+// this paper proposed it to be moved out of zip_view
+// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p2374r3.html
 template <typename... Ts>
 using tuple_or_pair = decltype(tuple_or_pair_test::test<Ts...>());
 
