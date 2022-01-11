@@ -69,15 +69,15 @@ namespace std::ranges {
 
 Add the following subclause to 24.7 [range.adaptors]{.sref}.
 
-### 24.7.? Concat view [range.concat]
+### 24.7.? Concat view [range.concat] {-}
 
-#### 24.7.?.1 Overview [range.concat.overview]
+#### 24.7.?.1 Overview [range.concat.overview] {-}
 
-#### 24.7.?.2 Class template `concat_view` [range.concat.view]
+#### 24.7.?.2 Class template `concat_view` [range.concat.view] {-}
 
-#### 24.7.?.3 Class concat_view::iterator [range.concat.iterator]
+#### 24.7.?.3 Class concat_view::iterator [range.concat.iterator] {-}
 
-#### 24.7.?.4 Class concat_view::sentinel [range.concat.sentinel]
+#### 24.7.?.4 Class concat_view::sentinel [range.concat.sentinel] {-}
 
 4.7.?.2 Class template chunk_by_view [range.chunk.by.view]
 
