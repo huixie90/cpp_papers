@@ -1,5 +1,5 @@
-#ifndef LIBCPP__RANGE_CONCAT_UTILS_HPP
-#define LIBCPP__RANGE_CONCAT_UTILS_HPP
+#ifndef LIBCPP_RANGE_CONCAT_UTILS_HPP
+#define LIBCPP_RANGE_CONCAT_UTILS_HPP
 
 #include <functional>
 #include <utility>
@@ -35,5 +35,20 @@ constexpr auto tuple_transform(F&& f, Tuple&& tuple) {
 
 
 } // namespace std::ranges::concat_detail
+
+
+
+// Exposition only utilities, normalize cross-compiler:
+#ifdef _MSC_VER
+namespace std::ranges {
+    template<bool C, typename T>
+    using __maybe_const = _Maybe_const<C, T>;
+
+    
+    template <typename T>
+    concept __simple_view = _Simple_view<T>;
+}
+#endif
+
 
 #endif
