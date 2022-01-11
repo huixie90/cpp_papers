@@ -11,128 +11,104 @@ author:
 toc: true
 ---
 
-# Introduction
+# Revision History
 
-This paper proposes allowing `single_view` to hold non-copyable types.
+This is the initial revision.
 
-# Motivation and Scope
+# Abstract
 
-Currently, `single_view` requires the object that it holds to satisfy `std::copy_constructible` concept. This makes the `single_view` not usable with move only types. For example, the following code is invalid
+This paper proposes the range adaptor `views::concat` as very briefly introduced in [@P2214R1] Section 4.7. It is an adaptor that takes an arbitrary number of ranges as an argument list, and provides a view that starts at the first element of the first range, ends at the last element of the last range, with all range elements sequenced in between respectively in the order given in the arguments, effectively concatenating, or chaining together the argument ranges.
+
+# Example
 
 ```cpp
-// foo is move only type
-foo make_foo();
-
-std::views::single(make_foo()) // | more_pipe_lines
+std::vector v1{1,2,3}, v2{4,5}, v3{};
+std::array  a{6,7,8};
+fmt::print("{}\n", v | std::views::concat(v1, v2, v3, a)); // [1,2,3,4,5,6,7,8]
 ```
-
-In the original c++ 20 ranges proposal, the `view` concept requires `semiregular`, thus all `view` implementations have to be copyable. However, after [@P1456R1], `view` no long requires implementations to be `copyable` but only `movable`, so technically the `std::copy_constructible` constraint can be relaxed to `std::move_constructible` for the types that `single_view` holds.
-
-::: cmptable
-
-### Before
-```cpp
-// foo is move only type
-foo make_foo();
-
-std::views::single(std::make_shared<foo>(make_foo()))
-  | std::views::transform([](const auto& f) -> decltype(auto) {
-      return (*f);
-    })
-  | // more_pipe_lines
-```
-
-### After
-```cpp
-// foo is move only type
-foo make_foo();
-
-std::views::single(make_foo()) // | more_pipe_lines
-```
-
-:::
 
 # Design
 
-# Proposed Wording
+This adaptor is a generator factory as described in [@P2214R1] Section 4.7. As such, it can not be piped to. It takes the list of ranges to concatenate as arguments to `ranges::concat_view` constructor, or to `ranges::views::concat` range adaptor object.
+
+## 
+
+## Borrowed vs Cheap Iterator
+
+A `concat` view can be designed to be a borrowed range, if all underlying ranges are. However, this requires the iterator implementation to contain a copy of all iterators and sentinels of all underlying ranges at all times (just like that of `views::zip` [@P2321R2]). On the other hand, a cheaper implementation that simply refers to the parent view can be used to satisfy all of the proposed functionality, if it is permitted to be not borrowed. Experience shows the borrowed-ness of `concat` is not a major requirement, and the existing implementation in [@rangev3] seems to have picked that latter alternative. We do so as such in this proposal.
+
+
+## Implementation experience
+
+`views::concat` has been implemented in [@rangev3], with equivalent semantics as proposed here. We also have implemented a version that directly follows the proposed wording below without issue [@ours].
+
+# Wording
 
 ## Addition to `<ranges>`
 
-add [ranges.syn]{.sref}
+Add the following to 24.2 [ranges.syn]{.sref}, header `<ranges>` synopsis:
 
 ```cpp
-// [range.single], single view
-template<@[`copy_­constructible`]{.rm}[`move_­constructible`]{.add}@ T>
-    requires is_object_v<T>
-  class single_view;
+// [...]
+namespace std::ranges {
+  // [...]
+
+  // [range.concat], concat view
+  template <input_range... Views>
+    requires (view<Views> && ...) && (sizeof...(Views) > 0)
+  class concat_view;
+
+  namespace views {
+    inline constexpr @_unspecified_@ concat = @_unspecified_@;
+  }
+
+}
 ```
 
 ## `concat_view`
 
-Modify [range.single.view]{.sref}
+Add the following subclause to 24.7 [range.adaptors]{.sref}.
 
-```cpp
-namespace std::ranges {
-  template<@[`copy_­constructible`]{.rm}[`move_­constructible`]{.add}@ T>
-    requires is_object_v<T>
-  class single_view : public view_interface<single_view<T>> {
-  private:
-    @[_copyable-box_]{.rm}[_movable-box_]{.add}@<T> value_;             // exposition only (see [range.@[copy]{.rm}[move]{.add}@.wrap])
+### 24.7.? Concat view [range.concat]
 
-public:
-  single_view() requires default_initializable<T> = default;
-  constexpr explicit single_view(const T& t) @[`requires copy_constructible<T>`]{.add}@;
-  constexpr explicit single_view(T&& t);
-```
+#### 24.7.?.1 Overview [range.concat.overview]
 
+#### 24.7.?.2 Class template `concat_view` [range.concat.view]
 
-```
-constexpr explicit single_view(const T& t) @[`requires copy_constructible<T>`]{.add}@;
-```
-[1]{.pnum} <em>Effects</em>: Initializes `value_­` with `t`.
+#### 24.7.?.3 Class concat_view::iterator [range.concat.iterator]
 
+#### 24.7.?.4 Class concat_view::sentinel [range.concat.sentinel]
 
-Add a new section __[range.move.wrap]__ under [range.adaptors]{.sref}
-
-::: add
-__Movable wrapper__
-
-[1]{.pnum} `@_movable-box<T>_@` behaves exactly like `optional<T>` with the following differences:
-
-- [1.1]{.pnum} `@_movable-box<T>_@` constrains its type parameter `T` with `move_constructible<T> && is_object_v<T>`
-
-- [1.2]{.pnum} The default constructor of `@_movable-box<T>_@` is equivalent to:
-
->```cpp
-> constexpr @_movable-box_@() noexcept(is_nothrow_default_constructible_v<T>)
->     requires default_initializable<T>
->   : @_movable-box_@(){in_place}
-> {}
->```
-
-- [1.3]{.pnum} If `movable<T>` is not modelled, the move assignment operator is equivalent to:
-
->```cpp
-> @_movable-box_@& operator=(@_movable-box_@&& that)
->   noexcept(is_nothrow_move_constructible_v<T>)  {
->   if (this != addressof(that))  {
->     if (that) emplace(std::move(*that));
->     else reset();  
->   }
->   return *this;  
-> }
->```
-
-[2]{.pnum} _Recommended practices_: `@_movable-box_@` should store only a `T` if either `T` models `movable` or `is_nothrow_move_constructible_v<T>` is `true`.
-
-:::
+4.7.?.2 Class template chunk_by_view [range.chunk.by.view]
 
 ## Feature Test Macro
 
-# Design Decisions
+Add the following macro definition to 17.3.2 [version.syn]{.sref}, header `<version>` synopsis, with the value selected by the editor to reflect the date of adoption of this paper:
 
-An alternative approach is to not have the `@_movable-box_@` wrapper. Instead, we can just constrain `single_view` to only accept `movable T`. However, this is inconsistent with the rest of the range library.
+```cpp
+#define __cpp_lib_ranges_concat  20XXXXL // also in <ranges>
+---
 
-# Future Work
 
-`@_copyable-box_@` is not only used in `single_view`, but also used in lots of `view`s that hold a function object. For example, `transform_view` stores the function inside `@_copyable-box_@<F>`. I think as `view` is no long required to be `copyable`, there should be no constraint for the function object `F` being `copyable`. And in fact, `transform_view` stores a base `view`: `V base_`. If `base_` is not `copyable`, there is no point to have `@_copyable-box_@<F>`. This is the case for all other `view`s that store the function objects. Potentially, the `@_copyable-box_@` can be removed and replaced by the `@_movable-box_@` that is proposed in this paper.
+# References
+
+
+references:
+  - id: rangev3
+    citation-label: range-v3
+    title: "range-v3 library"
+    author:
+      - family: Niebler
+        given: Eric
+    URL: https://github.com/ericniebler/range-v3
+
+  - id: ours
+    citation-label: ours
+    title: "A proof-of-concept implementation of views::concat"
+    author:
+      - family: Xie
+        given: Hui
+      - family: Yilmaz
+        given: S. Levent
+    URL: https://github.com/huixie90/cpp_papers/tree/main/impl/concat
+---
