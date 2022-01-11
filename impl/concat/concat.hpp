@@ -11,13 +11,13 @@
 
 namespace std::ranges {
 
-namespace concat_detail {
+namespace xo { // exposition only things (and persevering face)
 
 // these concepts are needed if we make the implementation same as range-v3.
-// for random access, range-v3 actually isn't constant time. 
-// For it + n, if n is bigger than the current view, it recursively 
+// for random access, range-v3 actually isn't constant time.
+// For it + n, if n is bigger than the current view, it recursively
 // goes to the end and checks the next view, which is O(N), where N
-// is number of concated view. 
+// is number of concated view.
 // we can possibly use ranges::size if they are sized_range
 template <bool Const, class... Views>
 concept all_random_access = // exposition only
@@ -44,13 +44,16 @@ constexpr auto iterator_concept_test() {
     }
 }
 
-} // namespace concat_detail
+template <typename... T>
+using back = tuple_element_t<sizeof...(T) - 1, tuple<T...>>;
+
+} // namespace xo
 
 template <input_range... Views>
 requires(view<Views>&&...) && (sizeof...(Views) > 0) class concat_view
     : public view_interface<concat_view<Views...>> {
 
-    tuple<Views...> views_ = tuple<Views...>();
+    tuple<Views...> views_; // exposition only
 
     template <bool Const>
     class iterator {
@@ -94,8 +97,14 @@ requires(view<Views>&&...) && (sizeof...(Views) > 0) class concat_view
             , it_{std::move(i.it_)} {}
     };
 
+
+    // store only the sentinel of last view
     template <bool Const>
-    class sentinel;
+    class sentinel {
+      public:
+        sentinel() requires(default_initializable<iterator_t<__maybe_const<Const, xo::back<Views...>>>>) =
+            default;
+    };
 
   public:
     concat_view() requires(default_initializable<Views>&&...) = default;
