@@ -62,6 +62,10 @@ requires(view<Views>&&...) && (sizeof...(Views) > 0) class concat_view
         using ParentView = __maybe_const<Const, concat_view>;
         using BaseIt = variant<iterator_t<__maybe_const<Const, Views>>...>;
 
+
+        // range-v3 has pointed out that rvalue_reference is a problem
+        using common_ref = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
+
         // It is possible to not to store parent view pointer to make the view `borrowed_range`
         // if all the base views are `borrowed_range`. But we need to store all the begin
         // iterators and sentinels of the base views inside this iterator if they are copyable
@@ -70,11 +74,22 @@ requires(view<Views>&&...) && (sizeof...(Views) > 0) class concat_view
         BaseIt it_ = BaseIt();
 
         friend class iterator<!Const>;
+        friend class concat_view;
+
+        template <std::size_t N>
+        void satisfy() {
+            if constexpr (N != (sizeof...(Views) - 1)) {
+                if (get<N>(it_) == ranges::end(get<N>(parent_->views_))) {
+                    it_.template emplace<N + 1>(ranges::begin(get<N + 1>(parent_->views_)));
+                    satisfy<N + 1>();
+                }
+            }
+        }
 
       public:
         using difference_type = common_type_t<range_difference_t<__maybe_const<Const, Views>>...>;
         using value_type = common_type_t<range_value_t<__maybe_const<Const, Views>>...>;
-        using iterator_concept = decltype(iterator_concept_test<Const, Views...>());
+        using iterator_concept = decltype(xo::iterator_concept_test<Const, Views...>());
 
         /*
          * this one is tricky.
@@ -87,14 +102,32 @@ requires(view<Views>&&...) && (sizeof...(Views) > 0) class concat_view
             default;
 
         template <class... Args>
-        explicit iterator(ParentView& parent,
+        explicit iterator(ParentView* parent,
                           Args&&... args) requires constructible_from<BaseIt, Args&&...>
-            : parent_{&parent}, it_{static_cast<Args&&>(args)...} {}
+            : parent_{parent}, it_{static_cast<Args&&>(args)...} {}
 
         constexpr iterator(iterator<!Const> i) requires Const &&
             (convertible_to<iterator_t<Views>, iterator_t<__maybe_const<Const, Views>>>&&...)
             : parent_{i.parent_}
             , it_{std::move(i.it_)} {}
+
+
+        constexpr common_ref operator*() const {
+            return visit([](auto&& it) -> decltype(auto) { return static_cast<common_ref>(*it); },
+                         it_);
+        }
+
+        constexpr iterator& operator++() { 
+            //TODO: implement this function
+            // range-v3 variant has visit_i where the visitor has I at compile time
+            return *this; }
+
+        constexpr void operator++(int) { ++*this; }
+        constexpr iterator operator++(int) requires xo::all_forward<Const, Views...> {
+            auto tmp = *this;
+            ++*this;
+            return tmp;
+        }
     };
 
 
@@ -102,8 +135,8 @@ requires(view<Views>&&...) && (sizeof...(Views) > 0) class concat_view
     template <bool Const>
     class sentinel {
       public:
-        sentinel() requires(default_initializable<iterator_t<__maybe_const<Const, xo::back<Views...>>>>) =
-            default;
+        sentinel() requires(
+            default_initializable<sentinel_t<__maybe_const<Const, xo::back<Views...>>>>) = default;
     };
 
   public:
@@ -117,19 +150,21 @@ requires(view<Views>&&...) && (sizeof...(Views) > 0) class concat_view
     // question: should we check only the first view is not simple view or any view is not simple
     // view?
     constexpr auto begin() requires(!(__simple_view<Views> && ...)) {
-        // return iterator<false>{...};
-        // if the first N views are empty, we need to keep jumping the iterator
-        // until we find the first view that is not empty and that is the begin iterator
-        // This is not constant time (in terms of number of views) so we probably need to cache it.
-        return (int*)(nullptr);
+
+        iterator<false> it{this, std::in_place_index<0u>, ranges::begin(std::get<0>(views_))};
+        it.template satisfy<0>();
+        return it;
+        // O(1) as sizeof...(Views) known at compile time
     }
 
     constexpr auto begin() const requires(range<const Views>&&...) {
+        iterator<true> it{this, std::in_place_index<0u>, ranges::begin(std::get<0>(views_))};
+        it.template satisfy<0>();
+        return it;
         // return iterator<true>{...};
         // if the first N views are empty, we need to keep jumping the iterator
         // until we find the first view that is not empty and that is the begin iterator
         // This is not constant time (in terms of number of views) so we probably need to cache it.
-        return (int*)(nullptr);
     }
 
     // question: should we check only the last view is not simple view or any view is not simple
