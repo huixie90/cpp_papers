@@ -23,6 +23,18 @@ TEST_POINT("begin_basic") {
     REQUIRE(*it == 4);
 }
 
+TEST_POINT("end_basic_common_range") {
+    using V = std::vector<int>;
+    V v1{}, v2{4, 5}, v3{6};
+    std::ranges::concat_view cv{v1, v2, v3};
+    auto it = cv.begin();
+    auto st = cv.end();
+    static_assert(std::same_as<decltype(it), decltype(st)>);
+    auto it2 = std::as_const(cv).begin();
+    auto st2 = std::as_const(cv).end();
+    static_assert(std::same_as<decltype(it2), decltype(st2)>);
+}
+
 TEST_POINT("Sentinel") {
     // using V = std::vector<int>;
     // using W = std::list<int>;
