@@ -87,12 +87,9 @@ Add the following macro definition to 17.3.2 [version.syn]{.sref}, header `<vers
 
 ```cpp
 #define __cpp_lib_ranges_concat  20XXXXL // also in <ranges>
+```
+
 ---
-
-
-# References
-
-
 references:
   - id: rangev3
     citation-label: range-v3

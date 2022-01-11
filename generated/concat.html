@@ -430,14 +430,14 @@ code.sourceCode > span { display: inline; }
   <tr>
     <td style="vertical-align:top">Audience:</td>
     <td>
-      LEWG<br>
+      SG9, LEWG<br>
     </td>
   </tr>
   <tr>
     <td style="vertical-align:top">Reply-to:</td>
     <td>
       Hui Xie<br>&lt;<a href="mailto:hui.xie1990@gmail.com" class="email">hui.xie1990@gmail.com</a>&gt;<br>
-      Levent Yilmaz<br>&lt;<a href="mailto:your@email.com" class="email">your@email.com</a>&gt;<br>
+      S. Levent Yilmaz<br>&lt;<a href="mailto:levent.yilmaz@gmail.com" class="email">levent.yilmaz@gmail.com</a>&gt;<br>
     </td>
   </tr>
 </table>
@@ -447,122 +447,90 @@ code.sourceCode > span { display: inline; }
 <div id="TOC" role="doc-toc">
 <h1 id="toctitle">Contents</h1>
 <ul>
-<li><a href="#introduction"><span class="toc-section-number">1</span> Introduction<span></span></a></li>
-<li><a href="#motivation-and-scope"><span class="toc-section-number">2</span> Motivation and Scope<span></span></a></li>
-<li><a href="#design"><span class="toc-section-number">3</span> Design<span></span></a></li>
-<li><a href="#proposed-wording"><span class="toc-section-number">4</span> Proposed Wording<span></span></a>
+<li><a href="#revision-history"><span class="toc-section-number">1</span> Revision History<span></span></a></li>
+<li><a href="#abstract"><span class="toc-section-number">2</span> Abstract<span></span></a></li>
+<li><a href="#example"><span class="toc-section-number">3</span> Example<span></span></a></li>
+<li><a href="#design"><span class="toc-section-number">4</span> Design<span></span></a>
 <ul>
-<li><a href="#addition-to-ranges"><span class="toc-section-number">4.1</span> Addition to <code class="sourceCode default">&lt;ranges&gt;</code><span></span></a></li>
-<li><a href="#concat_view"><span class="toc-section-number">4.2</span> <code class="sourceCode default">concat_view</code><span></span></a></li>
-<li><a href="#feature-test-macro"><span class="toc-section-number">4.3</span> Feature Test Macro<span></span></a></li>
+<li><a href="#section"><span class="toc-section-number">4.1</span> <span></span></a></li>
+<li><a href="#borrowed-vs-cheap-iterator"><span class="toc-section-number">4.2</span> Borrowed vs Cheap Iterator<span></span></a></li>
+<li><a href="#implementation-experience"><span class="toc-section-number">4.3</span> Implementation experience<span></span></a></li>
 </ul></li>
-<li><a href="#design-decisions"><span class="toc-section-number">5</span> Design Decisions<span></span></a></li>
-<li><a href="#future-work"><span class="toc-section-number">6</span> Future Work<span></span></a></li>
-<li><a href="#bibliography"><span class="toc-section-number">7</span> References<span></span></a></li>
+<li><a href="#wording"><span class="toc-section-number">5</span> Wording<span></span></a>
+<ul>
+<li><a href="#addition-to-ranges"><span class="toc-section-number">5.1</span> Addition to <code class="sourceCode default">&lt;ranges&gt;</code><span></span></a></li>
+<li><a href="#concat_view"><span class="toc-section-number">5.2</span> <code class="sourceCode default">concat_view</code><span></span></a>
+<ul>
+<li><a href="#concat-view-range.concat"><span class="toc-section-number">5.2.1</span> 24.7.? Concat view [range.concat]<span></span></a></li>
+</ul></li>
+<li><a href="#feature-test-macro"><span class="toc-section-number">5.3</span> Feature Test Macro<span></span></a></li>
+</ul></li>
+<li><a href="#bibliography"><span class="toc-section-number">6</span> References<span></span></a></li>
 </ul>
 </div>
-<h1 data-number="1" id="introduction"><span class="header-section-number">1</span> Introduction<a href="#introduction" class="self-link"></a></h1>
-<p>This paper proposes allowing <code class="sourceCode default">single_view</code> to hold non-copyable types.</p>
-<h1 data-number="2" id="motivation-and-scope"><span class="header-section-number">2</span> Motivation and Scope<a href="#motivation-and-scope" class="self-link"></a></h1>
-<p>Currently, <code class="sourceCode default">single_view</code> requires the object that it holds to satisfy <code class="sourceCode default">std::copy_constructible</code> concept. This makes the <code class="sourceCode default">single_view</code> not usable with move only types. For example, the following code is invalid</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1"></a><span class="co">// foo is move only type</span></span>
-<span id="cb1-2"><a href="#cb1-2"></a>foo make_foo<span class="op">()</span>;</span>
-<span id="cb1-3"><a href="#cb1-3"></a></span>
-<span id="cb1-4"><a href="#cb1-4"></a>std<span class="op">::</span>views<span class="op">::</span>single<span class="op">(</span>make_foo<span class="op">())</span> <span class="co">// | more_pipe_lines</span></span></code></pre></div>
-<p>In the original c++ 20 ranges proposal, the <code class="sourceCode default">view</code> concept requires <code class="sourceCode default">semiregular</code>, thus all <code class="sourceCode default">view</code> implementations have to be copyable. However, after <span class="citation" data-cites="P1456R1">[<a href="#ref-P1456R1" role="doc-biblioref">P1456R1</a>]</span>, <code class="sourceCode default">view</code> no long requires implementations to be <code class="sourceCode default">copyable</code> but only <code class="sourceCode default">movable</code>, so technically the <code class="sourceCode default">std::copy_constructible</code> constraint can be relaxed to <code class="sourceCode default">std::move_constructible</code> for the types that <code class="sourceCode default">single_view</code> holds.</p>
-<table>
-<thead>
-<tr class="header">
-<th><div style="text-align:center">
-<strong>Before</strong>
-</div></th>
-<th><div style="text-align:center">
-<strong>After</strong>
-</div></th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1"></a><span class="co">// foo is move only type</span></span>
-<span id="cb2-2"><a href="#cb2-2"></a>foo make_foo<span class="op">()</span>;</span>
-<span id="cb2-3"><a href="#cb2-3"></a></span>
-<span id="cb2-4"><a href="#cb2-4"></a>std<span class="op">::</span>views<span class="op">::</span>single<span class="op">(</span>std<span class="op">::</span>make_shared<span class="op">&lt;</span>foo<span class="op">&gt;(</span>make_foo<span class="op">()))</span></span>
-<span id="cb2-5"><a href="#cb2-5"></a>  <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">([](</span><span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> f<span class="op">)</span> <span class="op">-&gt;</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">auto</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb2-6"><a href="#cb2-6"></a>      <span class="cf">return</span> <span class="op">(*</span>f<span class="op">)</span>;</span>
-<span id="cb2-7"><a href="#cb2-7"></a>    <span class="op">})</span></span>
-<span id="cb2-8"><a href="#cb2-8"></a>  <span class="op">|</span> <span class="co">// more_pipe_lines</span></span></code></pre></div></td>
-<td><div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1"></a><span class="co">// foo is move only type</span></span>
-<span id="cb3-2"><a href="#cb3-2"></a>foo make_foo<span class="op">()</span>;</span>
-<span id="cb3-3"><a href="#cb3-3"></a></span>
-<span id="cb3-4"><a href="#cb3-4"></a>std<span class="op">::</span>views<span class="op">::</span>single<span class="op">(</span>make_foo<span class="op">())</span> <span class="co">// | more_pipe_lines</span></span></code></pre></div></td>
-</tr>
-</tbody>
-</table>
-<h1 data-number="3" id="design"><span class="header-section-number">3</span> Design<a href="#design" class="self-link"></a></h1>
-<h1 data-number="4" id="proposed-wording"><span class="header-section-number">4</span> Proposed Wording<a href="#proposed-wording" class="self-link"></a></h1>
-<h2 data-number="4.1" id="addition-to-ranges"><span class="header-section-number">4.1</span> Addition to <code class="sourceCode default">&lt;ranges&gt;</code><a href="#addition-to-ranges" class="self-link"></a></h2>
-<p>add <span>24.2
- <a href="https://wg21.link/ranges.syn">[ranges.syn]</a></span></p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1"></a><span class="co">// [range.single], single view</span></span>
-<span id="cb4-2"><a href="#cb4-2"></a><span class="kw">template</span><span class="op">&lt;</span><span class="rm" style="color: #bf0303"><del><span><code class="sourceCode default">copy_­constructible</code></span></del></span><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">move_­constructible</code></span></ins></span> T<span class="op">&gt;</span></span>
-<span id="cb4-3"><a href="#cb4-3"></a>    <span class="kw">requires</span> is_object_v<span class="op">&lt;</span>T<span class="op">&gt;</span></span>
-<span id="cb4-4"><a href="#cb4-4"></a>  <span class="kw">class</span> single_view;</span></code></pre></div>
-<h2 data-number="4.2" id="concat_view"><span class="header-section-number">4.2</span> <code class="sourceCode default">concat_view</code><a href="#concat_view" class="self-link"></a></h2>
-<p>Modify <span>24.6.3.2
- <a href="https://wg21.link/range.single.view">[range.single.view]</a></span></p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1"></a><span class="kw">namespace</span> std<span class="op">::</span>ranges <span class="op">{</span></span>
-<span id="cb5-2"><a href="#cb5-2"></a>  <span class="kw">template</span><span class="op">&lt;</span><span class="rm" style="color: #bf0303"><del><span><code class="sourceCode default">copy_­constructible</code></span></del></span><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">move_­constructible</code></span></ins></span> T<span class="op">&gt;</span></span>
-<span id="cb5-3"><a href="#cb5-3"></a>    <span class="kw">requires</span> is_object_v<span class="op">&lt;</span>T<span class="op">&gt;</span></span>
-<span id="cb5-4"><a href="#cb5-4"></a>  <span class="kw">class</span> single_view <span class="op">:</span> <span class="kw">public</span> view_interface<span class="op">&lt;</span>single_view<span class="op">&lt;</span>T<span class="op">&gt;&gt;</span> <span class="op">{</span></span>
-<span id="cb5-5"><a href="#cb5-5"></a>  <span class="kw">private</span><span class="op">:</span></span>
-<span id="cb5-6"><a href="#cb5-6"></a>    <span class="rm" style="color: #bf0303"><del><em>copyable-box</em></del></span><span class="add" style="color: #006e28"><ins><em>movable-box</em></ins></span><span class="op">&lt;</span>T<span class="op">&gt;</span> value_;             <span class="co">// exposition only (see [range.<span class="rm" style="color: #bf0303"><del>copy</del></span><span class="add" style="color: #006e28"><ins>move</ins></span>.wrap])</span></span>
-<span id="cb5-7"><a href="#cb5-7"></a></span>
-<span id="cb5-8"><a href="#cb5-8"></a><span class="kw">public</span><span class="op">:</span></span>
-<span id="cb5-9"><a href="#cb5-9"></a>  single_view<span class="op">()</span> <span class="kw">requires</span> default_initializable<span class="op">&lt;</span>T<span class="op">&gt;</span> <span class="op">=</span> <span class="cf">default</span>;</span>
-<span id="cb5-10"><a href="#cb5-10"></a>  <span class="kw">constexpr</span> <span class="kw">explicit</span> single_view<span class="op">(</span><span class="kw">const</span> T<span class="op">&amp;</span> t<span class="op">)</span> <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">requires copy_constructible&lt;T&gt;</code></span></ins></span>;</span>
-<span id="cb5-11"><a href="#cb5-11"></a>  <span class="kw">constexpr</span> <span class="kw">explicit</span> single_view<span class="op">(</span>T<span class="op">&amp;&amp;</span> t<span class="op">)</span>;</span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb6-1"><a href="#cb6-1"></a>constexpr explicit single_view(const T&amp; t) <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">requires copy_constructible&lt;T&gt;</code></span></ins></span>;</span></code></pre></div>
-<p><span class="marginalizedparent"><a class="marginalized">1</a></span> <em>Effects</em>: Initializes <code class="sourceCode default">value_­</code> with <code class="sourceCode default">t</code>.</p>
-<p>Add a new section <strong>[range.move.wrap]</strong> under <span>24.7
- <a href="https://wg21.link/range.adaptors">[range.adaptors]</a></span></p>
-<div class="add" style="color: #006e28">
-<p><strong>Movable wrapper</strong></p>
-<p><span class="marginalizedparent"><a class="marginalized">1</a></span> <code class="sourceCode default"><em>movable-box<T></em></code> behaves exactly like <code class="sourceCode default">optional&lt;T&gt;</code> with the following differences:</p>
-<ul>
-<li><p><span class="marginalizedparent"><a class="marginalized">(1.1)</a></span> <code class="sourceCode default"><em>movable-box<T></em></code> constrains its type parameter <code class="sourceCode default">T</code> with <code class="sourceCode default">move_constructible&lt;T&gt; &amp;&amp; is_object_v&lt;T&gt;</code></p></li>
-<li><p><span class="marginalizedparent"><a class="marginalized">(1.2)</a></span> The default constructor of <code class="sourceCode default"><em>movable-box<T></em></code> is equivalent to:</p></li>
-</ul>
-<blockquote>
-<div class="sourceCode" id="cb7"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb7-1"><a href="#cb7-1"></a>constexpr <em>movable-box</em>() noexcept(is_nothrow_default_constructible_v&lt;T&gt;)</span>
-<span id="cb7-2"><a href="#cb7-2"></a>    requires default_initializable&lt;T&gt;</span>
-<span id="cb7-3"><a href="#cb7-3"></a>  : <em>movable-box</em>(){in_place}</span>
-<span id="cb7-4"><a href="#cb7-4"></a>{}</span></code></pre></div>
-</blockquote>
-<ul>
-<li><span class="marginalizedparent"><a class="marginalized">(1.3)</a></span> If <code class="sourceCode default">movable&lt;T&gt;</code> is not modelled, the move assignment operator is equivalent to:</li>
-</ul>
-<blockquote>
-<div class="sourceCode" id="cb8"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb8-1"><a href="#cb8-1"></a><em>movable-box</em>&amp; operator=(<em>movable-box</em>&amp;&amp; that)</span>
-<span id="cb8-2"><a href="#cb8-2"></a>  noexcept(is_nothrow_move_constructible_v&lt;T&gt;)  {</span>
-<span id="cb8-3"><a href="#cb8-3"></a>  if (this != addressof(that))  {</span>
-<span id="cb8-4"><a href="#cb8-4"></a>    if (that) emplace(std::move(*that));</span>
-<span id="cb8-5"><a href="#cb8-5"></a>    else reset();  </span>
-<span id="cb8-6"><a href="#cb8-6"></a>  }</span>
-<span id="cb8-7"><a href="#cb8-7"></a>  return *this;  </span>
-<span id="cb8-8"><a href="#cb8-8"></a>}</span></code></pre></div>
-</blockquote>
-<p><span class="marginalizedparent"><a class="marginalized">2</a></span> <em>Recommended practices</em>: <code class="sourceCode default"><em>movable-box</em></code> should store only a <code class="sourceCode default">T</code> if either <code class="sourceCode default">T</code> models <code class="sourceCode default">movable</code> or <code class="sourceCode default">is_nothrow_move_constructible_v&lt;T&gt;</code> is <code class="sourceCode default">true</code>.</p>
-</div>
-<h2 data-number="4.3" id="feature-test-macro"><span class="header-section-number">4.3</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
-<h1 data-number="5" id="design-decisions"><span class="header-section-number">5</span> Design Decisions<a href="#design-decisions" class="self-link"></a></h1>
-<p>An alternative approach is to not have the <code class="sourceCode default"><em>movable-box</em></code> wrapper. Instead, we can just constrain <code class="sourceCode default">single_view</code> to only accept <code class="sourceCode default">movable T</code>. However, this is inconsistent with the rest of the range library.</p>
-<h1 data-number="6" id="future-work"><span class="header-section-number">6</span> Future Work<a href="#future-work" class="self-link"></a></h1>
-<p><code class="sourceCode default"><em>copyable-box</em></code> is not only used in <code class="sourceCode default">single_view</code>, but also used in lots of <code class="sourceCode default">view</code>s that hold a function object. For example, <code class="sourceCode default">transform_view</code> stores the function inside <code class="sourceCode default"><em>copyable-box</em>&lt;F&gt;</code>. I think as <code class="sourceCode default">view</code> is no long required to be <code class="sourceCode default">copyable</code>, there should be no constraint for the function object <code class="sourceCode default">F</code> being <code class="sourceCode default">copyable</code>. And in fact, <code class="sourceCode default">transform_view</code> stores a base <code class="sourceCode default">view</code>: <code class="sourceCode default">V base_</code>. If <code class="sourceCode default">base_</code> is not <code class="sourceCode default">copyable</code>, there is no point to have <code class="sourceCode default"><em>copyable-box</em>&lt;F&gt;</code>. This is the case for all other <code class="sourceCode default">view</code>s that store the function objects. Potentially, the <code class="sourceCode default"><em>copyable-box</em></code> can be removed and replaced by the <code class="sourceCode default"><em>movable-box</em></code> that is proposed in this paper.</p>
-<h1 data-number="7" id="bibliography"><span class="header-section-number">7</span> References<a href="#bibliography" class="self-link"></a></h1>
+<h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
+<p>This is the initial revision.</p>
+<h1 data-number="2" id="abstract"><span class="header-section-number">2</span> Abstract<a href="#abstract" class="self-link"></a></h1>
+<p>This paper proposes the range adaptor <code class="sourceCode default">views::concat</code> as very briefly introduced in <span class="citation" data-cites="P2214R1">[<a href="#ref-P2214R1" role="doc-biblioref">P2214R1</a>]</span> Section 4.7. It is an adaptor that takes an arbitrary number of ranges as an argument list, and provides a view that starts at the first element of the first range, ends at the last element of the last range, with all range elements sequenced in between respectively in the order given in the arguments, effectively concatenating, or chaining together the argument ranges.</p>
+<h1 data-number="3" id="example"><span class="header-section-number">3</span> Example<a href="#example" class="self-link"></a></h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1"></a>std<span class="op">::</span>vector v1<span class="op">{</span><span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span><span class="op">}</span>, v2<span class="op">{</span><span class="dv">4</span>,<span class="dv">5</span><span class="op">}</span>, v3<span class="op">{}</span>;</span>
+<span id="cb1-2"><a href="#cb1-2"></a>std<span class="op">::</span>array  a<span class="op">{</span><span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">8</span><span class="op">}</span>;</span>
+<span id="cb1-3"><a href="#cb1-3"></a>fmt<span class="op">::</span>print<span class="op">(</span><span class="st">&quot;{}</span><span class="sc">\n</span><span class="st">&quot;</span>, v <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>concat<span class="op">(</span>v1, v2, v3, a<span class="op">))</span>; <span class="co">// [1,2,3,4,5,6,7,8]</span></span></code></pre></div>
+<h1 data-number="4" id="design"><span class="header-section-number">4</span> Design<a href="#design" class="self-link"></a></h1>
+<p>This adaptor is a generator factory as described in <span class="citation" data-cites="P2214R1">[<a href="#ref-P2214R1" role="doc-biblioref">P2214R1</a>]</span> Section 4.7. As such, it can not be piped to. It takes the list of ranges to concatenate as arguments to <code class="sourceCode default">ranges::concat_view</code> constructor, or to <code class="sourceCode default">ranges::views::concat</code> range adaptor object.</p>
+<h2 data-number="4.1" id="section"><span class="header-section-number">4.1</span> <a href="#section" class="self-link"></a></h2>
+<h2 data-number="4.2" id="borrowed-vs-cheap-iterator"><span class="header-section-number">4.2</span> Borrowed vs Cheap Iterator<a href="#borrowed-vs-cheap-iterator" class="self-link"></a></h2>
+<p>A <code class="sourceCode default">concat</code> view can be designed to be a borrowed range, if all underlying ranges are. However, this requires the iterator implementation to contain a copy of all iterators and sentinels of all underlying ranges at all times (just like that of <code class="sourceCode default">views::zip</code> <span class="citation" data-cites="P2321R2">[<a href="#ref-P2321R2" role="doc-biblioref">P2321R2</a>]</span>). On the other hand, a cheaper implementation that simply refers to the parent view can be used to satisfy all of the proposed functionality, if it is permitted to be not borrowed. Experience shows the borrowed-ness of <code class="sourceCode default">concat</code> is not a major requirement, and the existing implementation in <span class="citation" data-cites="rangev3">[<a href="#ref-rangev3" role="doc-biblioref">range-v3</a>]</span> seems to have picked that latter alternative. We do so as such in this proposal.</p>
+<h2 data-number="4.3" id="implementation-experience"><span class="header-section-number">4.3</span> Implementation experience<a href="#implementation-experience" class="self-link"></a></h2>
+<p><code class="sourceCode default">views::concat</code> has been implemented in <span class="citation" data-cites="rangev3">[<a href="#ref-rangev3" role="doc-biblioref">range-v3</a>]</span>, with equivalent semantics as proposed here. We also have implemented a version that directly follows the proposed wording below without issue <span class="citation" data-cites="ours">[<a href="#ref-ours" role="doc-biblioref">ours</a>]</span>.</p>
+<h1 data-number="5" id="wording"><span class="header-section-number">5</span> Wording<a href="#wording" class="self-link"></a></h1>
+<h2 data-number="5.1" id="addition-to-ranges"><span class="header-section-number">5.1</span> Addition to <code class="sourceCode default">&lt;ranges&gt;</code><a href="#addition-to-ranges" class="self-link"></a></h2>
+<p>Add the following to 24.2 <span>24.2
+ <a href="https://wg21.link/ranges.syn">[ranges.syn]</a></span>, header <code class="sourceCode default">&lt;ranges&gt;</code> synopsis:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1"></a><span class="co">// [...]</span></span>
+<span id="cb2-2"><a href="#cb2-2"></a><span class="kw">namespace</span> std<span class="op">::</span>ranges <span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3"></a>  <span class="co">// [...]</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a></span>
+<span id="cb2-5"><a href="#cb2-5"></a>  <span class="co">// [range.concat], concat view</span></span>
+<span id="cb2-6"><a href="#cb2-6"></a>  <span class="kw">template</span> <span class="op">&lt;</span>input_range<span class="op">...</span> Views<span class="op">&gt;</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>    <span class="kw">requires</span> <span class="op">(</span>view<span class="op">&lt;</span>Views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span><span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">)</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span></span>
+<span id="cb2-8"><a href="#cb2-8"></a>  <span class="kw">class</span> concat_view;</span>
+<span id="cb2-9"><a href="#cb2-9"></a></span>
+<span id="cb2-10"><a href="#cb2-10"></a>  <span class="kw">namespace</span> views <span class="op">{</span></span>
+<span id="cb2-11"><a href="#cb2-11"></a>    <span class="kw">inline</span> <span class="kw">constexpr</span> <em>unspecified</em> concat <span class="op">=</span> <em>unspecified</em>;</span>
+<span id="cb2-12"><a href="#cb2-12"></a>  <span class="op">}</span></span>
+<span id="cb2-13"><a href="#cb2-13"></a></span>
+<span id="cb2-14"><a href="#cb2-14"></a><span class="op">}</span></span></code></pre></div>
+<h2 data-number="5.2" id="concat_view"><span class="header-section-number">5.2</span> <code class="sourceCode default">concat_view</code><a href="#concat_view" class="self-link"></a></h2>
+<p>Add the following subclause to 24.7 <span>24.7
+ <a href="https://wg21.link/range.adaptors">[range.adaptors]</a></span>.</p>
+<h3 data-number="5.2.1" id="concat-view-range.concat"><span class="header-section-number">5.2.1</span> 24.7.? Concat view [range.concat]<a href="#concat-view-range.concat" class="self-link"></a></h3>
+<h4 data-number="5.2.1.1" id="overview-range.concat.overview"><span class="header-section-number">5.2.1.1</span> 24.7.?.1 Overview [range.concat.overview]<a href="#overview-range.concat.overview" class="self-link"></a></h4>
+<h4 data-number="5.2.1.2" id="class-template-concat_view-range.concat.view"><span class="header-section-number">5.2.1.2</span> 24.7.?.2 Class template <code class="sourceCode default">concat_view</code> [range.concat.view]<a href="#class-template-concat_view-range.concat.view" class="self-link"></a></h4>
+<h4 data-number="5.2.1.3" id="class-concat_viewiterator-range.concat.iterator"><span class="header-section-number">5.2.1.3</span> 24.7.?.3 Class concat_view::iterator [range.concat.iterator]<a href="#class-concat_viewiterator-range.concat.iterator" class="self-link"></a></h4>
+<h4 data-number="5.2.1.4" id="class-concat_viewsentinel-range.concat.sentinel"><span class="header-section-number">5.2.1.4</span> 24.7.?.4 Class concat_view::sentinel [range.concat.sentinel]<a href="#class-concat_viewsentinel-range.concat.sentinel" class="self-link"></a></h4>
+<p>4.7.?.2 Class template chunk_by_view [range.chunk.by.view]</p>
+<h2 data-number="5.3" id="feature-test-macro"><span class="header-section-number">5.3</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
+<p>Add the following macro definition to 17.3.2 <span>17.3.2
+ <a href="https://wg21.link/version.syn">[version.syn]</a></span>, header <code class="sourceCode default">&lt;version&gt;</code> synopsis, with the value selected by the editor to reflect the date of adoption of this paper:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1"></a><span class="pp">#define __cpp_lib_ranges_concat  </span><span class="dv">20</span><span class="er">XXXXL</span><span class="pp"> </span><span class="co">// also in &lt;ranges&gt;</span></span></code></pre></div>
+<h1 data-number="6" id="bibliography"><span class="header-section-number">6</span> References<a href="#bibliography" class="self-link"></a></h1>
 <div id="refs" class="references hanging-indent" role="doc-bibliography">
-<div id="ref-P1456R1">
-<p>[P1456R1] Casey Carter. 2019-11-12. Move-only views. <br />
-<a href="https://wg21.link/p1456r1">https://wg21.link/p1456r1</a></p>
+<div id="ref-ours">
+<p>[ours] Hui Xie and S. Levent Yilmaz. A proof-of-concept implementation of views::concat. <br />
+<a href="https://github.com/huixie90/cpp_papers/tree/main/impl/concat">https://github.com/huixie90/cpp_papers/tree/main/impl/concat</a></p>
+</div>
+<div id="ref-P2214R1">
+<p>[P2214R1] Barry Revzin, Conor Hoekstra, Tim Song. 2021-09-14. A Plan for C++23 Ranges. <br />
+<a href="https://wg21.link/p2214r1">https://wg21.link/p2214r1</a></p>
+</div>
+<div id="ref-P2321R2">
+<p>[P2321R2] Tim Song. 2021-06-11. zip. <br />
+<a href="https://wg21.link/p2321r2">https://wg21.link/p2321r2</a></p>
+</div>
+<div id="ref-rangev3">
+<p>[range-v3] Eric Niebler. range-v3 library. <br />
+<a href="https://github.com/ericniebler/range-v3">https://github.com/ericniebler/range-v3</a></p>
 </div>
 </div>
 </div>

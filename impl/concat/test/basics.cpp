@@ -1,5 +1,6 @@
 #include "concat.hpp"
 #include <catch2/catch_test_macros.hpp>
+#include <list>
 #include <vector>
 
 #define TEST_POINT(x) TEST_CASE(x, "[basics]")
@@ -16,8 +17,8 @@ TEST_POINT("motivation") {
 
 
 TEST_POINT("Sentinel") {
-    using V = std::vector<int>;
-    using W = std::list<int>;
+   // using V = std::vector<int>;
+   // using W = std::list<int>;
     
     // add non-trivial combinations of underlying ranges/views and concept checks for
     // - sentinel size independent of number of ranges
