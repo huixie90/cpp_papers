@@ -52,10 +52,13 @@ using back = tuple_element_t<sizeof...(T) - 1, tuple<T...>>;
 
 } // namespace xo
 
+// clang-format off
 template <input_range... Views>
-requires(view<Views>&&...) && (sizeof...(Views) > 0) class concat_view
-    : public view_interface<concat_view<Views...>> {
-
+    requires (view<Views>&&...) && (sizeof...(Views) > 0) &&
+             (convertible_to<range_reference_t<Views>, 
+                common_reference_t<range_reference_t<Views>...>> && ...) 
+class concat_view : public view_interface<concat_view<Views...>> {
+    // clang-format on
     tuple<Views...> views_; // exposition only
 
     template <bool Const>
@@ -64,10 +67,6 @@ requires(view<Views>&&...) && (sizeof...(Views) > 0) class concat_view
         // http://eel.is/c++draft/ranges#syn
         using ParentView = __maybe_const<Const, concat_view>;
         using BaseIt = variant<iterator_t<__maybe_const<Const, Views>>...>;
-
-
-        // [TODO] range-v3 has pointed out that rvalue_reference is a problem
-        using common_ref = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
 
         ParentView* parent_ = nullptr;
         BaseIt it_ = BaseIt();
@@ -86,6 +85,8 @@ requires(view<Views>&&...) && (sizeof...(Views) > 0) class concat_view
         }
 
       public:
+        // [TODO] range-v3 has pointed out that rvalue_reference is a problem
+        using reference = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
         using difference_type = common_type_t<range_difference_t<__maybe_const<Const, Views>>...>;
         using value_type = common_type_t<range_value_t<__maybe_const<Const, Views>>...>;
         using iterator_concept = decltype(xo::iterator_concept_test<Const, Views...>());
@@ -111,8 +112,8 @@ requires(view<Views>&&...) && (sizeof...(Views) > 0) class concat_view
             : parent_{i.parent_}
             , it_{std::move(i.it_)} {}
 
-        constexpr common_ref operator*() const {
-            return visit([](auto&& it) -> common_ref { return *it; }, it_);
+        constexpr reference operator*() const {
+            return visit([](auto&& it) -> reference { return *it; }, it_);
         }
 
         constexpr iterator& operator++() {
@@ -157,14 +158,18 @@ requires(view<Views>&&...) && (sizeof...(Views) > 0) class concat_view
 
     // used exposition only concepts simple-view defined here:
     // http://eel.is/c++draft/ranges#range.utility.helpers (we can reuse in the spec)
-    constexpr auto begin() requires(!(__simple_view<Views> && ...)) {
+    constexpr iterator<false> begin() requires(!(__simple_view<Views> && ...)) {
         iterator<false> it{this, in_place_index<0u>, ranges::begin(get<0>(views_))};
         it.template satisfy<0>();
         return it;
         // O(1) as sizeof...(Views) known at compile time
     }
 
-    constexpr auto begin() const requires(range<const Views>&&...) {
+    constexpr iterator<true> begin() const
+        requires((range<const Views> && ...) &&
+                 (convertible_to<range_reference_t<const Views>,
+                                 common_reference_t<range_reference_t<const Views>...>> &&
+                  ...)) {
         iterator<true> it{this, in_place_index<0u>, ranges::begin(get<0>(views_))};
         it.template satisfy<0>();
         return it;
