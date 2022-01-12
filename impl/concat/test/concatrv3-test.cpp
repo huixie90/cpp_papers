@@ -11,6 +11,7 @@
 
 #include <array>
 #include <vector>
+#include <string>
 #include <range/v3/core.hpp>
 #include <range/v3/view/concat.hpp>
 #include <range/v3/view/generate.hpp>
@@ -107,4 +108,12 @@ TEST_CASE("regression395", "[rv3 concat]") {
     auto rng = ranges::views::concat(ranges::views::generate([&] { return i++; })) |
                ranges::views::take_while([](int j) { return j < 30; });
     CHECK(ranges::distance(ranges::begin(rng), ranges::end(rng)) == 30);
+}
+
+
+TEST_CASE("negative", "[rv3 concat]") {
+    using namespace std::literals;
+    std::vector vi{ 1,2 };
+    std::vector vs{ "abc"s, "x"s };
+
 }
