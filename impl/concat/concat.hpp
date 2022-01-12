@@ -33,6 +33,9 @@ concept all_forward = // exposition only
 
 template <bool Const, typename... Views>
 constexpr auto iterator_concept_test() {
+    // [TODO] if there is only one View and it has contiguous iterators, we should be one too. or
+    // perhaps, we
+    //        should simply views::concat(r) as views::all(r)?
     if constexpr (all_random_access<Const, Views...>) {
         return random_access_iterator_tag{};
     } else if constexpr (all_bidirectional<Const, Views...>) {
@@ -63,13 +66,9 @@ requires(view<Views>&&...) && (sizeof...(Views) > 0) class concat_view
         using BaseIt = variant<iterator_t<__maybe_const<Const, Views>>...>;
 
 
-        // range-v3 has pointed out that rvalue_reference is a problem
+        // [TODO] range-v3 has pointed out that rvalue_reference is a problem
         using common_ref = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
 
-        // It is possible to not to store parent view pointer to make the view `borrowed_range`
-        // if all the base views are `borrowed_range`. But we need to store all the begin
-        // iterators and sentinels of the base views inside this iterator if they are copyable
-        // not worth it I think.
         ParentView* parent_ = nullptr;
         BaseIt it_ = BaseIt();
 
@@ -91,7 +90,7 @@ requires(view<Views>&&...) && (sizeof...(Views) > 0) class concat_view
         using value_type = common_type_t<range_value_t<__maybe_const<Const, Views>>...>;
         using iterator_concept = decltype(xo::iterator_concept_test<Const, Views...>());
 
-        /*
+        /* [TODO]
          * this one is tricky.
          * it depends on the iterate_category of every base and also depends on if
          * the common_reference_t<...> is actually a reference
@@ -106,16 +105,14 @@ requires(view<Views>&&...) && (sizeof...(Views) > 0) class concat_view
                           Args&&... args) requires constructible_from<BaseIt, Args&&...>
             : parent_{parent}, it_{static_cast<Args&&>(args)...} {}
 
-        // what is this for?
         constexpr iterator(iterator<!Const> i) requires Const &&
             (convertible_to<iterator_t<Views>, iterator_t<__maybe_const<Const, Views>>>&&...)
+            // [TODO] noexcept specs?
             : parent_{i.parent_}
             , it_{std::move(i.it_)} {}
 
-
         constexpr common_ref operator*() const {
-            return visit([](auto&& it) -> decltype(auto) { return static_cast<common_ref>(*it); },
-                         it_);
+            return visit([](auto&& it) -> common_ref { return *it; }, it_);
         }
 
         constexpr iterator& operator++() {
