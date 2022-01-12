@@ -113,7 +113,11 @@ TEST_CASE("regression395", "[rv3 concat]") {
 
 TEST_CASE("negative", "[rv3 concat]") {
     using namespace std::literals;
-    std::vector vi{ 1,2 };
-    std::vector vs{ "abc"s, "x"s };
+    std::vector vi{1, 2};
+    std::vector vs{"abc"s, "x"s};
 
+    auto c = ranges::views::concat(vi, vs);
+    //     for (auto a : c) { // hard error
+    //
+    //     }
 }
