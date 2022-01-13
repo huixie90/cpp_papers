@@ -71,9 +71,6 @@ class concat_view : public view_interface<concat_view<Views...>> {
     tuple<Views...> views_ = tuple<Views...>(); // exposition only
 
     template <bool Const>
-    class sentinel;
-
-    template <bool Const>
     class iterator {
         // use of exposition only trait `maybe-const` defined in
         // http://eel.is/c++draft/ranges#syn
@@ -94,10 +91,6 @@ class concat_view : public view_interface<concat_view<Views...>> {
                     satisfy<N + 1>();
                 }
             }
-        }
-
-        static constexpr decltype(auto) get_last(sentinel<Const> const& s) noexcept {
-            return s.last_;
         }
 
       public:
@@ -136,7 +129,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
             /*
              * in the spec, we can potentially say
              * ++std::get<i>(it_);
-             * this->satisfy<i>();  
+             * this->satisfy<i>();
              * where i equals it_.index()
              */
             auto visitor = [this]<size_t N>(std::integral_constant<size_t, N>) {
@@ -155,9 +148,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
             return tmp;
         }
 
-        constexpr iterator& operator--() requires xo::concat_bidirectional<Const, Views...>{
-
-        }
+        constexpr iterator& operator--() requires xo::concat_bidirectional<Const, Views...> {}
 
         constexpr iterator operator--(int) requires xo::concat_bidirectional<Const, Views...> {
             auto tmp = *this;
@@ -171,31 +162,13 @@ class concat_view : public view_interface<concat_view<Views...>> {
             return it1.it_ == it2.it_;
         }
 
-        friend constexpr bool operator==(const iterator& it, const sentinel<Const>& st) {
-            return it.it_.index() == sizeof...(Views) - 1 &&
-                   std::get<sizeof...(Views) - 1>(it.it_) == get_last(st);
+        friend constexpr bool operator==(const iterator& it, const default_sentinel_t&) {
+            constexpr auto LastIdx = sizeof...(Views) - 1;
+            return it.it_.index() == LastIdx &&
+                   get<LastIdx>(it.it_) == ranges::end(get<LastIdx>(it.parent_->views_));
         }
     };
 
-
-    template <bool Const>
-    class sentinel {
-        friend class iterator<Const>;
-        friend class sentinel<!Const>;
-
-        using LastSentinel = sentinel_t<__maybe_const<Const, xo::back<Views...>>>;
-        LastSentinel last_ = LastSentinel();
-
-      public:
-        sentinel() requires(default_initializable<LastSentinel>) = default;
-
-        constexpr explicit sentinel(LastSentinel s)
-            : last_{std::move(s)} {}
-
-        constexpr sentinel(sentinel<!Const> s) requires Const &&
-            (convertible_to<sentinel_t<xo::back<Views...>>, LastSentinel>)
-            : last_{std::move(s.last_)} {}
-    };
 
   public:
     constexpr concat_view() requires(default_initializable<Views>&&...) = default;
@@ -224,7 +197,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
             constexpr auto N = sizeof...(Views);
             return iterator<false>{this, in_place_index<N - 1>, ranges::end(get<N - 1>(views_))};
         } else {
-            return sentinel<false>{ranges::end(get<sizeof...(Views) - 1>(views_))};
+            return default_sentinel;
         }
     }
 
@@ -233,7 +206,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
             constexpr auto N = sizeof...(Views);
             return iterator<true>{this, in_place_index<N - 1>, ranges::end(get<N - 1>(views_))};
         } else {
-            return sentinel<true>{ranges::end(get<sizeof...(Views) - 1>(views_))};
+            return default_sentinel;
         }
     }
 
@@ -270,18 +243,15 @@ class concat_fn {
     constexpr void operator()() const = delete;
 
     // single arg == all
-    template <viewable_range V> // note: viewable_range means all(v) is well-formed
+    template <viewable_range V>
     constexpr auto operator()(V&& v) const
         noexcept(noexcept(std::views::all(static_cast<V&&>(v)))) {
         return std::views::all(static_cast<V&&>(v));
     }
 
     template <input_range... V>
-    requires(sizeof...(V) > 1) &&
-        ranges::xo::concatable<V...> && // question: should this be
-                                        // ranges::xo::concatable<all_t<V&&>...>
-                                        // to match the implementation?
-        (viewable_range<V>&&...)        //
+    requires(sizeof...(V) > 1) && ranges::xo::concatable<all_t<V&&>...> &&
+        (viewable_range<V> && ...) //
         constexpr auto
         operator()(V&&... v) const { // noexcept(noexcept(concat_view{static_cast<V&&>(v)...})) {
         return concat_view{static_cast<V&&>(v)...};
