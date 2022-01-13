@@ -13,29 +13,17 @@ namespace std::ranges {
 
 namespace xo { // exposition only things (and persevering face)
 
-// these concepts are needed if we make the implementation same as range-v3.
-// for random access, range-v3 actually isn't constant time.
-// For it + n, if n is bigger than the current view, it recursively
-// goes to the end and checks the next view, which is O(N), where N
-// is number of concated view.
-// we can possibly use ranges::size if they are sized_range
 template <bool Const, class... Views>
-concept all_random_access = // exposition only
-    (random_access_range<__maybe_const<Const, Views>>&&...);
+concept all_random_access = (random_access_range<__maybe_const<Const, Views>> && ...);
 
 template <bool Const, class... Views>
-concept all_bidirectional = // exposition only
-    (bidirectional_range<__maybe_const<Const, Views>>&&...);
+concept all_bidirectional = (bidirectional_range<__maybe_const<Const, Views>> && ...);
 
 template <bool Const, class... Views>
-concept all_forward = // exposition only
-    (forward_range<__maybe_const<Const, Views>>&&...);
+concept all_forward = (forward_range<__maybe_const<Const, Views>> && ...);
 
 template <bool Const, typename... Views>
 constexpr auto iterator_concept_test() {
-    // [TODO] if there is only one View and it has contiguous iterators, we should be one too. or
-    // perhaps, we
-    //        should simply views::concat(r) as views::all(r)?
     if constexpr (all_random_access<Const, Views...>) {
         return random_access_iterator_tag{};
     } else if constexpr (all_bidirectional<Const, Views...>) {
@@ -50,13 +38,19 @@ constexpr auto iterator_concept_test() {
 template <typename... T>
 using back = tuple_element_t<sizeof...(T) - 1, tuple<T...>>;
 
+
+template <typename... T>
+concept concatable = requires() {
+    common_reference_t<range_reference_t<T>...>;
+};
+
 } // namespace xo
 
+
 // clang-format off
+// [TODO] constrain less and allow just a `view`? (i.e. including output_range in the mix - need an example)
 template <input_range... Views>
-    requires (view<Views>&&...) && (sizeof...(Views) > 0) &&
-             (convertible_to<range_reference_t<Views>, 
-                common_reference_t<range_reference_t<Views>...>> && ...) 
+    requires (view<Views>&&...) && (sizeof...(Views) > 1) && xo::concatable<Views...>  
 class concat_view : public view_interface<concat_view<Views...>> {
     // clang-format on
     tuple<Views...> views_; // exposition only
@@ -152,7 +146,8 @@ class concat_view : public view_interface<concat_view<Views...>> {
     };
 
   public:
-    concat_view() requires(default_initializable<Views>&&...) = default;
+    constexpr concat_view() requires(default_initializable<Views>&&...) = default;
+
     constexpr explicit concat_view(Views... views)
         : views_{static_cast<Views&&>(views)...} {}
 
@@ -214,6 +209,37 @@ class concat_view : public view_interface<concat_view<Views...>> {
 
 template <class... R>
 concat_view(R&&...) -> concat_view<views::all_t<R>...>;
+
+
+// range adaptor object:
+
+namespace views {
+namespace xo {
+class concat_fn {
+  public:
+    // [TODO] empty arg isn't valid. no meaningful value type? decide this for good.
+    constexpr void operator()() const = delete;
+
+    // single arg == all
+    template <viewable_range V> // note: viewable_range means all(v) is well-formed
+    constexpr auto operator()(V&& v) const
+        noexcept(noexcept(std::views::all(static_cast<V&&>(v)))) {
+        return std::views::all(static_cast<V&&>(v));
+    }
+
+    template <input_range... V>
+    requires(sizeof...(V) > 1) && ranges::xo::concatable<V...> &&
+        (viewable_range<V> && ...) //
+        constexpr auto
+        operator()(V&&... v) const { // noexcept(noexcept(concat_view{static_cast<V&&>(v)...})) {
+        return concat_view{static_cast<V&&>(v)...};
+    }
+};
+} // namespace xo
+
+inline constexpr xo::concat_fn concat;
+} // namespace views
+
 
 } // namespace std::ranges
 

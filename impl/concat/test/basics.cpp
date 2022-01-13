@@ -2,17 +2,17 @@
 #include <catch2/catch_test_macros.hpp>
 #include <list>
 #include <vector>
-#include <memory>
 #include <functional>
-
+#include <memory>
 #define TEST_POINT(x) TEST_CASE(x, "[basics]")
 
 namespace {
 
-template <typename... Ts>
-concept concat_view_of = requires(Ts&&... ts) {
-    {std::ranges::concat_view{static_cast<Ts&&>(ts)...}};
+template <typename... R>
+concept concat_viewable = requires(R&&... r) {
+    std::ranges::views::concat((R &&) r...);
 };
+
 
 template <typename R>
 R f(int);
@@ -22,36 +22,23 @@ using make_view_of = decltype(std::views::iota(0) | std::views::transform(f<R>))
 
 struct Foo {};
 
+struct Bar : Foo {};
+struct Qux : Foo {};
+
+struct MoveOnly {
+    MoveOnly(MoveOnly const&) = delete;
+    MoveOnly& operator=(MoveOnly const&) = delete;
+    MoveOnly(MoveOnly&&) = default;
+    MoveOnly& operator=(MoveOnly&&) = default;
+};
+
+
+static_assert(std::movable<MoveOnly>);
+static_assert(!std::copyable<MoveOnly>);
+
 } // namespace
 
-TEST_POINT("concept") {
-    static_assert(!concat_view_of<>, "empty not allowed");
-    static_assert(concat_view_of<std::vector<int>&>, "single viewable range");
-    static_assert(concat_view_of<std::vector<int>&, std::vector<int>&>, "two same type");
-    static_assert(
-        concat_view_of<std::vector<int>&, std::vector<int>&, std::vector<int>&, std::vector<int>&>,
-        "multiple same type");
 
-    static_assert(concat_view_of<std::vector<int>&, make_view_of<int&>>,
-                  "two different type same reference");
-    static_assert(concat_view_of<std::vector<int>&, std::vector<int> const&>,
-                  "two with convertible reference");
-    static_assert(concat_view_of<std::vector<int>&, std::vector<std::reference_wrapper<int>>&>,
-                  "two with convertible reference");
-    static_assert(!concat_view_of<std::vector<int>&, std::vector<Foo>&>, "inconvertible reference");
-
-    static_assert(concat_view_of<make_view_of<int&>, make_view_of<int&&>,
-                                 make_view_of<int>>,
-                  "common reference is prvalue");
-
-    static_assert(concat_view_of<make_view_of<std::unique_ptr<int>>,
-                                 make_view_of<std::unique_ptr<int>&&>>,
-                  "common reference is prvalue move-only and no lvalue reference");
-
-    static_assert(!concat_view_of<make_view_of<std::unique_ptr<int>>,
-                                  make_view_of<std::unique_ptr<int>&>>,
-                  "common reference is prvalue move-only but with lvalue reference");
-}
 
 TEST_POINT("motivation") {
     using V = std::vector<int>;
@@ -60,6 +47,52 @@ TEST_POINT("motivation") {
     // static_assert(std::ranges::range<decltype(cv)>);
     REQUIRE(std::ranges::size(cv) == 5);
 }
+
+
+
+TEST_POINT("concept") {
+
+    using IntV = std::vector<int>;
+    using IntL = std::list<int>;
+    using FooV = std::vector<Foo>;
+    using BarV = std::vector<Bar>;
+    using QuxV = std::vector<Qux>;
+
+    // single arg
+    STATIC_CHECK(concat_viewable<IntV&>);
+    STATIC_CHECK(!concat_viewable<IntV>); // because:
+    STATIC_REQUIRE(!std::ranges::viewable_range<IntV>);
+    STATIC_REQUIRE(std::ranges::viewable_range<IntV&>);
+
+    // nominal use
+    STATIC_CHECK(concat_viewable<IntV&, IntV&>);
+    STATIC_CHECK(concat_viewable<IntV&, IntV const&>);
+    STATIC_CHECK(concat_viewable<IntV&, std::vector<std::reference_wrapper<int>>&>);
+    STATIC_CHECK(concat_viewable<IntV&, IntL&, IntV&>);
+    STATIC_CHECK(concat_viewable<FooV&, BarV&>);
+    STATIC_CHECK(concat_viewable<BarV&, FooV&>);
+    STATIC_CHECK(concat_viewable<FooV&, BarV&, QuxV const&>);
+    STATIC_CHECK(concat_viewable<IntV&, make_view_of<int&>>);
+    STATIC_CHECK(concat_viewable<make_view_of<int&>, make_view_of<int&&>, make_view_of<int>>);
+    STATIC_CHECK(concat_viewable<make_view_of<MoveOnly>, make_view_of<MoveOnly>&&>);
+
+    // [TODO] discuss!
+    STATIC_CHECK(concat_viewable<make_view_of<MoveOnly>, make_view_of<MoveOnly>&>);
+    // static_assert(!concat_view_of<make_view_of<std::unique_ptr<int>>,
+    //                               make_view_of<std::unique_ptr<int>&>>,
+    //               "common reference is prvalue move-only but with lvalue reference");
+
+    // invalid concat use:
+    STATIC_CHECK(!concat_viewable<>);
+    STATIC_CHECK(!concat_viewable<IntV&, FooV&>);
+
+    // Flag:
+    STATIC_CHECK(!concat_viewable<BarV&, QuxV&,
+                                  FooV&>); // maybe a separate proposal for an explicitly specified
+                                           // value_type range? (ref_t == Foo& would work just fine
+                                           // if it wasn't common_reference_t logic)
+}
+
 
 TEST_POINT("begin_basic") {
 

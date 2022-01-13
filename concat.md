@@ -31,7 +31,13 @@ fmt::print("{}\n", v | std::views::concat(v1, v2, v3, a)); // [1,2,3,4,5,6,7,8]
 
 This adaptor is a generator factory as described in [@P2214R1] Section 4.7. As such, it can not be piped to. It takes the list of ranges to concatenate as arguments to `ranges::concat_view` constructor, or to `ranges::views::concat` range adaptor object.
 
-## 
+## Constrain on concatability
+
+TODO:
+
+- explain how this is an improvement over range-v3
+- see if we can fix or somehow address that `common_reference_t` isn't a perfect solution, and misses some interesting cases. E.g.  `concat( b, d1, d2 )` works but `concat(d1,d2,b)` does not, where `D1` and `D2` are subclasses of `B`, but obviously `B&` would be a valid `reference_t` of the `concat_view`.
+
 
 ## Borrowed vs Cheap Iterator
 
