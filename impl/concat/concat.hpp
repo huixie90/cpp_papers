@@ -39,14 +39,10 @@ template <typename... T>
 using back = tuple_element_t<sizeof...(T) - 1, tuple<T...>>;
 
 
-// TODO: I think it should be
-//  template <typename... T>
-// concept concatable = (convertible_to<range_reference_t<T>,
-// common_reference_t<range_reference_t<Views>...>> &&...);
 template <typename... T>
-concept concatable = requires() {
-    typename common_reference_t<range_reference_t<T>...>;
-};
+concept concatable =
+    (convertible_to<range_reference_t<T>, common_reference_t<range_reference_t<T>...>> && ...);
+
 
 template <size_t N, typename F>
 constexpr auto visit_i(size_t idx, F&& f) {

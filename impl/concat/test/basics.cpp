@@ -34,9 +34,13 @@ struct MoveOnly {
     MoveOnly& operator=(MoveOnly&&) = default;
 };
 
-
 static_assert(std::movable<MoveOnly>);
 static_assert(!std::copyable<MoveOnly>);
+
+struct BigCopyable {
+    int bigdata;
+};
+
 
 } // namespace
 
@@ -78,22 +82,32 @@ TEST_POINT("concept") {
     STATIC_CHECK(concat_viewable<make_view_of<int&>, make_view_of<int&&>, make_view_of<int>>);
     STATIC_CHECK(concat_viewable<make_view_of<MoveOnly>, make_view_of<MoveOnly>&&>);
 
-    // [TODO] discuss!
-    STATIC_CHECK(concat_viewable<make_view_of<MoveOnly>, make_view_of<MoveOnly>&>);
-    // static_assert(!concat_view_of<make_view_of<std::unique_ptr<int>>,
-    //                               make_view_of<std::unique_ptr<int>&>>,
-    //               "common reference is prvalue move-only but with lvalue reference");
 
     // invalid concat use:
     STATIC_CHECK(!concat_viewable<>);
     STATIC_CHECK(!concat_viewable<IntV&, FooV&>);
 
+    // common_reference_t is valid. but it is a prvalue which the 2nd range (lvalue ref) can not
+    // assign to (needs copyable).
+    // STATIC_CHECK(!concat_viewable<make_view_of<MoveOnly>, make_view_of<MoveOnly&>>);
+
     // Flag:
-    STATIC_CHECK(!concat_viewable<BarV&, QuxV&,
-                                  FooV&>); // maybe a separate proposal for an explicitly specified
-                                           // value_type range? (ref_t == Foo& would work just fine
-                                           // if it wasn't common_reference_t logic)
+    STATIC_CHECK(!concat_viewable<BarV&, QuxV&, FooV&>);
+    //    maybe a separate proposal for an explicitly specified value_type range?
+    //    ref_t == Foo& would work just fine if it wasn't common_reference_t logic.
+
+    // Flag:
+    STATIC_CHECK(concat_viewable<make_view_of<BigCopyable>, make_view_of<BigCopyable&>>);
+    //    common_reference_t is BigCopyable (a temporary). 2nd range has BigCopyable& type.
+    //    so that means operator* will copy an lvalue to a temporary: a valid but most likely a
+    //    useless operation. Should this be ignored as programmer error and silently accepted?
+    //    Trouble is it may be too subtle to notice yet common.
+    //    [TODO] an example with a transformed range that returns a value from a lambda, but meant
+    //           to return a reference). Is there a better  solution, diagnostic, documentation at
+    //           least?
+    //    [TODO] mention in Design.
 }
+
 
 
 TEST_POINT("begin_basic") {
