@@ -38,11 +38,39 @@ TODO:
 - explain how this is an improvement over range-v3
 - see if we can fix or somehow address that `common_reference_t` isn't a perfect solution, and misses some interesting cases. E.g.  `concat( b, d1, d2 )` works but `concat(d1,d2,b)` does not, where `D1` and `D2` are subclasses of `B`, but obviously `B&` would be a valid `reference_t` of the `concat_view`.
 
+## Zero or one view
+
+TODO:
+
+- explain zero is invalid and one can be `all_t`
 
 ## Borrowed vs Cheap Iterator
 
 A `concat` view can be designed to be a borrowed range, if all underlying ranges are. However, this requires the iterator implementation to contain a copy of all iterators and sentinels of all underlying ranges at all times (just like that of `views::zip` [@P2321R2]). On the other hand, a cheaper implementation that simply refers to the parent view can be used to satisfy all of the proposed functionality, if it is permitted to be not borrowed. Experience shows the borrowed-ness of `concat` is not a major requirement, and the existing implementation in [@rangev3] seems to have picked that latter alternative. We do so as such in this proposal.
 
+## Common Range
+
+TODO:
+
+- explain only the last range needs to be common
+
+## Bidirectional Range
+
+TODO:
+
+- figure out if all ranges need to be bidirectional
+
+## Random Access Range
+
+TODO:
+
+- figure out exact condition. my guess is it needs to be all_random_access && (all_sized || all_common)
+
+## Sized Range
+
+TODO:
+
+- explain all views need to be sized
 
 ## Implementation experience
 

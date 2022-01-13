@@ -452,9 +452,14 @@ code.sourceCode > span { display: inline; }
 <li><a href="#example"><span class="toc-section-number">3</span> Example<span></span></a></li>
 <li><a href="#design"><span class="toc-section-number">4</span> Design<span></span></a>
 <ul>
-<li><a href="#section"><span class="toc-section-number">4.1</span> <span></span></a></li>
-<li><a href="#borrowed-vs-cheap-iterator"><span class="toc-section-number">4.2</span> Borrowed vs Cheap Iterator<span></span></a></li>
-<li><a href="#implementation-experience"><span class="toc-section-number">4.3</span> Implementation experience<span></span></a></li>
+<li><a href="#constrain-on-concatability"><span class="toc-section-number">4.1</span> Constrain on concatability<span></span></a></li>
+<li><a href="#zero-or-one-view"><span class="toc-section-number">4.2</span> Zero or one view<span></span></a></li>
+<li><a href="#borrowed-vs-cheap-iterator"><span class="toc-section-number">4.3</span> Borrowed vs Cheap Iterator<span></span></a></li>
+<li><a href="#common-range"><span class="toc-section-number">4.4</span> Common Range<span></span></a></li>
+<li><a href="#bidirectional-range"><span class="toc-section-number">4.5</span> Bidirectional Range<span></span></a></li>
+<li><a href="#random-access-range"><span class="toc-section-number">4.6</span> Random Access Range<span></span></a></li>
+<li><a href="#sized-range"><span class="toc-section-number">4.7</span> Sized Range<span></span></a></li>
+<li><a href="#implementation-experience"><span class="toc-section-number">4.8</span> Implementation experience<span></span></a></li>
 </ul></li>
 <li><a href="#wording"><span class="toc-section-number">5</span> Wording<span></span></a>
 <ul>
@@ -478,10 +483,40 @@ code.sourceCode > span { display: inline; }
 <span id="cb1-3"><a href="#cb1-3"></a>fmt<span class="op">::</span>print<span class="op">(</span><span class="st">&quot;{}</span><span class="sc">\n</span><span class="st">&quot;</span>, v <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>concat<span class="op">(</span>v1, v2, v3, a<span class="op">))</span>; <span class="co">// [1,2,3,4,5,6,7,8]</span></span></code></pre></div>
 <h1 data-number="4" id="design"><span class="header-section-number">4</span> Design<a href="#design" class="self-link"></a></h1>
 <p>This adaptor is a generator factory as described in <span class="citation" data-cites="P2214R1">[<a href="#ref-P2214R1" role="doc-biblioref">P2214R1</a>]</span> Section 4.7. As such, it can not be piped to. It takes the list of ranges to concatenate as arguments to <code class="sourceCode default">ranges::concat_view</code> constructor, or to <code class="sourceCode default">ranges::views::concat</code> range adaptor object.</p>
-<h2 data-number="4.1" id="section"><span class="header-section-number">4.1</span> <a href="#section" class="self-link"></a></h2>
-<h2 data-number="4.2" id="borrowed-vs-cheap-iterator"><span class="header-section-number">4.2</span> Borrowed vs Cheap Iterator<a href="#borrowed-vs-cheap-iterator" class="self-link"></a></h2>
+<h2 data-number="4.1" id="constrain-on-concatability"><span class="header-section-number">4.1</span> Constrain on concatability<a href="#constrain-on-concatability" class="self-link"></a></h2>
+<p>TODO:</p>
+<ul>
+<li>explain how this is an improvement over range-v3</li>
+<li>see if we can fix or somehow address that <code class="sourceCode default">common_reference_t</code> isn’t a perfect solution, and misses some interesting cases. E.g. <code class="sourceCode default">concat( b, d1, d2 )</code> works but <code class="sourceCode default">concat(d1,d2,b)</code> does not, where <code class="sourceCode default">D1</code> and <code class="sourceCode default">D2</code> are subclasses of <code class="sourceCode default">B</code>, but obviously <code class="sourceCode default">B&amp;</code> would be a valid <code class="sourceCode default">reference_t</code> of the <code class="sourceCode default">concat_view</code>.</li>
+</ul>
+<h2 data-number="4.2" id="zero-or-one-view"><span class="header-section-number">4.2</span> Zero or one view<a href="#zero-or-one-view" class="self-link"></a></h2>
+<p>TODO:</p>
+<ul>
+<li>explain zero is invalid and one can be <code class="sourceCode default">all_t</code></li>
+</ul>
+<h2 data-number="4.3" id="borrowed-vs-cheap-iterator"><span class="header-section-number">4.3</span> Borrowed vs Cheap Iterator<a href="#borrowed-vs-cheap-iterator" class="self-link"></a></h2>
 <p>A <code class="sourceCode default">concat</code> view can be designed to be a borrowed range, if all underlying ranges are. However, this requires the iterator implementation to contain a copy of all iterators and sentinels of all underlying ranges at all times (just like that of <code class="sourceCode default">views::zip</code> <span class="citation" data-cites="P2321R2">[<a href="#ref-P2321R2" role="doc-biblioref">P2321R2</a>]</span>). On the other hand, a cheaper implementation that simply refers to the parent view can be used to satisfy all of the proposed functionality, if it is permitted to be not borrowed. Experience shows the borrowed-ness of <code class="sourceCode default">concat</code> is not a major requirement, and the existing implementation in <span class="citation" data-cites="rangev3">[<a href="#ref-rangev3" role="doc-biblioref">range-v3</a>]</span> seems to have picked that latter alternative. We do so as such in this proposal.</p>
-<h2 data-number="4.3" id="implementation-experience"><span class="header-section-number">4.3</span> Implementation experience<a href="#implementation-experience" class="self-link"></a></h2>
+<h2 data-number="4.4" id="common-range"><span class="header-section-number">4.4</span> Common Range<a href="#common-range" class="self-link"></a></h2>
+<p>TODO:</p>
+<ul>
+<li>explain only the last range needs to be common</li>
+</ul>
+<h2 data-number="4.5" id="bidirectional-range"><span class="header-section-number">4.5</span> Bidirectional Range<a href="#bidirectional-range" class="self-link"></a></h2>
+<p>TODO:</p>
+<ul>
+<li>figure out if all ranges need to be bidirectional</li>
+</ul>
+<h2 data-number="4.6" id="random-access-range"><span class="header-section-number">4.6</span> Random Access Range<a href="#random-access-range" class="self-link"></a></h2>
+<p>TODO:</p>
+<ul>
+<li>figure out exact condition. my guess is it needs to be all_random_access &amp;&amp; (all_sized || all_common)</li>
+</ul>
+<h2 data-number="4.7" id="sized-range"><span class="header-section-number">4.7</span> Sized Range<a href="#sized-range" class="self-link"></a></h2>
+<p>TODO:</p>
+<ul>
+<li>explain all views need to be sized</li>
+</ul>
+<h2 data-number="4.8" id="implementation-experience"><span class="header-section-number">4.8</span> Implementation experience<a href="#implementation-experience" class="self-link"></a></h2>
 <p><code class="sourceCode default">views::concat</code> has been implemented in <span class="citation" data-cites="rangev3">[<a href="#ref-rangev3" role="doc-biblioref">range-v3</a>]</span>, with equivalent semantics as proposed here. We also have implemented a version that directly follows the proposed wording below without issue <span class="citation" data-cites="ours">[<a href="#ref-ours" role="doc-biblioref">ours</a>]</span>.</p>
 <h1 data-number="5" id="wording"><span class="header-section-number">5</span> Wording<a href="#wording" class="self-link"></a></h1>
 <h2 data-number="5.1" id="addition-to-ranges"><span class="header-section-number">5.1</span> Addition to <code class="sourceCode default">&lt;ranges&gt;</code><a href="#addition-to-ranges" class="self-link"></a></h2>
