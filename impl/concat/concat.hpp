@@ -39,10 +39,25 @@ template <typename... T>
 using back = tuple_element_t<sizeof...(T) - 1, tuple<T...>>;
 
 
+// TODO: I think it should be
+//  template <typename... T>
+// concept concatable = (convertible_to<range_reference_t<T>,
+// common_reference_t<range_reference_t<Views>...>> &&...);
 template <typename... T>
 concept concatable = requires() {
-    common_reference_t<range_reference_t<T>...>;
+    typename common_reference_t<range_reference_t<T>...>;
 };
+
+template <size_t N, typename F>
+constexpr auto visit_i(size_t idx, F&& f) {
+    if (idx == N) {
+        return static_cast<F&&>(f)(std::integral_constant<size_t, N>{});
+    } else {
+        if constexpr (N != 0) {
+            return visit_i<N - 1>(idx, static_cast<F&&>(f));
+        }
+    }
+}
 
 } // namespace xo
 
@@ -54,6 +69,9 @@ template <input_range... Views>
 class concat_view : public view_interface<concat_view<Views...>> {
     // clang-format on
     tuple<Views...> views_; // exposition only
+
+    template <bool Const>
+    class sentinel;
 
     template <bool Const>
     class iterator {
@@ -69,7 +87,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
         friend class concat_view;
 
         template <std::size_t N>
-        void satisfy() {
+        constexpr void satisfy() {
             if constexpr (N != (sizeof...(Views) - 1)) {
                 if (get<N>(it_) == ranges::end(get<N>(parent_->views_))) {
                     it_.template emplace<N + 1>(ranges::begin(get<N + 1>(parent_->views_)));
@@ -96,8 +114,8 @@ class concat_view : public view_interface<concat_view<Views...>> {
             default;
 
         template <class... Args>
-        explicit iterator(ParentView* parent,
-                          Args&&... args) requires constructible_from<BaseIt, Args&&...>
+        explicit constexpr iterator(ParentView* parent,
+                                    Args&&... args) requires constructible_from<BaseIt, Args&&...>
             : parent_{parent}, it_{static_cast<Args&&>(args)...} {}
 
         constexpr iterator(iterator<!Const> i) requires Const &&
@@ -111,16 +129,30 @@ class concat_view : public view_interface<concat_view<Views...>> {
         }
 
         constexpr iterator& operator++() {
-            // TODO: implement this function
-            //  range-v3 variant has visit_i where the visitor has I at compile time
+            auto visitor = [this]<size_t N>(std::integral_constant<size_t, N>) {
+                ++std::get<N>(it_);
+                this->satisfy<N>();
+            };
+            xo::visit_i<sizeof...(Views) - 1>(it_.index(), visitor);
             return *this;
         }
 
         constexpr void operator++(int) { ++*this; }
+
         constexpr iterator operator++(int) requires xo::all_forward<Const, Views...> {
             auto tmp = *this;
             ++*this;
             return tmp;
+        }
+
+        friend constexpr bool operator==(const iterator& it1, const iterator& it2) requires(
+            equality_comparable<iterator_t<__maybe_const<Const, Views>>>&&...) {
+            return it1.it_ == it2.it_;
+        }
+
+        friend constexpr bool operator==(const iterator& it, const sentinel<Const>& st) {
+            return it.it_.index() == sizeof...(Views) - 1 &&
+                   std::get<sizeof...(Views) - 1>(it.it_) == st.last_;
         }
     };
 
@@ -161,10 +193,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
     }
 
     constexpr iterator<true> begin() const
-        requires((range<const Views> && ...) &&
-                 (convertible_to<range_reference_t<const Views>,
-                                 common_reference_t<range_reference_t<const Views>...>> &&
-                  ...)) {
+        requires((range<const Views> && ...) && xo::concatable<const Views...>) {
         iterator<true> it{this, in_place_index<0u>, ranges::begin(get<0>(views_))};
         it.template satisfy<0>();
         return it;

@@ -4,6 +4,8 @@
 #include <vector>
 #include <functional>
 #include <memory>
+#include <numeric>
+
 #define TEST_POINT(x) TEST_CASE(x, "[basics]")
 
 namespace {
@@ -114,6 +116,68 @@ TEST_POINT("end_basic_common_range") {
     auto it2 = std::as_const(cv).begin();
     auto st2 = std::as_const(cv).end();
     static_assert(std::same_as<decltype(it2), decltype(st2)>);
+}
+
+TEST_POINT("operator++") {
+    using V = std::vector<int>;
+    V v1{}, v2{4, 5}, v3{} ,v4{6};
+    std::ranges::concat_view cv{v1, v2, v3, v4};
+    auto it = cv.begin();
+    auto st = cv.end();
+
+    REQUIRE(*it == 4);
+    ++it;
+    REQUIRE(*it == 5);
+    ++it;
+    REQUIRE(*it == 6);
+    ++it;
+    REQUIRE(it == st);
+}
+
+TEST_POINT("compare with unreachable sentinel"){
+    std::vector v{1};
+    std::ranges::concat_view cv{v, std::views::iota(0)};
+    auto it = std::ranges::begin(cv);
+    auto st = std::ranges::end(cv);
+    REQUIRE(it!=st);
+
+    ++it;
+    REQUIRE(it!=st);
+
+    ++it;
+    REQUIRE(it!=st);
+
+    ++it;
+    REQUIRE(it!=st);
+}
+
+
+TEST_POINT("compare with reachable sentinel"){
+    std::vector v{1};
+    std::ranges::concat_view cv{v, std::ranges::iota_view<int, size_t>(0, 2)};
+
+    auto it = std::ranges::begin(cv);
+    auto st = std::ranges::end(cv);
+    REQUIRE(it!=st);
+
+    ++it;
+    REQUIRE(it!=st);
+
+    ++it;
+    REQUIRE(it!=st);
+
+    ++it;
+    REQUIRE(it==st);
+}
+
+constexpr int constexp_test(){
+    std::ranges::concat_view cv{std::views::iota(0,5), std::views::iota(3,7)};
+    return std::accumulate(cv.begin(), cv.end(), 0);
+}
+
+TEST_POINT("constexpr") {
+    // Question: in libcxx, std::variant is not constexpr yet. can you try msvc stl to compile the following line?
+    //static_assert(constexp_test()==28);
 }
 
 TEST_POINT("Sentinel") {
