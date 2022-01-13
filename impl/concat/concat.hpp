@@ -95,6 +95,10 @@ class concat_view : public view_interface<concat_view<Views...>> {
             }
         }
 
+        static constexpr decltype(auto) get_last(sentinel<Const> const& s) noexcept {
+            return s.last_;
+        }
+
       public:
         // [TODO] range-v3 has pointed out that rvalue_reference is a problem
         using reference = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
@@ -151,7 +155,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
 
         friend constexpr bool operator==(const iterator& it, const sentinel<Const>& st) {
             return it.it_.index() == sizeof...(Views) - 1 &&
-                   std::get<sizeof...(Views) - 1>(it.it_) == st.last_;
+                   std::get<sizeof...(Views) - 1>(it.it_) == get_last(st);
         }
     };
 
@@ -170,7 +174,6 @@ class concat_view : public view_interface<concat_view<Views...>> {
         constexpr explicit sentinel(LastSentinel s)
             : last_{std::move(s)} {}
 
-        // what is this for?
         constexpr sentinel(sentinel<!Const> s) requires Const &&
             (convertible_to<sentinel_t<xo::back<Views...>>, LastSentinel>)
             : last_{std::move(s.last_)} {}
