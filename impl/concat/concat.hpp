@@ -46,6 +46,9 @@ concept concatable =
 
 template <size_t N, typename F>
 constexpr auto visit_i(size_t idx, F&& f) {
+    // TODO: this implementation doesn't handle the case where variant is in a valueless state.
+    // perhaps we don't need to show this implementation anyway. just say
+    //  std::get<it_.index()>(...) although it is not valid expression, but it shows up in variant's cppreference
     if (idx == N) {
         return static_cast<F&&>(f)(std::integral_constant<size_t, N>{});
     } else {
@@ -253,7 +256,7 @@ class concat_fn {
     }
 
     template <input_range... V>
-    requires(sizeof...(V) > 1) && ranges::xo::concatable<V...> &&
+    requires(sizeof...(V) > 1) && ranges::xo::concatable<V...> && // question: should this be ranges::xo::concatable<all_t<V&&>...> to match the implementation?
         (viewable_range<V> && ...) //
         constexpr auto
         operator()(V&&... v) const { // noexcept(noexcept(concat_view{static_cast<V&&>(v)...})) {

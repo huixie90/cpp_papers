@@ -38,7 +38,7 @@ static_assert(std::movable<MoveOnly>);
 static_assert(!std::copyable<MoveOnly>);
 
 struct BigCopyable {
-    int bigdata;
+    int bigdata[1024];
 };
 
 
@@ -89,7 +89,7 @@ TEST_POINT("concept") {
 
     // common_reference_t is valid. but it is a prvalue which the 2nd range (lvalue ref) can not
     // assign to (needs copyable).
-    // STATIC_CHECK(!concat_viewable<make_view_of<MoveOnly>, make_view_of<MoveOnly&>>);
+    STATIC_CHECK(!concat_viewable<make_view_of<MoveOnly>, make_view_of<MoveOnly&>>);
 
     // Flag:
     STATIC_CHECK(!concat_viewable<BarV&, QuxV&, FooV&>);
