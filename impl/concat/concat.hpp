@@ -17,7 +17,7 @@ template <bool Const, class... Views>
 concept all_random_access = (random_access_range<__maybe_const<Const, Views>> && ...);
 
 template <bool Const, class... Views>
-concept all_bidirectional = (bidirectional_range<__maybe_const<Const, Views>> && ...);
+concept concat_bidirectional = (bidirectional_range<__maybe_const<Const, Views>> && ...);
 
 template <bool Const, class... Views>
 concept all_forward = (forward_range<__maybe_const<Const, Views>> && ...);
@@ -26,7 +26,7 @@ template <bool Const, typename... Views>
 constexpr auto iterator_concept_test() {
     if constexpr (all_random_access<Const, Views...>) {
         return random_access_iterator_tag{};
-    } else if constexpr (all_bidirectional<Const, Views...>) {
+    } else if constexpr (concat_bidirectional<Const, Views...>) {
         return bidirectional_iterator_tag{};
     } else if constexpr (all_forward<Const, Views...>) {
         return forward_iterator_tag{};
@@ -68,7 +68,7 @@ template <input_range... Views>
     requires (view<Views>&&...) && (sizeof...(Views) > 1) && xo::concatable<Views...>  
 class concat_view : public view_interface<concat_view<Views...>> {
     // clang-format on
-    tuple<Views...> views_; // exposition only
+    tuple<Views...> views_ = tuple<Views...>(); // exposition only
 
     template <bool Const>
     class sentinel;
@@ -133,6 +133,12 @@ class concat_view : public view_interface<concat_view<Views...>> {
         }
 
         constexpr iterator& operator++() {
+            /*
+             * in the spec, we can potentially say
+             * ++std::get<i>(it_);
+             * this->satisfy<i>();  
+             * where i equals it_.index()
+             */
             auto visitor = [this]<size_t N>(std::integral_constant<size_t, N>) {
                 ++std::get<N>(it_);
                 this->satisfy<N>();
@@ -148,6 +154,17 @@ class concat_view : public view_interface<concat_view<Views...>> {
             ++*this;
             return tmp;
         }
+
+        constexpr iterator& operator--() requires xo::concat_bidirectional<Const, Views...>{
+
+        }
+
+        constexpr iterator operator--(int) requires xo::concat_bidirectional<Const, Views...> {
+            auto tmp = *this;
+            --*this;
+            return tmp;
+        }
+
 
         friend constexpr bool operator==(const iterator& it1, const iterator& it2) requires(
             equality_comparable<iterator_t<__maybe_const<Const, Views>>>&&...) {
@@ -260,8 +277,11 @@ class concat_fn {
     }
 
     template <input_range... V>
-    requires(sizeof...(V) > 1) && ranges::xo::concatable<V...> &&
-        (viewable_range<V> && ...) //
+    requires(sizeof...(V) > 1) &&
+        ranges::xo::concatable<V...> && // question: should this be
+                                        // ranges::xo::concatable<all_t<V&&>...>
+                                        // to match the implementation?
+        (viewable_range<V>&&...)        //
         constexpr auto
         operator()(V&&... v) const { // noexcept(noexcept(concat_view{static_cast<V&&>(v)...})) {
         return concat_view{static_cast<V&&>(v)...};
