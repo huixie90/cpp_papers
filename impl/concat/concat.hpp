@@ -13,14 +13,30 @@ namespace std::ranges {
 
 namespace xo { // exposition only things (and persevering face)
 
+template <size_t N, typename... T>
+using Nth = tuple_element_t<N, tuple<T...>>;
+
+template <typename... T>
+using back = Nth<sizeof...(T) - 1, T...>;
+
+
 template <bool Const, class... Views>
 concept all_random_access = (random_access_range<__maybe_const<Const, Views>> && ...);
 
-template <class... Views>
-concept concat_can_prev = ((bidirectional_range<Views> &&
-                            (common_range<Views> ||
-                             (random_access_range<Views> && sized_range<Views>))) &&
-                           ...);
+
+template <bool... b, size_t... I>
+consteval bool all_but_last(std::index_sequence<I...>) {
+    return ((I == sizeof...(I) - 1 || b) && ...);
+}
+
+template <class R>
+concept cheaply_reversible = (bidirectional_range<R> && common_range<R>) ||
+                             (sized_range<R> && random_access_range<R>);
+
+template <class... V>
+concept concat_can_prev = all_but_last<cheaply_reversible<V>...>(index_sequence_for<V...>{}) &&
+    bidirectional_range<back<V...>>;
+
 
 template <bool Const, class... Views>
 concept concat_bidirectional = concat_can_prev<__maybe_const<Const, Views>...>;
@@ -41,12 +57,6 @@ constexpr auto iterator_concept_test() {
     }
 }
 
-
-template <size_t N, typename... T>
-using Nth = tuple_element_t<N, tuple<T...>>;
-
-template <typename... T>
-using back = tuple_element_t<sizeof...(T) - 1, tuple<T...>>;
 
 
 template <typename... T>

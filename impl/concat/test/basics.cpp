@@ -166,6 +166,7 @@ TEST_POINT("compare with unreachable sentinel") {
 }
 
 
+
 TEST_POINT("compare with reachable sentinel") {
     std::vector v{1};
     std::ranges::concat_view cv{v, std::ranges::iota_view<int, size_t>(0, 2)};
@@ -198,11 +199,13 @@ TEST_POINT("constexpr") {
 template <typename... Ts>
 using concat_view_of = decltype(std::ranges::concat_view{std::declval<Ts&&>()...});
 
+
+
 TEST_POINT("bidirectional_concept") {
     using namespace std::ranges;
     using IntV = std::vector<int>;
-    STATIC_CHECK(bidirectional_range<concat_view_of<IntV&, IntV&>>);
 
+    STATIC_CHECK(bidirectional_range<concat_view_of<IntV&, IntV&>>);
     STATIC_CHECK(bidirectional_range<concat_view_of<iota_view<int, int>, IntV&>>); // because
     STATIC_REQUIRE(bidirectional_range<iota_view<int, int>>);
     STATIC_REQUIRE(common_range<iota_view<int, int>>);
@@ -218,6 +221,19 @@ TEST_POINT("bidirectional_concept") {
     STATIC_REQUIRE(!common_range<iota_view<int>>);
     STATIC_REQUIRE(random_access_range<iota_view<int>>);
     STATIC_REQUIRE(!sized_range<iota_view<int>>);
+
+    // some ranges to play around with
+    std::vector<int> v1, v2;
+    std::list<int> l1;
+    auto nonCommonBidirRange = l1 | views::take(2);
+
+    static_assert(!common_range<decltype(nonCommonBidirRange)>);
+    static_assert(bidirectional_range<decltype(nonCommonBidirRange)>);
+    STATIC_REQUIRE(xo::cheaply_reversible<decltype(v1)>);                   // random
+    STATIC_REQUIRE(xo::cheaply_reversible<decltype(l1)>);                   // common
+    STATIC_REQUIRE(!xo::cheaply_reversible<decltype(nonCommonBidirRange)>); // bidir only
+
+    STATIC_CHECK(bidirectional_range<decltype(views::concat(v1, nonCommonBidirRange))>);
 }
 
 TEST_POINT("bidirectional_common") {
