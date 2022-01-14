@@ -264,12 +264,12 @@ TEST_POINT("bidirectional_common") {
 }
 
 
-TEST_POINT("bidirectional_noncommon_random_access_sized") {
-    std::vector<int> v1{1};
-    std::ranges::empty_view<int> e2{};
-    std::ranges::iota_view<int, size_t> i3{0, 0};
-    std::ranges::iota_view<int, size_t> i4{2, 4};
-    auto cv = std::views::concat(v1, e2, i3, i4);
+TEST_POINT("bidirectional_last_range_not_cheaply_reverse") {
+
+    std::list<int> l1{1,2};
+    auto nonCommonBidirRange = std::ranges::take_view(l1, 1);
+
+    auto cv = std::views::concat(l1, nonCommonBidirRange);
 
     auto it = std::ranges::begin(cv);
     REQUIRE(*it == 1);
@@ -278,13 +278,13 @@ TEST_POINT("bidirectional_noncommon_random_access_sized") {
     REQUIRE(*it == 2);
 
     ++it;
-    REQUIRE(*it == 3);
+    REQUIRE(*it == 1);
 
     ++it;
     REQUIRE(it == std::ranges::end(cv));
 
     --it;
-    REQUIRE(*it == 3);
+    REQUIRE(*it == 1);
 
     --it;
     REQUIRE(*it == 2);

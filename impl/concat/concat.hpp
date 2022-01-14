@@ -133,7 +133,8 @@ class concat_view : public view_interface<concat_view<Views...>> {
             }
         }
 
-        decltype(auto) get_parent_views() const { return parent_->views_; }
+        // We can skip this in the spec, as I checked other views assumed the friend access
+        decltype(auto) get_parent_views() const { return (parent_->views_); }
 
       public:
         // [TODO] range-v3 has pointed out that rvalue_reference is a problem
