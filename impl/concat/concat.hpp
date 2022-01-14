@@ -16,8 +16,14 @@ namespace xo { // exposition only things (and persevering face)
 template <bool Const, class... Views>
 concept all_random_access = (random_access_range<__maybe_const<Const, Views>> && ...);
 
+template <class... Views>
+concept concat_can_prev = ((bidirectional_range<Views> &&
+                            (common_range<Views> ||
+                             (random_access_range<Views> && sized_range<Views>))) &&
+                           ...);
+
 template <bool Const, class... Views>
-concept concat_bidirectional = (bidirectional_range<__maybe_const<Const, Views>> && ...);
+concept concat_bidirectional = concat_can_prev<__maybe_const<Const, Views>...>;
 
 template <bool Const, class... Views>
 concept all_forward = (forward_range<__maybe_const<Const, Views>> && ...);
@@ -35,6 +41,10 @@ constexpr auto iterator_concept_test() {
     }
 }
 
+
+template <size_t N, typename... T>
+using Nth = tuple_element_t<N, tuple<T...>>;
+
 template <typename... T>
 using back = tuple_element_t<sizeof...(T) - 1, tuple<T...>>;
 
@@ -46,12 +56,8 @@ concept concatable =
 
 template <size_t N, typename F>
 constexpr auto visit_i(size_t idx, F&& f) {
-    // TODO: this implementation doesn't handle the case where variant is in a valueless state.
-    // perhaps we don't need to show this implementation anyway. just say
-    //  std::get<it_.index()>(...) although it is not valid expression, but it shows up in variant's
-    //  cppreference
     if (idx == N) {
-        return static_cast<F&&>(f)(std::integral_constant<size_t, N>{});
+        return static_cast<F&&>(f)(integral_constant<size_t, N>{});
     } else {
         if constexpr (N != 0) {
             return visit_i<N - 1>(idx, static_cast<F&&>(f));
@@ -93,6 +99,30 @@ class concat_view : public view_interface<concat_view<Views...>> {
             }
         }
 
+        template <std::size_t N>
+        constexpr void prev() {
+            if constexpr (N == 0) {
+                --get<0>(it_);
+            } else {
+                if (get<N>(it_) == ranges::begin(get<N>(parent_->views_))) {
+                    // we are at the position Nth range's begin, by doing -- we are going to
+                    // N-1th range's end-1
+                    using prev_view = __maybe_const<Const, xo::Nth<N - 1, Views...>>;
+                    if constexpr (common_range<prev_view>) {
+                        it_.template emplace<N - 1>(ranges::end(get<N - 1>(parent_->views_)));
+                    } else {
+                        static_assert(random_access_range<prev_view> && sized_range<prev_view>);
+                        it_.template emplace<N - 1>(
+                            ranges::next(ranges::begin(get<N - 1>(parent_->views_)),
+                                         ranges::size(get<N - 1>(parent_->views_))));
+                    }
+                    this->prev<N - 1>();
+                } else {
+                    --get<N>(it_);
+                }
+            }
+        }
+
       public:
         // [TODO] range-v3 has pointed out that rvalue_reference is a problem
         using reference = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
@@ -127,13 +157,14 @@ class concat_view : public view_interface<concat_view<Views...>> {
 
         constexpr iterator& operator++() {
             /*
-             * in the spec, we can potentially say
-             * ++std::get<i>(it_);
-             * this->satisfy<i>();
-             * where i equals it_.index()
+             * in the spec, we can say
+             * ++get<I>(it_);
+             * this->satisfy<I>();
+             * return *this;
+             * where I equals to it_.index()
              */
-            auto visitor = [this]<size_t N>(std::integral_constant<size_t, N>) {
-                ++std::get<N>(it_);
+            auto visitor = [this]<size_t N>(integral_constant<size_t, N>) {
+                ++get<N>(it_);
                 this->satisfy<N>();
             };
             xo::visit_i<sizeof...(Views) - 1>(it_.index(), visitor);
@@ -148,7 +179,17 @@ class concat_view : public view_interface<concat_view<Views...>> {
             return tmp;
         }
 
-        constexpr iterator& operator--() requires xo::concat_bidirectional<Const, Views...> {}
+        constexpr iterator& operator--() requires xo::concat_bidirectional<Const, Views...> {
+            /*
+             * in the spec, we can say
+             * this->prev<I>();
+             * return *this;
+             * where I equals to it_.index()
+             */
+            auto visitor = [this]<size_t N>(integral_constant<size_t, N>) { this->prev<N>(); };
+            xo::visit_i<sizeof...(Views) - 1>(it_.index(), visitor);
+            return *this;
+        }
 
         constexpr iterator operator--(int) requires xo::concat_bidirectional<Const, Views...> {
             auto tmp = *this;

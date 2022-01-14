@@ -195,6 +195,88 @@ TEST_POINT("constexpr") {
     // static_assert(constexp_test()==28);
 }
 
+template <typename... Ts>
+using concat_view_of = decltype(std::ranges::concat_view{std::declval<Ts&&>()...});
+
+TEST_POINT("bidirectional_concept") {
+    using namespace std::ranges;
+    using IntV = std::vector<int>;
+    STATIC_CHECK(bidirectional_range<concat_view_of<IntV&, IntV&>>);
+
+    STATIC_CHECK(bidirectional_range<concat_view_of<iota_view<int, int>, IntV&>>); // because
+    STATIC_REQUIRE(bidirectional_range<iota_view<int, int>>);
+    STATIC_REQUIRE(common_range<iota_view<int, int>>);
+
+    STATIC_CHECK(bidirectional_range<concat_view_of<iota_view<int, size_t>, IntV&>>); // because
+    STATIC_REQUIRE(bidirectional_range<iota_view<int, size_t>>);
+    STATIC_REQUIRE(!common_range<iota_view<int, size_t>>);
+    STATIC_REQUIRE(random_access_range<iota_view<int, size_t>>);
+    STATIC_REQUIRE(sized_range<iota_view<int, size_t>>);
+
+    STATIC_CHECK(!bidirectional_range<concat_view_of<iota_view<int>, IntV&>>); // because
+    STATIC_REQUIRE(bidirectional_range<iota_view<int>>);
+    STATIC_REQUIRE(!common_range<iota_view<int>>);
+    STATIC_REQUIRE(random_access_range<iota_view<int>>);
+    STATIC_REQUIRE(!sized_range<iota_view<int>>);
+}
+
+TEST_POINT("bidirectional_common") {
+    std::vector<int> v1{1}, v2{}, v3{};
+    std::list<int> l4{2, 3};
+    auto cv = std::views::concat(v1, v2, v3, l4);
+
+    auto it = std::ranges::begin(cv);
+    REQUIRE(*it == 1);
+
+    ++it;
+    REQUIRE(*it == 2);
+
+    ++it;
+    REQUIRE(*it == 3);
+
+    ++it;
+    REQUIRE(it == std::ranges::end(cv));
+
+    --it;
+    REQUIRE(*it == 3);
+
+    --it;
+    REQUIRE(*it == 2);
+
+    --it;
+    REQUIRE(*it == 1);
+}
+
+
+TEST_POINT("bidirectional_noncommon_random_access_sized") {
+    std::vector<int> v1{1};
+    std::ranges::empty_view<int> e2{};
+    std::ranges::iota_view<int, size_t> i3{0, 0};
+    std::ranges::iota_view<int, size_t> i4{2, 4};
+    auto cv = std::views::concat(v1, e2, i3, i4);
+
+    auto it = std::ranges::begin(cv);
+    REQUIRE(*it == 1);
+
+    ++it;
+    REQUIRE(*it == 2);
+
+    ++it;
+    REQUIRE(*it == 3);
+
+    ++it;
+    REQUIRE(it == std::ranges::end(cv));
+
+    --it;
+    REQUIRE(*it == 3);
+
+    --it;
+    REQUIRE(*it == 2);
+
+    --it;
+    REQUIRE(*it == 1);
+}
+
 TEST_POINT("Sentinel") {
     // using V = std::vector<int>;
     // using W = std::list<int>;
