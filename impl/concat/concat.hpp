@@ -123,6 +123,8 @@ class concat_view : public view_interface<concat_view<Views...>> {
             }
         }
 
+        decltype(auto) get_parent_views() const { return parent_->views_; }
+
       public:
         // [TODO] range-v3 has pointed out that rvalue_reference is a problem
         using reference = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
@@ -206,7 +208,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
         friend constexpr bool operator==(const iterator& it, const default_sentinel_t&) {
             constexpr auto LastIdx = sizeof...(Views) - 1;
             return it.it_.index() == LastIdx &&
-                   get<LastIdx>(it.it_) == ranges::end(get<LastIdx>(it.parent_->views_));
+                   get<LastIdx>(it.it_) == ranges::end(get<LastIdx>(it.get_parent_views()));
         }
     };
 
