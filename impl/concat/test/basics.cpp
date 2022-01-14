@@ -225,7 +225,7 @@ TEST_POINT("bidirectional_concept") {
     // some ranges to play around with
     std::vector<int> v1, v2;
     std::list<int> l1;
-    auto nonCommonBidirRange = l1 | views::take(2);
+    auto nonCommonBidirRange = take_view(l1, 2);
 
     static_assert(!common_range<decltype(nonCommonBidirRange)>);
     static_assert(bidirectional_range<decltype(nonCommonBidirRange)>);
