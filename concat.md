@@ -17,26 +17,27 @@ This is the initial revision.
 
 # Abstract
 
-This paper proposes the range adaptor `views::concat` as very briefly introduced in [@P2214R1] Section 4.7. It is an adaptor that takes an arbitrary number of ranges as an argument list, and provides a view that starts at the first element of the first range, ends at the last element of the last range, with all range elements sequenced in between respectively in the order given in the arguments, effectively concatenating, or chaining together the argument ranges.
+This paper proposes the range adaptor `views::concat` as very briefly introduced in [@P2214R1] Section 4.7. It is a view factory that takes an arbitrary number of ranges as an argument list, and provides a view that starts at the first element of the first range, ends at the last element of the last range, with all range elements sequenced in between respectively in the order given in the arguments, effectively concatenating, or chaining together the argument ranges.
 
 # Example
 
 ```cpp
 std::vector v1{1,2,3}, v2{4,5}, v3{};
 std::array  a{6,7,8};
-fmt::print("{}\n", v | std::views::concat(v1, v2, v3, a)); // [1,2,3,4,5,6,7,8]
+auto s = std::views::single(9);
+fmt::print("{}\n", std::views::concat(v1, v2, v3, a, s)); // [1,2,3,4,5,6,7,8,9]
 ```
 
 # Design
 
-This adaptor is a generator factory as described in [@P2214R1] Section 4.7. As such, it can not be piped to. It takes the list of ranges to concatenate as arguments to `ranges::concat_view` constructor, or to `ranges::views::concat` range adaptor object.
+This is a generator factory as described in [@P2214R1] Section 4.7. As such, it can not be piped to. It takes the list of ranges to concatenate as arguments to `ranges::concat_view` constructor, or to `ranges::views::concat` customization point object.
 
 ## Constrain on concatability
 
 TODO:
 
 - explain how this is an improvement over range-v3
-- see if we can fix or somehow address that `common_reference_t` isn't a perfect solution, and misses some interesting cases. E.g.  `concat( b, d1, d2 )` works but `concat(d1,d2,b)` does not, where `D1` and `D2` are subclasses of `B`, but obviously `B&` would be a valid `reference_t` of the `concat_view`.
+- see if we can fix or somehow address that `common_reference_t` isn't a perfect solution, and misses some interesting cases. E.g.  `concat( b, d1, d2 )` works but `concat(d1,d2,b)` does not, where `D1` and `D2` are subclasses of `B`, but obviously `B&` would be a valid `reference_t` of the `concat_view`. (This can leads to long discussion with no conclusion, what about move this bullet point after the "Wording" section)
 
 ## Zero or one view
 
@@ -50,15 +51,20 @@ A `concat` view can be designed to be a borrowed range, if all underlying ranges
 
 ## Common Range
 
-TODO:
-
-- explain only the last range needs to be common
+`concat_view` can be `common_range` if the last underlying range models `common_range`
 
 ## Bidirectional Range
 
-TODO:
+`concat_view` can be `bidirectional_range` if the underlying ranges satisfy the following conditions:
 
-- figure out if all ranges need to be bidirectional
+- Every underlying range models `bidirectional_range`  
+- If the iterator is at nth range's begin position, after `operator--` it should go to (n-1)th's range's end-1 position. This means, the (n-1)th range has to support either
+  - `common_range && bidirectional_range`, so the position can be reached by `--ranges::end(n-1th range)`, assuming n-1th range is not empty.
+  - `random_access_range && sized_range`, so the position can be reached by `ranges::begin(n-1th range) + (ranges::size(n-1th range) - 1)` in constant time, assuming n-1th range is not empty.
+  
+  Note that the last underlying range does not have to satisfy this constraint because n-1 can never be the last underlying range. If neither of the two constraints is satisfied, in theory we can cache the end-1 position for every single underlying range inside the `concat_view` itself. But the authors do not consider this type of ranges as worth supporting bidirectional
+
+In the `cancat` implementation in [@rangev3], `operator--` is only constrained on all underlying ranges being `bidirectional_range` on the declaration, but its implementation is using `ranges::next(ranges::begin(r), ranges::end(r))` which implicitly requires random access to make the operation constant time. So it went with the second constraint. In this paper, both are supported.
 
 ## Random Access Range
 
@@ -68,9 +74,7 @@ TODO:
 
 ## Sized Range
 
-TODO:
-
-- explain all views need to be sized
+`concat_view` can be `sized_range` if all the underlying ranges model `sized_range`
 
 ## Implementation experience
 

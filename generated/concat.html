@@ -476,18 +476,19 @@ code.sourceCode > span { display: inline; }
 <h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
 <p>This is the initial revision.</p>
 <h1 data-number="2" id="abstract"><span class="header-section-number">2</span> Abstract<a href="#abstract" class="self-link"></a></h1>
-<p>This paper proposes the range adaptor <code class="sourceCode default">views::concat</code> as very briefly introduced in <span class="citation" data-cites="P2214R1">[<a href="#ref-P2214R1" role="doc-biblioref">P2214R1</a>]</span> Section 4.7. It is an adaptor that takes an arbitrary number of ranges as an argument list, and provides a view that starts at the first element of the first range, ends at the last element of the last range, with all range elements sequenced in between respectively in the order given in the arguments, effectively concatenating, or chaining together the argument ranges.</p>
+<p>This paper proposes the range adaptor <code class="sourceCode default">views::concat</code> as very briefly introduced in <span class="citation" data-cites="P2214R1">[<a href="#ref-P2214R1" role="doc-biblioref">P2214R1</a>]</span> Section 4.7. It is a view factory that takes an arbitrary number of ranges as an argument list, and provides a view that starts at the first element of the first range, ends at the last element of the last range, with all range elements sequenced in between respectively in the order given in the arguments, effectively concatenating, or chaining together the argument ranges.</p>
 <h1 data-number="3" id="example"><span class="header-section-number">3</span> Example<a href="#example" class="self-link"></a></h1>
 <div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1"></a>std<span class="op">::</span>vector v1<span class="op">{</span><span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span><span class="op">}</span>, v2<span class="op">{</span><span class="dv">4</span>,<span class="dv">5</span><span class="op">}</span>, v3<span class="op">{}</span>;</span>
 <span id="cb1-2"><a href="#cb1-2"></a>std<span class="op">::</span>array  a<span class="op">{</span><span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">8</span><span class="op">}</span>;</span>
-<span id="cb1-3"><a href="#cb1-3"></a>fmt<span class="op">::</span>print<span class="op">(</span><span class="st">&quot;{}</span><span class="sc">\n</span><span class="st">&quot;</span>, v <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>concat<span class="op">(</span>v1, v2, v3, a<span class="op">))</span>; <span class="co">// [1,2,3,4,5,6,7,8]</span></span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3"></a><span class="kw">auto</span> s <span class="op">=</span> std<span class="op">::</span>views<span class="op">::</span>single<span class="op">(</span><span class="dv">9</span><span class="op">)</span>;</span>
+<span id="cb1-4"><a href="#cb1-4"></a>fmt<span class="op">::</span>print<span class="op">(</span><span class="st">&quot;{}</span><span class="sc">\n</span><span class="st">&quot;</span>, std<span class="op">::</span>views<span class="op">::</span>concat<span class="op">(</span>v1, v2, v3, a, s<span class="op">))</span>; <span class="co">// [1,2,3,4,5,6,7,8,9]</span></span></code></pre></div>
 <h1 data-number="4" id="design"><span class="header-section-number">4</span> Design<a href="#design" class="self-link"></a></h1>
-<p>This adaptor is a generator factory as described in <span class="citation" data-cites="P2214R1">[<a href="#ref-P2214R1" role="doc-biblioref">P2214R1</a>]</span> Section 4.7. As such, it can not be piped to. It takes the list of ranges to concatenate as arguments to <code class="sourceCode default">ranges::concat_view</code> constructor, or to <code class="sourceCode default">ranges::views::concat</code> range adaptor object.</p>
+<p>This is a generator factory as described in <span class="citation" data-cites="P2214R1">[<a href="#ref-P2214R1" role="doc-biblioref">P2214R1</a>]</span> Section 4.7. As such, it can not be piped to. It takes the list of ranges to concatenate as arguments to <code class="sourceCode default">ranges::concat_view</code> constructor, or to <code class="sourceCode default">ranges::views::concat</code> customization point object.</p>
 <h2 data-number="4.1" id="constrain-on-concatability"><span class="header-section-number">4.1</span> Constrain on concatability<a href="#constrain-on-concatability" class="self-link"></a></h2>
 <p>TODO:</p>
 <ul>
 <li>explain how this is an improvement over range-v3</li>
-<li>see if we can fix or somehow address that <code class="sourceCode default">common_reference_t</code> isn’t a perfect solution, and misses some interesting cases. E.g. <code class="sourceCode default">concat( b, d1, d2 )</code> works but <code class="sourceCode default">concat(d1,d2,b)</code> does not, where <code class="sourceCode default">D1</code> and <code class="sourceCode default">D2</code> are subclasses of <code class="sourceCode default">B</code>, but obviously <code class="sourceCode default">B&amp;</code> would be a valid <code class="sourceCode default">reference_t</code> of the <code class="sourceCode default">concat_view</code>.</li>
+<li>see if we can fix or somehow address that <code class="sourceCode default">common_reference_t</code> isn’t a perfect solution, and misses some interesting cases. E.g. <code class="sourceCode default">concat( b, d1, d2 )</code> works but <code class="sourceCode default">concat(d1,d2,b)</code> does not, where <code class="sourceCode default">D1</code> and <code class="sourceCode default">D2</code> are subclasses of <code class="sourceCode default">B</code>, but obviously <code class="sourceCode default">B&amp;</code> would be a valid <code class="sourceCode default">reference_t</code> of the <code class="sourceCode default">concat_view</code>. (This can leads to long discussion with no conclusion, what about move this bullet point after the “Wording” section)</li>
 </ul>
 <h2 data-number="4.2" id="zero-or-one-view"><span class="header-section-number">4.2</span> Zero or one view<a href="#zero-or-one-view" class="self-link"></a></h2>
 <p>TODO:</p>
@@ -497,25 +498,27 @@ code.sourceCode > span { display: inline; }
 <h2 data-number="4.3" id="borrowed-vs-cheap-iterator"><span class="header-section-number">4.3</span> Borrowed vs Cheap Iterator<a href="#borrowed-vs-cheap-iterator" class="self-link"></a></h2>
 <p>A <code class="sourceCode default">concat</code> view can be designed to be a borrowed range, if all underlying ranges are. However, this requires the iterator implementation to contain a copy of all iterators and sentinels of all underlying ranges at all times (just like that of <code class="sourceCode default">views::zip</code> <span class="citation" data-cites="P2321R2">[<a href="#ref-P2321R2" role="doc-biblioref">P2321R2</a>]</span>). On the other hand, a cheaper implementation that simply refers to the parent view can be used to satisfy all of the proposed functionality, if it is permitted to be not borrowed. Experience shows the borrowed-ness of <code class="sourceCode default">concat</code> is not a major requirement, and the existing implementation in <span class="citation" data-cites="rangev3">[<a href="#ref-rangev3" role="doc-biblioref">range-v3</a>]</span> seems to have picked that latter alternative. We do so as such in this proposal.</p>
 <h2 data-number="4.4" id="common-range"><span class="header-section-number">4.4</span> Common Range<a href="#common-range" class="self-link"></a></h2>
-<p>TODO:</p>
-<ul>
-<li>explain only the last range needs to be common</li>
-</ul>
+<p><code class="sourceCode default">concat_view</code> can be <code class="sourceCode default">common_range</code> if the last underlying range models <code class="sourceCode default">common_range</code></p>
 <h2 data-number="4.5" id="bidirectional-range"><span class="header-section-number">4.5</span> Bidirectional Range<a href="#bidirectional-range" class="self-link"></a></h2>
-<p>TODO:</p>
+<p><code class="sourceCode default">concat_view</code> can be <code class="sourceCode default">bidirectional_range</code> if the underlying ranges satisfy the following conditions:</p>
 <ul>
-<li>figure out if all ranges need to be bidirectional</li>
+<li>Every underlying range models <code class="sourceCode default">bidirectional_range</code><br />
+</li>
+<li>If the iterator is at nth range’s begin position, after <code class="sourceCode default">operator--</code> it should go to (n-1)th’s range’s end-1 position. This means, the (n-1)th range has to support either
+<ul>
+<li><code class="sourceCode default">common_range &amp;&amp; bidirectional_range</code>, so the position can be reached by <code class="sourceCode default">--ranges::end(n-1th range)</code>, assuming n-1th range is not empty.</li>
+<li><code class="sourceCode default">random_access_range &amp;&amp; sized_range</code>, so the position can be reached by <code class="sourceCode default">ranges::begin(n-1th range) + (ranges::size(n-1th range) - 1)</code> in constant time, assuming n-1th range is not empty.</li>
 </ul>
+Note that the last underlying range does not have to satisfy this constraint because n-1 can never be the last underlying range. If neither of the two constraints is satisfied, in theory we can cache the end-1 position for every single underlying range inside the <code class="sourceCode default">concat_view</code> itself. But the authors do not consider this type of ranges as worth supporting bidirectional</li>
+</ul>
+<p>In the <code class="sourceCode default">cancat</code> implementation in <span class="citation" data-cites="rangev3">[<a href="#ref-rangev3" role="doc-biblioref">range-v3</a>]</span>, <code class="sourceCode default">operator--</code> is only constrained on all underlying ranges being <code class="sourceCode default">bidirectional_range</code> on the declaration, but its implementation is using <code class="sourceCode default">ranges::next(ranges::begin(r), ranges::end(r))</code> which implicitly requires random access to make the operation constant time. So it went with the second constraint. In this paper, both are supported.</p>
 <h2 data-number="4.6" id="random-access-range"><span class="header-section-number">4.6</span> Random Access Range<a href="#random-access-range" class="self-link"></a></h2>
 <p>TODO:</p>
 <ul>
 <li>figure out exact condition. my guess is it needs to be all_random_access &amp;&amp; (all_sized || all_common)</li>
 </ul>
 <h2 data-number="4.7" id="sized-range"><span class="header-section-number">4.7</span> Sized Range<a href="#sized-range" class="self-link"></a></h2>
-<p>TODO:</p>
-<ul>
-<li>explain all views need to be sized</li>
-</ul>
+<p><code class="sourceCode default">concat_view</code> can be <code class="sourceCode default">sized_range</code> if all the underlying ranges model <code class="sourceCode default">sized_range</code></p>
 <h2 data-number="4.8" id="implementation-experience"><span class="header-section-number">4.8</span> Implementation experience<a href="#implementation-experience" class="self-link"></a></h2>
 <p><code class="sourceCode default">views::concat</code> has been implemented in <span class="citation" data-cites="rangev3">[<a href="#ref-rangev3" role="doc-biblioref">range-v3</a>]</span>, with equivalent semantics as proposed here. We also have implemented a version that directly follows the proposed wording below without issue <span class="citation" data-cites="ours">[<a href="#ref-ours" role="doc-biblioref">ours</a>]</span>.</p>
 <h1 data-number="5" id="wording"><span class="header-section-number">5</span> Wording<a href="#wording" class="self-link"></a></h1>
