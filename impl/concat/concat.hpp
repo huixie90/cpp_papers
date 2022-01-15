@@ -210,16 +210,22 @@ class concat_view : public view_interface<concat_view<Views...>> {
         }
 
 
-    constexpr iterator& operator+=(difference_type x)
-      requires (cartesian-product-is-random-access<maybe-const<Const, First>,
-        maybe-const<Const, Vs>...>);
-    constexpr iterator& operator-=(difference_type x)
-      requires (cartesian-product-is-random-access<maybe-const<Const, First>,
-        maybe-const<Const, Vs>...>);
+        constexpr iterator& operator+=(difference_type) //
+            requires xo::concat_random_access<Const, Views...> {
+            // TODO: implement
+            return *this;
+        }
 
-    constexpr reference operator[](difference_type n) const
-      requires (cartesian-product-is-random-access<maybe-const<Const, First>,
-        maybe-const<Const, Vs>...>);
+        constexpr iterator& operator-=(difference_type n) //
+            requires xo::concat_random_access<Const, Views...> {
+            *this += -n;
+            return *this;
+        }
+
+        constexpr reference operator[](difference_type n) const //
+            requires xo::concat_random_access<Const, Views...> {
+            return *((*this) + n);
+        }
 
         friend constexpr bool operator==(const iterator& it1, const iterator& it2) requires(
             equality_comparable<iterator_t<__maybe_const<Const, Views>>>&&...) {
@@ -231,6 +237,51 @@ class concat_view : public view_interface<concat_view<Views...>> {
             return it.it_.index() == LastIdx &&
                    get<LastIdx>(it.it_) == ranges::end(get<LastIdx>(it.get_parent_views()));
         }
+
+        /*
+        TODO: implement
+
+        friend constexpr auto operator<(const iterator& x, const iterator& y)
+      requires (random_access_range<maybe-const<Const, First>> &&
+        ... && random_access_range<maybe-const<Const, Vs>>);
+    friend constexpr auto operator>(const iterator& x, const iterator& y)
+      requires (random_access_range<maybe-const<Const, First>> &&
+        ... && random_access_range<maybe-const<Const, Vs>>);
+    friend constexpr auto operator<=(const iterator& x, const iterator& y)
+      requires (random_access_range<maybe-const<Const, First>> &&
+        ... && random_access_range<maybe-const<Const, Vs>>);
+    friend constexpr auto operator>=(const iterator& x, const iterator& y)
+      requires (random_access_range<maybe-const<Const, First>> &&
+        ... && random_access_range<maybe-const<Const, Vs>>);
+
+    friend constexpr auto operator<=>(const iterator& x, const iterator& y)
+      requires ((random_access_range<maybe-const<Const, First>> &&
+        ... && random_access_range<maybe-const<Const, Vs>>) &&
+        (three_way_comparable<iterator_t<maybe-const<Const, First>>> &&
+        ... && three_way_comparable<iterator_t<maybe-const<Const, Vs>>>));
+
+    friend constexpr iterator operator+(const iterator& x, difference_type y)
+      requires (cartesian-product-is-random-access<maybe-const<Const, First>,
+        maybe-const<Const, Vs>...>);
+    friend constexpr iterator operator+(difference_type x, const iterator& y)
+      requires (cartesian-product-is-random-access<maybe-const<Const, First>,
+        maybe-const<Const, Vs>...>);
+    friend constexpr iterator operator-(const iterator& x, difference_type y)
+      requires (cartesian-product-is-random-access<maybe-const<Const, First>,
+        maybe-const<Const, Vs>...>);
+    friend constexpr difference_type operator-(const iterator& x, const iterator& y)
+      requires (sized_sentinel_for<iterator_t<maybe-const<Const, First>>,
+          maybe-const<Const, First>> &&
+        ... && sized_sentinel_for<iterator_t<maybe-const<Const, Vs>>,
+          maybe-const<Const, Vs>>);
+
+    friend constexpr operator-(iterator i, default_sentinel_t)
+      requires cartesian-sentinel-is-sized<Vs...>;
+    friend constexpr operator-(default_sentinel_t, iterator i)
+      requires cartesian-sentinel-is-sized<Vs...>;
+
+    friend constexpr auto iter_move(const iterator& i) noexcept(see below);
+        */
     };
 
 
