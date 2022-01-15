@@ -21,12 +21,89 @@ This paper proposes the range adaptor `views::concat` as very briefly introduced
 
 # Example
 
+::: cmptable
+
+## Before
+
+```cpp
+std::vector v1{1,2,3}, v2{4,5}, v3{};
+std::array  a{6,7,8};
+int s = 9;
+std::cout << std::format("[{:n}, {:n}, {:n}, {:n}, {}]\n", 
+                v1, v2, v3, a, s); 
+// output:  [1, 2, 3, 4, 5, , 6, 7, 8, 9]
+```
+
+## After
+
 ```cpp
 std::vector v1{1,2,3}, v2{4,5}, v3{};
 std::array  a{6,7,8};
 auto s = std::views::single(9);
-fmt::print("{}\n", std::views::concat(v1, v2, v3, a, s)); // [1,2,3,4,5,6,7,8,9]
+std::cout << std::format("{}\n", 
+                std::views::concat(v1, v2, v3, a, s)); 
+// output:  [1, 2, 3, 4, 5, 6, 7, 8, 9]
 ```
+
+---
+
+```cpp
+class Foo;
+
+class Bar{
+  const Foo& getFoo() const;
+};
+
+class MyClass{
+  Foo foo_;
+  std::vector<Bar> bars_;
+
+  auto getFoos () const{
+    std::vector<std::reference_wrapper<Foo const>> fooRefs{};
+    fooRefs.reserve(bars_.size() + 1);
+    fooRefs.push_back(std::cref(foo_));
+    std::ranges::transform(bars_, std::back_inserter(bars), 
+          [](const Bar& bar){
+            return std::cref(bar.getFoo());
+          });
+    return fooRefs;
+  }
+};
+
+// user
+// the following line erros because getFoos() is prvalue
+// for(const auto& foo: myClass.getFoos() | views::filter(pred))
+auto fooRefs = myClass.getFoos();
+for(const auto& foo: fooRefs | views::filter(pred)){
+  // use foo.get()
+}
+```
+
+```cpp
+class Foo;
+
+class Bar{
+  const Foo& getFoo() const;
+};
+
+class MyClass{
+  Foo foo_;
+  std::vector<Bar> bars_;
+
+  auto getFoos () const{
+    using views = std::views;
+    return views::concat(views::single(std::cref(foo_), 
+        bars_ | views::transform(&Bar::getFoo)));
+  }
+};
+
+// user
+for(const auto& foo: myClass.getFoos() | views::filter(pred)){
+  // use foo
+}
+```
+
+:::
 
 # Design
 
@@ -44,6 +121,8 @@ TODO:
 TODO:
 
 - explain zero is invalid and one can be `all_t`
+
+## Is `begin` Constant Time?
 
 ## Borrowed vs Cheap Iterator
 

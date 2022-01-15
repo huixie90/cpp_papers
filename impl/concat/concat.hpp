@@ -19,15 +19,14 @@ using Nth = tuple_element_t<N, tuple<T...>>;
 template <typename... T>
 using back = Nth<sizeof...(T) - 1, T...>;
 
-
-template <bool Const, class... Views>
-concept all_random_access = (random_access_range<__maybe_const<Const, Views>> && ...);
-
-
 template <bool... b, size_t... I>
 consteval bool all_but_last(std::index_sequence<I...>) {
     return ((I == sizeof...(I) - 1 || b) && ...);
 }
+
+
+template <bool Const, class... Views>
+concept concat_random_access = (random_access_range<__maybe_const<Const, Views>> && ...);
 
 template <class R>
 concept cheaply_reversible = (bidirectional_range<R> && common_range<R>) ||
@@ -46,7 +45,7 @@ concept all_forward = (forward_range<__maybe_const<Const, Views>> && ...);
 
 template <bool Const, typename... Views>
 constexpr auto iterator_concept_test() {
-    if constexpr (all_random_access<Const, Views...>) {
+    if constexpr (concat_random_access<Const, Views...>) {
         return random_access_iterator_tag{};
     } else if constexpr (concat_bidirectional<Const, Views...>) {
         return bidirectional_iterator_tag{};
@@ -210,6 +209,17 @@ class concat_view : public view_interface<concat_view<Views...>> {
             return tmp;
         }
 
+
+    constexpr iterator& operator+=(difference_type x)
+      requires (cartesian-product-is-random-access<maybe-const<Const, First>,
+        maybe-const<Const, Vs>...>);
+    constexpr iterator& operator-=(difference_type x)
+      requires (cartesian-product-is-random-access<maybe-const<Const, First>,
+        maybe-const<Const, Vs>...>);
+
+    constexpr reference operator[](difference_type n) const
+      requires (cartesian-product-is-random-access<maybe-const<Const, First>,
+        maybe-const<Const, Vs>...>);
 
         friend constexpr bool operator==(const iterator& it1, const iterator& it2) requires(
             equality_comparable<iterator_t<__maybe_const<Const, Views>>>&&...) {
