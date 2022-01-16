@@ -103,6 +103,43 @@ for(const auto& foo: myClass.getFoos() | views::filter(pred)){
 }
 ```
 
+---
+
+```cpp
+view auto in_edges(vertex auto const&, graph auto const&);
+view auto out_edges(vertex auto const&, graph auto const&);
+vertex auto const& source(edge auto const&, graph auto const&);
+vertex auto const& target(edge auto const&, graph auto const&);
+
+view auto adjacent_vertices(vertex auto const& v, dag auto const& g){
+  std::vector<std::reference_wrapper<const vertex_t<decltype(g)>>> v{};
+  v.reserve(in_degree(v,g) + out_degree(v,g));
+
+  std::ranges::transform(in_edges(v ,g), std::back_inserter(v),
+    [&g](edge auto const& e){return std::cref(source(e, g));});
+
+  std::ranges::transform(out_edges(v ,g), std::back_inserter(v),
+    [&g](edge auto const& e){return std::cref(target(e, g));});
+
+  return v; // error. vector is not a view
+}
+```
+
+```cpp
+view auto in_edges(vertex auto const&, graph auto const&);
+view auto out_edges(vertex auto const&, graph auto const&);
+vertex auto const& source(edge auto const&, graph auto const&);
+vertex auto const& target(edge auto const&, graph auto const&);
+
+view auto adjacent_vertices(vertex auto const& v, dag auto const& g){
+  using views = std::views;
+  return views::concat(
+    in_edges(v, g) | views::transform(bind_back(source, g)),
+    out_edges(v, g) | views::transform(bind_back(target, g))
+  );
+}
+```
+
 :::
 
 The first example shows that for a simple task like printing, doing it manually is error prone. The "Before" version manually concatinates all the ranges in a formatting string, but the result contains an extra comma and space because it doesn't handle the empty vector `v3` correctly. With `concat`, the user doesn't need to care about emptiness and simply uses the default range formatter to print.

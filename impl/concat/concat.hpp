@@ -3,6 +3,7 @@
 
 #include <concepts>
 #include <functional>
+#include <numeric>
 #include <ranges>
 #include <tuple>
 #include <variant>
@@ -26,7 +27,8 @@ consteval bool all_but_last(std::index_sequence<I...>) {
 
 
 template <bool Const, class... Views>
-concept concat_random_access = (random_access_range<__maybe_const<Const, Views>> && ...);
+concept concat_random_access = ((random_access_range<__maybe_const<Const, Views>> &&
+                                 sized_range<__maybe_const<Const, Views>>)&&...);
 
 template <class R>
 concept cheaply_reversible = (bidirectional_range<R> && common_range<R>) ||
@@ -70,6 +72,8 @@ constexpr auto visit_i(size_t idx, F&& f) {
     } else {
         if constexpr (N != 0) {
             return visit_i<N - 1>(idx, static_cast<F&&>(f));
+        } else {
+            return static_cast<F&&>(f)(integral_constant<size_t, 0>{});
         }
     }
 }
@@ -87,6 +91,20 @@ class concat_view : public view_interface<concat_view<Views...>> {
 
     template <bool Const>
     class iterator {
+      public:
+        // [TODO] range-v3 has pointed out that rvalue_reference is a problem
+        using reference = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
+        using difference_type = common_type_t<range_difference_t<__maybe_const<Const, Views>>...>;
+        using value_type = common_type_t<range_value_t<__maybe_const<Const, Views>>...>;
+        using iterator_concept = decltype(xo::iterator_concept_test<Const, Views...>());
+
+        /* [TODO]
+         * this one is tricky.
+         * it depends on the iterate_category of every base and also depends on if
+         * the common_reference_t<...> is actually a reference
+         */
+        // using iterator_category = ; // not always present.
+      private:
         // use of exposition only trait `maybe-const` defined in
         // http://eel.is/c++draft/ranges#syn
         using ParentView = __maybe_const<Const, concat_view>;
@@ -132,23 +150,42 @@ class concat_view : public view_interface<concat_view<Views...>> {
             }
         }
 
+        template <std::size_t N>
+        constexpr void advance_fwd(difference_type current_offset, difference_type steps) {
+            if constexpr (N == sizeof...(Views) - 1) {
+                get<N>(it_) += steps;
+            } else {
+                auto n_size = ranges::size(get<N>(parent_->views_));
+                if (current_offset + steps < static_cast<difference_type>(n_size)) {
+                    get<N>(it_) += steps;
+                } else {
+                    it_.template emplace<N + 1>(ranges::begin(get<N + 1>(parent_->views_)));
+                    advance_fwd<N + 1>(0, current_offset + steps - n_size);
+                }
+            }
+        }
+
+        template <std::size_t N>
+        constexpr void advance_bwd(difference_type current_offset, difference_type steps) {
+            if constexpr (N == 0) {
+                get<N>(it_) -= steps;
+            } else {
+                if (current_offset >= steps) {
+                    get<N>(it_) -= steps;
+                } else {
+                    it_.template emplace<N - 1>(ranges::begin(get<N - 1>(parent_->views_)) +
+                                                ranges::size(get<N - 1>(parent_->views_)));
+                    advance_bwd<N - 1>(
+                        static_cast<difference_type>(ranges::size(get<N - 1>(parent_->views_))),
+                        steps - current_offset);
+                }
+            }
+        }
+
         // We can skip this in the spec, as I checked other views assumed the friend access
         decltype(auto) get_parent_views() const { return (parent_->views_); }
 
       public:
-        // [TODO] range-v3 has pointed out that rvalue_reference is a problem
-        using reference = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
-        using difference_type = common_type_t<range_difference_t<__maybe_const<Const, Views>>...>;
-        using value_type = common_type_t<range_value_t<__maybe_const<Const, Views>>...>;
-        using iterator_concept = decltype(xo::iterator_concept_test<Const, Views...>());
-
-        /* [TODO]
-         * this one is tricky.
-         * it depends on the iterate_category of every base and also depends on if
-         * the common_reference_t<...> is actually a reference
-         */
-        // using iterator_category = ; // not always present.
-
         iterator() requires(default_initializable<iterator_t<__maybe_const<Const, Views>>>&&...) =
             default;
 
@@ -209,10 +246,19 @@ class concat_view : public view_interface<concat_view<Views...>> {
             return tmp;
         }
 
-
-        constexpr iterator& operator+=(difference_type) //
+        constexpr iterator& operator+=(difference_type n) //
             requires xo::concat_random_access<Const, Views...> {
-            // TODO: implement
+            if (n > 0) {
+                auto visitor = [this, n]<size_t N>(integral_constant<size_t, N>) {
+                    this->advance_fwd<N>(get<N>(it_) - ranges::begin(get<N>(parent_->views_)), n);
+                };
+                xo::visit_i<sizeof...(Views) - 1>(it_.index(), visitor);
+            } else if (n < 0) {
+                auto visitor = [this, n]<size_t N>(integral_constant<size_t, N>) {
+                    this->advance_bwd<N>(get<N>(it_) - ranges::begin(get<N>(parent_->views_)), -n);
+                };
+                xo::visit_i<sizeof...(Views) - 1>(it_.index(), visitor);
+            }
             return *this;
         }
 
@@ -238,49 +284,109 @@ class concat_view : public view_interface<concat_view<Views...>> {
                    get<LastIdx>(it.it_) == ranges::end(get<LastIdx>(it.get_parent_views()));
         }
 
-        /*
-        TODO: implement
+        friend constexpr auto operator<(const iterator& x, const iterator& y) requires(
+            random_access_range<__maybe_const<Const, Views>>&&...) {
+            return x.it_ < y.it_;
+        }
 
-        friend constexpr auto operator<(const iterator& x, const iterator& y)
-      requires (random_access_range<maybe-const<Const, First>> &&
-        ... && random_access_range<maybe-const<Const, Vs>>);
-    friend constexpr auto operator>(const iterator& x, const iterator& y)
-      requires (random_access_range<maybe-const<Const, First>> &&
-        ... && random_access_range<maybe-const<Const, Vs>>);
-    friend constexpr auto operator<=(const iterator& x, const iterator& y)
-      requires (random_access_range<maybe-const<Const, First>> &&
-        ... && random_access_range<maybe-const<Const, Vs>>);
-    friend constexpr auto operator>=(const iterator& x, const iterator& y)
-      requires (random_access_range<maybe-const<Const, First>> &&
-        ... && random_access_range<maybe-const<Const, Vs>>);
+        friend constexpr auto operator>(const iterator& x, const iterator& y) requires(
+            random_access_range<__maybe_const<Const, Views>>&&...) {
+            return y < x;
+        }
 
-    friend constexpr auto operator<=>(const iterator& x, const iterator& y)
-      requires ((random_access_range<maybe-const<Const, First>> &&
-        ... && random_access_range<maybe-const<Const, Vs>>) &&
-        (three_way_comparable<iterator_t<maybe-const<Const, First>>> &&
-        ... && three_way_comparable<iterator_t<maybe-const<Const, Vs>>>));
+        friend constexpr auto operator<=(const iterator& x, const iterator& y) requires(
+            random_access_range<__maybe_const<Const, Views>>&&...) {
+            return !(y < x);
+        }
 
-    friend constexpr iterator operator+(const iterator& x, difference_type y)
-      requires (cartesian-product-is-random-access<maybe-const<Const, First>,
-        maybe-const<Const, Vs>...>);
-    friend constexpr iterator operator+(difference_type x, const iterator& y)
-      requires (cartesian-product-is-random-access<maybe-const<Const, First>,
-        maybe-const<Const, Vs>...>);
-    friend constexpr iterator operator-(const iterator& x, difference_type y)
-      requires (cartesian-product-is-random-access<maybe-const<Const, First>,
-        maybe-const<Const, Vs>...>);
-    friend constexpr difference_type operator-(const iterator& x, const iterator& y)
-      requires (sized_sentinel_for<iterator_t<maybe-const<Const, First>>,
-          maybe-const<Const, First>> &&
-        ... && sized_sentinel_for<iterator_t<maybe-const<Const, Vs>>,
-          maybe-const<Const, Vs>>);
+        friend constexpr auto operator>=(const iterator& x, const iterator& y) requires(
+            random_access_range<__maybe_const<Const, Views>>&&...) {
+            return !(x < y);
+        }
 
-    friend constexpr operator-(iterator i, default_sentinel_t)
-      requires cartesian-sentinel-is-sized<Vs...>;
-    friend constexpr operator-(default_sentinel_t, iterator i)
-      requires cartesian-sentinel-is-sized<Vs...>;
+        friend constexpr auto operator<=>(const iterator& x, const iterator& y) requires(
+            (random_access_range<__maybe_const<Const, Views>> &&
+             three_way_comparable<__maybe_const<Const, Views>>)&&...) {
+            return x.it_ <=> y.it_;
+        }
 
+        friend constexpr iterator operator+(const iterator& x, difference_type y) requires(
+            xo::concat_random_access<Const, Views>&&...) {
+            return iterator{x} += y;
+        }
+
+        friend constexpr iterator operator+(difference_type x, const iterator& y) requires(
+            xo::concat_random_access<Const, Views>&&...) {
+            return y + x;
+        }
+
+        friend constexpr iterator operator-(const iterator& x, difference_type y) requires(
+            xo::concat_random_access<Const, Views>&&...) {
+            return iterator{x} -= y;
+        }
+
+        friend constexpr difference_type operator-(const iterator& x, const iterator& y) requires(
+            xo::concat_random_access<Const, Views>&&...) {
+            auto ix = x.it_.index();
+            auto iy = y.it_.index();
+            if (ix > iy) {
+                // distance(y, yend) + size(ranges_in_between)... + distance(xbegin, x)
+                const auto all_sizes = std::apply(
+                    [&](const auto&... views) { return std::array{ranges::size(views)...}; },
+                    x.get_parent_views());
+                auto in_between =
+                    std::accumulate(all_sizes.data() + iy + 1, all_sizes.data() + ix, 0);
+
+                auto y_visitor = [&]<size_t N>(integral_constant<size_t, N>) {
+                    return all_sizes[N] -
+                           (get<N>(y.it_) - ranges::begin(get<N>(y.get_parent_views())));
+                };
+                auto y_to_end = xo::visit_i<sizeof...(Views) - 1>(iy, y_visitor);
+
+                auto x_visitor = [&]<size_t N>(integral_constant<size_t, N>) {
+                    return get<N>(x.it_) - ranges::begin(get<N>(x.get_parent_views()));
+                };
+                auto begin_to_x = xo::visit_i<sizeof...(Views) - 1>(ix, x_visitor);
+
+                return y_to_end + in_between + begin_to_x;
+
+            } else if (ix < iy) {
+                return -(y - x);
+            } else {
+                auto visitor = [&]<size_t N>(integral_constant<size_t, N>) {
+                    return get<N>(x.it_) - get<N>(y.it_);
+                };
+                return xo::visit_i<sizeof...(Views) - 1>(ix, visitor);
+            }
+        }
+
+        friend constexpr difference_type operator-(iterator i, default_sentinel_t) requires(
+            xo::concat_random_access<Const, Views>&&...) {
+
+            const auto idx = i.it_.index();
+            const auto all_sizes =
+                std::apply([&](const auto&... views) { return std::array{ranges::size(views)...}; },
+                           i.get_parent_views());
+            auto to_the_end =
+                std::accumulate(all_sizes.data() + idx + 1, all_sizes.data() + sizeof...(Views), 0);
+
+            auto visitor = [&]<size_t N>(integral_constant<size_t, N>) {
+                return all_sizes[N] - (get<N>(i.it_) - ranges::begin(get<N>(i.get_parent_views())));
+            };
+            auto i_to_idx_end = xo::visit_i<sizeof...(Views) - 1>(idx, visitor);
+            return -(i_to_idx_end + to_the_end);
+        }
+
+        friend constexpr difference_type operator-(default_sentinel_t, iterator i) requires(
+            xo::concat_random_access<Const, Views>&&...) {
+            return -(i - default_sentinel);
+        }
+
+        /*   TODO: implement
     friend constexpr auto iter_move(const iterator& i) noexcept(see below);
+    friend constexpr void iter_swap(const iterator& l, const iterator& r) noexcept(see below)
+        requires (indirectly_swappable<iterator_t<maybe-const<Const, First>>> && ... &&
+            indirectly_swappable<iterator_t<maybe-const<Const, Views>>>);
         */
     };
 

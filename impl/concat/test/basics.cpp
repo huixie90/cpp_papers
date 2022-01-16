@@ -124,6 +124,7 @@ TEST_POINT("end_basic_common_range") {
     using V = std::vector<int>;
     V v1{}, v2{4, 5}, v3{6};
     std::ranges::concat_view cv{v1, v2, v3};
+    static_assert(std::ranges::common_range<decltype(cv)>);
     auto it = cv.begin();
     auto st = cv.end();
     static_assert(std::same_as<decltype(it), decltype(st)>);
@@ -136,6 +137,8 @@ TEST_POINT("end_last_range_non_common_but_random_sized") {
     std::vector<int> v1{1};
     std::ranges::iota_view<int, size_t> io{2, 3};
     std::ranges::concat_view cv{v1, io};
+    static_assert(std::ranges::common_range<decltype(cv)>);
+
     auto it = cv.begin();
     auto st = cv.end();
     static_assert(std::same_as<decltype(it), decltype(st)>);
@@ -340,6 +343,81 @@ TEST_POINT("bidirectional_last_range_not_cheaply_reverse") {
     REQUIRE(*it == 1);
 }
 
+TEST_POINT("operator+=") {
+
+    std::vector<int> v1{1}, v2{2, 3, 4}, v3{}, v4{}, v5{5, 6};
+    std::ranges::concat_view cv{v1, v2, v3, v4, v5};
+    auto it = cv.begin();
+    REQUIRE(*it == 1);
+    it += 2;
+    REQUIRE(*it == 3);
+    it += 2;
+    REQUIRE(*it == 5);
+    it += -3;
+    REQUIRE(*it == 2);
+    it += -1;
+    REQUIRE(*it == 1);
+}
+
+TEST_POINT("operator-(iter,iter)") {
+
+    std::vector<int> v1{1}, v2{2, 3, 4}, v3{}, v4{}, v5{5, 6};
+    std::ranges::concat_view cv{v1, v2, v3, v4, v5};
+    auto it1 = cv.begin();
+    REQUIRE(it1 - it1 == 0);
+    auto it2 = it1 + 1;
+    REQUIRE(*it2 == 2);
+    REQUIRE(it2 - it1 == 1);
+    REQUIRE(it1 - it2 == -1);
+
+    auto it3 = it1 + 3;
+    REQUIRE(*it3 == 4);
+    REQUIRE(it3 - it2 == 2);
+    REQUIRE(it2 - it3 == -2);
+    REQUIRE(it3 - it1 == 3);
+    REQUIRE(it1 - it3 == -3);
+
+    auto it4 = it3 + 2;
+    REQUIRE(*it4 == 6);
+    REQUIRE(it4 - it1 == 5);
+    REQUIRE(it1 - it4 == -5);
+
+    auto it5 = it4 + 1;
+    REQUIRE(it5 == std::ranges::end(cv));
+    REQUIRE(it5 - it3 == 3);
+    REQUIRE(it3 - it5 == -3);
+}
+
+TEST_POINT("operator-(iter,default_sentinel_t)") {
+
+    std::vector<int> v1{1}, v2{2, 3, 4}, v3{}, v4{}, v5{5, 6};
+    std::ranges::concat_view cv{v1, v2, v3, v4, v5};
+    auto it1 = cv.begin();
+    using std::default_sentinel;
+    REQUIRE(it1 - default_sentinel == -6);
+    REQUIRE(default_sentinel - it1 == 6);
+
+    auto it2 = it1 + 4;
+    REQUIRE(it2 - default_sentinel == -2);
+    REQUIRE(default_sentinel - it2 == 2);
+
+    auto it3 = it2 + 2;
+    REQUIRE(it3 - default_sentinel == 0);
+    REQUIRE(default_sentinel - it3 == 0);
+}
+
+TEST_POINT("random access") {
+
+    std::vector<int> v1{1}, v2{2, 3, 4}, v3{}, v4{}, v5{5, 6};
+    std::ranges::concat_view cv{v1, v2, v3, v4, v5};
+    static_assert(std::ranges::random_access_range<decltype(cv)>);
+    REQUIRE(cv[0] == 1);
+    REQUIRE(cv[1] == 2);
+    REQUIRE(cv[2] == 3);
+    REQUIRE(cv[3] == 4);
+    REQUIRE(cv[4] == 5);
+    REQUIRE(cv[5] == 6);
+}
 TEST_POINT("Sentinel") {
     // using V = std::vector<int>;
     // using W = std::list<int>;

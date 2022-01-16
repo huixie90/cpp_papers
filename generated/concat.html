@@ -557,6 +557,37 @@ code.sourceCode > span { display: inline; }
 <span id="cb4-20"><a href="#cb4-20"></a>  <span class="co">// use foo</span></span>
 <span id="cb4-21"><a href="#cb4-21"></a><span class="op">}</span></span></code></pre></div></td>
 </tr>
+<tr class="odd">
+<td><div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1"></a>view <span class="kw">auto</span> in_edges<span class="op">(</span>vertex <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;</span>, graph <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;)</span>;</span>
+<span id="cb5-2"><a href="#cb5-2"></a>view <span class="kw">auto</span> out_edges<span class="op">(</span>vertex <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;</span>, graph <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;)</span>;</span>
+<span id="cb5-3"><a href="#cb5-3"></a>vertex <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;</span> source<span class="op">(</span>edge <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;</span>, graph <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;)</span>;</span>
+<span id="cb5-4"><a href="#cb5-4"></a>vertex <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;</span> target<span class="op">(</span>edge <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;</span>, graph <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;)</span>;</span>
+<span id="cb5-5"><a href="#cb5-5"></a></span>
+<span id="cb5-6"><a href="#cb5-6"></a>view <span class="kw">auto</span> adjacent_vertices<span class="op">(</span>vertex <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;</span> v, dag <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;</span> g<span class="op">){</span></span>
+<span id="cb5-7"><a href="#cb5-7"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>reference_wrapper<span class="op">&lt;</span><span class="kw">const</span> vertex_t<span class="op">&lt;</span><span class="kw">decltype</span><span class="op">(</span>g<span class="op">)&gt;&gt;&gt;</span> v<span class="op">{}</span>;</span>
+<span id="cb5-8"><a href="#cb5-8"></a>  v<span class="op">.</span>reserve<span class="op">(</span>in_degree<span class="op">(</span>v,g<span class="op">)</span> <span class="op">+</span> out_degree<span class="op">(</span>v,g<span class="op">))</span>;</span>
+<span id="cb5-9"><a href="#cb5-9"></a></span>
+<span id="cb5-10"><a href="#cb5-10"></a>  std<span class="op">::</span>ranges<span class="op">::</span>transform<span class="op">(</span>in_edges<span class="op">(</span>v ,g<span class="op">)</span>, std<span class="op">::</span>back_inserter<span class="op">(</span>v<span class="op">)</span>,</span>
+<span id="cb5-11"><a href="#cb5-11"></a>    <span class="op">[&amp;</span>g<span class="op">](</span>edge <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;</span> e<span class="op">){</span><span class="cf">return</span> std<span class="op">::</span>cref<span class="op">(</span>source<span class="op">(</span>e, g<span class="op">))</span>;<span class="op">})</span>;</span>
+<span id="cb5-12"><a href="#cb5-12"></a></span>
+<span id="cb5-13"><a href="#cb5-13"></a>  std<span class="op">::</span>ranges<span class="op">::</span>transform<span class="op">(</span>out_edges<span class="op">(</span>v ,g<span class="op">)</span>, std<span class="op">::</span>back_inserter<span class="op">(</span>v<span class="op">)</span>,</span>
+<span id="cb5-14"><a href="#cb5-14"></a>    <span class="op">[&amp;</span>g<span class="op">](</span>edge <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;</span> e<span class="op">){</span><span class="cf">return</span> std<span class="op">::</span>cref<span class="op">(</span>target<span class="op">(</span>e, g<span class="op">))</span>;<span class="op">})</span>;</span>
+<span id="cb5-15"><a href="#cb5-15"></a></span>
+<span id="cb5-16"><a href="#cb5-16"></a>  <span class="cf">return</span> v; <span class="co">// error. vector is not a view</span></span>
+<span id="cb5-17"><a href="#cb5-17"></a><span class="op">}</span></span></code></pre></div></td>
+<td><div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1"></a>view <span class="kw">auto</span> in_edges<span class="op">(</span>vertex <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;</span>, graph <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;)</span>;</span>
+<span id="cb6-2"><a href="#cb6-2"></a>view <span class="kw">auto</span> out_edges<span class="op">(</span>vertex <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;</span>, graph <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;)</span>;</span>
+<span id="cb6-3"><a href="#cb6-3"></a>vertex <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;</span> source<span class="op">(</span>edge <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;</span>, graph <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;)</span>;</span>
+<span id="cb6-4"><a href="#cb6-4"></a>vertex <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;</span> target<span class="op">(</span>edge <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;</span>, graph <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;)</span>;</span>
+<span id="cb6-5"><a href="#cb6-5"></a></span>
+<span id="cb6-6"><a href="#cb6-6"></a>view <span class="kw">auto</span> adjacent_vertices<span class="op">(</span>vertex <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;</span> v, dag <span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;</span> g<span class="op">){</span></span>
+<span id="cb6-7"><a href="#cb6-7"></a>  <span class="kw">using</span> views <span class="op">=</span> std<span class="op">::</span>views;</span>
+<span id="cb6-8"><a href="#cb6-8"></a>  <span class="cf">return</span> views<span class="op">::</span>concat<span class="op">(</span></span>
+<span id="cb6-9"><a href="#cb6-9"></a>    in_edges<span class="op">(</span>v, g<span class="op">)</span> <span class="op">|</span> views<span class="op">::</span>transform<span class="op">(</span>bind_back<span class="op">(</span>source, g<span class="op">))</span>,</span>
+<span id="cb6-10"><a href="#cb6-10"></a>    out_edges<span class="op">(</span>v, g<span class="op">)</span> <span class="op">|</span> views<span class="op">::</span>transform<span class="op">(</span>bind_back<span class="op">(</span>target, g<span class="op">))</span></span>
+<span id="cb6-11"><a href="#cb6-11"></a>  <span class="op">)</span>;</span>
+<span id="cb6-12"><a href="#cb6-12"></a><span class="op">}</span></span></code></pre></div></td>
+</tr>
 </tbody>
 </table>
 <p>The first example shows that for a simple task like printing, doing it manually is error prone. The “Before” version manually concatinates all the ranges in a formatting string, but the result contains an extra comma and space because it doesn’t handle the empty vector <code class="sourceCode default">v3</code> correctly. With <code class="sourceCode default">concat</code>, the user doesn’t need to care about emptiness and simply uses the default range formatter to print.</p>
@@ -609,20 +640,20 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <h2 data-number="5.1" id="addition-to-ranges"><span class="header-section-number">5.1</span> Addition to <code class="sourceCode default">&lt;ranges&gt;</code><a href="#addition-to-ranges" class="self-link"></a></h2>
 <p>Add the following to 24.2 <span>24.2
  <a href="https://wg21.link/ranges.syn">[ranges.syn]</a></span>, header <code class="sourceCode default">&lt;ranges&gt;</code> synopsis:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1"></a><span class="co">// [...]</span></span>
-<span id="cb5-2"><a href="#cb5-2"></a><span class="kw">namespace</span> std<span class="op">::</span>ranges <span class="op">{</span></span>
-<span id="cb5-3"><a href="#cb5-3"></a>  <span class="co">// [...]</span></span>
-<span id="cb5-4"><a href="#cb5-4"></a></span>
-<span id="cb5-5"><a href="#cb5-5"></a>  <span class="co">// [range.concat], concat view</span></span>
-<span id="cb5-6"><a href="#cb5-6"></a>  <span class="kw">template</span> <span class="op">&lt;</span>input_range<span class="op">...</span> Views<span class="op">&gt;</span></span>
-<span id="cb5-7"><a href="#cb5-7"></a>    <span class="kw">requires</span> <span class="op">(</span>view<span class="op">&lt;</span>Views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span><span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">)</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span></span>
-<span id="cb5-8"><a href="#cb5-8"></a>  <span class="kw">class</span> concat_view;</span>
-<span id="cb5-9"><a href="#cb5-9"></a></span>
-<span id="cb5-10"><a href="#cb5-10"></a>  <span class="kw">namespace</span> views <span class="op">{</span></span>
-<span id="cb5-11"><a href="#cb5-11"></a>    <span class="kw">inline</span> <span class="kw">constexpr</span> <em>unspecified</em> concat <span class="op">=</span> <em>unspecified</em>;</span>
-<span id="cb5-12"><a href="#cb5-12"></a>  <span class="op">}</span></span>
-<span id="cb5-13"><a href="#cb5-13"></a></span>
-<span id="cb5-14"><a href="#cb5-14"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1"></a><span class="co">// [...]</span></span>
+<span id="cb7-2"><a href="#cb7-2"></a><span class="kw">namespace</span> std<span class="op">::</span>ranges <span class="op">{</span></span>
+<span id="cb7-3"><a href="#cb7-3"></a>  <span class="co">// [...]</span></span>
+<span id="cb7-4"><a href="#cb7-4"></a></span>
+<span id="cb7-5"><a href="#cb7-5"></a>  <span class="co">// [range.concat], concat view</span></span>
+<span id="cb7-6"><a href="#cb7-6"></a>  <span class="kw">template</span> <span class="op">&lt;</span>input_range<span class="op">...</span> Views<span class="op">&gt;</span></span>
+<span id="cb7-7"><a href="#cb7-7"></a>    <span class="kw">requires</span> <span class="op">(</span>view<span class="op">&lt;</span>Views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span><span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">)</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a>  <span class="kw">class</span> concat_view;</span>
+<span id="cb7-9"><a href="#cb7-9"></a></span>
+<span id="cb7-10"><a href="#cb7-10"></a>  <span class="kw">namespace</span> views <span class="op">{</span></span>
+<span id="cb7-11"><a href="#cb7-11"></a>    <span class="kw">inline</span> <span class="kw">constexpr</span> <em>unspecified</em> concat <span class="op">=</span> <em>unspecified</em>;</span>
+<span id="cb7-12"><a href="#cb7-12"></a>  <span class="op">}</span></span>
+<span id="cb7-13"><a href="#cb7-13"></a></span>
+<span id="cb7-14"><a href="#cb7-14"></a><span class="op">}</span></span></code></pre></div>
 <h2 data-number="5.2" id="concat_view"><span class="header-section-number">5.2</span> <code class="sourceCode default">concat_view</code><a href="#concat_view" class="self-link"></a></h2>
 <p>Add the following subclause to 24.7 <span>24.7
  <a href="https://wg21.link/range.adaptors">[range.adaptors]</a></span>.</p>
@@ -635,7 +666,7 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <h2 data-number="5.3" id="feature-test-macro"><span class="header-section-number">5.3</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
 <p>Add the following macro definition to 17.3.2 <span>17.3.2
  <a href="https://wg21.link/version.syn">[version.syn]</a></span>, header <code class="sourceCode default">&lt;version&gt;</code> synopsis, with the value selected by the editor to reflect the date of adoption of this paper:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1"></a><span class="pp">#define __cpp_lib_ranges_concat  </span><span class="dv">20</span><span class="er">XXXXL</span><span class="pp"> </span><span class="co">// also in &lt;ranges&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1"></a><span class="pp">#define __cpp_lib_ranges_concat  </span><span class="dv">20</span><span class="er">XXXXL</span><span class="pp"> </span><span class="co">// also in &lt;ranges&gt;</span></span></code></pre></div>
 <h1 data-number="6" id="bibliography"><span class="header-section-number">6</span> References<a href="#bibliography" class="self-link"></a></h1>
 <div id="refs" class="references hanging-indent" role="doc-bibliography">
 <div id="ref-ours">
