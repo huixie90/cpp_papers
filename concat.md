@@ -19,14 +19,14 @@ This is the initial revision.
 
 This paper proposes the range adaptor `views::concat` as very briefly introduced in [@P2214R1] Section 4.7. It is a view factory that takes an arbitrary number of ranges as an argument list, and provides a view that starts at the first element of the first range, ends at the last element of the last range, with all range elements sequenced in between respectively in the order given in the arguments, effectively concatenating, or chaining together the argument ranges.
 
-# Example
+# Motivation and Examples
 
 ::: cmptable
 
 ## Before
 
 ```cpp
-std::vector v1{1,2,3}, v2{4,5}, v3{};
+std::vector<int> v1{1,2,3}, v2{4,5}, v3{};
 std::array  a{6,7,8};
 int s = 9;
 std::cout << std::format("[{:n}, {:n}, {:n}, {:n}, {}]\n", 
@@ -37,7 +37,7 @@ std::cout << std::format("[{:n}, {:n}, {:n}, {:n}, {}]\n",
 ## After
 
 ```cpp
-std::vector v1{1,2,3}, v2{4,5}, v3{};
+std::vector<int> v1{1,2,3}, v2{4,5}, v3{};
 std::array  a{6,7,8};
 auto s = std::views::single(9);
 std::cout << std::format("{}\n", 
@@ -105,6 +105,11 @@ for(const auto& foo: myClass.getFoos() | views::filter(pred)){
 
 :::
 
+The first example shows that for a simple task like printing, doing it manually is error prone. The "Before" version manually concatinates all the ranges in a formatting string, but the result contains an extra comma and space because it doesn't handle the empty vector `v3` correctly. With `concat`, the user doesn't need to care about emptiness and simply uses the default range formatter to print.
+
+The second example shows a function that tries to return a concatenated range from a single value and transformed range. One requirement is that the result range represents the original elements instead of copies.
+In the "Before" version, the user has to create a vector and push elements from different places into it. Since the requirement is that the result shouldn't be copies, it wraps the elements with `reference_wrapper`. With `concat`, it is simple. Note that in the "Before" version, the result is still a container. Sometimes this is a problem because the interface might require the result to be a `view`.
+
 # Design
 
 This is a generator factory as described in [@P2214R1] Section 4.7. As such, it can not be piped to. It takes the list of ranges to concatenate as arguments to `ranges::concat_view` constructor, or to `ranges::views::concat` customization point object.
@@ -130,7 +135,10 @@ A `concat` view can be designed to be a borrowed range, if all underlying ranges
 
 ## Common Range
 
-`concat_view` can be `common_range` if the last underlying range models `common_range`
+`concat_view` can be `common_range` if the last underlying range models either
+
+- `common_range`, or
+- `random_access_range && sized_range`
 
 ## Bidirectional Range
 
@@ -138,7 +146,7 @@ A `concat` view can be designed to be a borrowed range, if all underlying ranges
 
 - Every underlying range models `bidirectional_range`  
 - If the iterator is at nth range's begin position, after `operator--` it should go to (n-1)th's range's end-1 position. This means, the (n-1)th range has to support either
-  - `common_range && bidirectional_range`, so the position can be reached by `--ranges::end(n-1th range)`, assuming n-1th range is not empty.
+  - `common_range && bidirectional_range`, so the position can be reached by `--ranges::end(n-1th range)`, assuming n-1th range is not empty, or
   - `random_access_range && sized_range`, so the position can be reached by `ranges::begin(n-1th range) + (ranges::size(n-1th range) - 1)` in constant time, assuming n-1th range is not empty.
   
   Note that the last underlying range does not have to satisfy this constraint because n-1 can never be the last underlying range. If neither of the two constraints is satisfied, in theory we can cache the end-1 position for every single underlying range inside the `concat_view` itself. But the authors do not consider this type of ranges as worth supporting bidirectional

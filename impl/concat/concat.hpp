@@ -308,18 +308,30 @@ class concat_view : public view_interface<concat_view<Views...>> {
     }
 
     constexpr auto end() requires(!(__simple_view<Views> && ...)) {
-        if constexpr (common_range<xo::back<Views...>>) {
+        using LastView = xo::back<Views...>;
+        if constexpr (common_range<LastView>) {
             constexpr auto N = sizeof...(Views);
             return iterator<false>{this, in_place_index<N - 1>, ranges::end(get<N - 1>(views_))};
+        } else if constexpr (random_access_range<LastView> && sized_range<LastView>) {
+            constexpr auto N = sizeof...(Views);
+            return iterator<false>{
+                this, in_place_index<N - 1>,
+                ranges::begin(get<N - 1>(views_)) + ranges::size(get<N - 1>(views_))};
         } else {
             return default_sentinel;
         }
     }
 
     constexpr auto end() const requires(range<const Views>&&...) {
-        if constexpr (common_range<xo::back<const Views...>>) {
+        using LastView = xo::back<const Views...>;
+        if constexpr (common_range<LastView>) {
             constexpr auto N = sizeof...(Views);
             return iterator<true>{this, in_place_index<N - 1>, ranges::end(get<N - 1>(views_))};
+        } else if constexpr (random_access_range<LastView> && sized_range<LastView>) {
+            constexpr auto N = sizeof...(Views);
+            return iterator<true>{
+                this, in_place_index<N - 1>,
+                ranges::begin(get<N - 1>(views_)) + ranges::size(get<N - 1>(views_))};
         } else {
             return default_sentinel;
         }
