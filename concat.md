@@ -299,78 +299,129 @@ for(auto&& i : std::views::concat(v1, v2, v3, a, s)){
 
 ```cpp
 namespace std::ranges{
+ 
+  template <class... T>
+  concept @_concatable_@ =                        // exposition only
+    (convertible_to<range_reference_t<T>, 
+      common_reference_t<range_reference_t<T>...>> && ...);
 
-  template <class... Ts>
-  concept @_concatable_@ =                           // exposition only
-            (convertible_to<range_reference_t<Ts>,
-              common_reference_t<range_reference_t<Ts>...>> && ...);
+  template <bool Const, class... Ts>
+  concept @_concat-random-access_@ =              // exposition only
+    ((random_access_range<@_maybe-const_@<Const, Ts>> &&
+      sized_range<@_maybe-const_@<Const, Ts>>)&&...);
 
-  template <size_t N, typename... T>
-  using @_n-th_@ = tuple_element_t<N, tuple<T...>>;  // exposition only
-
-  template <typename... T>
-  using @_back_@ = @_n-th_@<sizeof...(T) - 1, T...>;     // exposition only
+  template <class... T>
+  using @_back_@ =                                // exposition only
+    tuple_element_t<sizeof...(T) - 1, tuple<T...>>;
 
   template <bool... b, size_t... I>
-  consteval bool @_all-but-last_@                    // exposition only
-                  (std::index_sequence<I...>) { 
+  consteval bool @_all-but-last_@                 // exposition only
+    (index_sequence<I...>) {
       return ((I == sizeof...(I) - 1 || b) && ...);
   }
 
-  template <bool Const, class... Views>
-  concept @_concat-random-access_@ =                 // exposition only
-            ((random_access_range<@_maybe-const_@<Const, Views>> &&
-              sized_range<@_maybe-const_@<Const, Views>>)&&...);
-
   template <class R>
-  concept @_cheaply-reversible_@ =                   // exposition only
-            (bidirectional_range<R> && common_range<R>) ||
-            (sized_range<R> && random_access_range<R>);
+  concept @_constant-time-reversible_@ =          // exposition only
+    (bidirectional_range<R> && common_range<R>) ||
+    (sized_range<R> && random_access_range<R>);
 
-  template <class... V>
-  concept @_concat-can-prev_@ =                      // exposition only
-      @_all-but-last_@<@_cheaply-reversible_@<V>...>(index_sequence_for<V...>{}) &&
-      bidirectional_range<@_back_@<V...>>;
+  template <bool Const, class... Ts>
+  concept @_concat-bidirectional_@ =              // exposition only
+    @_all-but-last_@<@_constant-time-reversible_@<
+      @_maybe-const_@<Const, Ts>>...>(index_sequence_for<Ts...>{}) && 
+    bidirectional_range<@_back_@<@_maybe-const_@<Const, Ts>...>>;
 
-
-  template <bool Const, class... Views>
-  concept @_concat-bidirectional_@ =                 // exposition only
-      @_concat-can-prev_@<@_maybe-const_@<Const, Views>...>;
-
-  template <bool Const, class... Views>
-  concept @_all-forward_@ =                          // exposition only
-      (forward_range<@_maybe-const_@<Const, Views>> && ...);
-  }
 
   template <input_range... Views>
     requires (view<Views> && ...) && (sizeof...(Views) > 0) &&
               @_concatable_@<Views...>
   class concat_view : public view_interface<concat_view<Views...>> {
-    tuple<Views...> @*views_*@ = tuple<Views...>();  // exposition only
+    tuple<Views...> @*views_*@ = tuple<Views...>(); // exposition only
 
     template <bool Const>
-    class @_iterator_@;                                  // exposition only
-
+    class @_iterator_@;                           // exposition only
 
   public:
     constexpr concat_view() requires(default_initializable<Views>&&...) = default;
 
     constexpr explicit concat_view(Views... views);
 
-    constexpr @_iterator_@<false> begin() requires(!(@_simple-view_@<Views> && ...)) {
-        @_iterator_@<false> it{this, in_place_index<0u>, ranges::begin(get<0>(@*views_*@))};
-        it.template @_satisfy_@<0>();
-        return it;
-    }
+    constexpr @_iterator_@<false> begin() requires(!(@_simple-view_@<Views> && ...));
+
+    constexpr @_iterator_@<true> begin() const
+      requires((range<const Views> && ...) && @_concatable_@<const Views...>);
+
+    constexpr auto end() requires(!(@_simple-view_@<Views> && ...));
+
+    constexpr auto end() const requires(range<const Views>&&...);
+
+    constexpr auto size() requires(sized_range<Views>&&...);
+
+    constexpr auto size() const requires(sized_range<const Views>&&...);
   };
+
+  template <class... R>
+  concat_view(R&&...) -> concat_view<views::all_t<R>...>;
+}
 ```
 
 ```cpp
 constexpr explicit concat_view(Views... views);
 ```
 
-[1]{.pnum} *Effects*: Initializes `@*views_*@` with `std::move(views)`.
+[1]{.pnum} *Effects*: Initializes `@*views_*@` with `std::move(views)...`.
 
+```cpp
+constexpr @_iterator_@<false> begin() requires(!(@_simple-view_@<Views> && ...));
+constexpr @_iterator_@<true> begin() const
+  requires((range<const Views> && ...) && @_concatable_@<const Views...>);
+```
+
+[2]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload, and `false` otherwise. Equivalent to:
+
+```cpp
+    @_iterator_@<@_is-const_@> it{this, in_place_index<0>, ranges::begin(get<0>(@*views_*@))};
+    it.template @_satisfy_@<0>();
+    return it;
+```
+
+```cpp
+constexpr auto end() requires(!(@_simple-view_@<Views> && ...));
+constexpr auto end() const requires(range<const Views>&&...);
+```
+
+[3]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload, and `false` otherwise, and let `@_last-view_@` be `@_back_@<const Views...>` for const-qualified overload, and `@_back_@<Views...>` otherwise. Equivalent to:
+
+```cpp
+    if constexpr (common_range<@_last-view_@>) {
+        constexpr auto N = sizeof...(Views);
+        return @_iterator_@<@_is-const_@>{this, in_place_index<N - 1>, 
+                          ranges::end(get<N - 1>(@*views_*@))};
+    } else if constexpr (random_access_range<@_last-view_@> && sized_range<@_last-view_@>) {
+        constexpr auto N = sizeof...(Views);
+        return @_iterator_@<@_is-const_@>{
+            this, in_place_index<N - 1>,
+            ranges::begin(get<N - 1>(@*views_*@)) + ranges::size(get<N - 1>(@*views_*@))};
+    } else {
+        return default_sentinel;
+    }
+```
+
+```cpp
+constexpr auto size() requires(sized_range<Views>&&...);
+constexpr auto size() const requires(sized_range<const Views>&&...);
+```
+
+[4]{.pnum} *Effects*: Equivalent to:
+
+```cpp
+    return apply(
+        [](auto... sizes) {
+            using CT = make_unsigned_t<common_type_t<decltype(sizes)...>>;
+            return (CT{0} + ... + CT{sizes});
+        },
+        @_tuple_transform_@(ranges::size, @*views_*@));
+```
 
 #### 24.7.?.3 Class concat_view::iterator [range.concat.iterator] {-}
 

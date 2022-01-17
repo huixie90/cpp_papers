@@ -250,9 +250,9 @@ TEST_POINT("bidirectional_concept") {
 
     static_assert(!common_range<decltype(nonCommonBidirRange)>);
     static_assert(bidirectional_range<decltype(nonCommonBidirRange)>);
-    STATIC_REQUIRE(xo::cheaply_reversible<decltype(v1)>);                   // random
-    STATIC_REQUIRE(xo::cheaply_reversible<decltype(l1)>);                   // common
-    STATIC_REQUIRE(!xo::cheaply_reversible<decltype(nonCommonBidirRange)>); // bidir only
+    STATIC_REQUIRE(xo::constant_time_reversible<decltype(v1)>);                   // random
+    STATIC_REQUIRE(xo::constant_time_reversible<decltype(l1)>);                   // common
+    STATIC_REQUIRE(!xo::constant_time_reversible<decltype(nonCommonBidirRange)>); // bidir only
 
     STATIC_CHECK(bidirectional_range<decltype(views::concat(v1, nonCommonBidirRange))>);
 }

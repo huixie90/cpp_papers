@@ -15,58 +15,46 @@ namespace std::ranges {
 
 namespace xo { // exposition only things (and persevering face)
 
-template <size_t N, typename... T>
-using Nth = tuple_element_t<N, tuple<T...>>;
+template <class... T>
+concept concatable =
+    (convertible_to<range_reference_t<T>, common_reference_t<range_reference_t<T>...>> && ...);
 
-template <typename... T>
-using back = Nth<sizeof...(T) - 1, T...>;
+template <class... T>
+using back = tuple_element_t<sizeof...(T) - 1, tuple<T...>>;
 
 template <bool... b, size_t... I>
 consteval bool all_but_last(std::index_sequence<I...>) {
     return ((I == sizeof...(I) - 1 || b) && ...);
 }
 
-
-template <bool Const, class... Views>
-concept concat_random_access = ((random_access_range<__maybe_const<Const, Views>> &&
-                                 sized_range<__maybe_const<Const, Views>>)&&...);
+template <bool Const, class... Ts>
+concept concat_random_access = ((random_access_range<__maybe_const<Const, Ts>> &&
+                                 sized_range<__maybe_const<Const, Ts>>)&&...);
 
 template <class R>
-concept cheaply_reversible = (bidirectional_range<R> && common_range<R>) ||
-                             (sized_range<R> && random_access_range<R>);
+concept constant_time_reversible = (bidirectional_range<R> && common_range<R>) ||
+                                   (sized_range<R> && random_access_range<R>);
 
-template <class... V>
-concept concat_can_prev = all_but_last<cheaply_reversible<V>...>(index_sequence_for<V...>{}) &&
-    bidirectional_range<back<V...>>;
+template <bool Const, class... Ts>
+concept concat_bidirectional = all_but_last<constant_time_reversible<__maybe_const<Const, Ts>>...>(
+    index_sequence_for<Ts...>{}) && bidirectional_range<back<__maybe_const<Const, Ts>...>>;
 
+inline namespace not_to_spec {
 
-template <bool Const, class... Views>
-concept concat_bidirectional = concat_can_prev<__maybe_const<Const, Views>...>;
-
-template <bool Const, class... Views>
-concept all_forward = (forward_range<__maybe_const<Const, Views>> && ...);
-
-template <bool Const, typename... Views>
+template <bool Const, class... Ts>
 constexpr auto iterator_concept_test() {
-    if constexpr (concat_random_access<Const, Views...>) {
+    if constexpr (concat_random_access<Const, Ts...>) {
         return random_access_iterator_tag{};
-    } else if constexpr (concat_bidirectional<Const, Views...>) {
+    } else if constexpr (concat_bidirectional<Const, Ts...>) {
         return bidirectional_iterator_tag{};
-    } else if constexpr (all_forward<Const, Views...>) {
+    } else if constexpr ((forward_range<__maybe_const<Const, Ts>> && ...)) {
         return forward_iterator_tag{};
     } else {
         return input_iterator_tag{};
     }
 }
 
-
-
-template <typename... T>
-concept concatable =
-    (convertible_to<range_reference_t<T>, common_reference_t<range_reference_t<T>...>> && ...);
-
-
-template <size_t N, typename F>
+template <size_t N, class F>
 constexpr auto visit_i(size_t idx, F&& f) {
     if (idx == N) {
         return static_cast<F&&>(f)(integral_constant<size_t, N>{});
@@ -78,6 +66,7 @@ constexpr auto visit_i(size_t idx, F&& f) {
         }
     }
 }
+} // namespace not_to_spec
 
 } // namespace xo
 
@@ -133,9 +122,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
                 --get<0>(it_);
             } else {
                 if (get<N>(it_) == ranges::begin(get<N>(parent_->views_))) {
-                    // we are at the position Nth range's begin, by doing -- we are going to
-                    // N-1th range's end-1
-                    using prev_view = __maybe_const<Const, xo::Nth<N - 1, Views...>>;
+                    using prev_view = __maybe_const<Const, tuple_element_t<N - 1, tuple<Views...>>>;
                     if constexpr (common_range<prev_view>) {
                         it_.template emplace<N - 1>(ranges::end(get<N - 1>(parent_->views_)));
                     } else {
@@ -223,7 +210,8 @@ class concat_view : public view_interface<concat_view<Views...>> {
 
         constexpr void operator++(int) { ++*this; }
 
-        constexpr iterator operator++(int) requires xo::all_forward<Const, Views...> {
+        constexpr iterator operator++(int) requires(
+            forward_range<__maybe_const<Const, Views>>&&...) {
             auto tmp = *this;
             ++*this;
             return tmp;
