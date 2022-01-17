@@ -56,21 +56,29 @@ constexpr auto iterator_concept_test() {
 }
 
 // calls f(integral_constant<idx>{}) for a runtime idx in [0,N)
-template <size_t N, class F>
-constexpr auto visit_i(size_t idx, F&& f) {
+template <size_t N, typename Var, typename F>
+constexpr auto visit_i_impl(size_t idx, Var&& v, F&& f) {
     assert(idx < N);
     if constexpr (N > 1) {
-        return idx == N - 1 ? invoke(static_cast<F&&>(f), std::integral_constant<size_t, N - 1>{})
-                            : visit_i<N - 1>(idx, static_cast<F&&>(f));
+        return idx == N - 1 ? invoke(static_cast<F&&>(f), integral_constant<size_t, N - 1>{},
+                                     std::get<N - 1>(static_cast<Var&&>(v)))
+                            : visit_i_impl<N - 1>(idx, static_cast<Var&&>(v), static_cast<F&&>(f));
     } else {
-        if constexpr (N != 0) {
-            return visit_i<N - 1>(idx, static_cast<F&&>(f));
-        } else {
-            return static_cast<F&&>(f)(integral_constant<size_t, 0>{});
-        }
+        return invoke(static_cast<F&&>(f), integral_constant<size_t, 0>{},
+                      std::get<0>(static_cast<Var&&>(v)));
     }
 }
 } // namespace not_to_spec
+
+
+// calls f(integral_constant<idx>{}, get<idx>(v)) for idx == v.index().
+template <typename Var, typename F>
+constexpr auto visit_i(Var&& v, F&& f) {
+    return visit_i_impl<variant_size_v<remove_reference_t<Var>>>(v.index(), static_cast<Var&&>(v),
+                                                                 static_cast<F&&>(f));
+}
+
+
 
 } // namespace xo
 
@@ -82,7 +90,6 @@ template <input_range... Views>
 class concat_view : public view_interface<concat_view<Views...>> {
     // clang-format on
     tuple<Views...> views_ = tuple<Views...>();    // exposition only
-    static constexpr size_t NV = sizeof...(Views); // exposition only
 
     template <bool Const>
     class iterator {
@@ -104,7 +111,6 @@ class concat_view : public view_interface<concat_view<Views...>> {
         // http://eel.is/c++draft/ranges#syn
         using ParentView = __maybe_const<Const, concat_view>;
         using BaseIt = variant<iterator_t<__maybe_const<Const, Views>>...>;
-        static constexpr size_t NV = sizeof...(Views); // exposition only
 
         ParentView* parent_ = nullptr;
         BaseIt it_ = BaseIt();
@@ -206,8 +212,8 @@ class concat_view : public view_interface<concat_view<Views...>> {
              * return *this;
              * where I equals to it_.index()
              */
-            xo::visit_i<NV>(it_.index(), [this](auto I) {
-                ++get<I()>(it_);
+            xo::visit_i(it_, [this](auto I, auto&& it) {
+                ++it;
                 this->satisfy<I()>();
             });
             return *this;
@@ -229,7 +235,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
              * return *this;
              * where I equals to it_.index()
              */
-            xo::visit_i<NV>(it_.index(), [this](auto I) { this->prev<I()>(); });
+            xo::visit_i(it_, [this](auto I, auto&&) { this->prev<I()>(); });
             return *this;
         }
 
@@ -242,14 +248,12 @@ class concat_view : public view_interface<concat_view<Views...>> {
         constexpr iterator& operator+=(difference_type n) //
             requires xo::concat_random_access<Const, Views...> {
             if (n > 0) {
-                xo::visit_i<NV>(it_.index(), [this, n](auto I) {
-                    this->advance_fwd<I()>(get<I()>(it_) - ranges::begin(get<I()>(parent_->views_)),
-                                           n);
+                xo::visit_i(it_, [this, n](auto I, auto&& it) {
+                    this->advance_fwd<I()>(it - ranges::begin(get<I()>(parent_->views_)), n);
                 });
             } else if (n < 0) {
-                xo::visit_i<NV>(it_.index(), [this, n](auto I) {
-                    this->advance_bwd<I()>(get<I()>(it_) - ranges::begin(get<I()>(parent_->views_)),
-                                           -n);
+                xo::visit_i(it_, [this, n](auto I, auto&& it) {
+                    this->advance_bwd<I()>(it - ranges::begin(get<I()>(parent_->views_)), -n);
                 });
             }
             return *this;
@@ -332,24 +336,21 @@ class concat_view : public view_interface<concat_view<Views...>> {
                 auto in_between = std::accumulate(all_sizes.data() + iy + 1, all_sizes.data() + ix,
                                                   difference_type(0));
 
-                auto y_visitor = [&](auto I) {
-                    return all_sizes[I()] -
-                           (get<I()>(y.it_) - ranges::begin(get<I()>(y.get_parent_views())));
-                };
-                auto y_to_end = xo::visit_i<NV>(iy, y_visitor);
+                auto y_to_end = xo::visit_i(y.it_, [&](auto I, auto&& it) {
+                    return all_sizes[I()] - (it - ranges::begin(get<I()>(y.get_parent_views())));
+                });
 
-                auto x_visitor = [&](auto I) {
-                    return get<I()>(x.it_) - ranges::begin(get<I()>(x.get_parent_views()));
-                };
-                auto begin_to_x = xo::visit_i<NV>(ix, x_visitor);
+                auto begin_to_x = xo::visit_i(x.it_, [&](auto I, auto&& it) {
+                    return it - ranges::begin(get<I()>(x.get_parent_views()));
+                });
 
                 return y_to_end + in_between + begin_to_x;
 
             } else if (ix < iy) {
                 return -(y - x);
             } else {
-                auto visitor = [&](auto I) { return get<I()>(x.it_) - get<I()>(y.it_); };
-                return xo::visit_i<NV>(ix, visitor);
+                return xo::visit_i(
+                    x.it_, [&](auto I, auto&&) { return get<I()>(x.it_) - get<I()>(y.it_); });
             }
         }
 
@@ -362,12 +363,11 @@ class concat_view : public view_interface<concat_view<Views...>> {
                     return std::array{static_cast<difference_type>(ranges::size(views))...};
                 },
                 i.get_parent_views());
-            auto to_the_end = std::accumulate(all_sizes.data() + idx + 1, all_sizes.data() + NV,
-                                              difference_type(0));
+            auto to_the_end =
+                std::accumulate(all_sizes.begin() + idx + 1, all_sizes.end(), difference_type(0));
 
-            auto i_to_idx_end = xo::visit_i<NV>(idx, [&](auto I) {
-                return all_sizes[I()] -
-                       (get<I()>(i.it_) - ranges::begin(get<I()>(i.get_parent_views())));
+            auto i_to_idx_end = xo::visit_i(i.it_, [&](auto I, auto&& it) {
+                return all_sizes[I()] - (it - ranges::begin(get<I()>(i.get_parent_views())));
             });
             return -(i_to_idx_end + to_the_end);
         }
@@ -397,7 +397,8 @@ class concat_view : public view_interface<concat_view<Views...>> {
 
     // used exposition only concepts simple-view defined here:
     // http://eel.is/c++draft/ranges#range.utility.helpers (we can reuse in the spec)
-    constexpr iterator<false> begin() requires(!(__simple_view<Views> && ...)) {
+    constexpr iterator<false> begin() requires(!(__simple_view<Views> && ...)) //
+    {
         iterator<false> it{this, in_place_index<0u>, ranges::begin(get<0>(views_))};
         it.template satisfy<0>();
         return it;
@@ -405,7 +406,8 @@ class concat_view : public view_interface<concat_view<Views...>> {
     }
 
     constexpr iterator<true> begin() const
-        requires((range<const Views> && ...) && xo::concatable<const Views...>) {
+        requires((range<const Views> && ...) && xo::concatable<const Views...>) //
+    {
         iterator<true> it{this, in_place_index<0u>, ranges::begin(get<0>(views_))};
         it.template satisfy<0>();
         return it;
