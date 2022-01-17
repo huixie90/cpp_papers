@@ -85,7 +85,7 @@ constexpr auto visit_i(size_t idx, F&& f) {
 // clang-format off
 // [TODO] constrain less and allow just a `view`? (i.e. including output_range in the mix - need an example)
 template <input_range... Views>
-    requires (view<Views>&&...) && (sizeof...(Views) > 1) && xo::concatable<Views...>  
+    requires (view<Views>&&...) && (sizeof...(Views) > 0) && xo::concatable<Views...>  
 class concat_view : public view_interface<concat_view<Views...>> {
     // clang-format on
     tuple<Views...> views_ = tuple<Views...>(); // exposition only
@@ -388,7 +388,10 @@ class concat_view : public view_interface<concat_view<Views...>> {
             return -(i - default_sentinel);
         }
 
-        /*   TODO: implement
+        /*   TODO:  I think we don't need them. the zip/cartesian product needs them because
+                    their reference is a tuple and move(tuple) doesn't creates the proper
+                    rvalue references of the elements. But ours reference is proper reference
+                    to the elements and move the reference should just work
     friend constexpr auto iter_move(const iterator& i) noexcept(see below);
     friend constexpr void iter_swap(const iterator& l, const iterator& r) noexcept(see below)
         requires (indirectly_swappable<iterator_t<maybe-const<Const, First>>> && ... &&

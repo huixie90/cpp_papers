@@ -208,7 +208,7 @@ TODO:
 
 ## Addition to `<ranges>`
 
-Add the following to 24.2 [ranges.syn]{.sref}, header `<ranges>` synopsis:
+Add the following to [ranges.syn]{.sref}, header `<ranges>` synopsis:
 
 ```cpp
 // [...]
@@ -216,8 +216,12 @@ namespace std::ranges {
   // [...]
 
   // [range.concat], concat view
+  template <class... Ts>
+  concept @_concatable_@ = @_see below_@; // exposition only
+
   template <input_range... Views>
-    requires (view<Views> && ...) && (sizeof...(Views) > 0)
+    requires (view<Views> && ...) && (sizeof...(Views) > 0) &&
+              @_concatable_@<Views...>
   class concat_view;
 
   namespace views {
@@ -227,21 +231,130 @@ namespace std::ranges {
 }
 ```
 
+## Range adaptor helpers [range.adaptor.helpers]
+
+This paper applies the same following changes as in [@P2374R3]. If [@P2374R3] is merged into the standard, the changes in this section can be dropped.
+
+New section after Non-propagating cache [range.nonprop.cache]{.sref}. Move the definitions of `@_tuple-or-pair_@`, `@_tuple-transform_@`, and `@_tuple-for-each_@` from Class template `zip_view` [range.zip.view]{.sref} to this section:
+
+```cpp
+namespace std::ranges {
+    template <class... Ts>
+    using tuple-or-pair = see-below;                     // exposition only
+
+    template<class F, class Tuple>
+    constexpr auto tuple-transform(F&& f, Tuple&& tuple) { // exposition only
+        return apply([&]<class... Ts>(Ts&&... elements) {
+            return tuple-or-pair<invoke_result_t<F&, Ts>...>(
+                invoke(f, std::forward<Ts>(elements))...
+            );
+        }, std::forward<Tuple>(tuple));
+    }
+
+    template<class F, class Tuple>
+    constexpr void tuple-for-each(F&& f, Tuple&& tuple) { // exposition only
+        apply([&]<class... Ts>(Ts&&... elements) {
+            (invoke(f, std::forward<Ts>(elements)), ...);
+        }, std::forward<Tuple>(tuple));
+    }
+}
+```
+
+Given some pack of types `Ts`, the alias template `@_tuple-or-pair_@` is defined as follows:
+
+1. If `sizeof...(Ts)` is `2`, `@_tuple-or-pair_@<Ts...>` denotes `pair<Ts...>`.
+2. Otherwise, `@_tuple-or-pair_@<Ts...>` denotes `tuple<Ts...>`.
+
 ## `concat_view`
 
-Add the following subclause to 24.7 [range.adaptors]{.sref}.
+Add the following subclause to [range.adaptors]{.sref}.
 
 ### 24.7.? Concat view [range.concat] {-}
 
 #### 24.7.?.1 Overview [range.concat.overview] {-}
 
+`concat_view` presents a `view` that concatinates all the underlying ranges.
+
+The name `views::concat` denotes a customization point object ([customization.point.object]{.sref}). Given a pack of subexpressions `Es...`, the expression `views::concat(Es...)` is expression-equivalent to
+
+- `views::all(Es...)` if `Es` is a pack with only one element,
+- otherwise, `concat_view(Es...)` if the expression is valid,
+- otherwise, ill-formed
+
+*[Example:*
+
+```cpp
+std::vector<int> v1{1,2,3}, v2{4,5}, v3{};
+std::array  a{6,7,8};
+auto s = std::views::single(9);
+for(auto&& i : std::views::concat(v1, v2, v3, a, s)){
+  std::cout << i << ' ';
+}
+// prints 1 2 3 4 5 6 7 8 9 
+```
+
+- *end example]*
+
 #### 24.7.?.2 Class template `concat_view` [range.concat.view] {-}
+
+```cpp
+namespace std::ranges{
+
+  template <class... Ts>
+  concept @_concatable_@ =                           // exposition only
+            (convertible_to<range_reference_t<Ts>,
+              common_reference_t<range_reference_t<Ts>...>> && ...);
+
+  template <size_t N, typename... T>
+  using @_n-th_@ = tuple_element_t<N, tuple<T...>>;  // exposition only
+
+  template <typename... T>
+  using @_back_@ = @_n-th_@<sizeof...(T) - 1, T...>;     // exposition only
+
+  template <bool... b, size_t... I>
+  consteval bool @_all-but-last_@                    // exposition only
+                  (std::index_sequence<I...>) { 
+      return ((I == sizeof...(I) - 1 || b) && ...);
+  }
+
+  template <bool Const, class... Views>
+  concept @_concat-random-access_@ =                 // exposition only
+            ((random_access_range<@_maybe-const_@<Const, Views>> &&
+              sized_range<@_maybe-const_@<Const, Views>>)&&...);
+
+  template <class R>
+  concept @_cheaply-reversible_@ =                   // exposition only
+            (bidirectional_range<R> && common_range<R>) ||
+            (sized_range<R> && random_access_range<R>);
+
+  template <class... V>
+  concept @_concat-can-prev_@ =                      // exposition only
+      @_all-but-last_@<@_cheaply-reversible_@<V>...>(index_sequence_for<V...>{}) &&
+      bidirectional_range<@_back_@<V...>>;
+
+
+  template <bool Const, class... Views>
+  concept @_concat-bidirectional_@ =                 // exposition only
+      @_concat-can-prev_@<@_maybe-const_@<Const, Views>...>;
+
+  template <bool Const, class... Views>
+  concept @_all-forward_@ =                          // exposition only
+      (forward_range<@_maybe-const_@<Const, Views>> && ...);
+  }
+
+  template <input_range... Views>
+    requires (view<Views> && ...) && (sizeof...(Views) > 0) &&
+              @_concatable_@<Views...>
+  class concat_view : public view_interface<concat_view<Views...>> {
+    tuple<Views...> views_ = tuple<Views...>();     // exposition only
+
+    template <bool Const>
+    class iterator;
+  };
+```
 
 #### 24.7.?.3 Class concat_view::iterator [range.concat.iterator] {-}
 
-#### 24.7.?.4 Class concat_view::sentinel [range.concat.sentinel] {-}
-
-4.7.?.2 Class template chunk_by_view [range.chunk.by.view]
 
 ## Feature Test Macro
 
