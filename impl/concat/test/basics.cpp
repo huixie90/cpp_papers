@@ -418,6 +418,33 @@ TEST_POINT("random access") {
     REQUIRE(cv[4] == 5);
     REQUIRE(cv[5] == 6);
 }
+
+
+TEST_POINT("single range view works") {
+
+    std::vector<int> v1{1,2,3,4};
+    std::ranges::concat_view cv{v1};
+    static_assert(std::ranges::random_access_range<decltype(cv)>);
+    REQUIRE(cv[0] == 1);
+    REQUIRE(cv[1] == 2);
+    REQUIRE(cv[2] == 3);
+    REQUIRE(cv[3] == 4);
+
+    REQUIRE(std::ranges::size(cv)==4);
+
+    auto it = std::ranges::begin(cv);
+    REQUIRE(it + 4 == std::ranges::end(cv));
+    it += 3;
+    it -= 1;
+    REQUIRE(*it == 3);
+
+    ++it;
+    REQUIRE(*it == 4);
+
+    --it;
+    REQUIRE(*it == 3);
+}
+
 TEST_POINT("Sentinel") {
     // using V = std::vector<int>;
     // using W = std::list<int>;
