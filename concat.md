@@ -346,12 +346,31 @@ namespace std::ranges{
     requires (view<Views> && ...) && (sizeof...(Views) > 0) &&
               @_concatable_@<Views...>
   class concat_view : public view_interface<concat_view<Views...>> {
-    tuple<Views...> views_ = tuple<Views...>();     // exposition only
+    tuple<Views...> @*views_*@ = tuple<Views...>();  // exposition only
 
     template <bool Const>
-    class iterator;
+    class @_iterator_@;                                  // exposition only
+
+
+  public:
+    constexpr concat_view() requires(default_initializable<Views>&&...) = default;
+
+    constexpr explicit concat_view(Views... views);
+
+    constexpr @_iterator_@<false> begin() requires(!(@_simple-view_@<Views> && ...)) {
+        @_iterator_@<false> it{this, in_place_index<0u>, ranges::begin(get<0>(@*views_*@))};
+        it.template @_satisfy_@<0>();
+        return it;
+    }
   };
 ```
+
+```cpp
+constexpr explicit concat_view(Views... views);
+```
+
+[1]{.pnum} *Effects*: Initializes `@*views_*@` with `std::move(views)`.
+
 
 #### 24.7.?.3 Class concat_view::iterator [range.concat.iterator] {-}
 

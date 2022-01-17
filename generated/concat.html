@@ -762,16 +762,31 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <span id="cb10-46"><a href="#cb10-46"></a>    <span class="kw">requires</span> <span class="op">(</span>view<span class="op">&lt;</span>Views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span><span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">)</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span>
 <span id="cb10-47"><a href="#cb10-47"></a>              <em>concatable</em><span class="op">&lt;</span>Views<span class="op">...&gt;</span></span>
 <span id="cb10-48"><a href="#cb10-48"></a>  <span class="kw">class</span> concat_view <span class="op">:</span> <span class="kw">public</span> view_interface<span class="op">&lt;</span>concat_view<span class="op">&lt;</span>Views<span class="op">...&gt;&gt;</span> <span class="op">{</span></span>
-<span id="cb10-49"><a href="#cb10-49"></a>    tuple<span class="op">&lt;</span>Views<span class="op">...&gt;</span> views_ <span class="op">=</span> tuple<span class="op">&lt;</span>Views<span class="op">...&gt;()</span>;     <span class="co">// exposition only</span></span>
+<span id="cb10-49"><a href="#cb10-49"></a>    tuple<span class="op">&lt;</span>Views<span class="op">...&gt;</span> <em>views_</em> <span class="op">=</span> tuple<span class="op">&lt;</span>Views<span class="op">...&gt;()</span>;  <span class="co">// exposition only</span></span>
 <span id="cb10-50"><a href="#cb10-50"></a></span>
 <span id="cb10-51"><a href="#cb10-51"></a>    <span class="kw">template</span> <span class="op">&lt;</span><span class="dt">bool</span> Const<span class="op">&gt;</span></span>
-<span id="cb10-52"><a href="#cb10-52"></a>    <span class="kw">class</span> iterator;</span>
-<span id="cb10-53"><a href="#cb10-53"></a>  <span class="op">}</span>;</span></code></pre></div>
+<span id="cb10-52"><a href="#cb10-52"></a>    <span class="kw">class</span> <em>iterator</em>;                                  <span class="co">// exposition only</span></span>
+<span id="cb10-53"><a href="#cb10-53"></a></span>
+<span id="cb10-54"><a href="#cb10-54"></a></span>
+<span id="cb10-55"><a href="#cb10-55"></a>  <span class="kw">public</span><span class="op">:</span></span>
+<span id="cb10-56"><a href="#cb10-56"></a>    <span class="kw">constexpr</span> concat_view<span class="op">()</span> <span class="kw">requires</span><span class="op">(</span>default_initializable<span class="op">&lt;</span>Views<span class="op">&gt;&amp;&amp;...)</span> <span class="op">=</span> <span class="cf">default</span>;</span>
+<span id="cb10-57"><a href="#cb10-57"></a></span>
+<span id="cb10-58"><a href="#cb10-58"></a>    <span class="kw">constexpr</span> <span class="kw">explicit</span> concat_view<span class="op">(</span>Views<span class="op">...</span> views<span class="op">)</span>;</span>
+<span id="cb10-59"><a href="#cb10-59"></a></span>
+<span id="cb10-60"><a href="#cb10-60"></a></span>
+<span id="cb10-61"><a href="#cb10-61"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">&lt;</span><span class="kw">false</span><span class="op">&gt;</span> begin<span class="op">()</span> <span class="kw">requires</span><span class="op">(!(</span><em>simple-view</em><span class="op">&lt;</span>Views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...))</span> <span class="op">{</span></span>
+<span id="cb10-62"><a href="#cb10-62"></a>        <em>iterator</em><span class="op">&lt;</span><span class="kw">false</span><span class="op">&gt;</span> it<span class="op">{</span><span class="kw">this</span>, in_place_index<span class="op">&lt;</span><span class="dv">0</span><span class="bu">u</span><span class="op">&gt;</span>, ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span><span class="dv">0</span><span class="op">&gt;(</span><em>views_</em><span class="op">))}</span>;</span>
+<span id="cb10-63"><a href="#cb10-63"></a>        it<span class="op">.</span><span class="kw">template</span> <em>satisfy</em><span class="op">&lt;</span><span class="dv">0</span><span class="op">&gt;()</span>;</span>
+<span id="cb10-64"><a href="#cb10-64"></a>        <span class="cf">return</span> it;</span>
+<span id="cb10-65"><a href="#cb10-65"></a>    <span class="op">}</span></span>
+<span id="cb10-66"><a href="#cb10-66"></a>  <span class="op">}</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">constexpr</span> <span class="kw">explicit</span> concat_view<span class="op">(</span>Views<span class="op">...</span> views<span class="op">)</span>;</span></code></pre></div>
+<p><span class="marginalizedparent"><a class="marginalized">1</a></span> <em>Effects</em>: Initializes <code class="sourceCode default"><em>views_</em></code> with <code class="sourceCode default">std::move(views)</code>.</p>
 <h4 class="unnumbered" data-number id="class-concat_viewiterator-range.concat.iterator">24.7.?.3 Class concat_view::iterator [range.concat.iterator]<a href="#class-concat_viewiterator-range.concat.iterator" class="self-link"></a></h4>
 <h2 data-number="5.4" id="feature-test-macro"><span class="header-section-number">5.4</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
 <p>Add the following macro definition to 17.3.2 <span>17.3.2
  <a href="https://wg21.link/version.syn">[version.syn]</a></span>, header <code class="sourceCode default">&lt;version&gt;</code> synopsis, with the value selected by the editor to reflect the date of adoption of this paper:</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1"></a><span class="pp">#define __cpp_lib_ranges_concat  </span><span class="dv">20</span><span class="er">XXXXL</span><span class="pp"> </span><span class="co">// also in &lt;ranges&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1"></a><span class="pp">#define __cpp_lib_ranges_concat  </span><span class="dv">20</span><span class="er">XXXXL</span><span class="pp"> </span><span class="co">// also in &lt;ranges&gt;</span></span></code></pre></div>
 <h1 data-number="6" id="bibliography"><span class="header-section-number">6</span> References<a href="#bibliography" class="self-link"></a></h1>
 <div id="refs" class="references hanging-indent" role="doc-bibliography">
 <div id="ref-ours">
