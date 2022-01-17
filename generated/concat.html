@@ -472,7 +472,8 @@ code.sourceCode > span { display: inline; }
 </ul></li>
 <li><a href="#feature-test-macro"><span class="toc-section-number">5.4</span> Feature Test Macro<span></span></a></li>
 </ul></li>
-<li><a href="#bibliography"><span class="toc-section-number">6</span> References<span></span></a></li>
+<li><a href="#future-improvements"><span class="toc-section-number">6</span> Future Improvements<span></span></a></li>
+<li><a href="#bibliography"><span class="toc-section-number">7</span> References<span></span></a></li>
 </ul>
 </div>
 <h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
@@ -786,7 +787,9 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <p>Add the following macro definition to 17.3.2 <span>17.3.2
  <a href="https://wg21.link/version.syn">[version.syn]</a></span>, header <code class="sourceCode default">&lt;version&gt;</code> synopsis, with the value selected by the editor to reflect the date of adoption of this paper:</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1"></a><span class="pp">#define __cpp_lib_ranges_concat  </span><span class="dv">20</span><span class="er">XXXXL</span><span class="pp"> </span><span class="co">// also in &lt;ranges&gt;</span></span></code></pre></div>
-<h1 data-number="6" id="bibliography"><span class="header-section-number">6</span> References<a href="#bibliography" class="self-link"></a></h1>
+<h1 data-number="6" id="future-improvements"><span class="header-section-number">6</span> Future Improvements<a href="#future-improvements" class="self-link"></a></h1>
+<p>[TODO:] Can we do better than <code class="sourceCode default">common_reference_t</code>? What about <code class="sourceCode default">views::concat_as&lt;T&gt;(...)</code></p>
+<h1 data-number="7" id="bibliography"><span class="header-section-number">7</span> References<a href="#bibliography" class="self-link"></a></h1>
 <div id="refs" class="references hanging-indent" role="doc-bibliography">
 <div id="ref-ours">
 <p>[ours] Hui Xie and S. Levent Yilmaz. A proof-of-concept implementation of views::concat. <br />
