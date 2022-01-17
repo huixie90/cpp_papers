@@ -7,6 +7,7 @@
 #include <ranges>
 #include <tuple>
 #include <variant>
+#include <array>
 
 #include "utils.hpp"
 
@@ -332,10 +333,12 @@ class concat_view : public view_interface<concat_view<Views...>> {
             if (ix > iy) {
                 // distance(y, yend) + size(ranges_in_between)... + distance(xbegin, x)
                 const auto all_sizes = std::apply(
-                    [&](const auto&... views) { return std::array{ranges::size(views)...}; },
+                    [&](const auto&... views) {
+                        return std::array{static_cast<difference_type>(size(views))...};
+                    },
                     x.get_parent_views());
-                auto in_between =
-                    std::accumulate(all_sizes.data() + iy + 1, all_sizes.data() + ix, 0);
+                auto in_between = std::accumulate(all_sizes.data() + iy + 1, all_sizes.data() + ix,
+                                                  difference_type(0));
 
                 auto y_visitor = [&]<size_t N>(integral_constant<size_t, N>) {
                     return all_sizes[N] -
@@ -364,11 +367,14 @@ class concat_view : public view_interface<concat_view<Views...>> {
             xo::concat_random_access<Const, Views>&&...) {
 
             const auto idx = i.it_.index();
-            const auto all_sizes =
-                std::apply([&](const auto&... views) { return std::array{ranges::size(views)...}; },
-                           i.get_parent_views());
+            const auto all_sizes = std::apply(
+                [&](const auto&... views) {
+                    return std::array{static_cast<difference_type>(ranges::size(views))...};
+                },
+                i.get_parent_views());
             auto to_the_end =
-                std::accumulate(all_sizes.data() + idx + 1, all_sizes.data() + sizeof...(Views), 0);
+                std::accumulate(all_sizes.data() + idx + 1, all_sizes.data() + sizeof...(Views),
+                                difference_type(0));
 
             auto visitor = [&]<size_t N>(integral_constant<size_t, N>) {
                 return all_sizes[N] - (get<N>(i.it_) - ranges::begin(get<N>(i.get_parent_views())));
