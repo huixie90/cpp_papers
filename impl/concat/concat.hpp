@@ -334,7 +334,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
                 // distance(y, yend) + size(ranges_in_between)... + distance(xbegin, x)
                 const auto all_sizes = std::apply(
                     [&](const auto&... views) {
-                        return std::array{static_cast<difference_type>(size(views))...};
+                        return std::array{static_cast<difference_type>(ranges::size(views))...};
                     },
                     x.get_parent_views());
                 auto in_between = std::accumulate(all_sizes.data() + iy + 1, all_sizes.data() + ix,
