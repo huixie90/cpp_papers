@@ -397,6 +397,10 @@ Add the following macro definition to 17.3.2 [version.syn]{.sref}, header `<vers
 #define __cpp_lib_ranges_concat  20XXXXL // also in <ranges>
 ```
 
+# Future Improvements
+
+[TODO:] Can we do better than `common_reference_t`? What about `views::concat_as<T>(...)`
+
 ---
 references:
   - id: rangev3
