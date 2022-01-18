@@ -398,10 +398,131 @@ constexpr auto size() const requires(sized_range<const Views>&&...);
 
 #### 24.7.?.3 Class concat_view::iterator [range.concat.iterator] {-}
 
+```cpp
+namespace std::ranges{
+
+  template <input_range... Views>
+    requires (view<Views> && ...) && (sizeof...(Views) > 0) &&
+              @_concatable_@<Views...>
+  template <bool Const>
+  class concat_view<Views...>::@_iterator_@ {
+  
+  public:
+    using reference = common_reference_t<range_reference_t<@_maybe-const_@<Const, Views>>...>;
+    using difference_type = common_type_t<range_difference_t<@_maybe-const_@<Const, Views>>...>;
+    using value_type = common_type_t<range_value_t<@_maybe-const_@<Const, Views>>...>;
+    using iterator_concept = @*see below*@;
+    using iterator_category = @*see below*@;                  // not always present.
+
+  private:
+    using @*base_iter*@ =                                     // exposition only
+      variant<iterator_t<__maybe_const<Const, Views>>...>;
+    
+    @_maybe-const_@<Const, concat_view>* @*parent_*@ = nullptr;   // exposition only
+    @*base_iter*@ @*it_*@ = @*base_iter*@();                          // exposition only
+
+    friend class @*iterator*@<!Const>;
+    friend class concat_view;
+
+    template <std::size_t N>
+    constexpr void @_satisfy_@();                             // exposition only
+
+    template <std::size_t N>
+    constexpr void @_prev_@();                                // exposition only
+
+    template <std::size_t N>
+    constexpr void @_advance_fwd_@(difference_type, difference_type); // exposition only
+
+    template <std::size_t N>
+    constexpr void @_advance_bwd_@(difference_type, difference_type); // exposition only
+
+  public:
+
+    @_iterator_@() requires(default_initializable<iterator_t<@_maybe-const_@<Const, Views>>>&&...) =
+        default;
+
+    template <class... Args>
+    explicit constexpr @_iterator_@(
+                @_maybe-const_@<Const, concat_view>* parent,
+                Args&&... args) 
+        requires constructible_from<@*base_iter*@, Args&&...>;
+
+    constexpr @_iterator_@(@_iterator_@<!Const> i) 
+        requires Const &&
+        (convertible_to<iterator_t<Views>, iterator_t<@_maybe-const_@<Const, Views>>>&&...);
+
+    constexpr reference operator*() const;
+
+    constexpr @_iterator_@& operator++();
+
+    constexpr void operator++(int);
+
+    constexpr @_iterator_@ operator++(int) 
+        requires(forward_range<@_maybe-const_@<Const, Views>>&&...);
+    
+    constexpr @_iterator_@& operator--() 
+        requires @_concat-bidirectional_@<Const, Views...>;
+
+    constexpr @_iterator_@ operator--(int) 
+        requires @_concat-bidirectional_@<Const, Views...>
+
+    constexpr @_iterator_@& operator+=(difference_type n) 
+        requires @_concat-random-access_@<Const, Views...>;
+
+    constexpr @_iterator_@& operator-=(difference_type n) 
+        requires @_concat-random-access_@<Const, Views...>;
+
+    constexpr reference operator[](difference_type n) const
+        requires @_concat-random-access_@<Const, Views...>;
+
+    friend constexpr bool operator==(const @_iterator_@& it1, const @_iterator_@& it2)
+        requires(equality_comparable<iterator_t<@_maybe-const_@<Const, Views>>>&&...);
+
+    friend constexpr bool operator==(const @_iterator_@& it, default_sentinel_t);
+
+    friend constexpr auto operator<(const @_iterator_@& x, const @_iterator_@& y)
+        requires(random_access_range<@_maybe-const_@<Const, Views>>&&...);
+
+    friend constexpr auto operator>(const @_iterator_@& x, const @_iterator_@& y)
+        requires(random_access_range<@_maybe-const_@<Const, Views>>&&...);
+
+    friend constexpr auto operator<=(const @_iterator_@& x, const @_iterator_@& y)
+        requires(random_access_range<@_maybe-const_@<Const, Views>>&&...);
+
+    friend constexpr auto operator>=(const @_iterator_@& x, const @_iterator_@& y)
+        requires(random_access_range<@_maybe-const_@<Const, Views>>&&...);
+
+    friend constexpr auto operator<=>(const @_iterator_@& x, const @_iterator_@& y)
+        requires((random_access_range<@_maybe-const_@<Const, Views>> &&
+         three_way_comparable<@_maybe-const_@<Const, Views>>)&&...);
+
+    friend constexpr @_iterator_@ operator+(const @_iterator_@& x, difference_type y)
+        requires(@_concat-random-access_@<Const, Views>&&...);
+
+    friend constexpr @_iterator_@ operator+(difference_type x, const @_iterator_@& y)
+        requires(@_concat-random-access_@<Const, Views>&&...);
+
+    friend constexpr @_iterator_@ operator-(const @_iterator_@& x, difference_type y)
+        requires(@_concat-random-access_@<Const, Views>&&...);
+
+    friend constexpr difference_type operator-(const @_iterator_@& x, const @_iterator_@& y) 
+        requires(@_concat-random-access_@<Const, Views>&&...);
+
+    friend constexpr difference_type operator-(const @_iterator_@& i, default_sentinel_t) 
+        requires(@_concat-random-access_@<Const, Views>&&...);
+
+    friend constexpr difference_type operator-(default_sentinel_t, const @_iterator_@& i) 
+        requires(@_concat-random-access_@<Const, Views>&&...);
+
+    // TODO: iter_swap and iter_move
+  };
+
+}
+```
 
 ## Feature Test Macro
 
-Add the following macro definition to 17.3.2 [version.syn]{.sref}, header `<version>` synopsis, with the value selected by the editor to reflect the date of adoption of this paper:
+Add the following macro definition to [version.syn]{.sref}, header `<version>` synopsis, with the value selected by the editor to reflect the date of adoption of this paper:
 
 ```cpp
 #define __cpp_lib_ranges_concat  20XXXXL // also in <ranges>

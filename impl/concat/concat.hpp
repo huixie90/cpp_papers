@@ -354,7 +354,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
             }
         }
 
-        friend constexpr difference_type operator-(iterator i, default_sentinel_t) requires(
+        friend constexpr difference_type operator-(const iterator& i, default_sentinel_t) requires(
             xo::concat_random_access<Const, Views>&&...) {
 
             const auto idx = i.it_.index();
@@ -372,7 +372,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
             return -(i_to_idx_end + to_the_end);
         }
 
-        friend constexpr difference_type operator-(default_sentinel_t, iterator i) requires(
+        friend constexpr difference_type operator-(default_sentinel_t, const iterator& i) requires(
             xo::concat_random_access<Const, Views>&&...) {
             return -(i - default_sentinel);
         }
