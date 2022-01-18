@@ -253,8 +253,8 @@ ranges.
 the expression `views::concat(Es...)` is expression-equivalent to
 
 - [2.1]{.pnum} `views::all(Es...)` if `Es` is a pack with only one element,
-- [2.2]{.pnum} otherwise, `concat_view<views::all_t<decltype((Es))>...>(Es...)`,
-- [2.3]{.pnum} otherwise (empty), ill-formed
+- [2.2]{.pnum} otherwise, `concat_view<views::all_t<decltype((Es))>...>(Es...)` if this expression is valid,
+- [2.3]{.pnum} otherwise, ill-formed.
 
 [*Example:*
 

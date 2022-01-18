@@ -666,8 +666,8 @@ Note that the last underlying range does not have to satisfy this constraint bec
  <a href="https://wg21.link/customization.point.object">[customization.point.object]</a></span>). Given a pack of subexpressions <code class="sourceCode default">Es...</code>, the expression <code class="sourceCode default">views::concat(Es...)</code> is expression-equivalent to</p>
 <ul>
 <li><span class="marginalizedparent"><a class="marginalized">(2.1)</a></span> <code class="sourceCode default">views::all(Es...)</code> if <code class="sourceCode default">Es</code> is a pack with only one element,</li>
-<li><span class="marginalizedparent"><a class="marginalized">(2.2)</a></span> otherwise, <code class="sourceCode default">concat_view&lt;views::all_t&lt;decltype((Es))&gt;...&gt;(Es...)</code>,</li>
-<li><span class="marginalizedparent"><a class="marginalized">(2.3)</a></span> otherwise (empty), ill-formed</li>
+<li><span class="marginalizedparent"><a class="marginalized">(2.2)</a></span> otherwise, <code class="sourceCode default">concat_view&lt;views::all_t&lt;decltype((Es))&gt;...&gt;(Es...)</code> if this expression is valid,</li>
+<li><span class="marginalizedparent"><a class="marginalized">(2.3)</a></span> otherwise, ill-formed.</li>
 </ul>
 <p>[<em>Example:</em></p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1"></a>std<span class="op">::</span>vector<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;</span> v1<span class="op">{</span><span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span><span class="op">}</span>, v2<span class="op">{</span><span class="dv">4</span>,<span class="dv">5</span><span class="op">}</span>, v3<span class="op">{}</span>;</span>
