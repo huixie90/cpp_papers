@@ -685,56 +685,55 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <span id="cb8-5"><a href="#cb8-5"></a>    <span class="op">(</span>convertible_to<span class="op">&lt;</span>range_reference_t<span class="op">&lt;</span>Rs<span class="op">&gt;</span>, </span>
 <span id="cb8-6"><a href="#cb8-6"></a>      common_reference_t<span class="op">&lt;</span>range_reference_t<span class="op">&lt;</span>Rs<span class="op">&gt;...&gt;&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span>;</span>
 <span id="cb8-7"><a href="#cb8-7"></a></span>
-<span id="cb8-8"><a href="#cb8-8"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="dt">bool</span> Const, <span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
 <span id="cb8-9"><a href="#cb8-9"></a>  <span class="kw">concept</span> <em>concat-random-access</em> <span class="op">=</span>              <span class="co">// exposition only</span></span>
-<span id="cb8-10"><a href="#cb8-10"></a>    <span class="op">((</span>random_access_range<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Rs<span class="op">&gt;&gt;</span> <span class="op">&amp;&amp;</span></span>
-<span id="cb8-11"><a href="#cb8-11"></a>      sized_range<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Rs<span class="op">&gt;&gt;)&amp;&amp;...)</span>;</span>
-<span id="cb8-12"><a href="#cb8-12"></a></span>
-<span id="cb8-13"><a href="#cb8-13"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> R<span class="op">&gt;</span></span>
-<span id="cb8-14"><a href="#cb8-14"></a>  <span class="kw">concept</span> <em>constant-time-reversible</em> <span class="op">=</span>          <span class="co">// exposition only</span></span>
-<span id="cb8-15"><a href="#cb8-15"></a>    <span class="op">(</span>bidirectional_range<span class="op">&lt;</span>R<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> common_range<span class="op">&lt;</span>R<span class="op">&gt;)</span> <span class="op">||</span></span>
-<span id="cb8-16"><a href="#cb8-16"></a>    <span class="op">(</span>sized_range<span class="op">&lt;</span>R<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> random_access_range<span class="op">&lt;</span>R<span class="op">&gt;)</span>;</span>
-<span id="cb8-17"><a href="#cb8-17"></a></span>
-<span id="cb8-18"><a href="#cb8-18"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="dt">bool</span> Const, <span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
-<span id="cb8-19"><a href="#cb8-19"></a>  <span class="kw">concept</span> <em>concat-bidirectional</em> <span class="op">=</span> <em>see below</em>;   <span class="co">// exposition only</span></span>
-<span id="cb8-20"><a href="#cb8-20"></a></span>
-<span id="cb8-21"><a href="#cb8-21"></a>  <span class="kw">template</span> <span class="op">&lt;</span>input_range<span class="op">...</span> Views<span class="op">&gt;</span></span>
-<span id="cb8-22"><a href="#cb8-22"></a>    <span class="kw">requires</span> <span class="op">(</span>view<span class="op">&lt;</span>Views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span><span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">)</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span>
-<span id="cb8-23"><a href="#cb8-23"></a>              <em>concatable</em><span class="op">&lt;</span>Views<span class="op">...&gt;</span></span>
-<span id="cb8-24"><a href="#cb8-24"></a>  <span class="kw">class</span> concat_view <span class="op">:</span> <span class="kw">public</span> view_interface<span class="op">&lt;</span>concat_view<span class="op">&lt;</span>Views<span class="op">...&gt;&gt;</span> <span class="op">{</span></span>
-<span id="cb8-25"><a href="#cb8-25"></a>    tuple<span class="op">&lt;</span>Views<span class="op">...&gt;</span> <em>views_</em> <span class="op">=</span> tuple<span class="op">&lt;</span>Views<span class="op">...&gt;()</span>; <span class="co">// exposition only</span></span>
-<span id="cb8-26"><a href="#cb8-26"></a></span>
-<span id="cb8-27"><a href="#cb8-27"></a>    <span class="kw">template</span> <span class="op">&lt;</span><span class="dt">bool</span> Const<span class="op">&gt;</span></span>
-<span id="cb8-28"><a href="#cb8-28"></a>    <span class="kw">class</span> <em>iterator</em>;                           <span class="co">// exposition only</span></span>
-<span id="cb8-29"><a href="#cb8-29"></a></span>
-<span id="cb8-30"><a href="#cb8-30"></a>  <span class="kw">public</span><span class="op">:</span></span>
-<span id="cb8-31"><a href="#cb8-31"></a>    <span class="kw">constexpr</span> concat_view<span class="op">()</span> <span class="kw">requires</span><span class="op">(</span>default_initializable<span class="op">&lt;</span>Views<span class="op">&gt;&amp;&amp;...)</span> <span class="op">=</span> <span class="cf">default</span>;</span>
-<span id="cb8-32"><a href="#cb8-32"></a></span>
-<span id="cb8-33"><a href="#cb8-33"></a>    <span class="kw">constexpr</span> <span class="kw">explicit</span> concat_view<span class="op">(</span>Views<span class="op">...</span> views<span class="op">)</span>;</span>
-<span id="cb8-34"><a href="#cb8-34"></a></span>
-<span id="cb8-35"><a href="#cb8-35"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">&lt;</span><span class="kw">false</span><span class="op">&gt;</span> begin<span class="op">()</span> <span class="kw">requires</span><span class="op">(!(</span><em>simple-view</em><span class="op">&lt;</span>Views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...))</span>;</span>
-<span id="cb8-36"><a href="#cb8-36"></a></span>
-<span id="cb8-37"><a href="#cb8-37"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">&lt;</span><span class="kw">true</span><span class="op">&gt;</span> begin<span class="op">()</span> <span class="kw">const</span></span>
-<span id="cb8-38"><a href="#cb8-38"></a>      <span class="kw">requires</span><span class="op">((</span>range<span class="op">&lt;</span><span class="kw">const</span> Views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span> <span class="op">&amp;&amp;</span> <em>concatable</em><span class="op">&lt;</span><span class="kw">const</span> Views<span class="op">...&gt;)</span>;</span>
-<span id="cb8-39"><a href="#cb8-39"></a></span>
-<span id="cb8-40"><a href="#cb8-40"></a>    <span class="kw">constexpr</span> <span class="kw">auto</span> end<span class="op">()</span> <span class="kw">requires</span><span class="op">(!(</span><em>simple-view</em><span class="op">&lt;</span>Views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...))</span>;</span>
-<span id="cb8-41"><a href="#cb8-41"></a></span>
-<span id="cb8-42"><a href="#cb8-42"></a>    <span class="kw">constexpr</span> <span class="kw">auto</span> end<span class="op">()</span> <span class="kw">const</span> <span class="kw">requires</span><span class="op">(</span>range<span class="op">&lt;</span><span class="kw">const</span> Views<span class="op">&gt;&amp;&amp;...)</span>;</span>
-<span id="cb8-43"><a href="#cb8-43"></a></span>
-<span id="cb8-44"><a href="#cb8-44"></a>    <span class="kw">constexpr</span> <span class="kw">auto</span> size<span class="op">()</span> <span class="kw">requires</span><span class="op">(</span>sized_range<span class="op">&lt;</span>Views<span class="op">&gt;&amp;&amp;...)</span>;</span>
-<span id="cb8-45"><a href="#cb8-45"></a></span>
-<span id="cb8-46"><a href="#cb8-46"></a>    <span class="kw">constexpr</span> <span class="kw">auto</span> size<span class="op">()</span> <span class="kw">const</span> <span class="kw">requires</span><span class="op">(</span>sized_range<span class="op">&lt;</span><span class="kw">const</span> Views<span class="op">&gt;&amp;&amp;...)</span>;</span>
-<span id="cb8-47"><a href="#cb8-47"></a>  <span class="op">}</span>;</span>
-<span id="cb8-48"><a href="#cb8-48"></a></span>
-<span id="cb8-49"><a href="#cb8-49"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> R<span class="op">&gt;</span></span>
-<span id="cb8-50"><a href="#cb8-50"></a>    concat_view<span class="op">(</span>R<span class="op">&amp;&amp;...)</span> <span class="op">-&gt;</span> concat_view<span class="op">&lt;</span>views<span class="op">::</span>all_t<span class="op">&lt;</span>R<span class="op">&gt;...&gt;</span>;</span>
-<span id="cb8-51"><a href="#cb8-51"></a><span class="op">}</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="dt">bool</span> Const, <span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
-<span id="cb9-2"><a href="#cb9-2"></a><span class="kw">concept</span> <em>concat-bidirectional</em> <span class="op">=</span>  <em>see below</em>;</span></code></pre></div>
-<p><span class="marginalizedparent"><a class="marginalized">1</a></span> Let <code class="sourceCode default">Es</code> denote a pack <code class="sourceCode default"><em>maybe-const</em>&lt;Const, Rs&gt;...</code>. The concept <code class="sourceCode default"><em>concat-bidirectional</em></code> is modelled if,</p>
+<span id="cb8-10"><a href="#cb8-10"></a>    <span class="op">((</span>random_access_range<span class="op">&lt;</span>Rs<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> sized_range<span class="op">&lt;</span>Rs<span class="op">&gt;)&amp;&amp;...)</span>;</span>
+<span id="cb8-11"><a href="#cb8-11"></a></span>
+<span id="cb8-12"><a href="#cb8-12"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> R<span class="op">&gt;</span></span>
+<span id="cb8-13"><a href="#cb8-13"></a>  <span class="kw">concept</span> <em>constant-time-reversible</em> <span class="op">=</span>          <span class="co">// exposition only</span></span>
+<span id="cb8-14"><a href="#cb8-14"></a>    <span class="op">(</span>bidirectional_range<span class="op">&lt;</span>R<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> common_range<span class="op">&lt;</span>R<span class="op">&gt;)</span> <span class="op">||</span></span>
+<span id="cb8-15"><a href="#cb8-15"></a>    <span class="op">(</span>sized_range<span class="op">&lt;</span>R<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> random_access_range<span class="op">&lt;</span>R<span class="op">&gt;)</span>;</span>
+<span id="cb8-16"><a href="#cb8-16"></a></span>
+<span id="cb8-17"><a href="#cb8-17"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
+<span id="cb8-18"><a href="#cb8-18"></a>  <span class="kw">concept</span> <em>concat-bidirectional</em> <span class="op">=</span> <em>see below</em>;   <span class="co">// exposition only</span></span>
+<span id="cb8-19"><a href="#cb8-19"></a></span>
+<span id="cb8-20"><a href="#cb8-20"></a>  <span class="kw">template</span> <span class="op">&lt;</span>input_range<span class="op">...</span> Views<span class="op">&gt;</span></span>
+<span id="cb8-21"><a href="#cb8-21"></a>    <span class="kw">requires</span> <span class="op">(</span>view<span class="op">&lt;</span>Views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span><span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">)</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb8-22"><a href="#cb8-22"></a>              <em>concatable</em><span class="op">&lt;</span>Views<span class="op">...&gt;</span></span>
+<span id="cb8-23"><a href="#cb8-23"></a>  <span class="kw">class</span> concat_view <span class="op">:</span> <span class="kw">public</span> view_interface<span class="op">&lt;</span>concat_view<span class="op">&lt;</span>Views<span class="op">...&gt;&gt;</span> <span class="op">{</span></span>
+<span id="cb8-24"><a href="#cb8-24"></a>    tuple<span class="op">&lt;</span>Views<span class="op">...&gt;</span> <em>views_</em> <span class="op">=</span> tuple<span class="op">&lt;</span>Views<span class="op">...&gt;()</span>; <span class="co">// exposition only</span></span>
+<span id="cb8-25"><a href="#cb8-25"></a></span>
+<span id="cb8-26"><a href="#cb8-26"></a>    <span class="kw">template</span> <span class="op">&lt;</span><span class="dt">bool</span> Const<span class="op">&gt;</span></span>
+<span id="cb8-27"><a href="#cb8-27"></a>    <span class="kw">class</span> <em>iterator</em>;                           <span class="co">// exposition only</span></span>
+<span id="cb8-28"><a href="#cb8-28"></a></span>
+<span id="cb8-29"><a href="#cb8-29"></a>  <span class="kw">public</span><span class="op">:</span></span>
+<span id="cb8-30"><a href="#cb8-30"></a>    <span class="kw">constexpr</span> concat_view<span class="op">()</span> <span class="kw">requires</span><span class="op">(</span>default_initializable<span class="op">&lt;</span>Views<span class="op">&gt;&amp;&amp;...)</span> <span class="op">=</span> <span class="cf">default</span>;</span>
+<span id="cb8-31"><a href="#cb8-31"></a></span>
+<span id="cb8-32"><a href="#cb8-32"></a>    <span class="kw">constexpr</span> <span class="kw">explicit</span> concat_view<span class="op">(</span>Views<span class="op">...</span> views<span class="op">)</span>;</span>
+<span id="cb8-33"><a href="#cb8-33"></a></span>
+<span id="cb8-34"><a href="#cb8-34"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">&lt;</span><span class="kw">false</span><span class="op">&gt;</span> begin<span class="op">()</span> <span class="kw">requires</span><span class="op">(!(</span><em>simple-view</em><span class="op">&lt;</span>Views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...))</span>;</span>
+<span id="cb8-35"><a href="#cb8-35"></a></span>
+<span id="cb8-36"><a href="#cb8-36"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">&lt;</span><span class="kw">true</span><span class="op">&gt;</span> begin<span class="op">()</span> <span class="kw">const</span></span>
+<span id="cb8-37"><a href="#cb8-37"></a>      <span class="kw">requires</span><span class="op">((</span>range<span class="op">&lt;</span><span class="kw">const</span> Views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span> <span class="op">&amp;&amp;</span> <em>concatable</em><span class="op">&lt;</span><span class="kw">const</span> Views<span class="op">...&gt;)</span>;</span>
+<span id="cb8-38"><a href="#cb8-38"></a></span>
+<span id="cb8-39"><a href="#cb8-39"></a>    <span class="kw">constexpr</span> <span class="kw">auto</span> end<span class="op">()</span> <span class="kw">requires</span><span class="op">(!(</span><em>simple-view</em><span class="op">&lt;</span>Views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...))</span>;</span>
+<span id="cb8-40"><a href="#cb8-40"></a></span>
+<span id="cb8-41"><a href="#cb8-41"></a>    <span class="kw">constexpr</span> <span class="kw">auto</span> end<span class="op">()</span> <span class="kw">const</span> <span class="kw">requires</span><span class="op">(</span>range<span class="op">&lt;</span><span class="kw">const</span> Views<span class="op">&gt;&amp;&amp;...)</span>;</span>
+<span id="cb8-42"><a href="#cb8-42"></a></span>
+<span id="cb8-43"><a href="#cb8-43"></a>    <span class="kw">constexpr</span> <span class="kw">auto</span> size<span class="op">()</span> <span class="kw">requires</span><span class="op">(</span>sized_range<span class="op">&lt;</span>Views<span class="op">&gt;&amp;&amp;...)</span>;</span>
+<span id="cb8-44"><a href="#cb8-44"></a></span>
+<span id="cb8-45"><a href="#cb8-45"></a>    <span class="kw">constexpr</span> <span class="kw">auto</span> size<span class="op">()</span> <span class="kw">const</span> <span class="kw">requires</span><span class="op">(</span>sized_range<span class="op">&lt;</span><span class="kw">const</span> Views<span class="op">&gt;&amp;&amp;...)</span>;</span>
+<span id="cb8-46"><a href="#cb8-46"></a>  <span class="op">}</span>;</span>
+<span id="cb8-47"><a href="#cb8-47"></a></span>
+<span id="cb8-48"><a href="#cb8-48"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> R<span class="op">&gt;</span></span>
+<span id="cb8-49"><a href="#cb8-49"></a>    concat_view<span class="op">(</span>R<span class="op">&amp;&amp;...)</span> <span class="op">-&gt;</span> concat_view<span class="op">&lt;</span>views<span class="op">::</span>all_t<span class="op">&lt;</span>R<span class="op">&gt;...&gt;</span>;</span>
+<span id="cb8-50"><a href="#cb8-50"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="kw">concept</span> <em>concat-bidirectional</em> <span class="op">=</span> <em>see below</em>;</span></code></pre></div>
+<p><span class="marginalizedparent"><a class="marginalized">1</a></span> The pack <code class="sourceCode default">Rs...</code> models <code class="sourceCode default"><em>concat-bidirectional</em></code> if,</p>
 <ul>
-<li><span class="marginalizedparent"><a class="marginalized">(1.1)</a></span> Last element of <code class="sourceCode default">Es</code> models <code class="sourceCode default">bidirectional_range</code>,</li>
-<li><span class="marginalizedparent"><a class="marginalized">(1.2)</a></span> And, all except the last element of <code class="sourceCode default">Es</code> model <code class="sourceCode default"><em>constant-time-reversible</em></code>.</li>
+<li><span class="marginalizedparent"><a class="marginalized">(1.1)</a></span> Last element of <code class="sourceCode default">Rs...</code> models <code class="sourceCode default">bidirectional_range</code>,</li>
+<li><span class="marginalizedparent"><a class="marginalized">(1.2)</a></span> And, all except the last element of <code class="sourceCode default">Rs...</code> model <code class="sourceCode default"><em>constant-time-reversible</em></code>.</li>
 </ul>
 <div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">constexpr</span> <span class="kw">explicit</span> concat_view<span class="op">(</span>Views<span class="op">...</span> views<span class="op">)</span>;</span></code></pre></div>
 <p><span class="marginalizedparent"><a class="marginalized">2</a></span> <em>Effects</em>: Initializes <code class="sourceCode default"><em>views_</em></code> with <code class="sourceCode default">std::move(views)...</code>.</p>
@@ -832,19 +831,19 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <span id="cb17-60"><a href="#cb17-60"></a>        <span class="kw">requires</span><span class="op">(</span>forward_range<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&amp;&amp;...)</span>;</span>
 <span id="cb17-61"><a href="#cb17-61"></a>    </span>
 <span id="cb17-62"><a href="#cb17-62"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">--()</span> </span>
-<span id="cb17-63"><a href="#cb17-63"></a>        <span class="kw">requires</span> <em>concat-bidirectional</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb17-63"><a href="#cb17-63"></a>        <span class="kw">requires</span> <em>concat-bidirectional</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb17-64"><a href="#cb17-64"></a></span>
 <span id="cb17-65"><a href="#cb17-65"></a>    <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">--(</span><span class="dt">int</span><span class="op">)</span> </span>
-<span id="cb17-66"><a href="#cb17-66"></a>        <span class="kw">requires</span> <em>concat-bidirectional</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span></span>
+<span id="cb17-66"><a href="#cb17-66"></a>        <span class="kw">requires</span> <em>concat-bidirectional</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span></span>
 <span id="cb17-67"><a href="#cb17-67"></a></span>
 <span id="cb17-68"><a href="#cb17-68"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">+=(</span>difference_type n<span class="op">)</span> </span>
-<span id="cb17-69"><a href="#cb17-69"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb17-69"><a href="#cb17-69"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb17-70"><a href="#cb17-70"></a></span>
 <span id="cb17-71"><a href="#cb17-71"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">-=(</span>difference_type n<span class="op">)</span> </span>
-<span id="cb17-72"><a href="#cb17-72"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb17-72"><a href="#cb17-72"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb17-73"><a href="#cb17-73"></a></span>
 <span id="cb17-74"><a href="#cb17-74"></a>    <span class="kw">constexpr</span> reference <span class="kw">operator</span><span class="op">[](</span>difference_type n<span class="op">)</span> <span class="kw">const</span></span>
-<span id="cb17-75"><a href="#cb17-75"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb17-75"><a href="#cb17-75"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb17-76"><a href="#cb17-76"></a></span>
 <span id="cb17-77"><a href="#cb17-77"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">==(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it1, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it2<span class="op">)</span></span>
 <span id="cb17-78"><a href="#cb17-78"></a>        <span class="kw">requires</span><span class="op">(</span>equality_comparable<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&gt;&amp;&amp;...)</span>;</span>
@@ -868,22 +867,22 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <span id="cb17-96"><a href="#cb17-96"></a>         three_way_comparable<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;)&amp;&amp;...)</span>;</span>
 <span id="cb17-97"><a href="#cb17-97"></a></span>
 <span id="cb17-98"><a href="#cb17-98"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">+(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, difference_type y<span class="op">)</span></span>
-<span id="cb17-99"><a href="#cb17-99"></a>        <span class="kw">requires</span><span class="op">(</span><em>concat-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&amp;&amp;...)</span>;</span>
+<span id="cb17-99"><a href="#cb17-99"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb17-100"><a href="#cb17-100"></a></span>
 <span id="cb17-101"><a href="#cb17-101"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">+(</span>difference_type x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
-<span id="cb17-102"><a href="#cb17-102"></a>        <span class="kw">requires</span><span class="op">(</span><em>concat-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&amp;&amp;...)</span>;</span>
+<span id="cb17-102"><a href="#cb17-102"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb17-103"><a href="#cb17-103"></a></span>
 <span id="cb17-104"><a href="#cb17-104"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, difference_type y<span class="op">)</span></span>
-<span id="cb17-105"><a href="#cb17-105"></a>        <span class="kw">requires</span><span class="op">(</span><em>concat-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&amp;&amp;...)</span>;</span>
+<span id="cb17-105"><a href="#cb17-105"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb17-106"><a href="#cb17-106"></a></span>
 <span id="cb17-107"><a href="#cb17-107"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span> </span>
-<span id="cb17-108"><a href="#cb17-108"></a>        <span class="kw">requires</span><span class="op">(</span><em>concat-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&amp;&amp;...)</span>;</span>
+<span id="cb17-108"><a href="#cb17-108"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb17-109"><a href="#cb17-109"></a></span>
 <span id="cb17-110"><a href="#cb17-110"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> i, default_sentinel_t<span class="op">)</span> </span>
-<span id="cb17-111"><a href="#cb17-111"></a>        <span class="kw">requires</span><span class="op">(</span><em>concat-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&amp;&amp;...)</span>;</span>
+<span id="cb17-111"><a href="#cb17-111"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb17-112"><a href="#cb17-112"></a></span>
 <span id="cb17-113"><a href="#cb17-113"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span>default_sentinel_t, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> i<span class="op">)</span> </span>
-<span id="cb17-114"><a href="#cb17-114"></a>        <span class="kw">requires</span><span class="op">(</span><em>concat-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&amp;&amp;...)</span>;</span>
+<span id="cb17-114"><a href="#cb17-114"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb17-115"><a href="#cb17-115"></a></span>
 <span id="cb17-116"><a href="#cb17-116"></a>    <span class="co">// </span><span class="al">TODO</span><span class="co">: iter_swap and iter_move</span></span>
 <span id="cb17-117"><a href="#cb17-117"></a>  <span class="op">}</span>;</span>
