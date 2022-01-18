@@ -30,6 +30,7 @@ jobs:
       - name: Build pages
         run: |
           make concat.html
+          make P2483R0.html
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.2.2
