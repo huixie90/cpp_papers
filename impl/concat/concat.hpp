@@ -281,22 +281,22 @@ class concat_view : public view_interface<concat_view<Views...>> {
                    get<LastIdx>(it.it_) == ranges::end(get<LastIdx>(it.get_parent_views()));
         }
 
-        friend constexpr auto operator<(const iterator& x, const iterator& y) requires(
+        friend constexpr bool operator<(const iterator& x, const iterator& y) requires(
             random_access_range<__maybe_const<Const, Views>>&&...) {
             return x.it_ < y.it_;
         }
 
-        friend constexpr auto operator>(const iterator& x, const iterator& y) requires(
+        friend constexpr bool operator>(const iterator& x, const iterator& y) requires(
             random_access_range<__maybe_const<Const, Views>>&&...) {
             return y < x;
         }
 
-        friend constexpr auto operator<=(const iterator& x, const iterator& y) requires(
+        friend constexpr bool operator<=(const iterator& x, const iterator& y) requires(
             random_access_range<__maybe_const<Const, Views>>&&...) {
             return !(y < x);
         }
 
-        friend constexpr auto operator>=(const iterator& x, const iterator& y) requires(
+        friend constexpr bool operator>=(const iterator& x, const iterator& y) requires(
             random_access_range<__maybe_const<Const, Views>>&&...) {
             return !(x < y);
         }

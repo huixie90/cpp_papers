@@ -175,16 +175,12 @@ TODO:
 
 `views::concat` has been implemented in [@rangev3], with equivalent semantics as proposed here. We also have implemented a version that directly follows the proposed wording below without issue [@ours].
 
-
-
-
 # Wording
 
 ## Addition to `<ranges>`
 
 Add the following to [ranges.syn]{.sref}, header `<ranges>` synopsis:
 
-::: bq
 ```cpp
 // [...]
 namespace std::ranges {
@@ -201,7 +197,6 @@ namespace std::ranges {
 
 }
 ```
-:::
 
 ## Range adaptor helpers [range.adaptor.helpers]
 
@@ -416,7 +411,7 @@ namespace std::ranges{
 
   private:
     using @*base_iter*@ =                                     // exposition only
-      variant<iterator_t<__maybe_const<Const, Views>>...>;
+      variant<iterator_t<@_maybe-const_@<Const, Views>>...>;
     
     @_maybe-const_@<Const, concat_view>* @*parent_*@ = nullptr;   // exposition only
     @*base_iter*@ @*it_*@ = @*base_iter*@();                          // exposition only
@@ -480,16 +475,16 @@ namespace std::ranges{
 
     friend constexpr bool operator==(const @_iterator_@& it, default_sentinel_t);
 
-    friend constexpr auto operator<(const @_iterator_@& x, const @_iterator_@& y)
+    friend constexpr bool operator<(const @_iterator_@& x, const @_iterator_@& y)
         requires(random_access_range<@_maybe-const_@<Const, Views>>&&...);
 
-    friend constexpr auto operator>(const @_iterator_@& x, const @_iterator_@& y)
+    friend constexpr bool operator>(const @_iterator_@& x, const @_iterator_@& y)
         requires(random_access_range<@_maybe-const_@<Const, Views>>&&...);
 
-    friend constexpr auto operator<=(const @_iterator_@& x, const @_iterator_@& y)
+    friend constexpr bool operator<=(const @_iterator_@& x, const @_iterator_@& y)
         requires(random_access_range<@_maybe-const_@<Const, Views>>&&...);
 
-    friend constexpr auto operator>=(const @_iterator_@& x, const @_iterator_@& y)
+    friend constexpr bool operator>=(const @_iterator_@& x, const @_iterator_@& y)
         requires(random_access_range<@_maybe-const_@<Const, Views>>&&...);
 
     friend constexpr auto operator<=>(const @_iterator_@& x, const @_iterator_@& y)
