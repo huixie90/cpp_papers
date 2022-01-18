@@ -212,19 +212,19 @@ New section after Non-propagating cache [range.nonprop.cache]{.sref}. Move the d
 ```cpp
 namespace std::ranges {
     template <class... Ts>
-    using tuple-or-pair = see-below;                     // exposition only
+    using @_tuple-or-pair_@ = @_see-below_@;                     // exposition only
 
     template<class F, class Tuple>
-    constexpr auto tuple-transform(F&& f, Tuple&& tuple) { // exposition only
+    constexpr auto @_tuple-transform_@(F&& f, Tuple&& tuple) { // exposition only
         return apply([&]<class... Ts>(Ts&&... elements) {
-            return tuple-or-pair<invoke_result_t<F&, Ts>...>(
+            return @_tuple-or-pair_@<invoke_result_t<F&, Ts>...>(
                 invoke(f, std::forward<Ts>(elements))...
             );
         }, std::forward<Tuple>(tuple));
     }
 
     template<class F, class Tuple>
-    constexpr void tuple-for-each(F&& f, Tuple&& tuple) { // exposition only
+    constexpr void @_tuple-for-each_@(F&& f, Tuple&& tuple) { // exposition only
         apply([&]<class... Ts>(Ts&&... elements) {
             (invoke(f, std::forward<Ts>(elements)), ...);
         }, std::forward<Tuple>(tuple));
@@ -252,8 +252,9 @@ ranges.
 ([customization.point.object]{.sref}). Given a pack of subexpressions `Es...`,
 the expression `views::concat(Es...)` is expression-equivalent to
 
-- [2.1]{.pnum} `views::all(Es...)` if `Es` is a pack with only one element,
-- [2.2]{.pnum} otherwise, `concat_view<views::all_t<decltype((Es))>...>(Es...)` if this expression is valid,
+- [2.1]{.pnum} `views::all(Es...)` if `Es` is a pack with only one element
+        and `views::all(Es...)` is a well formed expression,
+- [2.2]{.pnum} otherwise, `concat_view(Es...)` if this expression is well formed,
 - [2.3]{.pnum} otherwise, ill-formed.
 
 [*Example:*
@@ -289,7 +290,7 @@ namespace std::ranges {
     (sized_range<R> && random_access_range<R>);
 
   template <bool Const, class... Rs>
-  concept @_concat-bidirectional_@ =  @_see below_@;  // exposition only
+  concept @_concat-bidirectional_@ = @_see below_@;   // exposition only
 
   template <input_range... Views>
     requires (view<Views> && ...) && (sizeof...(Views) > 0) &&
@@ -324,10 +325,16 @@ namespace std::ranges {
 }
 ```
 
-[1]{.pnum} A given pack of ranges `Rs` models `@_concat-bidirectional_@` if,
+```cpp
+template <bool Const, class... Rs>
+concept @_concat-bidirectional_@ =  @_see below_@;
+```
 
-* [1.1]{.pnum} Last element of `Rs` models `bidirectional_range`,
-* [1.2]{.pnum} And, all except the last element of `Rs` model `$_constant-time-reversible_$`.
+[1]{.pnum} Let `Es` denote a pack `@_maybe-const_@<Const, Rs>...`.
+  The concept `@_concat-bidirectional_@` is modelled if,
+
+* [1.1]{.pnum} Last element of `Es` models `bidirectional_range`,
+* [1.2]{.pnum} And, all except the last element of `Es` model `@_constant-time-reversible_@`.
 
 ```cpp
 constexpr explicit concat_view(Views... views);
@@ -354,7 +361,9 @@ constexpr auto end() requires(!(@_simple-view_@<Views> && ...));
 constexpr auto end() const requires(range<const Views>&&...);
 ```
 
-[4]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload, and `false` otherwise, and let `@_last-view_@` be `@_back_@<const Views...>` for const-qualified overload, and `@_back_@<Views...>` otherwise. Equivalent to:
+[4]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload, and `false` otherwise,
+and let `@_last-view_@` be the last element of the pack `const Views...` for const-qualified overload,
+and the last element of the pack `Views...` otherwise. Equivalent to:
 
 ```cpp
     if constexpr (common_range<@_last-view_@>) {
@@ -384,7 +393,7 @@ constexpr auto size() const requires(sized_range<const Views>&&...);
             using CT = make_unsigned_t<common_type_t<decltype(sizes)...>>;
             return (CT{0} + ... + CT{sizes});
         },
-        @_tuple_transform_@(ranges::size, @*views_*@));
+        @_tuple-transform_@(ranges::size, @*views_*@));
 ```
 
 #### 24.7.?.3 Class concat_view::iterator [range.concat.iterator] {-}
