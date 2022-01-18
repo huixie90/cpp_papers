@@ -214,7 +214,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
              */
             xo::visit_i(it_, [this](auto I, auto&& it) {
                 ++it;
-                this->satisfy<I()>();
+                this->satisfy<I>();
             });
             return *this;
         }
@@ -235,7 +235,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
              * return *this;
              * where I equals to it_.index()
              */
-            xo::visit_i(it_, [this](auto I, auto&&) { this->prev<I()>(); });
+            xo::visit_i(it_, [this](auto I, auto&&) { this->prev<I>(); });
             return *this;
         }
 
@@ -249,11 +249,11 @@ class concat_view : public view_interface<concat_view<Views...>> {
             requires xo::concat_random_access<Const, Views...> {
             if (n > 0) {
                 xo::visit_i(it_, [this, n](auto I, auto&& it) {
-                    this->advance_fwd<I()>(it - ranges::begin(get<I()>(parent_->views_)), n);
+                    this->advance_fwd<I>(it - ranges::begin(get<I>(parent_->views_)), n);
                 });
             } else if (n < 0) {
                 xo::visit_i(it_, [this, n](auto I, auto&& it) {
-                    this->advance_bwd<I()>(it - ranges::begin(get<I()>(parent_->views_)), -n);
+                    this->advance_bwd<I>(it - ranges::begin(get<I>(parent_->views_)), -n);
                 });
             }
             return *this;
@@ -337,11 +337,11 @@ class concat_view : public view_interface<concat_view<Views...>> {
                                                   difference_type(0));
 
                 auto y_to_end = xo::visit_i(y.it_, [&](auto I, auto&& it) {
-                    return all_sizes[I()] - (it - ranges::begin(get<I()>(y.get_parent_views())));
+                    return all_sizes[I] - (it - ranges::begin(get<I>(y.get_parent_views())));
                 });
 
                 auto begin_to_x = xo::visit_i(x.it_, [&](auto I, auto&& it) {
-                    return it - ranges::begin(get<I()>(x.get_parent_views()));
+                    return it - ranges::begin(get<I>(x.get_parent_views()));
                 });
 
                 return y_to_end + in_between + begin_to_x;
@@ -350,7 +350,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
                 return -(y - x);
             } else {
                 return xo::visit_i(
-                    x.it_, [&](auto I, auto&&) { return get<I()>(x.it_) - get<I()>(y.it_); });
+                    x.it_, [&](auto I, auto&&) { return get<I>(x.it_) - get<I>(y.it_); });
             }
         }
 
@@ -367,7 +367,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
                 std::accumulate(all_sizes.begin() + idx + 1, all_sizes.end(), difference_type(0));
 
             auto i_to_idx_end = xo::visit_i(i.it_, [&](auto I, auto&& it) {
-                return all_sizes[I()] - (it - ranges::begin(get<I()>(i.get_parent_views())));
+                return all_sizes[I] - (it - ranges::begin(get<I>(i.get_parent_views())));
             });
             return -(i_to_idx_end + to_the_end);
         }
