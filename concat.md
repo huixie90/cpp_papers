@@ -245,16 +245,16 @@ Add the following subclause to [range.adaptors]{.sref}.
 
 #### 24.7.?.1 Overview [range.concat.overview] {-}
 
-[#]{.pnum} `concat_view` presents a `view` that concatenates all the underlying
+[1]{.pnum} `concat_view` presents a `view` that concatenates all the underlying
 ranges.
 
-[#]{.pnum} The name `views::concat` denotes a customization point object
+[2]{.pnum} The name `views::concat` denotes a customization point object
 ([customization.point.object]{.sref}). Given a pack of subexpressions `Es...`,
 the expression `views::concat(Es...)` is expression-equivalent to
 
-- [#.#]{.pnum} `views::all(Es...)` if `Es` is a pack with only one element,
-- [#.#]{.pnum} otherwise, `concat_view<views::all_t<decltype((Es))>...>(Es...)`,
-- [#.#]{.pnum} otherwise (empty), ill-formed
+- [2.1]{.pnum} `views::all(Es...)` if `Es` is a pack with only one element,
+- [2.2]{.pnum} otherwise, `concat_view<views::all_t<decltype((Es))>...>(Es...)`,
+- [2.3]{.pnum} otherwise (empty), ill-formed
 
 [*Example:*
 
@@ -326,14 +326,14 @@ namespace std::ranges {
 
 [1]{.pnum} A given pack of ranges `Rs` models `@_concat-bidirectional_@` if,
 
-* [#.#]{.pnum} Last element of `Rs` models `bidirectional_range`,
-* [#.#]{.pnum} And, all except the last element of `Rs` model `$_constant-time-reversible_$`.
+* [1.1]{.pnum} Last element of `Rs` models `bidirectional_range`,
+* [1.2]{.pnum} And, all except the last element of `Rs` model `$_constant-time-reversible_$`.
 
 ```cpp
 constexpr explicit concat_view(Views... views);
 ```
 
-[#]{.pnum} *Effects*: Initializes `@*views_*@` with `std::move(views)...`.
+[2]{.pnum} *Effects*: Initializes `@*views_*@` with `std::move(views)...`.
 
 ```cpp
 constexpr @_iterator_@<false> begin() requires(!(@_simple-view_@<Views> && ...));
@@ -341,7 +341,7 @@ constexpr @_iterator_@<true> begin() const
   requires((range<const Views> && ...) && @_concatable_@<const Views...>);
 ```
 
-[2]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload, and `false` otherwise. Equivalent to:
+[3]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload, and `false` otherwise. Equivalent to:
 
 ```cpp
     @_iterator_@<@_is-const_@> it{this, in_place_index<0>, ranges::begin(get<0>(@*views_*@))};
@@ -354,7 +354,7 @@ constexpr auto end() requires(!(@_simple-view_@<Views> && ...));
 constexpr auto end() const requires(range<const Views>&&...);
 ```
 
-[3]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload, and `false` otherwise, and let `@_last-view_@` be `@_back_@<const Views...>` for const-qualified overload, and `@_back_@<Views...>` otherwise. Equivalent to:
+[4]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload, and `false` otherwise, and let `@_last-view_@` be `@_back_@<const Views...>` for const-qualified overload, and `@_back_@<Views...>` otherwise. Equivalent to:
 
 ```cpp
     if constexpr (common_range<@_last-view_@>) {
@@ -376,7 +376,7 @@ constexpr auto size() requires(sized_range<Views>&&...);
 constexpr auto size() const requires(sized_range<const Views>&&...);
 ```
 
-[4]{.pnum} *Effects*: Equivalent to:
+[5]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return apply(
