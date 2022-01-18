@@ -610,7 +610,6 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <h2 data-number="5.1" id="addition-to-ranges"><span class="header-section-number">5.1</span> Addition to <code class="sourceCode default">&lt;ranges&gt;</code><a href="#addition-to-ranges" class="self-link"></a></h2>
 <p>Add the following to <span>24.2
  <a href="https://wg21.link/ranges.syn">[ranges.syn]</a></span>, header <code class="sourceCode default">&lt;ranges&gt;</code> synopsis:</p>
-<div class="bq">
 <div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1"></a><span class="co">// [...]</span></span>
 <span id="cb5-2"><a href="#cb5-2"></a><span class="kw">namespace</span> std<span class="op">::</span>ranges <span class="op">{</span></span>
 <span id="cb5-3"><a href="#cb5-3"></a>  <span class="co">// [...]</span></span>
@@ -625,7 +624,6 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <span id="cb5-12"><a href="#cb5-12"></a>  <span class="op">}</span></span>
 <span id="cb5-13"><a href="#cb5-13"></a></span>
 <span id="cb5-14"><a href="#cb5-14"></a><span class="op">}</span></span></code></pre></div>
-</div>
 <h2 data-number="5.2" id="range-adaptor-helpers-range.adaptor.helpers"><span class="header-section-number">5.2</span> Range adaptor helpers [range.adaptor.helpers]<a href="#range-adaptor-helpers-range.adaptor.helpers" class="self-link"></a></h2>
 <p>This paper applies the same following changes as in <span class="citation" data-cites="P2374R3">[<a href="#ref-P2374R3" role="doc-biblioref">P2374R3</a>]</span>. If <span class="citation" data-cites="P2374R3">[<a href="#ref-P2374R3" role="doc-biblioref">P2374R3</a>]</span> is merged into the standard, the changes in this section can be dropped.</p>
 <p>New section after Non-propagating cache <span>24.7.4
@@ -789,7 +787,7 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <span id="cb17-15"><a href="#cb17-15"></a></span>
 <span id="cb17-16"><a href="#cb17-16"></a>  <span class="kw">private</span><span class="op">:</span></span>
 <span id="cb17-17"><a href="#cb17-17"></a>    <span class="kw">using</span> <em>base_iter</em> <span class="op">=</span>                                     <span class="co">// exposition only</span></span>
-<span id="cb17-18"><a href="#cb17-18"></a>      variant<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span>__maybe_const<span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;...&gt;</span>;</span>
+<span id="cb17-18"><a href="#cb17-18"></a>      variant<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;...&gt;</span>;</span>
 <span id="cb17-19"><a href="#cb17-19"></a>    </span>
 <span id="cb17-20"><a href="#cb17-20"></a>    <em>maybe-const</em><span class="op">&lt;</span>Const, concat_view<span class="op">&gt;*</span> <em>parent_</em> <span class="op">=</span> <span class="kw">nullptr</span>;   <span class="co">// exposition only</span></span>
 <span id="cb17-21"><a href="#cb17-21"></a>    <em>base_iter</em> <em>it_</em> <span class="op">=</span> <em>base_iter</em><span class="op">()</span>;                          <span class="co">// exposition only</span></span>
@@ -853,16 +851,16 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <span id="cb17-79"><a href="#cb17-79"></a></span>
 <span id="cb17-80"><a href="#cb17-80"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">==(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it, default_sentinel_t<span class="op">)</span>;</span>
 <span id="cb17-81"><a href="#cb17-81"></a></span>
-<span id="cb17-82"><a href="#cb17-82"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="kw">auto</span> <span class="kw">operator</span><span class="op">&lt;(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
+<span id="cb17-82"><a href="#cb17-82"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&lt;(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
 <span id="cb17-83"><a href="#cb17-83"></a>        <span class="kw">requires</span><span class="op">(</span>random_access_range<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&amp;&amp;...)</span>;</span>
 <span id="cb17-84"><a href="#cb17-84"></a></span>
-<span id="cb17-85"><a href="#cb17-85"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="kw">auto</span> <span class="kw">operator</span><span class="op">&gt;(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
+<span id="cb17-85"><a href="#cb17-85"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&gt;(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
 <span id="cb17-86"><a href="#cb17-86"></a>        <span class="kw">requires</span><span class="op">(</span>random_access_range<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&amp;&amp;...)</span>;</span>
 <span id="cb17-87"><a href="#cb17-87"></a></span>
-<span id="cb17-88"><a href="#cb17-88"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="kw">auto</span> <span class="kw">operator</span><span class="op">&lt;=(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
+<span id="cb17-88"><a href="#cb17-88"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&lt;=(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
 <span id="cb17-89"><a href="#cb17-89"></a>        <span class="kw">requires</span><span class="op">(</span>random_access_range<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&amp;&amp;...)</span>;</span>
 <span id="cb17-90"><a href="#cb17-90"></a></span>
-<span id="cb17-91"><a href="#cb17-91"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="kw">auto</span> <span class="kw">operator</span><span class="op">&gt;=(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
+<span id="cb17-91"><a href="#cb17-91"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&gt;=(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
 <span id="cb17-92"><a href="#cb17-92"></a>        <span class="kw">requires</span><span class="op">(</span>random_access_range<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&amp;&amp;...)</span>;</span>
 <span id="cb17-93"><a href="#cb17-93"></a></span>
 <span id="cb17-94"><a href="#cb17-94"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="kw">auto</span> <span class="kw">operator</span><span class="op">&lt;=&gt;(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
