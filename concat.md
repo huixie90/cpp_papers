@@ -17,7 +17,13 @@ This is the initial revision.
 
 # Abstract
 
-This paper proposes the range adaptor `views::concat` as very briefly introduced in [@P2214R1] Section 4.7. It is a view factory that takes an arbitrary number of ranges as an argument list, and provides a view that starts at the first element of the first range, ends at the last element of the last range, with all range elements sequenced in between respectively in the order given in the arguments, effectively concatenating, or chaining together the argument ranges.
+This paper proposes the range adaptor `views::concat` as very briefly
+introduced in Section 4.7 of [@P2214R1]. It is a view factory that takes an
+arbitrary number of ranges as an argument list, and provides a view that starts
+at the first element of the first range, ends at the last element of the last
+range, with all range elements sequenced in between respectively in the order
+given in the arguments, effectively concatenating, or chaining together the
+argument ranges.
 
 # Motivation and Examples
 
@@ -57,9 +63,9 @@ class Bar{
 class MyClass{
   Foo foo_;
   std::vector<Bar> bars_;
-
+public:
   auto getFoos () const{
-    std::vector<std::reference_wrapper<Foo const>> fooRefs{};
+    std::vector<std::reference_wrapper<Foo const>> fooRefs;
     fooRefs.reserve(bars_.size() + 1);
     fooRefs.push_back(std::cref(foo_));
     std::ranges::transform(bars_, std::back_inserter(bars), 
@@ -71,11 +77,10 @@ class MyClass{
 };
 
 // user
-// the following line erros because getFoos() is prvalue
-// for(const auto& foo: myClass.getFoos() | views::filter(pred))
-auto fooRefs = myClass.getFoos();
-for(const auto& foo: fooRefs | views::filter(pred)){
-  // use foo.get()
+auto fooRefs = myClass.getFoos(); // need extra named value
+for(const auto& fooRef: fooRefs | views::filter(pred)){
+  // `foo` is std::reference_wrapper<Foo const>
+  // ...
 }
 ```
 
@@ -112,9 +117,12 @@ In the "Before" version, the user has to create a vector and push elements from 
 
 # Design
 
-This is a generator factory as described in [@P2214R1] Section 4.7. As such, it can not be piped to. It takes the list of ranges to concatenate as arguments to `ranges::concat_view` constructor, or to `ranges::views::concat` customization point object.
+This is a generator factory as described in [@P2214R1] Section 4.7. As such, it
+can not be piped to. It takes the list of ranges to concatenate as arguments to
+`ranges::concat_view` constructor, or to `ranges::views::concat` customization
+point object.
 
-## Constrain on concatability
+## Constrain on "concat"ability
 
 TODO:
 
@@ -167,24 +175,24 @@ TODO:
 
 `views::concat` has been implemented in [@rangev3], with equivalent semantics as proposed here. We also have implemented a version that directly follows the proposed wording below without issue [@ours].
 
+
+
+
 # Wording
 
 ## Addition to `<ranges>`
 
 Add the following to [ranges.syn]{.sref}, header `<ranges>` synopsis:
 
+::: bq
 ```cpp
 // [...]
 namespace std::ranges {
   // [...]
 
   // [range.concat], concat view
-  template <class... Ts>
-  concept @_concatable_@ = @_see below_@; // exposition only
-
   template <input_range... Views>
-    requires (view<Views> && ...) && (sizeof...(Views) > 0) &&
-              @_concatable_@<Views...>
+    requires @_see below_@
   class concat_view;
 
   namespace views {
@@ -193,6 +201,7 @@ namespace std::ranges {
 
 }
 ```
+:::
 
 ## Range adaptor helpers [range.adaptor.helpers]
 
@@ -228,7 +237,7 @@ Given some pack of types `Ts`, the alias template `@_tuple-or-pair_@` is defined
 1. If `sizeof...(Ts)` is `2`, `@_tuple-or-pair_@<Ts...>` denotes `pair<Ts...>`.
 2. Otherwise, `@_tuple-or-pair_@<Ts...>` denotes `tuple<Ts...>`.
 
-## `concat_view`
+## `concat`
 
 Add the following subclause to [range.adaptors]{.sref}.
 
@@ -236,64 +245,51 @@ Add the following subclause to [range.adaptors]{.sref}.
 
 #### 24.7.?.1 Overview [range.concat.overview] {-}
 
-`concat_view` presents a `view` that concatinates all the underlying ranges.
+[1]{.pnum} `concat_view` presents a `view` that concatenates all the underlying
+ranges.
 
-The name `views::concat` denotes a customization point object ([customization.point.object]{.sref}). Given a pack of subexpressions `Es...`, the expression `views::concat(Es...)` is expression-equivalent to
+[2]{.pnum} The name `views::concat` denotes a customization point object
+([customization.point.object]{.sref}). Given a pack of subexpressions `Es...`,
+the expression `views::concat(Es...)` is expression-equivalent to
 
-- `views::all(Es...)` if `Es` is a pack with only one element,
-- otherwise, `concat_view(Es...)` if the expression is valid,
-- otherwise, ill-formed
+- [2.1]{.pnum} `views::all(Es...)` if `Es` is a pack with only one element,
+- [2.2]{.pnum} otherwise, `concat_view<views::all_t<decltype((Es))>...>(Es...)` if this expression is valid,
+- [2.3]{.pnum} otherwise, ill-formed.
 
-*[Example:*
+[*Example:*
 
 ```cpp
 std::vector<int> v1{1,2,3}, v2{4,5}, v3{};
 std::array  a{6,7,8};
 auto s = std::views::single(9);
 for(auto&& i : std::views::concat(v1, v2, v3, a, s)){
-  std::cout << i << ' ';
+  std::cout << i << ' '; // prints: 1 2 3 4 5 6 7 8 9 
 }
-// prints 1 2 3 4 5 6 7 8 9 
 ```
-
-- *end example]*
+- *end example*]
 
 #### 24.7.?.2 Class template `concat_view` [range.concat.view] {-}
 
 ```cpp
-namespace std::ranges{
- 
-  template <class... T>
+namespace std::ranges {
+
+  template <class... Rs>
   concept @_concatable_@ =                        // exposition only
-    (convertible_to<range_reference_t<T>, 
-      common_reference_t<range_reference_t<T>...>> && ...);
+    (convertible_to<range_reference_t<Rs>, 
+      common_reference_t<range_reference_t<Rs>...>> && ...);
 
-  template <bool Const, class... Ts>
+  template <bool Const, class... Rs>
   concept @_concat-random-access_@ =              // exposition only
-    ((random_access_range<@_maybe-const_@<Const, Ts>> &&
-      sized_range<@_maybe-const_@<Const, Ts>>)&&...);
-
-  template <class... T>
-  using @_back_@ =                                // exposition only
-    tuple_element_t<sizeof...(T) - 1, tuple<T...>>;
-
-  template <bool... b, size_t... I>
-  consteval bool @_all-but-last_@                 // exposition only
-    (index_sequence<I...>) {
-      return ((I == sizeof...(I) - 1 || b) && ...);
-  }
+    ((random_access_range<@_maybe-const_@<Const, Rs>> &&
+      sized_range<@_maybe-const_@<Const, Rs>>)&&...);
 
   template <class R>
   concept @_constant-time-reversible_@ =          // exposition only
     (bidirectional_range<R> && common_range<R>) ||
     (sized_range<R> && random_access_range<R>);
 
-  template <bool Const, class... Ts>
-  concept @_concat-bidirectional_@ =              // exposition only
-    @_all-but-last_@<@_constant-time-reversible_@<
-      @_maybe-const_@<Const, Ts>>...>(index_sequence_for<Ts...>{}) && 
-    bidirectional_range<@_back_@<@_maybe-const_@<Const, Ts>...>>;
-
+  template <bool Const, class... Rs>
+  concept @_concat-bidirectional_@ =  @_see below_@;  // exposition only
 
   template <input_range... Views>
     requires (view<Views> && ...) && (sizeof...(Views) > 0) &&
@@ -324,15 +320,20 @@ namespace std::ranges{
   };
 
   template <class... R>
-  concat_view(R&&...) -> concat_view<views::all_t<R>...>;
+    concat_view(R&&...) -> concat_view<views::all_t<R>...>;
 }
 ```
+
+[1]{.pnum} A given pack of ranges `Rs` models `@_concat-bidirectional_@` if,
+
+* [1.1]{.pnum} Last element of `Rs` models `bidirectional_range`,
+* [1.2]{.pnum} And, all except the last element of `Rs` model `$_constant-time-reversible_$`.
 
 ```cpp
 constexpr explicit concat_view(Views... views);
 ```
 
-[1]{.pnum} *Effects*: Initializes `@*views_*@` with `std::move(views)...`.
+[2]{.pnum} *Effects*: Initializes `@*views_*@` with `std::move(views)...`.
 
 ```cpp
 constexpr @_iterator_@<false> begin() requires(!(@_simple-view_@<Views> && ...));
@@ -340,7 +341,7 @@ constexpr @_iterator_@<true> begin() const
   requires((range<const Views> && ...) && @_concatable_@<const Views...>);
 ```
 
-[2]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload, and `false` otherwise. Equivalent to:
+[3]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload, and `false` otherwise. Equivalent to:
 
 ```cpp
     @_iterator_@<@_is-const_@> it{this, in_place_index<0>, ranges::begin(get<0>(@*views_*@))};
@@ -353,7 +354,7 @@ constexpr auto end() requires(!(@_simple-view_@<Views> && ...));
 constexpr auto end() const requires(range<const Views>&&...);
 ```
 
-[3]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload, and `false` otherwise, and let `@_last-view_@` be `@_back_@<const Views...>` for const-qualified overload, and `@_back_@<Views...>` otherwise. Equivalent to:
+[4]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload, and `false` otherwise, and let `@_last-view_@` be `@_back_@<const Views...>` for const-qualified overload, and `@_back_@<Views...>` otherwise. Equivalent to:
 
 ```cpp
     if constexpr (common_range<@_last-view_@>) {
@@ -375,7 +376,7 @@ constexpr auto size() requires(sized_range<Views>&&...);
 constexpr auto size() const requires(sized_range<const Views>&&...);
 ```
 
-[4]{.pnum} *Effects*: Equivalent to:
+[5]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return apply(
