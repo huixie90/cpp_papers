@@ -513,6 +513,32 @@ namespace std::ranges{
 }
 ```
 
+[1]{.pnum} `@_iterator_@::iterator_concept` is defined as follows:
+
+* [1.1]{.pnum} if `@_concat-random-access_@<@_maybe-const_@<Const, Views>...>` is modeled, then `iterator_concept` denotes `random_access_iterator_tag`.
+* [1.2]{.pnum} Otherwise, if `@_concat-bidirectional_@<@_maybe-const_@<Const, Views>...>` is modeled, then `iterator_concept` denotes `bidrectional_iterator_tag`.
+* [1.3]{.pnum} Otherwise, if `(forward_range<@_maybe-const_@<Const, Views>> && ...)` is modeled, then `iterator_concept` denotes `forward_iterator_tag`.
+* [1.4]{.pnum} Otherwise, `iterator_concept` denotes `input_iterator_tag`.
+
+
+[2]{.pnum} `@_iterator_@::iterator_category` TODO:
+
+```cpp
+template <std::size_t N>
+constexpr void @_satisfy_@();                             // exposition only
+```
+
+[3]{.pnum} *Effects*: Equivalent to:
+
+```cpp
+    if constexpr (N != (sizeof...(Views) - 1)) {
+        if (get<N>(@*it_*@) == ranges::end(get<N>(@*parent_*@->@*views_*@))) {
+            @*it_*@.template emplace<N + 1>(ranges::begin(get<N + 1>(@*parent_*@->@*views_*@)));
+            @*satisfy*@<N + 1>();
+        }
+    }
+```
+
 ## Feature Test Macro
 
 Add the following macro definition to [version.syn]{.sref}, header `<version>` synopsis, with the value selected by the editor to reflect the date of adoption of this paper:
