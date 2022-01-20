@@ -17,8 +17,8 @@ This is the initial revision.
 
 # Abstract
 
-This paper proposes the range adaptor `views::concat` as very briefly
-introduced in Section 4.7 of [@P2214R1]. It is a view factory that takes an
+This paper proposes `views::concat` as very briefly introduced in
+Section 4.7 of [@P2214R1]. It is a view factory that takes an
 arbitrary number of ranges as an argument list, and provides a view that starts
 at the first element of the first range, ends at the last element of the last
 range, with all range elements sequenced in between respectively in the order
@@ -131,15 +131,20 @@ TODO:
 
 ## Zero or one view
 
-TODO:
+- The result of `concat`ing zero range can be an empty range,
+but the element type of such range is unspecified.
+Therefore `concat`ing zero range is made ill-formed in this proposal.
 
-- explain zero is invalid and one can be `all_t`
+- The result of `concat`ing one range should be the range itself,
+therefore this paper proposes that it returns `views::all(r)`.
 
 ## Is `begin` Constant Time?
 
+On creating the `begin` iterator of the `concat_view`, the poisition of the iterator needs to point to the first element of the first non empty range, if there is any. If the number of input ranges is `N`, `ranges::begin` can be called `N` times at maximum and the equality comparison operator with the sentinel can be called `N - 1` times at maximum. However, unlike `filtered_view` where the number of comparison is linear to the number of elements in the range at runtime, `concat_view`'s comparison is bounded by the number of inputs `N`, which is known at compile time, and it is not affected by the number of elements in each input ranges. `concat_view` is more similar to `zip_view`, where `ranges::begin` is always called `N` times. Therefore, `concat_view`'s `begin` function is constant time.
+
 ## Borrowed vs Cheap Iterator
 
-A `concat` view can be designed to be a borrowed range, if all underlying ranges are. However, this requires the iterator implementation to contain a copy of all iterators and sentinels of all underlying ranges at all times (just like that of `views::zip` [@P2321R2]). On the other hand, a cheaper implementation that simply refers to the parent view can be used to satisfy all of the proposed functionality, if it is permitted to be not borrowed. Experience shows the borrowed-ness of `concat` is not a major requirement, and the existing implementation in [@rangev3] seems to have picked that latter alternative. We do so as such in this proposal.
+`concat_view` can be designed to be a `borrowed_range`, if all underlying ranges are. However, this requires the iterator implementation to contain a copy of all iterators and sentinels of all underlying ranges at all times (just like that of `views::zip` [@P2321R2]). On the other hand, a cheaper implementation that simply refers to the parent view can be used to satisfy all of the proposed functionality, if it is permitted to be not borrowed. Experience shows the borrowed-ness of `concat` is not a major requirement, and the existing implementation in [@rangev3] seems to have picked that latter alternative. We do so as such in this proposal.
 
 ## Common Range
 
@@ -163,9 +168,7 @@ In the `cancat` implementation in [@rangev3], `operator--` is only constrained o
 
 ## Random Access Range
 
-TODO:
-
-- figure out exact condition. my guess is it needs to be all_random_access && (all_sized || all_common)
+`concat_view` can be `random_access_range` if all the underlying ranges model `random_access_range` and `sized_range`.
 
 ## Sized Range
 
