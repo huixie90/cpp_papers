@@ -546,7 +546,27 @@ template <std::size_t N>
 constexpr void @_prev_@();                                // exposition only
 ```
 
-[4]{.pnum} *Effects*: Equivalent to: [TODO]
+[4]{.pnum} *Effects*: Equivalent to:
+
+```cpp
+    if constexpr (N == 0) {
+        --get<0>(@*it_*@);
+    } else {
+        if (get<N>(@*it_*@) == ranges::begin(get<N>(@*parent_*@->@*views_*@))) {
+            using prev_view = @_maybe-const_@<Const, tuple_element_t<N - 1, tuple<Views...>>>;
+            if constexpr (common_range<prev_view>) {
+                @*it_*@.template emplace<N - 1>(ranges::end(get<N - 1>(@*parent_*@->@*views_*@)));
+            } else {
+                @*it_*@.template emplace<N - 1>(
+                    ranges::next(ranges::begin(get<N - 1>(@*parent_*@->@*views_*@)),
+                                 ranges::size(get<N - 1>(@*parent_*@->@*views_*@))));
+            }
+            prev<N - 1>();
+        } else {
+            --get<N>(@*it_*@);
+        }
+    }
+```
 
 
 ```cpp
