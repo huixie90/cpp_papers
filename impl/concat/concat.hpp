@@ -106,8 +106,6 @@ class concat_view : public view_interface<concat_view<Views...>> {
          */
         // using iterator_category = ; // not always present.
       private:
-        // use of exposition only trait `maybe-const` defined in
-        // http://eel.is/c++draft/ranges#syn
         using ParentView = __maybe_const<Const, concat_view>;
         using BaseIt = variant<iterator_t<__maybe_const<Const, Views>>...>;
 
@@ -142,7 +140,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
                             ranges::next(ranges::begin(get<N - 1>(parent_->views_)),
                                          ranges::size(get<N - 1>(parent_->views_))));
                     }
-                    this->prev<N - 1>();
+                    prev<N - 1>();
                 } else {
                     --get<N>(it_);
                 }
@@ -204,13 +202,6 @@ class concat_view : public view_interface<concat_view<Views...>> {
         }
 
         constexpr iterator& operator++() {
-            /*
-             * in the spec, we can say
-             * ++get<I>(it_);
-             * this->satisfy<I>();
-             * return *this;
-             * where I equals to it_.index()
-             */
             xo::visit_i(it_, [this](auto I, auto&& it) {
                 ++it;
                 this->satisfy<I>();
@@ -229,12 +220,6 @@ class concat_view : public view_interface<concat_view<Views...>> {
 
         constexpr iterator& operator--() requires
             xo::concat_bidirectional<__maybe_const<Const, Views>...> {
-            /*
-             * in the spec, we can say
-             * this->prev<I>();
-             * return *this;
-             * where I equals to it_.index()
-             */
             xo::visit_i(it_, [this](auto I, auto&&) { this->prev<I>(); });
             return *this;
         }
@@ -308,19 +293,19 @@ class concat_view : public view_interface<concat_view<Views...>> {
             return x.it_ <=> y.it_;
         }
 
-        friend constexpr iterator operator+(const iterator& x, difference_type y) requires
+        friend constexpr iterator operator+(const iterator& it, difference_type n) requires
             xo::concat_random_access<__maybe_const<Const, Views>...> {
-            return iterator{x} += y;
+            return iterator{it} += n;
         }
 
-        friend constexpr iterator operator+(difference_type x, const iterator& y) requires
+        friend constexpr iterator operator+(difference_type n, const iterator& it) requires
             xo::concat_random_access<__maybe_const<Const, Views>...> {
-            return y + x;
+            return it + n;
         }
 
-        friend constexpr iterator operator-(const iterator& x, difference_type y) requires
+        friend constexpr iterator operator-(const iterator& it, difference_type n) requires
             xo::concat_random_access<__maybe_const<Const, Views>...> {
-            return iterator{x} -= y;
+            return iterator{it} -= n;
         }
 
         friend constexpr difference_type operator-(const iterator& x, const iterator& y) requires
@@ -355,27 +340,27 @@ class concat_view : public view_interface<concat_view<Views...>> {
             }
         }
 
-        friend constexpr difference_type operator-(const iterator& i, default_sentinel_t) requires
+        friend constexpr difference_type operator-(const iterator& it, default_sentinel_t) requires
             xo::concat_random_access<__maybe_const<Const, Views>...> {
 
-            const auto idx = i.it_.index();
+            const auto idx = it.it_.index();
             const auto all_sizes = std::apply(
                 [&](const auto&... views) {
                     return std::array{static_cast<difference_type>(ranges::size(views))...};
                 },
-                i.get_parent_views());
+                it.get_parent_views());
             auto to_the_end =
                 std::accumulate(all_sizes.begin() + idx + 1, all_sizes.end(), difference_type(0));
 
-            auto i_to_idx_end = xo::visit_i(i.it_, [&](auto I, auto&& it) {
-                return all_sizes[I] - (it - ranges::begin(get<I>(i.get_parent_views())));
+            auto i_to_idx_end = xo::visit_i(it.it_, [&](auto I, auto&& i) {
+                return all_sizes[I] - (i - ranges::begin(get<I>(it.get_parent_views())));
             });
             return -(i_to_idx_end + to_the_end);
         }
 
-        friend constexpr difference_type operator-(default_sentinel_t, const iterator& i) requires
+        friend constexpr difference_type operator-(default_sentinel_t, const iterator& it) requires
             xo::concat_random_access<__maybe_const<Const, Views>...> {
-            return -(i - default_sentinel);
+            return -(it - default_sentinel);
         }
 
         /*   TODO:  I think we don't need them. the zip/cartesian product needs them because
@@ -473,10 +458,8 @@ namespace views {
 namespace xo {
 class concat_fn {
   public:
-    // [TODO] empty arg isn't valid. no meaningful value type? decide this for good.
     constexpr void operator()() const = delete;
 
-    // single arg == all
     template <viewable_range V>
     constexpr auto operator()(V&& v) const
         noexcept(noexcept(std::views::all(static_cast<V&&>(v)))) {
