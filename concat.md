@@ -110,10 +110,21 @@ for(const auto& foo: myClass.getFoos() | views::filter(pred)){
 
 :::
 
-The first example shows that for a simple task like printing, doing it manually is error prone. The "Before" version manually concatinates all the ranges in a formatting string, but the result contains an extra comma and space because it doesn't handle the empty vector `v3` correctly. With `concat`, the user doesn't need to care about emptiness and simply uses the default range formatter to print.
+The first example shows that dealing with multiple ranges require care even in
+the simplest of cases: The "Before" version manually concatenates all the
+ranges in a formatting string, but empty ranges aren't handled and the result
+contains an extra comma and a space. With `concat_view`, empty ranges are
+handled per design, and the construct expresses the intent cleanly and
+directly.
 
-The second example shows a function that tries to return a concatenated range from a single value and transformed range. One requirement is that the result range represents the original elements instead of copies.
-In the "Before" version, the user has to create a vector and push elements from different places into it. Since the requirement is that the result shouldn't be copies, it wraps the elements with `reference_wrapper`. With `concat`, it is simple. Note that in the "Before" version, the result is still a container. Sometimes this is a problem because the interface might require the result to be a `view`.
+In the second example, the user has a class composed of fragmented and indirect
+data and attempts to implement a member function that provides a range-like
+view to all this data sequenced together in some order, and without creating
+any copies. The "Before" implementation is needlessly complex, creates a
+temporary container, and is not even returning a view. `concat_view` based
+implementation is a neat one-liner as this proposed view squarely satisfies this
+very use case.
+
 
 # Design
 
@@ -122,12 +133,49 @@ can not be piped to. It takes the list of ranges to concatenate as arguments to
 `ranges::concat_view` constructor, or to `ranges::views::concat` customization
 point object.
 
-## Constrain on "concat"ability
+## Reference type of a `concat_view`
 
-TODO:
+The ranges to be concatenated must have a common reference in order for them to
+be adapted as a sequence of the same type. For the standards implementation we
+propose this requirement be imposed as a constraint on the arguments of the
+`concat_view`. (This is an improvement on the existing implementation provided
+by [@rangev3], which does not have this as a constraint, albeit yields a hard
+compilation error when constructing its iterators.)
 
-- explain how this is an improvement over range-v3
-- see if we can fix or somehow address that `common_reference_t` isn't a perfect solution, and misses some interesting cases. E.g.  `concat( b, d1, d2 )` works but `concat(d1,d2,b)` does not, where `D1` and `D2` are subclasses of `B`, but obviously `B&` would be a valid `reference_t` of the `concat_view`. (This can leads to long discussion with no conclusion, what about move this bullet point after the "Wording" section)
+This requirement is explicitly formulated in terms of `std::common_reference`
+of the argument ranges. See the [Wording section][concat].
+This is for practical utility and ease of adoption, and
+happens to capture a majority of the use cases.
+
+### Future `concat_view`s for different reference types
+
+There are some potentially important use cases that are left out by the above
+common reference formulation, and by this proposal:
+
+1. Concatenating ranges of unrelated types into a sequence of common arbitrary
+type. For instance, given a range of `int`s and a range of `string`s, provide a
+view of `string`s where `int`s are transformed via `std::itoa`.
+
+2. Concatenate ranges of different subclasses, into a range of their common
+base. (Note that, `common_reference` formulation potentially yields a very
+surprising counter-intuitive behavior: `concat_view` becomes either valid, if
+the first range is that of the common base of the rest, or ill-formed by any
+other ordering.)
+
+3. Concatenate ranges of unrelated types into a range of a `std::variant` of
+their reference types (proxied for lvalues).
+
+The authors envision that the first one of these cases can be satisfied with a
+`concat_transform`, and the second and third with a `concat_as`. Note that,
+while `concat_transform(f, r...)` would be semantically equivalent to
+`concat(transform(f, r)...)`, it would be best implemented as a full view for
+reasons similar to what is described in [@P2214R1] Section 4.1. The last two of
+these cases can be satisfied with `concat_as<RefType>`. Again,
+`concat_transform` can be reused where `f` is simply a cast. However, a first
+class support for a common case such as this may have desirable benefits.
+(Note: a more general `concat(as<RefType>(r)...)` may also explored, introducing
+the `transform` derivative `as_view` as a generalized version of `as_const` of
+[@P2278R1].)
 
 ## Zero or one view
 
@@ -138,15 +186,42 @@ Therefore `concat`ing zero range is made ill-formed in this proposal.
 - The result of `concat`ing one range should be the range itself,
 therefore this paper proposes that it returns `views::all(r)`.
 
-## Is `begin` Constant Time?
+## Is `begin` *O*(1)?
 
-On creating the `begin` iterator of the `concat_view`, the poisition of the iterator needs to point to the first element of the first non empty range, if there is any. If the number of input ranges is `N`, `ranges::begin` can be called `N` times at maximum and the equality comparison operator with the sentinel can be called `N - 1` times at maximum. However, unlike `filtered_view` where the number of comparison is linear to the number of elements in the range at runtime, `concat_view`'s comparison is bounded by the number of inputs `N`, which is known at compile time, and it is not affected by the number of elements in each input ranges. `concat_view` is more similar to `zip_view`, where `ranges::begin` is always called `N` times. Therefore, `concat_view`'s `begin` function is constant time.
+<!-- TODO: should we simplify this and related O(N) discussions by arguing that
+N is a constant? -->
+
+On creating the `begin` iterator of the `concat_view`, the position of the
+iterator needs to point to the first element of the first non empty range, if
+there is any. If the number of input ranges is `N`, `ranges::begin` can be
+called `N` times at maximum and the equality comparison operator with the
+sentinel can be called `N - 1` times at maximum. However, unlike
+`filtered_view` where the number of comparison is linear to the number of
+elements in the range at runtime, `concat_view`'s comparison is bounded by the
+number of inputs `N`, which is known at compile time, and it is not affected by
+the number of elements in each input ranges. `concat_view` is more similar to
+`zip_view`, where `ranges::begin` is always called `N` times. Therefore,
+`concat_view`'s `begin` function is constant time.
+
 
 ## Borrowed vs Cheap Iterator
 
-`concat_view` can be designed to be a `borrowed_range`, if all underlying ranges are. However, this requires the iterator implementation to contain a copy of all iterators and sentinels of all underlying ranges at all times (just like that of `views::zip` [@P2321R2]). On the other hand, a cheaper implementation that simply refers to the parent view can be used to satisfy all of the proposed functionality, if it is permitted to be not borrowed. Experience shows the borrowed-ness of `concat` is not a major requirement, and the existing implementation in [@rangev3] seems to have picked that latter alternative. We do so as such in this proposal.
+`concat_view` can be designed to be a `borrowed_range`, if all the underlying
+ranges are. However, this requires the iterator implementation to contain a
+copy of all iterators and sentinels of all underlying ranges at all times (just
+like that of `views::zip` [@P2321R2]). On the other hand (unlike `views::zip`),
+a much cheaper implementation can satisfy all the proposed functionality
+provided it is permitted to be unconditionally not borrowed. This
+implementation would maintain only a single active iterator at a time and
+simply refers to the parent view for the bounds. 
+
+Experience shows the borrowed-ness of `concat` is not a major requirement; and
+the existing implementation in [@rangev3] seems to have picked the cheaper
+alternative. We follow suit in this proposal.
 
 ## Common Range
+
+<!-- TODO: is this needed? -->
 
 `concat_view` can be `common_range` if the last underlying range models either
 
@@ -155,7 +230,7 @@ On creating the `begin` iterator of the `concat_view`, the poisition of the iter
 
 ## Bidirectional Range
 
-`concat_view` can be `bidirectional_range` if the underlying ranges satisfy the following conditions:
+`concat_view` can model `bidirectional_range` if the underlying ranges satisfy the following conditions:
 
 - Every underlying range models `bidirectional_range`  
 - If the iterator is at nth range's begin position, after `operator--` it should go to (n-1)th's range's end-1 position. This means, the (n-1)th range has to support either
