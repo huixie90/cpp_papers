@@ -636,7 +636,7 @@ constexpr void @_prev_@();                                // exposition only
                     ranges::next(ranges::begin(get<N - 1>(@*parent_*@->@*views_*@)),
                                  ranges::size(get<N - 1>(@*parent_*@->@*views_*@))));
             }
-            prev<N - 1>();
+            @_prev_@<N - 1>();
         } else {
             --get<N>(@*it_*@);
         }
