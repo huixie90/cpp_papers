@@ -135,15 +135,15 @@ point object.
 
 ## Reference type of a `concat_view`
 
-The ranges to be concatenated must have a common reference in order for them to
-be adapted as a sequence of the same type. For the standards implementation we
-propose this requirement be imposed as a constraint on the arguments of the
-`concat_view`. (This is an improvement on the existing implementation provided
-by [@rangev3], which does not have this as a constraint, albeit yields a hard
-compilation error when constructing its iterators.)
+In order to adapt the ranges as a sequence of a same type, the references of
+these ranges must be convertible to a common type. For the standards
+implementation we propose this requirement be imposed as a constraint on the
+arguments of the `concat_view`. (This is an improvement on the existing
+implementation provided by [@rangev3], which does not have this as a constraint,
+albeit yields a hard compilation error when constructing its iterators.)
 
-This requirement is explicitly formulated in terms of `std::common_reference`
-of the argument ranges. See the [Wording section][concat].
+This requirement is explicitly formulated in terms of `std::common_reference_t`
+of the argument ranges. See the [Wording](#class-template-concat_view-range.concat.view).
 This is for practical utility and ease of adoption, and
 happens to capture a majority of the use cases.
 
@@ -190,6 +190,12 @@ therefore this paper proposes that it returns `views::all(r)`.
 
 <!-- TODO: should we simplify this and related O(N) discussions by arguing that
 N is a constant? -->
+<!-- I think we should mention that it is O(N) in terms of number
+of input range like zip_view, and O(1) in terms of number of elements in the
+range unlike filtered_view. Feel free to simply it. Arguing N is a compile time
+constant might not be enough (well std::array<t, N> is not a view). I think the
+key might be that it is not linear to the number of elements inside the ragnes
+-->
 
 On creating the `begin` iterator of the `concat_view`, the position of the
 iterator needs to point to the first element of the first non empty range, if
@@ -222,6 +228,9 @@ alternative. We follow suit in this proposal.
 ## Common Range
 
 <!-- TODO: is this needed? -->
+<!-- TODO: I think it is good to keep this section. It took me few iterations 
+     to figure out this exact condition. At the beginning I thought the requirement
+     was that "every" underlying range has to model common_range -->
 
 `concat_view` can be `common_range` if the last underlying range models either
 
