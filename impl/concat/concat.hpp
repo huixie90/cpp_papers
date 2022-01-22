@@ -179,7 +179,6 @@ class concat_view : public view_interface<concat_view<Views...>> {
             }
         }
 
-        // We can skip this in the spec, as I checked other views assumed the friend access
         decltype(auto) get_parent_views() const { return (parent_->views_); }
 
       public:
@@ -381,14 +380,11 @@ class concat_view : public view_interface<concat_view<Views...>> {
     constexpr explicit concat_view(Views... views)
         : views_{static_cast<Views&&>(views)...} {}
 
-    // used exposition only concepts simple-view defined here:
-    // http://eel.is/c++draft/ranges#range.utility.helpers (we can reuse in the spec)
     constexpr iterator<false> begin() requires(!(__simple_view<Views> && ...)) //
     {
         iterator<false> it{this, in_place_index<0u>, ranges::begin(get<0>(views_))};
         it.template satisfy<0>();
         return it;
-        // O(1) as sizeof...(Views) known at compile time
     }
 
     constexpr iterator<true> begin() const
@@ -452,7 +448,7 @@ template <class... R>
 concat_view(R&&...) -> concat_view<views::all_t<R>...>;
 
 
-// range adaptor object:
+// cpo:
 
 namespace views {
 namespace xo {
