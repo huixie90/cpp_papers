@@ -77,8 +77,7 @@ public:
 };
 
 // user
-auto fooRefs = myClass.getFoos(); // need extra named value
-for(const auto& fooRef: fooRefs | views::filter(pred)){
+for(const auto& fooRef: myClass.getFoos() | views::filter(pred)){
   // `foo` is std::reference_wrapper<Foo const>
   // ...
 }
