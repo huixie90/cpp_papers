@@ -489,8 +489,8 @@ namespace std::ranges{
   
   public:
     using reference = common_reference_t<range_reference_t<@_maybe-const_@<Const, Views>>...>;
-    using difference_type = common_type_t<range_difference_t<@_maybe-const_@<Const, Views>>...>;
-    using value_type = common_type_t<range_value_t<@_maybe-const_@<Const, Views>>...>;
+    using value_type = remove_cvref_t<reference>;
+    using difference_type = common_type_t<range_reference_t<@_maybe-const_@<Const, Views>>...>;
     using iterator_concept = @*see below*@;
     using iterator_category = @*see below*@;                  // not always present.
 
@@ -602,12 +602,15 @@ namespace std::ranges{
 
 [1]{.pnum} `@_iterator_@::iterator_concept` is defined as follows:
 
-- [1.1]{.pnum} if `@_concat-random-access_@<@_maybe-const_@<Const, Views>...>` is modeled, then `iterator_concept` denotes `random_access_iterator_tag`.
+- [1.1]{.pnum} If `@_concat-random-access_@<@_maybe-const_@<Const, Views>...>` is modeled, then `iterator_concept` denotes `random_access_iterator_tag`.
 - [1.2]{.pnum} Otherwise, if `@_concat-bidirectional_@<@_maybe-const_@<Const, Views>...>` is modeled, then `iterator_concept` denotes `bidrectional_iterator_tag`.
 - [1.3]{.pnum} Otherwise, if `(forward_range<@_maybe-const_@<Const, Views>> && ...)` is modeled, then `iterator_concept` denotes `forward_iterator_tag`.
 - [1.4]{.pnum} Otherwise, `iterator_concept` denotes `input_iterator_tag`.
 
-[2]{.pnum} `@_iterator_@::iterator_category` TODO:
+[2]{.pnum} The member typedef-name `iterator_category` is defined if and only if `(forward_range<@_maybe-const_@<Const, Views>>&&...)` is modeled. In that case, `iterator::iterator_category` is defined as follows:
+
+- [2.1]{.pnum} If `is_lvalue_reference<reference>` is `true`, then `iterator_category` denotes `iterator_concept`
+- [2.2]{.pnum} Otherwise, `iterator_category` denotes `input_iterator_tag`
 
 ```cpp
 template <std::size_t N>

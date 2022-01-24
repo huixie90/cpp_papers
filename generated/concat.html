@@ -797,8 +797,8 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <span id="cb17-8"><a href="#cb17-8"></a>  </span>
 <span id="cb17-9"><a href="#cb17-9"></a>  <span class="kw">public</span><span class="op">:</span></span>
 <span id="cb17-10"><a href="#cb17-10"></a>    <span class="kw">using</span> reference <span class="op">=</span> common_reference_t<span class="op">&lt;</span>range_reference_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;...&gt;</span>;</span>
-<span id="cb17-11"><a href="#cb17-11"></a>    <span class="kw">using</span> difference_type <span class="op">=</span> common_type_t<span class="op">&lt;</span>range_difference_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;...&gt;</span>;</span>
-<span id="cb17-12"><a href="#cb17-12"></a>    <span class="kw">using</span> value_type <span class="op">=</span> common_type_t<span class="op">&lt;</span>range_value_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;...&gt;</span>;</span>
+<span id="cb17-11"><a href="#cb17-11"></a>    <span class="kw">using</span> value_type <span class="op">=</span> remove_cvref_t<span class="op">&lt;</span>reference<span class="op">&gt;</span>;</span>
+<span id="cb17-12"><a href="#cb17-12"></a>    <span class="kw">using</span> difference_type <span class="op">=</span> common_type_t<span class="op">&lt;</span>range_reference_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;...&gt;</span>;</span>
 <span id="cb17-13"><a href="#cb17-13"></a>    <span class="kw">using</span> iterator_concept <span class="op">=</span> <em>see below</em>;</span>
 <span id="cb17-14"><a href="#cb17-14"></a>    <span class="kw">using</span> iterator_category <span class="op">=</span> <em>see below</em>;                  <span class="co">// not always present.</span></span>
 <span id="cb17-15"><a href="#cb17-15"></a></span>
@@ -908,12 +908,16 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <span id="cb17-119"><a href="#cb17-119"></a><span class="op">}</span></span></code></pre></div>
 <p><span class="marginalizedparent"><a class="marginalized">1</a></span> <code class="sourceCode default"><em>iterator</em>::iterator_concept</code> is defined as follows:</p>
 <ul>
-<li><span class="marginalizedparent"><a class="marginalized">(1.1)</a></span> if <code class="sourceCode default"><em>concat-random-access</em>&lt;<em>maybe-const</em>&lt;Const, Views&gt;...&gt;</code> is modeled, then <code class="sourceCode default">iterator_concept</code> denotes <code class="sourceCode default">random_access_iterator_tag</code>.</li>
+<li><span class="marginalizedparent"><a class="marginalized">(1.1)</a></span> If <code class="sourceCode default"><em>concat-random-access</em>&lt;<em>maybe-const</em>&lt;Const, Views&gt;...&gt;</code> is modeled, then <code class="sourceCode default">iterator_concept</code> denotes <code class="sourceCode default">random_access_iterator_tag</code>.</li>
 <li><span class="marginalizedparent"><a class="marginalized">(1.2)</a></span> Otherwise, if <code class="sourceCode default"><em>concat-bidirectional</em>&lt;<em>maybe-const</em>&lt;Const, Views&gt;...&gt;</code> is modeled, then <code class="sourceCode default">iterator_concept</code> denotes <code class="sourceCode default">bidrectional_iterator_tag</code>.</li>
 <li><span class="marginalizedparent"><a class="marginalized">(1.3)</a></span> Otherwise, if <code class="sourceCode default">(forward_range&lt;<em>maybe-const</em>&lt;Const, Views&gt;&gt; &amp;&amp; ...)</code> is modeled, then <code class="sourceCode default">iterator_concept</code> denotes <code class="sourceCode default">forward_iterator_tag</code>.</li>
 <li><span class="marginalizedparent"><a class="marginalized">(1.4)</a></span> Otherwise, <code class="sourceCode default">iterator_concept</code> denotes <code class="sourceCode default">input_iterator_tag</code>.</li>
 </ul>
-<p><span class="marginalizedparent"><a class="marginalized">2</a></span> <code class="sourceCode default"><em>iterator</em>::iterator_category</code> TODO:</p>
+<p><span class="marginalizedparent"><a class="marginalized">2</a></span> The member typedef-name <code class="sourceCode default">iterator_category</code> is defined if and only if <code class="sourceCode default">(forward_range&lt;<em>maybe-const</em>&lt;Const, Views&gt;&gt;&amp;&amp;...)</code> is modeled. In that case, <code class="sourceCode default">iterator::iterator_category</code> is defined as follows:</p>
+<ul>
+<li><span class="marginalizedparent"><a class="marginalized">(2.1)</a></span> If <code class="sourceCode default">is_lvalue_reference&lt;reference&gt;</code> is <code class="sourceCode default">true</code>, then <code class="sourceCode default">iterator_category</code> denotes <code class="sourceCode default">iterator_concept</code></li>
+<li><span class="marginalizedparent"><a class="marginalized">(2.2)</a></span> Otherwise, <code class="sourceCode default">iterator_category</code> denotes <code class="sourceCode default">input_iterator_tag</code></li>
+</ul>
 <div class="sourceCode" id="cb18"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#cb18-1"></a><span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
 <span id="cb18-2"><a href="#cb18-2"></a><span class="kw">constexpr</span> <span class="dt">void</span> <em>satisfy</em><span class="op">()</span>;                             <span class="co">// exposition only</span></span></code></pre></div>
 <p><span class="marginalizedparent"><a class="marginalized">3</a></span> <em>Effects</em>: Equivalent to:</p>

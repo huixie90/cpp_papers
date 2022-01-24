@@ -20,6 +20,8 @@ template <class... T>
 concept concatable =
     (convertible_to<range_reference_t<T>, common_reference_t<range_reference_t<T>...>> && ...);
 
+inline namespace not_to_spec {
+
 template <class... T>
 using back = tuple_element_t<sizeof...(T) - 1, tuple<T...>>;
 
@@ -27,6 +29,8 @@ template <bool... b, size_t... I>
 consteval bool all_but_last(std::index_sequence<I...>) {
     return ((I == sizeof...(I) - 1 || b) && ...);
 }
+
+} // namespace not_to_spec
 
 template <class... Rs>
 concept concat_random_access = ((random_access_range<Rs> && sized_range<Rs>)&&...);
@@ -42,7 +46,7 @@ concept concat_bidirectional = all_but_last<constant_time_reversible<Rs>...>(
 inline namespace not_to_spec {
 
 template <bool Const, class... Ts>
-constexpr auto iterator_concept_test() {
+consteval auto iterator_concept_test() {
     if constexpr (concat_random_access<__maybe_const<Const, Ts>...>) {
         return random_access_iterator_tag{};
     } else if constexpr (concat_bidirectional<__maybe_const<Const, Ts>...>) {
@@ -67,7 +71,6 @@ constexpr auto visit_i_impl(size_t idx, Var&& v, F&& f) {
                       std::get<0>(static_cast<Var&&>(v)));
     }
 }
-} // namespace not_to_spec
 
 
 // calls f(integral_constant<idx>{}, get<idx>(v)) for idx == v.index().
@@ -76,6 +79,36 @@ constexpr auto visit_i(Var&& v, F&& f) {
     return visit_i_impl<variant_size_v<remove_reference_t<Var>>>(v.index(), static_cast<Var&&>(v),
                                                                  static_cast<F&&>(f));
 }
+
+
+template <bool Const, class... Views>
+consteval auto iter_cat_test() {
+    using reference = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
+    if constexpr (is_lvalue_reference_v<reference>) {
+        return iterator_concept_test<Const, Views...>();
+    } else {
+        return input_iterator_tag{};
+    }
+}
+
+struct empty_ {};
+
+template <bool Const, class... Views>
+struct iter_cat_base {
+    using iterator_category = decltype(iter_cat_test<Const, Views...>());
+};
+
+template <bool, class...>
+consteval auto iter_cat_base_sel() -> empty_;
+
+template <bool Const, class... Views>
+consteval auto iter_cat_base_sel() -> iter_cat_base<Const, Views...>
+requires((forward_range<__maybe_const<Const, Views>> && ...));
+
+template <bool Const, class... Views>
+using iter_cat_base_t = decltype(iter_cat_base_sel<Const, Views...>());
+
+} // namespace not_to_spec
 
 
 
@@ -91,20 +124,13 @@ class concat_view : public view_interface<concat_view<Views...>> {
     tuple<Views...> views_ = tuple<Views...>(); // exposition only
 
     template <bool Const>
-    class iterator {
+    class iterator : public xo::iter_cat_base_t<Const, Views...> {
       public:
-        // [TODO] range-v3 has pointed out that rvalue_reference is a problem
         using reference = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
+        using value_type = remove_cvref_t<reference>;
         using difference_type = common_type_t<range_difference_t<__maybe_const<Const, Views>>...>;
-        using value_type = common_type_t<range_value_t<__maybe_const<Const, Views>>...>;
         using iterator_concept = decltype(xo::iterator_concept_test<Const, Views...>());
 
-        /* [TODO]
-         * this one is tricky.
-         * it depends on the iterate_category of every base and also depends on if
-         * the common_reference_t<...> is actually a reference
-         */
-        // using iterator_category = ; // not always present.
       private:
         using ParentView = __maybe_const<Const, concat_view>;
         using BaseIt = variant<iterator_t<__maybe_const<Const, Views>>...>;
