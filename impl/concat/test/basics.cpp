@@ -68,7 +68,7 @@ TEST_POINT("concept") {
     STATIC_CHECK(concat_viewable<IntV&>);
     STATIC_CHECK(concat_viewable<IntV&>);
     STATIC_CHECK(concat_viewable<IntV> == std::ranges::viewable_range<IntV>);
-    // ^^ in implementations that provide owning_view IntV is viewable!
+    STATIC_CHECK(!concat_viewable<const std::vector<MoveOnly>>);
 
     // nominal use
     STATIC_CHECK(concat_viewable<IntV&, IntV&>);
