@@ -66,9 +66,9 @@ TEST_POINT("concept") {
 
     // single arg
     STATIC_CHECK(concat_viewable<IntV&>);
-    STATIC_CHECK(!concat_viewable<IntV>); // because:
-    STATIC_REQUIRE(!std::ranges::viewable_range<IntV>);
-    STATIC_REQUIRE(std::ranges::viewable_range<IntV&>);
+    STATIC_CHECK(concat_viewable<IntV&>);
+    STATIC_CHECK(concat_viewable<IntV> == std::ranges::viewable_range<IntV>);
+    // ^^ in implementations that provide owning_view IntV is viewable!
 
     // nominal use
     STATIC_CHECK(concat_viewable<IntV&, IntV&>);
@@ -422,7 +422,7 @@ TEST_POINT("random access") {
 
 TEST_POINT("single range view works") {
 
-    std::vector<int> v1{1,2,3,4};
+    std::vector<int> v1{1, 2, 3, 4};
     std::ranges::concat_view cv{v1};
     static_assert(std::ranges::random_access_range<decltype(cv)>);
     REQUIRE(cv[0] == 1);
@@ -430,7 +430,7 @@ TEST_POINT("single range view works") {
     REQUIRE(cv[2] == 3);
     REQUIRE(cv[3] == 4);
 
-    REQUIRE(std::ranges::size(cv)==4);
+    REQUIRE(std::ranges::size(cv) == 4);
 
     auto it = std::ranges::begin(cv);
     REQUIRE(it + 4 == std::ranges::end(cv));
