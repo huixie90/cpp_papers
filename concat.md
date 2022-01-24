@@ -511,10 +511,10 @@ namespace std::ranges{
     constexpr void @_prev_@();                                // exposition only
 
     template <std::size_t N>
-    constexpr void @_advance_fwd_@(difference_type, difference_type); // exposition only
+    constexpr void @_advance_fwd_@(difference_type offset, difference_type steps); // exposition only
 
     template <std::size_t N>
-    constexpr void @_advance_bwd_@(difference_type, difference_type); // exposition only
+    constexpr void @_advance_bwd_@(difference_type offset, difference_type steps); // exposition only
 
   public:
 
@@ -588,10 +588,10 @@ namespace std::ranges{
     friend constexpr difference_type operator-(const @_iterator_@& x, const @_iterator_@& y) 
         requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 
-    friend constexpr difference_type operator-(const @_iterator_@& it, default_sentinel_t) 
+    friend constexpr difference_type operator-(const @_iterator_@& x, default_sentinel_t) 
         requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 
-    friend constexpr difference_type operator-(default_sentinel_t, const @_iterator_@& it) 
+    friend constexpr difference_type operator-(default_sentinel_t, const @_iterator_@& x) 
         requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 
     // TODO: iter_swap and iter_move
@@ -652,20 +652,49 @@ constexpr void @_prev_@();                                // exposition only
     }
 ```
 
+```cpp
+template <std::size_t N>
+constexpr void @_advance_bwd_@(difference_type offset, difference_type steps); // exposition only
+```
+
+[5]{.pnum} *Effects*: Equivalent to:
+
+```cpp
+    if constexpr (N == sizeof...(Views) - 1) {
+        get<N>(@*it_*@) += steps;
+    } else {
+        auto n_size = ranges::size(get<N>(@*parent_*@->@*views_*@));
+        if (offset + steps < static_cast<difference_type>(n_size)) {
+            get<N>(@*it_*@) += steps;
+        } else {
+            @*it_*@.template emplace<N + 1>(ranges::begin(get<N + 1>(@*parent_*@->@*views_*@)));
+            advance_fwd<N + 1>(0, offset + steps - n_size);
+        }
+    }
+```
 
 ```cpp
 template <std::size_t N>
-constexpr void @_advance_bwd_@(difference_type, difference_type); // exposition only
+constexpr void @_advance_bwd_@(difference_type offset, difference_type steps); // exposition only
 ```
 
-[5]{.pnum} *Effects*: Equivalent to: [TODO]
+[6]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-template <std::size_t N>
-constexpr void @_advance_bwd_@(difference_type, difference_type); // exposition only
+    if constexpr (N == 0) {
+        get<N>(@*it_*@) -= steps;
+    } else {
+        if (offset >= steps) {
+            get<N>(@*it_*@) -= steps;
+        } else {
+            @*it_*@.template emplace<N - 1>(ranges::begin(get<N - 1>(@*parent_*@->views_)) +
+                                        ranges::size(get<N - 1>(@*parent_*@->views_)));
+            advance_bwd<N - 1>(
+                static_cast<difference_type>(ranges::size(get<N - 1>(@*parent_*@->views_))),
+                steps - offset);
+        }
+    }
 ```
-
-[6]{.pnum} *Effects*: Equivalent to: [TODO]
 
 ```cpp
 template <class... Args>
@@ -912,24 +941,47 @@ friend constexpr difference_type operator-(const @_iterator_@& x, const @_iterat
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[28]{.pnum} *Effects*: Equivalent to: [TODO]
+[28]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()` and `@*i~y~*@` denote `y.@*it_*@.index()`
+
+- [28.1]{.pnum} if `@*i~x~*@ > @*i~y~*@`, let `@*d~y~*@` denote the distance from `get<@*i~y~*@>(y.@*it_*@)` to the end of `get<@*i~y~*@>(y.@*parent_*@.@*views_*@)`,
+`@*d~x~*@` denote the distance from the begin of `get<@*i~x~*@>(x.@*parent_*@.@*views_*@)` to `get<@*i~x~*@>(x.@*it_*@)`. For every integer `@*i~y~*@ < @*i*@ < @*i~x~*@`, let `s` denote the sum of the sizes of all the ranges `get<@*i*@>(x.@*parent_*@.@*views_*@)` if there is any, and `0` otherwise, equivalent to
 
 ```cpp
-friend constexpr difference_type operator-(const @_iterator_@& it, default_sentinel_t) 
+    return @*d~y~*@ + s + @*d~x~*@;
+```
+
+- [28.2]{.pnum} otherwise, if `@*i~x~*@ < @*i~y~*@`, equivalent to:
+
+```cpp
+    return -(y - x);
+```
+
+- [28.3]{.pnum} otherwise, equivalent to:
+
+```cpp
+    return get<@*i~x~*@>(x.@*it_*@) - get<@*i~y~*@>(y.@*it_*@);
+```
+
+```cpp
+friend constexpr difference_type operator-(const @_iterator_@& x, default_sentinel_t) 
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[29]{.pnum} *Effects*: Equivalent to: [TODO]
+[29]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()`, `@*d~x~*@` denote the distance from `get<@*i~x~*@>(x.@*it_*@)` to the end of `get<@*i~x~*@>(x.@*parent_*@.@*views_*@)`. For every integer `@*i~x~*@ < @*i*@ < sizeof...(Views)`, let `s` denote the sum of the sizes of all the ranges `get<@*i*@>(x.@*parent_*@.@*views_*@)` if there is any, and `0` otherwise, equivalent to
 
 ```cpp
-friend constexpr difference_type operator-(default_sentinel_t, const @_iterator_@& it) 
+    return -(@*d~x~*@ + s);
+```
+
+```cpp
+friend constexpr difference_type operator-(default_sentinel_t, const @_iterator_@& x) 
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
 [30]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-      return -(it - default_sentinel);
+      return -(x - default_sentinel);
 ```
 
 ```cpp
@@ -948,10 +1000,6 @@ Add the following macro definition to [version.syn]{.sref}, header `<version>` s
 ```cpp
 #define __cpp_lib_ranges_concat  20XXXXL // also in <ranges>
 ```
-
-# Future Improvements
-
-[TODO:] Can we do better than `common_reference_t`? What about `views::concat_as<T>(...)`
 
 ---
 references:
