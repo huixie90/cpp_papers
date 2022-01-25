@@ -445,6 +445,24 @@ TEST_POINT("single range view works") {
     REQUIRE(*it == 3);
 }
 
+
+TEST_POINT("iter_move and iter_swap basic") {
+    std::vector v1{5,3,9}, v2{1,8}, v3{7,6};
+    auto v = std::views::concat(v1,v2,v3);
+    std::sort(v.begin(), v.end());
+
+    REQUIRE(v1[0] == 1);
+    REQUIRE(v1[1] == 3);
+    REQUIRE(v1[2] == 5);
+
+    REQUIRE(v2[0] == 6);
+    REQUIRE(v2[1] == 7);
+
+    REQUIRE(v3[0] == 8);
+    REQUIRE(v3[1] == 9);
+    
+}
+
 TEST_POINT("Sentinel") {
     // using V = std::vector<int>;
     // using W = std::list<int>;
