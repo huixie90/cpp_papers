@@ -16,3 +16,5 @@ out/
 build-*
 first.supp
 CMakeSettings.json
+
+compile_commands.json
