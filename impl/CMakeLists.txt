@@ -7,12 +7,18 @@ if (MSVC)
    set(CMAKE_CXX_STANDARD 23)
    # prevent MSVC/clang incompatible MP flag
    add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
-else()
+endif()
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
    set(CMAKE_CXX_STANDARD 23)
    set(CXX_STANDARD_REQUIRED TRUE)
-   add_compile_options(-Wall -Wextra -Werror -stdlib=libc++)
-   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
-
+	add_compile_options(-Wall -Wextra -Werror -stdlib=libc++)
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+   set(CMAKE_CXX_STANDARD 23)
+   set(CXX_STANDARD_REQUIRED TRUE)
+	add_compile_options(-Wall -Wextra -Werror)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 
 # git clone Catch2, cmake & install to $INSTALL.

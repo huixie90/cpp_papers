@@ -67,7 +67,9 @@ TEST_POINT("concept") {
     // single arg
     STATIC_CHECK(concat_viewable<IntV&>);
     STATIC_CHECK(concat_viewable<IntV&>);
+#if !(defined(__GNUC__) && !defined (_LIBCPP_VERSION))
     STATIC_CHECK(concat_viewable<IntV>);
+#endif
     STATIC_CHECK(!concat_viewable<const std::vector<MoveOnly>>);
 
     // nominal use
@@ -447,8 +449,8 @@ TEST_POINT("single range view works") {
 
 
 TEST_POINT("iter_move and iter_swap basic") {
-    std::vector v1{5,3,9}, v2{1,8}, v3{7,6};
-    auto v = std::views::concat(v1,v2,v3);
+    std::vector v1{5, 3, 9}, v2{1, 8}, v3{7, 6};
+    auto v = std::views::concat(v1, v2, v3);
     std::sort(v.begin(), v.end());
 
     REQUIRE(v1[0] == 1);
@@ -460,7 +462,6 @@ TEST_POINT("iter_move and iter_swap basic") {
 
     REQUIRE(v3[0] == 8);
     REQUIRE(v3[1] == 9);
-    
 }
 
 TEST_POINT("Sentinel") {
