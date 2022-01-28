@@ -45,68 +45,69 @@ concept concat_bidirectional = all_but_last<constant_time_reversible<Rs>...>(
 
 inline namespace not_to_spec {
 
-template <bool Const, class... Ts>
-consteval auto iterator_concept_test() {
-    if constexpr (concat_random_access<__maybe_const<Const, Ts>...>) {
-        return random_access_iterator_tag{};
-    } else if constexpr (concat_bidirectional<__maybe_const<Const, Ts>...>) {
-        return bidirectional_iterator_tag{};
-    } else if constexpr ((forward_range<__maybe_const<Const, Ts>> && ...)) {
-        return forward_iterator_tag{};
-    } else {
-        return input_iterator_tag{};
+    template <bool Const, class... Ts>
+    consteval auto iterator_concept_test() {
+        if constexpr (concat_random_access<__maybe_const<Const, Ts>...>) {
+            return random_access_iterator_tag{};
+        } else if constexpr (concat_bidirectional<__maybe_const<Const, Ts>...>) {
+            return bidirectional_iterator_tag{};
+        } else if constexpr ((forward_range<__maybe_const<Const, Ts>> && ...)) {
+            return forward_iterator_tag{};
+        } else {
+            return input_iterator_tag{};
+        }
     }
-}
 
-// calls f(integral_constant<idx>{}) for a runtime idx in [0,N)
-template <size_t N, typename Var, typename F>
-constexpr auto visit_i_impl(size_t idx, Var&& v, F&& f) {
-    assert(idx < N);
-    if constexpr (N > 1) {
-        return idx == N - 1 ? invoke(static_cast<F&&>(f), integral_constant<size_t, N - 1>{},
-                                     std::get<N - 1>(static_cast<Var&&>(v)))
-                            : visit_i_impl<N - 1>(idx, static_cast<Var&&>(v), static_cast<F&&>(f));
-    } else {
-        return invoke(static_cast<F&&>(f), integral_constant<size_t, 0>{},
-                      std::get<0>(static_cast<Var&&>(v)));
+    // calls f(integral_constant<idx>{}) for a runtime idx in [0,N)
+    template <size_t N, typename Var, typename F>
+    constexpr auto visit_i_impl(size_t idx, Var && v, F && f) {
+        assert(idx < N);
+        if constexpr (N > 1) {
+            return idx == N - 1
+                       ? invoke(static_cast<F&&>(f), integral_constant<size_t, N - 1>{},
+                                std::get<N - 1>(static_cast<Var&&>(v)))
+                       : visit_i_impl<N - 1>(idx, static_cast<Var&&>(v), static_cast<F&&>(f));
+        } else {
+            return invoke(static_cast<F&&>(f), integral_constant<size_t, 0>{},
+                          std::get<0>(static_cast<Var&&>(v)));
+        }
     }
-}
 
 
-// calls f(integral_constant<idx>{}, get<idx>(v)) for idx == v.index().
-template <typename Var, typename F>
-constexpr auto visit_i(Var&& v, F&& f) {
-    return visit_i_impl<variant_size_v<remove_reference_t<Var>>>(v.index(), static_cast<Var&&>(v),
-                                                                 static_cast<F&&>(f));
-}
-
-
-template <bool Const, class... Views>
-consteval auto iter_cat_test() {
-    using reference = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
-    if constexpr (is_lvalue_reference_v<reference>) {
-        return iterator_concept_test<Const, Views...>();
-    } else {
-        return input_iterator_tag{};
+    // calls f(integral_constant<idx>{}, get<idx>(v)) for idx == v.index().
+    template <typename Var, typename F>
+    constexpr auto visit_i(Var && v, F && f) {
+        return visit_i_impl<variant_size_v<remove_reference_t<Var>>>(
+            v.index(), static_cast<Var&&>(v), static_cast<F&&>(f));
     }
-}
 
-struct empty_ {};
 
-template <bool Const, class... Views>
-struct iter_cat_base {
-    using iterator_category = decltype(iter_cat_test<Const, Views...>());
-};
+    template <bool Const, class... Views>
+    consteval auto iter_cat_test() {
+        using reference = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
+        if constexpr (is_lvalue_reference_v<reference>) {
+            return iterator_concept_test<Const, Views...>();
+        } else {
+            return input_iterator_tag{};
+        }
+    }
 
-template <bool, class...>
-consteval auto iter_cat_base_sel() -> empty_;
+    struct empty_ {};
 
-template <bool Const, class... Views>
-consteval auto iter_cat_base_sel() -> iter_cat_base<Const, Views...>
-requires((forward_range<__maybe_const<Const, Views>> && ...));
+    template <bool Const, class... Views>
+    struct iter_cat_base {
+        using iterator_category = decltype(iter_cat_test<Const, Views...>());
+    };
 
-template <bool Const, class... Views>
-using iter_cat_base_t = decltype(iter_cat_base_sel<Const, Views...>());
+    template <bool, class...>
+    consteval auto iter_cat_base_sel()->empty_;
+
+    template <bool Const, class... Views>
+    consteval auto iter_cat_base_sel()->iter_cat_base<Const, Views...>
+    requires((forward_range<__maybe_const<Const, Views>> && ...));
+
+    template <bool Const, class... Views>
+    using iter_cat_base_t = decltype(iter_cat_base_sel<Const, Views...>());
 
 } // namespace not_to_spec
 
