@@ -128,7 +128,8 @@ class concat_view : public view_interface<concat_view<Views...>> {
     class iterator : public xo::iter_cat_base_t<Const, Views...> {
       public:
         using reference = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
-        using value_type = remove_cvref_t<reference>;
+        // using value_type = remove_cvref_t<reference>;
+        using value_type = common_type_t<range_value_t<__maybe_const<Const, Views>>...>;
         using difference_type = common_type_t<range_difference_t<__maybe_const<Const, Views>>...>;
         using iterator_concept = decltype(xo::iterator_concept_test<Const, Views...>());
 
@@ -207,6 +208,16 @@ class concat_view : public view_interface<concat_view<Views...>> {
         }
 
         decltype(auto) get_parent_views() const { return (parent_->views_); }
+
+        friend auto iter_move(iterator const& ii) {
+            // TODO: noexcept spec like zip:
+            // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p2321r2.html#pnum_180
+            return std::visit(
+                [](auto const& i) -> value_type { //
+                    return iter_move(i);
+                },
+                ii.it_);
+        }
 
       public:
         iterator() requires(default_initializable<iterator_t<__maybe_const<Const, Views>>>&&...) =
