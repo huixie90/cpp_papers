@@ -1,6 +1,5 @@
 #ifndef LIBCPP_RANGE_CONCAT_UTILS_HPP
 #define LIBCPP_RANGE_CONCAT_UTILS_HPP
-
 #include <functional>
 #include <utility>
 #include <tuple>
@@ -48,6 +47,19 @@ namespace std::ranges {
     template <typename T>
     concept __simple_view = _Simple_view<T>;
 }
+#endif
+
+#if defined(__GNUC__) && !defined (_LIBCPP_VERSION)
+
+namespace std::ranges{
+
+    template<bool C, typename T>
+    using __maybe_const = __detail::__maybe_const_t<C,T>;
+
+    template <typename T>
+    concept __simple_view = __detail::__simple_view<T>;
+}
+
 #endif
 
 

@@ -608,8 +608,12 @@ namespace std::ranges{
 
 [2]{.pnum} The member typedef-name `iterator_category` is defined if and only if `(forward_range<@_maybe-const_@<Const, Views>>&&...)` is modeled. In that case, `iterator::iterator_category` is defined as follows:
 
-- [2.1]{.pnum} If `is_lvalue_reference<reference>` is `true`, then `iterator_category` denotes `iterator_concept`
-- [2.2]{.pnum} Otherwise, `iterator_category` denotes `input_iterator_tag`
+- [2.1]{.pnum} If `is_lvalue_reference<reference>` is `false`, then `iterator_category` denotes `input_iterator_tag`
+- [2.2]{.pnum} Otherwise, let `Cs` denote the pack of types `iterator_traits<iterator_t<@*maybe-const*@<Const, Views>>>::iterator_category...`.
+- [2.2.1]{.pnum} If `(derived_from<Cs, random_access_iterator_tag> && ...) && @_concat-random-access_@<@_maybe-const_@<Const, Views>...>` is true, `iterator_category` denotes `random_access_iterator_tag`.
+- [2.2.2]{.pnum} If `(derived_from<Cs, bidirectional_iterator_tag> && ...) && @_concat-bidirectional_@<@_maybe-const_@<Const, Views>...>` is true, `iterator_category` denotes `bidirectional_iterator_tag`.
+- [2.2.3]{.pnum} If `(derived_from<Cs, forward_iterator_tag> && ...)` is true, `iterator_category` denotes `forward_iterator_tag`.
+- [2.2.4]{.pnum} Otherwise, `iterator_category` denotes `input_iterator_tag`.
 
 ```cpp
 template <std::size_t N>

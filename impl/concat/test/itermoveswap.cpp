@@ -52,6 +52,19 @@ inline constexpr sort_fn sort{};
 
 #endif
 
+#ifdef __GNUC__
+
+//hack to allow gcc to compile range-v3 views as viewable ranges
+
+namespace std::ranges{
+
+template<typename... Ts>
+inline constexpr bool enable_borrowed_range<::ranges::zip_view<Ts...>> = true;
+
+}
+
+
+#endif
 
 TEST_POINT("iter_move") {
     std::vector v1{10, 11};
@@ -79,7 +92,9 @@ TEST_POINT("iter_move") {
 }
 
 
-#ifndef _LIBCPP_VERSION
+
+#ifdef _MSC_VER
+
 TEST_POINT("smallsort") {
     std::vector v1{10, 15};
     std::vector v2{3, 4};
