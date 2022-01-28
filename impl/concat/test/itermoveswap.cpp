@@ -36,7 +36,7 @@ TEST_POINT("iter_move") {
     auto i1 = c.begin();
     auto i2 = i1 + v1.size();
 
-    // auto vi1 = iter_move(i1);
+    // auto vi1 = iter_move(i1); // pop-quiz: why is this wrong?
     std::ranges::range_value_t<decltype(c)> vi1 = iter_move(i1);
     *i1 = iter_move(i2);
     *i2 = std::move(vi1);
