@@ -62,7 +62,7 @@ concept cpp17_bidirectional_iterator = cpp17_forward_iterator<I> && requires(I i
 
 template <class I>
 concept cpp17_random_access_iterator = cpp17_bidirectional_iterator<I> && totally_ordered<I> &&
-    requires(I i, incrementable_traits<I>::difference_type n) {
+    requires(I i, typename incrementable_traits<I>::difference_type n) {
     { i += n } -> same_as<I&>;
     { i -= n } -> same_as<I&>;
     { i + n } -> same_as<I>;

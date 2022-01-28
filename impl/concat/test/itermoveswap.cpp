@@ -19,7 +19,38 @@
 #include <range/v3/view/map.hpp>
 #include <range/v3/view/iota.hpp>
 #include <functional>
+#include <algorithm>
 
+
+#ifdef _LIBCPP_VERSION
+
+namespace std::ranges {
+struct sort_fn {
+    template <random_access_iterator It,
+              sentinel_for<It> St,
+              typename C = ranges::less,
+              typename P = identity>
+    // requires sortable<It, C, P>
+    constexpr It operator()(It first, St last, C cmp = {}, P proj = {}) const {
+        auto common_sentinel = ranges::next(first, last);
+        std::sort(std::move(first), common_sentinel, [&](auto&& x, auto&& y) {
+            return std::invoke(cmp, std::invoke(proj, static_cast<decltype(x)>(x)),
+                               std::invoke(proj, static_cast<decltype(y)>(y)));
+        });
+        return common_sentinel;
+    }
+
+    template <random_access_range R, typename C = ranges::less, typename P = identity>
+    //  requires sortable<iterator_t<R>, C, P>
+    constexpr borrowed_iterator_t<R> operator()(R&& r, C cmp = {}, P proj = {}) const {
+        return (*this)(ranges::begin(r), ranges::end(r), std::move(cmp), std::move(proj));
+    }
+};
+
+inline constexpr sort_fn sort{};
+} // namespace std::ranges
+
+#endif
 
 
 TEST_POINT("iter_move") {
@@ -36,9 +67,9 @@ TEST_POINT("iter_move") {
     auto i1 = c.begin();
     auto i2 = i1 + v1.size();
 
-    // auto vi1 = iter_move(i1); // pop-quiz: why is this wrong?
-    std::ranges::range_value_t<decltype(c)> vi1 = iter_move(i1);
-    *i1 = iter_move(i2);
+   std::ranges::range_value_t<decltype(c)> vi1 = std::ranges::iter_move(i1);
+
+    *i1 = std::ranges::iter_move(i2);
     *i2 = std::move(vi1);
 
     CHECK(v1[0] == -10);
@@ -48,6 +79,7 @@ TEST_POINT("iter_move") {
 }
 
 
+#ifndef _LIBCPP_VERSION
 TEST_POINT("smallsort") {
     std::vector v1{10, 15};
     std::vector v2{3, 4};
@@ -106,3 +138,5 @@ TEST_POINT("largesort") {
     CHECK(v2 == v2_expected);
     CHECK(vp == vp_expected);
 }
+
+#endif

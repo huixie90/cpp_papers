@@ -67,7 +67,7 @@ TEST_POINT("concept") {
     // single arg
     STATIC_CHECK(concat_viewable<IntV&>);
     STATIC_CHECK(concat_viewable<IntV&>);
-    STATIC_CHECK(concat_viewable<IntV> == std::ranges::viewable_range<IntV>);
+    STATIC_CHECK(concat_viewable<IntV>);
     STATIC_CHECK(!concat_viewable<const std::vector<MoveOnly>>);
 
     // nominal use
