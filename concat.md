@@ -208,7 +208,6 @@ the number of elements in each input ranges. `concat_view` is more similar to
 `zip_view`, where `ranges::begin` is always called `N` times. Therefore,
 `concat_view`'s `begin` function is constant time.
 
-
 ## Borrowed vs Cheap Iterator
 
 `concat_view` can be designed to be a `borrowed_range`, if all the underlying
@@ -225,11 +224,6 @@ the existing implementation in [@rangev3] seems to have picked the cheaper
 alternative. We follow suit in this proposal.
 
 ## Common Range
-
-<!-- TODO: is this needed? -->
-<!-- TODO: I think it is good to keep this section. It took me few iterations 
-     to figure out this exact condition. At the beginning I thought the requirement
-     was that "every" underlying range has to model common_range -->
 
 `concat_view` can be `common_range` if the last underlying range models either
 
@@ -356,9 +350,7 @@ for(auto&& i : std::views::concat(v1, v2, v3, a, s)){
 namespace std::ranges {
 
   template <class... Rs>
-  concept @_concatable_@ =                        // exposition only
-    (convertible_to<range_reference_t<Rs>, 
-      common_reference_t<range_reference_t<Rs>...>> && ...);
+  concept @_concatable_@ = @*see below*@;             // exposition only
 
   template <class... Rs>
   concept @_concat-random-access_@ =              // exposition only
@@ -407,19 +399,45 @@ namespace std::ranges {
 
 ```cpp
 template <class... Rs>
+concept @_concatable_@ = @_see below_@;
+```
+
+[1]{.pnum} The exposition-only `@_concatable_@` concept is equivalent to:
+
+```cpp
+    template <class... Rs>
+    concept @_concatable_@ = requires {
+        typename common_reference_t<range_reference_t<Rs>...>;
+        typename common_type_t<range_value_t<Rs>...>;
+        typename common_reference_t<range_rvalue_reference_t<Rs>...>;
+    } && 
+    (convertible_to<range_reference_t<Rs>, 
+        common_reference_t<range_reference_t<Rs>...>> && ...) &&
+    (convertible_to<range_rvalue_reference_t<Rs>, 
+        common_reference_t<range_rvalue_reference_t<Rs>...>> && ...) &&
+    common_reference_with<common_reference_t<range_reference_t<Rs>...>&&,
+        common_type_t<range_value_t<Rs>...>&> &&
+    common_reference_with<common_reference_t<range_reference_t<Rs>...>&&,
+        common_reference_t<range_rvalue_reference_t<Rs>...>&&> &&
+    common_reference_with<common_reference_t<range_rvalue_reference_t<Rs>...>&&,
+        const common_type_t<range_value_t<Rs>...>&>;
+```
+
+```cpp
+template <class... Rs>
 concept @_concat-bidirectional_@ = @_see below_@;
 ```
 
-[1]{.pnum} The pack `Rs...` models `@_concat-bidirectional_@` if,
+[2]{.pnum} The pack `Rs...` models `@_concat-bidirectional_@` if,
 
-* [1.1]{.pnum} Last element of `Rs...` models `bidirectional_range`,
-* [1.2]{.pnum} And, all except the last element of `Rs...` model `@_constant-time-reversible_@`.
+- [2.1]{.pnum} Last element of `Rs...` models `bidirectional_range`,
+- [2.2]{.pnum} And, all except the last element of `Rs...` model `@_constant-time-reversible_@`.
 
 ```cpp
 constexpr explicit concat_view(Views... views);
 ```
 
-[2]{.pnum} *Effects*: Initializes `@*views_*@` with `std::move(views)...`.
+[3]{.pnum} *Effects*: Initializes `@*views_*@` with `std::move(views)...`.
 
 ```cpp
 constexpr @_iterator_@<false> begin() requires(!(@_simple-view_@<Views> && ...));
@@ -427,7 +445,7 @@ constexpr @_iterator_@<true> begin() const
   requires((range<const Views> && ...) && @_concatable_@<const Views...>);
 ```
 
-[3]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload, and `false` otherwise. Equivalent to:
+[4]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload, and `false` otherwise. Equivalent to:
 
 ```cpp
     @_iterator_@<@_is-const_@> it{this, in_place_index<0>, ranges::begin(get<0>(@*views_*@))};
@@ -440,7 +458,7 @@ constexpr auto end() requires(!(@_simple-view_@<Views> && ...));
 constexpr auto end() const requires(range<const Views>&&...);
 ```
 
-[4]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload, and `false` otherwise,
+[5]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload, and `false` otherwise,
 and let `@_last-view_@` be the last element of the pack `const Views...` for const-qualified overload,
 and the last element of the pack `Views...` otherwise. Equivalent to:
 
@@ -488,7 +506,7 @@ namespace std::ranges{
   
   public:
     using reference = common_reference_t<range_reference_t<@_maybe-const_@<Const, Views>>...>;
-    using value_type = remove_cvref_t<reference>;
+    using value_type = common_type_t<range_value_t<@_maybe-const_@<Const, Views>>...>;
     using difference_type = common_type_t<range_reference_t<@_maybe-const_@<Const, Views>>...>;
     using iterator_concept = @*see below*@;
     using iterator_category = @*see below*@;                  // not always present.
@@ -593,7 +611,10 @@ namespace std::ranges{
     friend constexpr difference_type operator-(default_sentinel_t, const @_iterator_@& x) 
         requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 
-    // TODO: iter_swap and iter_move
+    friend constexpr decltype(auto) iter_move(iterator const& it);
+
+    friend constexpr void iter_swap(const iterator& x, const iterator& y)      
+        requires @*see below*@;
   };
 
 }
@@ -610,10 +631,10 @@ namespace std::ranges{
 
 - [2.1]{.pnum} If `is_lvalue_reference<reference>` is `false`, then `iterator_category` denotes `input_iterator_tag`
 - [2.2]{.pnum} Otherwise, let `Cs` denote the pack of types `iterator_traits<iterator_t<@*maybe-const*@<Const, Views>>>::iterator_category...`.
-- [2.2.1]{.pnum} If `(derived_from<Cs, random_access_iterator_tag> && ...) && @_concat-random-access_@<@_maybe-const_@<Const, Views>...>` is true, `iterator_category` denotes `random_access_iterator_tag`.
-- [2.2.2]{.pnum} If `(derived_from<Cs, bidirectional_iterator_tag> && ...) && @_concat-bidirectional_@<@_maybe-const_@<Const, Views>...>` is true, `iterator_category` denotes `bidirectional_iterator_tag`.
-- [2.2.3]{.pnum} If `(derived_from<Cs, forward_iterator_tag> && ...)` is true, `iterator_category` denotes `forward_iterator_tag`.
-- [2.2.4]{.pnum} Otherwise, `iterator_category` denotes `input_iterator_tag`.
+  - [2.2.1]{.pnum} If `(derived_from<Cs, random_access_iterator_tag> && ...) && @_concat-random-access_@<@_maybe-const_@<Const, Views>...>` is true, `iterator_category` denotes `random_access_iterator_tag`.
+  - [2.2.2]{.pnum} If `(derived_from<Cs, bidirectional_iterator_tag> && ...) && @_concat-bidirectional_@<@_maybe-const_@<Const, Views>...>` is true, `iterator_category` denotes `bidirectional_iterator_tag`.
+  - [2.2.3]{.pnum} If `(derived_from<Cs, forward_iterator_tag> && ...)` is true, `iterator_category` denotes `forward_iterator_tag`.
+  - [2.2.4]{.pnum} Otherwise, `iterator_category` denotes `input_iterator_tag`.
 
 ```cpp
 template <std::size_t N>
@@ -947,10 +968,17 @@ friend constexpr difference_type operator-(const @_iterator_@& x, const @_iterat
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[28]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()` and `@*i~y~*@` denote `y.@*it_*@.index()`
+[28]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()` and `@*i~y~*@`
+denote `y.@*it_*@.index()`
 
-- [28.1]{.pnum} if `@*i~x~*@ > @*i~y~*@`, let `@*d~y~*@` denote the distance from `get<@*i~y~*@>(y.@*it_*@)` to the end of `get<@*i~y~*@>(y.@*parent_*@.@*views_*@)`,
-`@*d~x~*@` denote the distance from the begin of `get<@*i~x~*@>(x.@*parent_*@.@*views_*@)` to `get<@*i~x~*@>(x.@*it_*@)`. For every integer `@*i~y~*@ < @*i*@ < @*i~x~*@`, let `s` denote the sum of the sizes of all the ranges `get<@*i*@>(x.@*parent_*@.@*views_*@)` if there is any, and `0` otherwise, equivalent to
+- [28.1]{.pnum} if `@*i~x~*@ > @*i~y~*@`, let `@*d~y~*@` denote the distance
+  from `get<@*i~y~*@>(y.@*it_*@)` to the end of
+  `get<@*i~y~*@>(y.@*parent_*@.@*views_*@)`, `@*d~x~*@` denote the distance from
+  the begin of `get<@*i~x~*@>(x.@*parent_*@.@*views_*@)` to
+  `get<@*i~x~*@>(x.@*it_*@)`. For every integer `@*i~y~*@ < @*i*@ < @*i~x~*@`,
+  let `s` denote the sum of the sizes of all the ranges
+  `get<@*i*@>(x.@*parent_*@.@*views_*@)` if there is any, and `0` otherwise,
+  equivalent to
 
 ```cpp
     return @*d~y~*@ + s + @*d~x~*@;
@@ -973,7 +1001,12 @@ friend constexpr difference_type operator-(const @_iterator_@& x, default_sentin
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[29]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()`, `@*d~x~*@` denote the distance from `get<@*i~x~*@>(x.@*it_*@)` to the end of `get<@*i~x~*@>(x.@*parent_*@.@*views_*@)`. For every integer `@*i~x~*@ < @*i*@ < sizeof...(Views)`, let `s` denote the sum of the sizes of all the ranges `get<@*i*@>(x.@*parent_*@.@*views_*@)` if there is any, and `0` otherwise, equivalent to
+[29]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()`, `@*d~x~*@`
+denote the distance from `get<@*i~x~*@>(x.@*it_*@)` to the end of
+`get<@*i~x~*@>(x.@*parent_*@.@*views_*@)`. For every integer
+`@*i~x~*@ < @*i*@ < sizeof...(Views)`, let `s` denote the sum of the sizes of
+all the ranges `get<@*i*@>(x.@*parent_*@.@*views_*@)` if there is any, and `0`
+otherwise, equivalent to
 
 ```cpp
     return -(@*d~x~*@ + s);
@@ -987,21 +1020,45 @@ friend constexpr difference_type operator-(default_sentinel_t, const @_iterator_
 [30]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-      return -(x - default_sentinel);
+    return -(x - default_sentinel);
 ```
 
 ```cpp
-  // [TODO]
-    friend constexpr auto iter_move(const iterator& i) noexcept(see below);
-    friend constexpr void iter_swap(const iterator& l, const iterator& r) noexcept(see below)
-        requires (indirectly_swappable<iterator_t<maybe-const<Const, First>>> && ... &&
-            indirectly_swappable<iterator_t<maybe-const<Const, Views>>>);
-
+friend constexpr decltype(auto) iter_move(iterator const& it);
 ```
+
+[31]{.pnum} *Effects*: Equivalent to:
+
+```cpp
+    return std::visit(
+        [](auto const& i) ->
+            common_reference_t<range_rvalue_reference_t<@_maybe-const_@<Const, Views>>...> { 
+            return ranges::iter_move(i);
+        },
+        it.@*it_*@);
+```
+
+```cpp
+friend constexpr void iter_swap(const iterator& x, const iterator& y)      
+    requires @*see below*@;
+```
+
+[32]{.pnum} *Effects*: Equivalent to:
+
+```cpp
+    std::visit(ranges::iter_swap, x.@*it_*@, y.@*it_*@);
+```
+
+[33]{.pnum} *Remarks*: The expression in the requires-clause is `true` if and
+only if: For every combination of two types `X` and `Y` in the set of all types
+in the parameter pack `range_iterator_t<@_maybe-const_@<Const, Views>>>...`,
+`indirectly_swappable<X, Y>` is modelled.
 
 ## Feature Test Macro
 
-Add the following macro definition to [version.syn]{.sref}, header `<version>` synopsis, with the value selected by the editor to reflect the date of adoption of this paper:
+Add the following macro definition to [version.syn]{.sref}, header `<version>`
+synopsis, with the value selected by the editor to reflect the date of adoption
+of this paper:
 
 ```cpp
 #define __cpp_lib_ranges_concat  20XXXXL // also in <ranges>

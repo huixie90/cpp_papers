@@ -91,6 +91,17 @@ TEST_POINT("iter_move") {
     CHECK(a2[0] == 20);
 }
 
+TEST_POINT("iter_swap_concept") {
+    std::vector v{1,2,3};
+    auto tv = v | std::views::transform([](auto){return 5;});
+    auto cv = std::views::concat(tv,tv);
+    using It = std::ranges::iterator_t<decltype(cv)>;
+    static_assert(!std::indirectly_swappable<It>);
+
+    auto cv2 = std::views::concat(v,v);
+    using It2 = std::ranges::iterator_t<decltype(cv2)>;
+    static_assert(std::indirectly_swappable<It2>);
+}
 
 
 #ifdef _MSC_VER
