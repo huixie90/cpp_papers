@@ -16,9 +16,21 @@ namespace std::ranges {
 
 namespace xo { // exposition only things (and persevering face)
 
-template <class... T>
-concept concatable =
-    (convertible_to<range_reference_t<T>, common_reference_t<range_reference_t<T>...>> && ...);
+template <class... Rs>
+concept concatable = requires {
+    typename common_reference_t<range_reference_t<Rs>...>;
+    typename common_type_t<range_value_t<Rs>...>;
+    typename common_reference_t<range_rvalue_reference_t<Rs>...>;
+}
+&&(convertible_to<range_reference_t<Rs>, common_reference_t<range_reference_t<Rs>...>>&&...) &&
+    (convertible_to<range_rvalue_reference_t<Rs>,
+                    common_reference_t<range_rvalue_reference_t<Rs>...>> &&
+     ...) &&
+    common_reference_with<common_reference_t<range_reference_t<Rs>...>&&, common_type_t<range_value_t<Rs>...>&>&& common_reference_with<
+        common_reference_t<range_reference_t<Rs>...>&&,
+        common_reference_t<range_rvalue_reference_t<
+            Rs>...>&&>&& common_reference_with<common_reference_t<range_rvalue_reference_t<Rs>...>&&,
+                                               const common_type_t<range_value_t<Rs>...>&>;
 
 inline namespace not_to_spec {
 
@@ -140,7 +152,6 @@ class concat_view : public view_interface<concat_view<Views...>> {
     class iterator : public xo::iter_cat_base_t<Const, Views...> {
       public:
         using reference = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
-        // using value_type = remove_cvref_t<reference>;
         using value_type = common_type_t<range_value_t<__maybe_const<Const, Views>>...>;
         using difference_type = common_type_t<range_difference_t<__maybe_const<Const, Views>>...>;
         using iterator_concept = decltype(xo::iterator_concept_test<Const, Views...>());
@@ -221,19 +232,6 @@ class concat_view : public view_interface<concat_view<Views...>> {
 
         decltype(auto) get_parent_views() const { return (parent_->views_); }
 
-        friend decltype(auto) iter_move(iterator const& ii)
-        // TODO: requires?
-        {
-            // TODO: noexcept spec like zip:
-            // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p2321r2.html#pnum_180
-            using common_r_value_ref_t =
-                common_reference_t<range_rvalue_reference_t<__maybe_const<Const, Views>>...>;
-            return std::visit(
-                [](auto const& i) -> common_r_value_ref_t { //
-                    return iter_move(i);
-                },
-                ii.it_);
-        }
 
       public:
         iterator() requires(default_initializable<iterator_t<__maybe_const<Const, Views>>>&&...) =
@@ -416,15 +414,21 @@ class concat_view : public view_interface<concat_view<Views...>> {
             return -(it - default_sentinel);
         }
 
-        /*   TODO:  I think we don't need them. the zip/cartesian product needs them because
-                    their reference is a tuple and move(tuple) doesn't creates the proper
-                    rvalue references of the elements. But ours reference is proper reference
-                    to the elements and move the reference should just work
-    friend constexpr auto iter_move(const iterator& i) noexcept(see below);
-    friend constexpr void iter_swap(const iterator& l, const iterator& r) noexcept(see below)
-        requires (indirectly_swappable<iterator_t<maybe-const<Const, First>>> && ... &&
-            indirectly_swappable<iterator_t<maybe-const<Const, Views>>>);
-        */
+        friend constexpr decltype(auto) iter_move(iterator const& ii) {
+            using common_r_value_ref_t =
+                common_reference_t<range_rvalue_reference_t<__maybe_const<Const, Views>>...>;
+            return std::visit(
+                [](auto const& i) -> common_r_value_ref_t { //
+                    return ranges::iter_move(i);
+                },
+                ii.it_);
+        }
+
+        friend constexpr void iter_swap(const iterator& x, const iterator& y) requires
+            requires(const iterator& a, const iterator& b) {
+            std::visit(ranges::iter_swap, x.it_, y.it_);
+        }
+        { std::visit(ranges::iter_swap, x.it_, y.it_); }
     };
 
 
