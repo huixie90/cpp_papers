@@ -232,28 +232,46 @@ alternative. We follow suit in this proposal.
 
 ## Bidirectional Range
 
-`concat_view` can model `bidirectional_range` if the underlying ranges satisfy the following conditions:
+`concat_view` can model `bidirectional_range` if the underlying ranges satisfy
+the following conditions:
 
 - Every underlying range models `bidirectional_range`  
-- If the iterator is at nth range's begin position, after `operator--` it should go to (n-1)th's range's end-1 position. This means, the (n-1)th range has to support either
-  - `common_range && bidirectional_range`, so the position can be reached by `--ranges::end(n-1th range)`, assuming n-1th range is not empty, or
-  - `random_access_range && sized_range`, so the position can be reached by `ranges::begin(n-1th range) + (ranges::size(n-1th range) - 1)` in constant time, assuming n-1th range is not empty.
+- If the iterator is at nth range's begin position, after `operator--` it should
+  go to (n-1)th's range's end-1 position. This means, the (n-1)th range has to
+  support either
+  - `common_range && bidirectional_range`, so the position can be reached by
+    `--ranges::end(n-1th range)`, assuming n-1th range is not empty, or
+  - `random_access_range && sized_range`, so the position can be reached by
+    `ranges::begin(n-1th range) + (ranges::size(n-1th range) - 1)` in constant
+    time, assuming n-1th range is not empty.
   
-  Note that the last underlying range does not have to satisfy this constraint because n-1 can never be the last underlying range. If neither of the two constraints is satisfied, in theory we can cache the end-1 position for every single underlying range inside the `concat_view` itself. But the authors do not consider this type of ranges as worth supporting bidirectional
+  Note that the last underlying range does not have to satisfy this constraint
+  because n-1 can never be the last underlying range. If neither of the two
+  constraints is satisfied, in theory we can cache the end-1 position for every
+  single underlying range inside the `concat_view` itself. But the authors do
+  not consider this type of ranges as worth supporting bidirectional
 
-In the `cancat` implementation in [@rangev3], `operator--` is only constrained on all underlying ranges being `bidirectional_range` on the declaration, but its implementation is using `ranges::next(ranges::begin(r), ranges::end(r))` which implicitly requires random access to make the operation constant time. So it went with the second constraint. In this paper, both are supported.
+In the `cancat` implementation in [@rangev3], `operator--` is only constrained
+on all underlying ranges being `bidirectional_range` on the declaration, but its
+implementation is using `ranges::next(ranges::begin(r), ranges::end(r))` which
+implicitly requires random access to make the operation constant time. So it
+went with the second constraint. In this paper, both are supported.
 
 ## Random Access Range
 
-`concat_view` can be `random_access_range` if all the underlying ranges model `random_access_range` and `sized_range`.
+`concat_view` can be `random_access_range` if all the underlying ranges model
+`random_access_range` and `sized_range`.
 
 ## Sized Range
 
-`concat_view` can be `sized_range` if all the underlying ranges model `sized_range`
+`concat_view` can be `sized_range` if all the underlying ranges model
+`sized_range`
 
 ## Implementation experience
 
-`views::concat` has been implemented in [@rangev3], with equivalent semantics as proposed here. We also have implemented a version that directly follows the proposed wording below without issue [@ours].
+`views::concat` has been implemented in [@rangev3], with equivalent semantics as
+proposed here. We also have implemented a version that directly follows the
+proposed wording below without issue [@ours].
 
 # Wording
 
@@ -280,9 +298,13 @@ namespace std::ranges {
 
 ## Range adaptor helpers [range.adaptor.helpers]
 
-This paper applies the same following changes as in [@P2374R3]. If [@P2374R3] is merged into the standard, the changes in this section can be dropped.
+This paper applies the same following changes as in [@P2374R3]. If [@P2374R3] is
+merged into the standard, the changes in this section can be dropped.
 
-New section after Non-propagating cache [range.nonprop.cache]{.sref}. Move the definitions of `@_tuple-or-pair_@`, `@_tuple-transform_@`, and `@_tuple-for-each_@` from Class template `zip_view` [range.zip.view]{.sref} to this section:
+New section after Non-propagating cache [range.nonprop.cache]{.sref}. Move the
+definitions of `@_tuple-or-pair_@`, `@_tuple-transform_@`, and
+`@_tuple-for-each_@` from Class template `zip_view` [range.zip.view]{.sref} to
+this section:
 
 ```cpp
 namespace std::ranges {
@@ -307,7 +329,8 @@ namespace std::ranges {
 }
 ```
 
-Given some pack of types `Ts`, the alias template `@_tuple-or-pair_@` is defined as follows:
+Given some pack of types `Ts`, the alias template `@_tuple-or-pair_@` is defined
+as follows:
 
 1. If `sizeof...(Ts)` is `2`, `@_tuple-or-pair_@<Ts...>` denotes `pair<Ts...>`.
 2. Otherwise, `@_tuple-or-pair_@<Ts...>` denotes `tuple<Ts...>`.
@@ -445,7 +468,8 @@ constexpr @_iterator_@<true> begin() const
   requires((range<const Views> && ...) && @_concatable_@<const Views...>);
 ```
 
-[4]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload, and `false` otherwise. Equivalent to:
+[4]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload,
+and `false` otherwise. Equivalent to:
 
 ```cpp
     @_iterator_@<@_is-const_@> it{this, in_place_index<0>, ranges::begin(get<0>(@*views_*@))};
@@ -458,9 +482,10 @@ constexpr auto end() requires(!(@_simple-view_@<Views> && ...));
 constexpr auto end() const requires(range<const Views>&&...);
 ```
 
-[5]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload, and `false` otherwise,
-and let `@_last-view_@` be the last element of the pack `const Views...` for const-qualified overload,
-and the last element of the pack `Views...` otherwise. Equivalent to:
+[5]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload,
+and `false` otherwise, and let `@_last-view_@` be the last element of the pack
+`const Views...` for const-qualified overload, and the last element of the pack
+`Views...` otherwise. Equivalent to:
 
 ```cpp
     if constexpr (common_range<@_last-view_@>) {
@@ -622,18 +647,32 @@ namespace std::ranges{
 
 [1]{.pnum} `@_iterator_@::iterator_concept` is defined as follows:
 
-- [1.1]{.pnum} If `@_concat-random-access_@<@_maybe-const_@<Const, Views>...>` is modeled, then `iterator_concept` denotes `random_access_iterator_tag`.
-- [1.2]{.pnum} Otherwise, if `@_concat-bidirectional_@<@_maybe-const_@<Const, Views>...>` is modeled, then `iterator_concept` denotes `bidrectional_iterator_tag`.
-- [1.3]{.pnum} Otherwise, if `(forward_range<@_maybe-const_@<Const, Views>> && ...)` is modeled, then `iterator_concept` denotes `forward_iterator_tag`.
+- [1.1]{.pnum} If `@_concat-random-access_@<@_maybe-const_@<Const, Views>...>`
+  is modeled, then `iterator_concept` denotes `random_access_iterator_tag`.
+- [1.2]{.pnum} Otherwise, if
+  `@_concat-bidirectional_@<@_maybe-const_@<Const, Views>...>` is modeled, then
+  `iterator_concept` denotes `bidrectional_iterator_tag`.
+- [1.3]{.pnum} Otherwise, if
+  `(forward_range<@_maybe-const_@<Const, Views>> && ...)` is modeled, then
+  `iterator_concept` denotes `forward_iterator_tag`.
 - [1.4]{.pnum} Otherwise, `iterator_concept` denotes `input_iterator_tag`.
 
-[2]{.pnum} The member typedef-name `iterator_category` is defined if and only if `(forward_range<@_maybe-const_@<Const, Views>>&&...)` is modeled. In that case, `iterator::iterator_category` is defined as follows:
+[2]{.pnum} The member typedef-name `iterator_category` is defined if and only if
+`(forward_range<@_maybe-const_@<Const, Views>>&&...)` is modeled. In that case,
+`iterator::iterator_category` is defined as follows:
 
-- [2.1]{.pnum} If `is_lvalue_reference<reference>` is `false`, then `iterator_category` denotes `input_iterator_tag`
-- [2.2]{.pnum} Otherwise, let `Cs` denote the pack of types `iterator_traits<iterator_t<@*maybe-const*@<Const, Views>>>::iterator_category...`.
-  - [2.2.1]{.pnum} If `(derived_from<Cs, random_access_iterator_tag> && ...) && @_concat-random-access_@<@_maybe-const_@<Const, Views>...>` is true, `iterator_category` denotes `random_access_iterator_tag`.
-  - [2.2.2]{.pnum} If `(derived_from<Cs, bidirectional_iterator_tag> && ...) && @_concat-bidirectional_@<@_maybe-const_@<Const, Views>...>` is true, `iterator_category` denotes `bidirectional_iterator_tag`.
-  - [2.2.3]{.pnum} If `(derived_from<Cs, forward_iterator_tag> && ...)` is true, `iterator_category` denotes `forward_iterator_tag`.
+- [2.1]{.pnum} If `is_lvalue_reference<reference>` is `false`, then
+  `iterator_category` denotes `input_iterator_tag`
+- [2.2]{.pnum} Otherwise, let `Cs` denote the pack of types
+  `iterator_traits<iterator_t<@*maybe-const*@<Const, Views>>>::iterator_category...`.
+  - [2.2.1]{.pnum} If
+    `(derived_from<Cs, random_access_iterator_tag> && ...) && @_concat-random-access_@<@_maybe-const_@<Const, Views>...>`
+    is true, `iterator_category` denotes `random_access_iterator_tag`.
+  - [2.2.2]{.pnum} If
+    `(derived_from<Cs, bidirectional_iterator_tag> && ...) && @_concat-bidirectional_@<@_maybe-const_@<Const, Views>...>`
+    is true, `iterator_category` denotes `bidirectional_iterator_tag`.
+  - [2.2.3]{.pnum} If `(derived_from<Cs, forward_iterator_tag> && ...)` is true,
+    `iterator_category` denotes `forward_iterator_tag`.
   - [2.2.4]{.pnum} Otherwise, `iterator_category` denotes `input_iterator_tag`.
 
 ```cpp
@@ -731,7 +770,8 @@ explicit constexpr @_iterator_@(
     requires constructible_from<@*base_iter*@, Args&&...>;
 ```
 
-[7]{.pnum} *Effects*: Initializes `@*parent_*@` with `parent`, and initializes `@*it_*@` with `std::forward<Args>(args)...`.
+[7]{.pnum} *Effects*: Initializes `@*parent_*@` with `parent`, and initializes
+`@*it_*@` with `std::forward<Args>(args)...`.
 
 ```cpp
 constexpr @_iterator_@(@_iterator_@<!Const> i) 
@@ -739,7 +779,8 @@ constexpr @_iterator_@(@_iterator_@<!Const> i)
     (convertible_to<iterator_t<Views>, iterator_t<@_maybe-const_@<Const, Views>>>&&...);
 ```
 
-[8]{.pnum} *Effects*: Initializes `@*parent_*@` with `i.@*parent_*@`, and initializes `@*it_*@` with `std::move(i.@*it_*@)`.
+[8]{.pnum} *Effects*: Initializes `@*parent_*@` with `i.@*parent_*@`, and
+initializes `@*it_*@` with `std::move(i.@*it_*@)`.
 
 ```cpp
 constexpr reference operator*() const;
