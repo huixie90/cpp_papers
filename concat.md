@@ -267,6 +267,17 @@ went with the second constraint. In this paper, both are supported.
 `concat_view` can be `sized_range` if all the underlying ranges model
 `sized_range`
 
+## `noexcept` for `iter_move` and `iter_swap`
+
+This proposal uses `std::variant` as an exposition only member to store
+underlying iterators and `std::variant` can be in the valueless state if
+underlying iterators throw during copy/move constructions. Therefore,
+`concat_view`'s iterator's `iter_move` and `iter_swap` may throw. As a result,
+`noexcept` cannot be added to these two customization points even if all
+underlying iterators never throw in their `iter_move` and `iter_swap`. However,
+implementations can add a condtional `noexcept` if their implementation of
+`concat_view`'s iterator can never be in a valueless state.
+
 ## Implementation experience
 
 `views::concat` has been implemented in [@rangev3], with equivalent semantics as
