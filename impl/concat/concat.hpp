@@ -55,6 +55,11 @@ template <class... Rs>
 concept concat_bidirectional = all_but_last<constant_time_reversible<Rs>...>(
     index_sequence_for<Rs...>{}) && bidirectional_range<back<Rs...>>;
 
+
+#if defined(CLANG_FORMAT_FIX_) && 0
+; // without this there is extra indentation in subsequent code (clang-format 13.x bug)
+#endif
+
 inline namespace not_to_spec {
 
 template <bool Const, class... Ts>
