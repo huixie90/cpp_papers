@@ -53,6 +53,7 @@ struct Cpp17InputIter {
 };
 
 
+
 //  +--------------------+
 //  |  Cpp17ForwardIter  |
 //  +--------------------+
@@ -239,3 +240,11 @@ struct iterator_traits<Cpp20ForwardIterWithTraits> : iterator_traits<Cpp20Forwar
     // (rvalue reference)
 };
 } // namespace std
+
+
+
+// make a subrange out of above from a given int* range
+template <class It, std::ranges::contiguous_range R>
+auto getRangeOf(R&& r) {
+    return std::ranges::subrange(It{&*std::ranges::begin(r)}, It{&*std::ranges::end(r)});
+}
