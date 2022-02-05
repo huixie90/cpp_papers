@@ -137,7 +137,7 @@ point object.
 Adaptability of any given two or more distinct `range`s into a sequence that
 itself models a `range`, depends on the compatibility of the reference and the
 value types of these ranges. A precise formulation is made in terms of
-`std::common_reference_t` and `std::common_t`, and is captured by the exposition
+`std::common_reference_t` and `std::common_type_t`, and is captured by the exposition
 only concept `concatable`. See
 [Wording](#class-template-concat_view-range.concat.view). Proposed `concat_view`
 is then additionally constrained by this concept. (Note that, this is an
@@ -148,7 +148,7 @@ fails with hard errors instead.)
 ## Common types
 
 The value and reference types of the resulting view are also unambiguously
-deduced by the formulation of the `concatable` concept. The 
+deduced by the formulation of the `concatable` concept.
 
 <!-- TODO: discuss why we have common_value_t, the proxy iterator support, etc.
 -->
@@ -187,9 +187,6 @@ by some hypothetical `as` view that is a type-generalized version of the
   `views::all(r)`, which intuitively follows.
 
 ## Hidden *O(N)* time complexity for *N* adapted ranges
-
-<!-- TODO not sure if we still want to include this. But certainly better not to
-document begin() separately -->
 
 Time complexities as required by the `ranges` concepts are formally expressed
 with respect to the total number of elements (the size) of a given range, and
@@ -596,6 +593,8 @@ namespace std::ranges{
         (convertible_to<iterator_t<Views>, iterator_t<@_maybe-const_@<Const, Views>>>&&...);
 
     constexpr reference operator*() const;
+
+    constexpr auto operator->() const requires @*see below*@
 
     constexpr @_iterator_@& operator++();
 

@@ -55,6 +55,13 @@ template <class... Rs>
 concept concat_bidirectional = all_but_last<constant_time_reversible<Rs>...>(
     index_sequence_for<Rs...>{}) && bidirectional_range<back<Rs...>>;
 
+template <bool Const, class... Views>
+concept concat_has_arrow = requires {
+    typename common_type<iterator_t<__maybe_const<Const, Views>>...>::type;
+}
+&&(convertible_to<const iterator_t<__maybe_const<Const, Views>>&,
+                  common_type_t<iterator_t<__maybe_const<Const, Views>>...>>&&...) &&
+    __has_arrow<common_type_t<iterator_t<__maybe_const<Const, Views>>...>>;
 
 #if defined(CLANG_FORMAT_FIX_) && 0
 ; // without this there is extra indentation in subsequent code (clang-format 13.x bug)
@@ -255,6 +262,14 @@ class concat_view : public view_interface<concat_view<Views...>> {
 
         constexpr reference operator*() const {
             return visit([](auto&& it) -> reference { return *it; }, it_);
+        }
+
+        constexpr auto operator->() const requires xo::concat_has_arrow<Const, Views...> {
+            return visit(
+                [](auto const& it) -> common_type_t<iterator_t<__maybe_const<Const, Views>>...> {
+                    return it;
+                },
+                it_);
         }
 
         constexpr iterator& operator++() {

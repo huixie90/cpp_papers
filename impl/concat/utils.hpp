@@ -40,27 +40,42 @@ constexpr auto tuple_transform(F&& f, Tuple&& tuple) {
 // Exposition only utilities, normalize cross-compiler:
 #ifdef _MSC_VER
 namespace std::ranges {
-    template<bool C, typename T>
-    using __maybe_const = _Maybe_const<C, T>;
+template <bool C, typename T>
+using __maybe_const = _Maybe_const<C, T>;
 
-    
-    template <typename T>
-    concept __simple_view = _Simple_view<T>;
-}
+template <typename T>
+concept __has_arrow = _Has_arrow<T>; // I guessed the name from the convention. please update it to
+                                     // the correct name if it doesn't compile on msvc
+
+template <typename T>
+concept __simple_view = _Simple_view<T>;
+} // namespace std::ranges
 #endif
 
-#if defined(__GNUC__) && !defined (_LIBCPP_VERSION)
+#if defined(__GNUC__) && !defined(_LIBCPP_VERSION)
 
-namespace std::ranges{
+namespace std::ranges {
 
-    template<bool C, typename T>
-    using __maybe_const = __detail::__maybe_const_t<C,T>;
+template <bool C, typename T>
+using __maybe_const = __detail::__maybe_const_t<C, T>;
 
-    template <typename T>
-    concept __simple_view = __detail::__simple_view<T>;
-}
+template <typename T>
+concept __has_arrow = __detail::__has_arrow<T>;
+
+template <typename T>
+concept __simple_view = __detail::__simple_view<T>;
+} // namespace std::ranges
 
 #endif
 
+#if defined(_LIBCPP_VERSION)
+
+namespace std::ranges {
+
+template <typename T>
+concept __has_arrow = std::__has_arrow<T>;
+
+}
+#endif
 
 #endif
