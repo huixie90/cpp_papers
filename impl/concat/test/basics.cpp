@@ -41,7 +41,6 @@ struct BigCopyable {
     int bigdata[1024];
 };
 
-
 } // namespace
 
 
@@ -67,7 +66,7 @@ TEST_POINT("concept") {
     // single arg
     STATIC_CHECK(concat_viewable<IntV&>);
     STATIC_CHECK(concat_viewable<IntV&>);
-#if !(defined(__GNUC__) && !defined (_LIBCPP_VERSION))
+#if !(defined(__GNUC__) && !defined(_LIBCPP_VERSION))
     STATIC_CHECK(concat_viewable<IntV>);
 #endif
     STATIC_CHECK(!concat_viewable<const std::vector<MoveOnly>>);
@@ -473,4 +472,80 @@ TEST_POINT("Sentinel") {
     // - sentinel cross-const comparison
     // - sentinel being default constructible or not mirroring on last view's property
     // - ...
+}
+
+
+template <typename Derived>
+struct ArrowIteratorBase {
+    using It = int*;
+
+    int& operator*() const;
+    It operator->() const;
+
+    Derived& operator++();
+    Derived operator++(int);
+
+    friend bool operator==(Derived const&, Derived const&) { return true; }
+    bool operator==(std::default_sentinel_t) const;
+
+    using value_type = int;                 // to model indirectly_readable_traits
+    using difference_type = std::ptrdiff_t; // to model incrementable_traits
+};
+
+struct ArrowIterator : ArrowIteratorBase<ArrowIterator> {};
+
+struct ArrowRange {
+    ArrowIterator begin() const;
+    ArrowIterator end() const;
+};
+
+struct MoveOnlyArrowIterator : ArrowIteratorBase<MoveOnlyArrowIterator> {
+    MoveOnlyArrowIterator(const MoveOnlyArrowIterator&) = delete;
+    MoveOnlyArrowIterator& operator=(const MoveOnlyArrowIterator&) = delete;
+    MoveOnlyArrowIterator(MoveOnlyArrowIterator&&) = default;
+    MoveOnlyArrowIterator& operator=(MoveOnlyArrowIterator&&) = default;
+};
+
+struct MoveOnlyArrowRange {
+    MoveOnlyArrowIterator begin() const;
+    std::default_sentinel_t end() const;
+};
+
+struct MyInt {
+    int i = 0;
+};
+
+TEST_POINT("->") {
+    std::vector<MyInt> v1{{1}}, v2{{2}};
+    auto cv = std::views::concat(v1, v2);
+    auto it = cv.begin();
+    static_assert(std::__has_arrow<decltype(it)>);
+    it->i = 4;
+    REQUIRE(v1[0].i == 4);
+
+    const std::vector<MyInt> v3{{3}};
+    auto cv2 = std::views::concat(v1, v2, v3);
+    auto it2 = cv2.begin();
+    static_assert(std::__has_arrow<decltype(it2)>);
+    REQUIRE(it2->i == 4);
+
+    std::list<MyInt> l1{{2}};
+    auto cv3 = std::views::concat(v1, l1);
+    auto it3 = cv3.begin();
+    static_assert(!std::__has_arrow<decltype(it3)>);
+}
+
+TEST_POINT("move only ->") {
+    {
+        ArrowRange r1, r2;
+        using CV = decltype(std::views::concat(r1, r2));
+        using It = std::ranges::iterator_t<CV>;
+        static_assert(std::ranges::__has_arrow<It>);
+    }
+    {
+        MoveOnlyArrowRange r1, r2;
+        using CV = decltype(std::views::concat(r1, r2));
+        using It = std::ranges::iterator_t<CV>;
+        static_assert(!std::ranges::__has_arrow<It>);
+    }
 }
