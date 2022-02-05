@@ -286,14 +286,14 @@ underlying iterators throw during copy/move constructions. Therefore,
 `concat_view`'s iterator's `iter_move` and `iter_swap` may throw. As a result,
 `noexcept` cannot be added to these two customization points even if all
 underlying iterators never throw in their `iter_move` and `iter_swap`. However,
-implementations can add a condtional `noexcept` if their implementation of
+implementations can add a conditional `noexcept` if their implementation of
 `concat_view`'s iterator can never be in a valueless state.
 
 ## Implementation experience
 
 `views::concat` has been implemented in [@rangev3], with equivalent semantics as
-proposed here. We also have implemented a version that directly follows the
-proposed wording below without issue [@ours].
+proposed here. The authors also implemented a version that directly follows the
+proposed wording below without any issue [@ours].
 
 # Wording
 
