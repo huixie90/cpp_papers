@@ -186,29 +186,38 @@ by some hypothetical `as` view that is a type-generalized version of the
 - Single argument `views::concat(r)` is expression equivalent to
   `views::all(r)`, which intuitively follows.
 
+## Hidden *O(N)* time complexity for *N* adapted ranges
 
-## Is `begin` *O*(1)?
+<!-- TODO not sure if we still want to include this. But certainly better not to
+document begin() separately -->
 
-<!-- TODO: should we simplify this and related O(N) discussions by arguing that
-N is a constant? -->
-<!-- I think we should mention that it is O(N) in terms of number
-of input range like zip_view, and O(1) in terms of number of elements in the
-range unlike filtered_view. Feel free to simply it. Arguing N is a compile time
-constant might not be enough (well std::array<t, N> is not a view). I think the
-key might be that it is not linear to the number of elements inside the ragnes
+Time complexities as required by the `ranges` concepts are formally expressed
+with respect to the total number of elements (the size) of a given range, and
+not to the statically known parameters of that range. Hence, the complexity of
+`concat_view` or its iterators' operations are documented to be independent of
+the number of ranges it concatenates, even though the some of the operations are
+a linear function of this parameter.
+
+Some examples of these operations are `concat_view`'s copy, `begin` and `size`,
+and its iterators' increment, decrement, advance, distance, etc. This
+characteristic (but not necessarily the specifics) are very much similar to the
+other n-ary adaptors like `zip_view` [@P2321R2] and `cartesian_view`
+[@P2374R3].
+
+<!-- TODO: why doesn't join_view provide random access? Does the following
+elaboration make sense? 
+
+It is interesting to note one of the important differences with `join_view`, a
+close-relative of `concat_view`, where the number of elements of the outer range
+are unknown, and could be considered a function of its total size. As a
+consequence, for instance, `join_view` can not model the `random_access_range`
+even when its adaptee's outer and inner ranges do. It's `begin` function is
+documented as
+
+(whether or not to actually include it in the proposal is a separate question, 
+to which my answer would be no.)
+
 -->
-
-On creating the `begin` iterator of the `concat_view`, the position of the
-iterator needs to point to the first element of the first non empty range, if
-there is any. If the number of input ranges is `N`, `ranges::begin` can be
-called `N` times at maximum and the equality comparison operator with the
-sentinel can be called `N - 1` times at maximum. However, unlike
-`filtered_view` where the number of comparison is linear to the number of
-elements in the range at runtime, `concat_view`'s comparison is bounded by the
-number of inputs `N`, which is known at compile time, and it is not affected by
-the number of elements in each input ranges. `concat_view` is more similar to
-`zip_view`, where `ranges::begin` is always called `N` times. Therefore,
-`concat_view`'s `begin` function is constant time.
 
 ## Borrowed vs Cheap Iterator
 
