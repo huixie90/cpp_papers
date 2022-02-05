@@ -132,49 +132,52 @@ can not be piped to. It takes the list of ranges to concatenate as arguments to
 `ranges::concat_view` constructor, or to `ranges::views::concat` customization
 point object.
 
-## Reference type of a `concat_view`
+## `concatable`-ity of ranges
 
-In order to adapt the ranges as a sequence of a same type, the references of
-these ranges must be convertible to a common type. For the standards
-implementation we propose this requirement be imposed as a constraint on the
-arguments of the `concat_view`. (This is an improvement on the existing
-implementation provided by [@rangev3], which does not have this as a constraint,
-albeit yields a hard compilation error when constructing its iterators.)
+Adaptability of any given two or more distinct `range`s into a sequence that
+itself models a `range`, depends on the compatibility of the reference and the
+value types of these ranges. A precise formulation is made in terms of
+`std::common_reference_t` and `std::common_t`, and is captured by the exposition
+only concept `concatable`. See
+[Wording](#class-template-concat_view-range.concat.view). Proposed `concat_view`
+is then additionally constrained by this concept. (Note that, this is an
+improvement over [@rangev3] `concat_view` which lacks such constraints, and
+fails with hard errors instead.)
 
-This requirement is explicitly formulated in terms of `std::common_reference_t`
-of the argument ranges. See the [Wording](#class-template-concat_view-range.concat.view).
-This is for practical utility and ease of adoption, and
-happens to capture a majority of the use cases.
 
-### Future `concat_view`s for different reference types
+## Common types
 
-There are some potentially important use cases that are left out by the above
-common reference formulation, and by this proposal:
+The value and reference types of the resulting view are also unambiguously
+deduced by the formulation of the `concatable` concept. The 
 
-1. Concatenating ranges of unrelated types into a sequence of common arbitrary
-type. For instance, given a range of `int`s and a range of `string`s, provide a
-view of `string`s where `int`s are transformed via `std::itoa`.
+<!-- TODO: discuss why we have common_value_t, the proxy iterator support, etc.
+-->
 
-2. Concatenate ranges of different subclasses, into a range of their common
-base. (Note that, `common_reference` formulation potentially yields a very
-surprising counter-intuitive behavior: `concat_view` becomes either valid, if
-the first range is that of the common base of the rest, or ill-formed by any
-other ordering.)
+## Future Extensions
 
-3. Concatenate ranges of unrelated types into a range of a `std::variant` of
-their reference types (proxied for lvalues).
+Above logic is a practical and convenient solution that satisfies the motivation
+as outlined, and is what the authors propose in this paper.
 
-The authors envision that the first one of these cases can be satisfied with a
-`concat_transform`, and the second and third with a `concat_as`. Note that,
-while `concat_transform(f, r...)` would be semantically equivalent to
-`concat(transform(f, r)...)`, it would be best implemented as a full view for
-reasons similar to what is described in [@P2214R1] Section 4.1. The last two of
-these cases can be satisfied with `concat_as<RefType>`. Again,
-`concat_transform` can be reused where `f` is simply a cast. However, a first
-class support for a common case such as this may have desirable benefits.
-(Note: a more general `concat(as<RefType>(r)...)` may also explored, introducing
-the `transform` derivative `as_view` as a generalized version of `as_const` of
-[@P2278R1].)
+However, there are several potentially important use cases that get left out.
+For instance:
+
+1. Concatenating ranges of different subclasses, into a range of their common
+   base.
+2. Concatenating ranges of unrelated types into a range of a user-determined
+   common type, e.g. a `std::variant`.
+
+As an example where `common_reference` formulation can manifest a rather
+counter-intuitive behavior, let `D1` and `D2` be two types only related by their
+common base `B`, and `d1`, `d2`, `b` be some range of these types, respectively.
+`concat(b, d1, d2)` is a well-formed range of `B` by the current formulation;
+but a mere reordering, say to `concat(rd1, rd2, rb)`, yields is one that is not.
+
+The authors believe that such cases should be supported, but can only be done so
+by an adaptor that needs at least one explicit type argument at its interface. A
+future extension may satisfy these use cases, for example a `concat_as` view, or
+by some hypothetical `as` view that is a type-generalized version of the
+`as_const` view of [@P2278R1].
+
 
 ## Zero or one view
 
