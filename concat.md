@@ -594,7 +594,7 @@ namespace std::ranges{
 
     constexpr reference operator*() const;
 
-    constexpr auto operator->() const requires @*see below*@
+    constexpr auto operator->() const requires @*see below*@;
 
     constexpr @_iterator_@& operator++();
 
@@ -815,10 +815,34 @@ constexpr reference operator*() const;
 ```
 
 ```cpp
+constexpr auto operator->() const requires @*see below*@;
+```
+
+[10]{.pnum} *Effects*: Equivalent to:
+
+```cpp
+    return visit(
+        [](auto&& it) -> common_type_t<iterator_t<@*maybe-const*@<Const, Views>>...> {
+            return it;
+        }, @*it_*@);
+```
+
+[11]{.pnum} *Remarks*: The expression in the requires-clause is equivalent to:
+
+```cpp
+    requires {
+        typename common_type<iterator_t<@*maybe-const*@<Const, Views>>...>::type;
+    } &&
+    (convertible_to<const iterator_t<@*maybe-const*@<Const, Views>>&,
+                      common_type_t<iterator_t<@*maybe-const*@<Const, Views>>...>>&&...) &&
+    @*has-arrow*@<common_type_t<iterator_t<@*maybe-const*@<Const, Views>>...>>;
+```
+
+```cpp
 constexpr @_iterator_@& operator++();
 ```
 
-[10]{.pnum} *Effects*: Let `@*i*@` be `@*it_.index()*@`. Equivalent to:
+[12]{.pnum} *Effects*: Let `@*i*@` be `@*it_.index()*@`. Equivalent to:
 
 ```cpp
     ++get<@*i*@>(@*it_*@);
@@ -830,7 +854,7 @@ constexpr @_iterator_@& operator++();
 constexpr void operator++(int);
 ```
 
-[11]{.pnum} *Effects*: Equivalent to:
+[13]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     ++*this;
@@ -841,7 +865,7 @@ constexpr @_iterator_@ operator++(int)
     requires(forward_range<@_maybe-const_@<Const, Views>>&&...);
 ```
 
-[12]{.pnum} *Effects*: Equivalent to:
+[14]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     auto tmp = *this;
@@ -854,7 +878,7 @@ constexpr @_iterator_@& operator--()
     requires @_concat-bidirectional_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[13]{.pnum} *Effects*: Let `@*i*@` be `@*it_.index()*@`. Equivalent to:
+[15]{.pnum} *Effects*: Let `@*i*@` be `@*it_.index()*@`. Equivalent to:
 
 ```cpp
     @*prev*@<@*i*@>();
@@ -866,7 +890,7 @@ constexpr @_iterator_@ operator--(int)
     requires @_concat-bidirectional_@<@_maybe-const_@<Const, Views>...>
 ```
 
-[14]{.pnum} *Effects*: Equivalent to:
+[16]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     auto tmp = *this;
@@ -879,7 +903,7 @@ constexpr @_iterator_@& operator+=(difference_type n)
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[15]{.pnum} *Effects*: Let `@*i*@` be `@*it_.index()*@`. Equivalent to:
+[17]{.pnum} *Effects*: Let `@*i*@` be `@*it_.index()*@`. Equivalent to:
 
 ```cpp
     if(n > 0) {
@@ -895,7 +919,7 @@ constexpr @_iterator_@& operator-=(difference_type n)
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[16]{.pnum} *Effects*: Equivalent to:
+[18]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     *this += -n;
@@ -907,7 +931,7 @@ constexpr reference operator[](difference_type n) const
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[17]{.pnum} *Effects*: Equivalent to:
+[19]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return *((*this) + n);
@@ -918,7 +942,7 @@ friend constexpr bool operator==(const @_iterator_@& x, const @_iterator_@& y)
     requires(equality_comparable<iterator_t<@_maybe-const_@<Const, Views>>>&&...);
 ```
 
-[18]{.pnum} *Effects*: Equivalent to:
+[20]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return x.@*it_*@ == y.@*it_*@;
@@ -928,7 +952,7 @@ friend constexpr bool operator==(const @_iterator_@& x, const @_iterator_@& y)
 friend constexpr bool operator==(const @_iterator_@& it, default_sentinel_t);
 ```
 
-[19]{.pnum} *Effects*: Equivalent to:
+[21]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     constexpr auto last_idx = sizeof...(Views) - 1;
@@ -941,7 +965,7 @@ friend constexpr bool operator<(const @_iterator_@& x, const @_iterator_@& y)
     requires(random_access_range<@_maybe-const_@<Const, Views>>&&...);
 ```
 
-[20]{.pnum} *Effects*: Equivalent to:
+[22]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return x.@*it_*@ < y.@*it_*@;
@@ -952,7 +976,7 @@ friend constexpr bool operator>(const @_iterator_@& x, const @_iterator_@& y)
     requires(random_access_range<@_maybe-const_@<Const, Views>>&&...);
 ```
 
-[21]{.pnum} *Effects*: Equivalent to:
+[23]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return y < x;
@@ -963,7 +987,7 @@ friend constexpr bool operator<=(const @_iterator_@& x, const @_iterator_@& y)
     requires(random_access_range<@_maybe-const_@<Const, Views>>&&...);
 ```
 
-[22]{.pnum} *Effects*: Equivalent to:
+[24]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return !(y < x);
@@ -974,7 +998,7 @@ friend constexpr bool operator>=(const @_iterator_@& x, const @_iterator_@& y)
     requires(random_access_range<@_maybe-const_@<Const, Views>>&&...);
 ```
 
-[23]{.pnum} *Effects*: Equivalent to:
+[25]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return !(x < y);
@@ -986,7 +1010,7 @@ friend constexpr auto operator<=>(const @_iterator_@& x, const @_iterator_@& y)
      three_way_comparable<@_maybe-const_@<Const, Views>>)&&...);
 ```
 
-[24]{.pnum} *Effects*: Equivalent to:
+[26]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return x.@*it_*@ <=> y.@*it_*@;
@@ -997,7 +1021,7 @@ friend constexpr @_iterator_@ operator+(const @_iterator_@& it, difference_type 
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[25]{.pnum} *Effects*: Equivalent to:
+[27]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return @_iterator_@{it} += n;
@@ -1008,7 +1032,7 @@ friend constexpr @_iterator_@ operator+(difference_type n, const @_iterator_@& i
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[26]{.pnum} *Effects*: Equivalent to:
+[28]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return it + n;
@@ -1019,7 +1043,7 @@ friend constexpr @_iterator_@ operator-(const @_iterator_@& it, difference_type 
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[27]{.pnum} *Effects*: Equivalent to:
+[29]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return @*iterator*@{it} -= n;
@@ -1030,10 +1054,10 @@ friend constexpr difference_type operator-(const @_iterator_@& x, const @_iterat
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[28]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()` and `@*i~y~*@`
+[30]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()` and `@*i~y~*@`
 denote `y.@*it_*@.index()`
 
-- [28.1]{.pnum} if `@*i~x~*@ > @*i~y~*@`, let `@*d~y~*@` denote the distance
+- [30.1]{.pnum} if `@*i~x~*@ > @*i~y~*@`, let `@*d~y~*@` denote the distance
   from `get<@*i~y~*@>(y.@*it_*@)` to the end of
   `get<@*i~y~*@>(y.@*parent_*@.@*views_*@)`, `@*d~x~*@` denote the distance from
   the begin of `get<@*i~x~*@>(x.@*parent_*@.@*views_*@)` to
@@ -1046,13 +1070,13 @@ denote `y.@*it_*@.index()`
     return @*d~y~*@ + s + @*d~x~*@;
 ```
 
-- [28.2]{.pnum} otherwise, if `@*i~x~*@ < @*i~y~*@`, equivalent to:
+- [30.2]{.pnum} otherwise, if `@*i~x~*@ < @*i~y~*@`, equivalent to:
 
 ```cpp
     return -(y - x);
 ```
 
-- [28.3]{.pnum} otherwise, equivalent to:
+- [30.3]{.pnum} otherwise, equivalent to:
 
 ```cpp
     return get<@*i~x~*@>(x.@*it_*@) - get<@*i~y~*@>(y.@*it_*@);
@@ -1063,7 +1087,7 @@ friend constexpr difference_type operator-(const @_iterator_@& x, default_sentin
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[29]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()`, `@*d~x~*@`
+[31]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()`, `@*d~x~*@`
 denote the distance from `get<@*i~x~*@>(x.@*it_*@)` to the end of
 `get<@*i~x~*@>(x.@*parent_*@.@*views_*@)`. For every integer
 `@*i~x~*@ < @*i*@ < sizeof...(Views)`, let `s` denote the sum of the sizes of
@@ -1079,7 +1103,7 @@ friend constexpr difference_type operator-(default_sentinel_t, const @_iterator_
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[30]{.pnum} *Effects*: Equivalent to:
+[32]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return -(x - default_sentinel);
@@ -1089,7 +1113,7 @@ friend constexpr difference_type operator-(default_sentinel_t, const @_iterator_
 friend constexpr decltype(auto) iter_move(iterator const& it);
 ```
 
-[31]{.pnum} *Effects*: Equivalent to:
+[33]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return std::visit(
@@ -1105,13 +1129,13 @@ friend constexpr void iter_swap(const iterator& x, const iterator& y)
     requires @*see below*@;
 ```
 
-[32]{.pnum} *Effects*: Equivalent to:
+[34]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     std::visit(ranges::iter_swap, x.@*it_*@, y.@*it_*@);
 ```
 
-[33]{.pnum} *Remarks*: The expression in the requires-clause is `true` if and
+[35]{.pnum} *Remarks*: The expression in the requires-clause is `true` if and
 only if: For every combination of two types `X` and `Y` in the set of all types
 in the parameter pack `range_iterator_t<@_maybe-const_@<Const, Views>>>...`,
 `indirectly_swappable<X, Y>` is modelled.
