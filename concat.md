@@ -181,12 +181,11 @@ by some hypothetical `as` view that is a type-generalized version of the
 
 ## Zero or one view
 
-- The result of `concat`ing zero range can be an empty range,
-but the element type of such range is unspecified.
-Therefore `concat`ing zero range is made ill-formed in this proposal.
+- No argument `views::concat()` is ill-formed. It can not be a `views::empty<T>`
+  because there is no reasonable way to determine an element type `T`.
+- Single argument `views::concat(r)` is expression equivalent to
+  `views::all(r)`, which intuitively follows.
 
-- The result of `concat`ing one range should be the range itself,
-therefore this paper proposes that it returns `views::all(r)`.
 
 ## Is `begin` *O*(1)?
 
