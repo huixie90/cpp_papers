@@ -538,7 +538,6 @@ namespace std::ranges{
   class concat_view<Views...>::@_iterator_@ {
   
   public:
-    using reference = common_reference_t<range_reference_t<@_maybe-const_@<Const, Views>>...>;
     using value_type = common_type_t<range_value_t<@_maybe-const_@<Const, Views>>...>;
     using difference_type = common_type_t<range_reference_t<@_maybe-const_@<Const, Views>>...>;
     using iterator_concept = @*see below*@;
@@ -581,7 +580,7 @@ namespace std::ranges{
         requires Const &&
         (convertible_to<iterator_t<Views>, iterator_t<@_maybe-const_@<Const, Views>>>&&...);
 
-    constexpr reference operator*() const;
+    constexpr decltype(auto) operator*() const;
 
     constexpr auto operator->() const requires @*see below*@;
 
@@ -604,7 +603,7 @@ namespace std::ranges{
     constexpr @_iterator_@& operator-=(difference_type n) 
         requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 
-    constexpr reference operator[](difference_type n) const
+    constexpr decltype(auto) operator[](difference_type n) const
         requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 
     friend constexpr bool operator==(const @_iterator_@& x, const @_iterator_@& y)
@@ -793,7 +792,7 @@ constexpr @_iterator_@(@_iterator_@<!Const> i)
 initializes `@*it_*@` with `std::move(i.@*it_*@)`.
 
 ```cpp
-constexpr reference operator*() const;
+constexpr decltype(auto) operator*() const;
 ```
 
 [9]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
@@ -801,6 +800,7 @@ constexpr reference operator*() const;
 [10]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
+    using reference = common_reference_t<range_reference_t<@_maybe-const_@<Const, Views>>...>;
     return std::visit([](auto&& it) -> reference { 
         return *it; }, @*it_*@);
 ```
@@ -934,7 +934,7 @@ constexpr @_iterator_@& operator-=(difference_type n)
 ```
 
 ```cpp
-constexpr reference operator[](difference_type n) const
+constexpr decltype(auto) operator[](difference_type n) const
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
