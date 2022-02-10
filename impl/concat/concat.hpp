@@ -58,32 +58,38 @@ concept concat_bidirectional = all_but_last<constant_time_reversible<Rs>...>(
 
 inline namespace not_to_spec {
 
-    // iterator_traits<It>::pointer when present gives the result of arrow, or presumably the result
-    // of arrow is convertible to that.
+// it is not defined in the standard and we can't refer to it.
+template <typename T>
+concept has_member_arrow = requires(T it) {
+    it.operator->();
+};
 
-    // when iterator_traits<It>::pointer is not present for not-a-C++17-iterators, we should
-    // get the pointer type from the arrow expression:
-    template <__has_arrow It>
-    decltype(auto) get_arrow_result(It && it) {
-        if constexpr (__has_member_arrow<It>) {
-            return static_cast<It&&>(it).operator->();
-        } else {
-            return it;
-        }
+// iterator_traits<It>::pointer when present gives the result of arrow, or presumably the result
+// of arrow is convertible to that.
+
+// when iterator_traits<It>::pointer is not present for not-a-C++17-iterators, we should
+// get the pointer type from the arrow expression:
+template <__has_arrow It>
+decltype(auto) get_arrow_result(It&& it) {
+    if constexpr (has_member_arrow<It>) {
+        return static_cast<It&&>(it).operator->();
+    } else {
+        return it;
     }
-    template <class It, class = void>
-    struct PointerTrait {
-        using type = decltype(get_arrow_result(declval<It>()));
-    };
+}
+template <class It, class = void>
+struct PointerTrait {
+    using type = decltype(get_arrow_result(declval<It>()));
+};
 
-    template <class It>
-    struct PointerTrait<It, void_t<typename iterator_traits<remove_reference_t<It>>::pointer>> {
-        using type = typename iterator_traits<remove_reference_t<It>>::pointer;
-    };
+template <class It>
+struct PointerTrait<It, void_t<typename iterator_traits<remove_reference_t<It>>::pointer>> {
+    using type = typename iterator_traits<remove_reference_t<It>>::pointer;
+};
 
-    template <class... Views>
-    // using concat_pointer = common_type<typename iterator_traits<iterator_t<Views>>::pointer...>;
-    using concat_pointer = common_type<typename PointerTrait<iterator_t<Views>>::type...>;
+template <class... Views>
+// using concat_pointer = common_type<typename iterator_traits<iterator_t<Views>>::pointer...>;
+using concat_pointer = common_type<typename PointerTrait<iterator_t<Views>>::type...>;
 
 } // namespace not_to_spec
 
@@ -307,7 +313,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
             return visit(
                 [](auto const& it) -> xo::concat_pointer_t<__maybe_const<Const, Views>...> {
                     using It = remove_reference_t<decltype(it)>;
-                    if constexpr (__has_member_arrow<It>) {
+                    if constexpr (xo::has_member_arrow<It>) {
                         return it.operator->();
                     } else {
                         static_assert(is_pointer_v<It>);
