@@ -519,20 +519,20 @@ TEST_POINT("->") {
     std::vector<MyInt> v1{{1}}, v2{{2}};
     auto cv = std::views::concat(v1, v2);
     auto it = cv.begin();
-    static_assert(std::__has_arrow<decltype(it)>);
+    static_assert(std::ranges::__has_arrow<decltype(it)>);
     it->i = 4;
     REQUIRE(v1[0].i == 4);
 
     const std::vector<MyInt> v3{{3}};
     auto cv2 = std::views::concat(v1, v2, v3);
     auto it2 = cv2.begin();
-    static_assert(std::__has_arrow<decltype(it2)>);
+    static_assert(std::ranges::__has_arrow<decltype(it2)>);
     REQUIRE(it2->i == 4);
 
     std::list<MyInt> l1{{2}};
     auto cv3 = std::views::concat(v1, l1);
     auto it3 = cv3.begin();
-    static_assert(!std::__has_arrow<decltype(it3)>);
+    static_assert(!std::ranges::__has_arrow<decltype(it3)>);
 }
 
 TEST_POINT("move only ->") {
