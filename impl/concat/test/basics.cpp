@@ -6,6 +6,7 @@
 #include <memory>
 #include <numeric>
 #include "std_exposition_only_concepts.hpp"
+#include "test/range_fixtures.hpp"
 
 #define TEST_POINT(x) TEST_CASE(x, "[basics]")
 
@@ -639,3 +640,27 @@ TEST_POINT("move only ->") {
 //     CHECK(++it->i == 4);
 //
 // }
+struct cpp20_input_iter_cpp17_not_iter {
+    int operator*() const { return 5; }
+
+    cpp20_input_iter_cpp17_not_iter& operator++() { return *this; }
+    void operator++(int) {}
+
+    bool operator==(std::default_sentinel_t) const { return true; }
+
+    using value_type = int;                 // to model indirectly_readable_traits
+    using difference_type = std::ptrdiff_t; // to model incrementable_traits
+};
+
+struct cpp20_input_range {
+    cpp20_input_iter_cpp17_not_iter begin() const { return {}; }
+    std::default_sentinel_t end() const { return {}; }
+};
+
+
+TEST_POINT("this should work") {
+    static_assert(std::ranges::input_range<cpp20_input_range>);
+    cpp20_input_range r1, r2;
+    auto x = std::views::concat(r1, r2);
+    [[maybe_unused]] auto it = x.begin();
+}
