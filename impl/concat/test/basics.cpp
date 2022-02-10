@@ -572,13 +572,13 @@ TEST_POINT("->") {
         auto comm = t | std::views::common;
         STATIC_CHECK(!std::same_as<decltype(comm), decltype(t)>);
         auto it = comm.begin();
-        auto p = it.operator->();
+        [[maybe_unused]] auto p = it.operator->();
         bool r = it->i == v1[0].i;
         CHECK(r);
 
         auto c = std::views::concat(comm, comm);
         auto cit = c.begin();
-        auto cp = cit.operator->();
+        [[maybe_unused]] auto cp = cit.operator->();
 
 
         // auto io = std::views::iota(0);
@@ -618,6 +618,7 @@ struct ArrowRange {
 };
 
 struct MoveOnlyArrowIterator : ArrowIteratorBase<MoveOnlyArrowIterator> {
+    MoveOnlyArrowIterator() = default;
     MoveOnlyArrowIterator(const MoveOnlyArrowIterator&) = delete;
     MoveOnlyArrowIterator& operator=(const MoveOnlyArrowIterator&) = delete;
     MoveOnlyArrowIterator(MoveOnlyArrowIterator&&) = default;
