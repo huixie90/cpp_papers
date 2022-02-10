@@ -431,7 +431,7 @@ template <class... Rs>
 concept @_concatable_@ = @_see below_@;
 ```
 
-[1]{.pnum, #concatable_def} The exposition-only `@_concatable_@` concept is equivalent to:
+[1]{.pnum #concatable_def} The exposition-only `@_concatable_@` concept is equivalent to:
 
 ```cpp
     template <class... Rs>
