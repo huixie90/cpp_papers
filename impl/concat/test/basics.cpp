@@ -661,6 +661,6 @@ struct cpp20_input_range {
 TEST_POINT("this should work") {
     static_assert(std::ranges::input_range<cpp20_input_range>);
     cpp20_input_range r1, r2;
-    auto x = std::views::concat(r1, r2);
-    [[maybe_unused]] auto it = x.begin();
+    [[maybe_unused]] auto x = std::views::concat(r1, r2);
+    //  [[maybe_unused]] auto it = x.begin();
 }
