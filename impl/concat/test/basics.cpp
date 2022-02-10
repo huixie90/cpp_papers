@@ -519,11 +519,28 @@ TEST_POINT("->") {
         using It = decltype(it);
         STATIC_CHECK(std::ranges::__has_arrow<It>);
         STATIC_CHECK(std::same_as<pointer_t<It>, pointer_t<decltype(fvOdd.begin())>>);
+        STATIC_CHECK(std::same_as<pointer_t<It>, std::vector<MyInt>::iterator>);
         CHECK(it++->i == 1);
-        CHECK(it++->i == 2);
-        CHECK(it++->i == 4);
-        CHECK(it++->i == 3);
-        CHECK(it++->i == 5);
+        // CHECK(it++->i == 2);
+        // CHECK(it++->i == 4);
+        // CHECK(it++->i == 3);
+        // CHECK(it++->i == 5);
+    }
+
+    SECTION("filter views") {
+        auto fvOdd = v1 | std::views::filter([](auto m) { return m.i % 2 == 1; });
+        auto fvEven = l1 | std::views::filter([](auto m) { return m.i % 2 == 0; });
+        auto cv = std::views::concat(fvOdd, fvEven);
+        auto it = cv.begin();
+        using It = decltype(it);
+        STATIC_CHECK(!std::ranges::__has_arrow<It>);
+        //         STATIC_CHECK(std::same_as<pointer_t<It>, pointer_t<decltype(fvOdd.begin())>>);
+        //         STATIC_CHECK(std::same_as<pointer_t<It>, std::vector<MyInt>::iterator>);
+        //         CHECK(it++->i == 1);
+        //         CHECK(it++->i == 2);
+        //         CHECK(it++->i == 4);
+        //         CHECK(it++->i == 3);
+        //         CHECK(it++->i == 5);
     }
 #endif
     SECTION("raw array and others") {
@@ -547,6 +564,30 @@ TEST_POINT("->") {
         using It = decltype(it);
         STATIC_CHECK(!std::ranges::__has_arrow<It>);
         STATIC_CHECK(std::same_as<pointer_t<It>, void>);
+    }
+
+    SECTION("common iter with proxy as pointer type") {
+        auto io = std::views::iota(0);
+        auto t = io | std::views::transform([&](size_t i) -> MyInt { return v1[i]; });
+        auto comm = t | std::views::common;
+        STATIC_CHECK(!std::same_as<decltype(comm), decltype(t)>);
+        auto it = comm.begin();
+        auto p = it.operator->();
+        bool r = it->i == v1[0].i;
+        CHECK(r);
+
+        auto c = std::views::concat(comm, comm);
+        auto cit = c.begin();
+        auto cp = cit.operator->();
+
+
+        // auto io = std::views::iota(0);
+        // STATIC_CHECK(!std::ranges::common_range<decltype(io)>);
+        // auto comm = io | std::views::common;
+        //
+        // auto i = comm.begin();
+        // i++;
+        // auto proxy = i.operator->();
     }
 }
 
@@ -614,10 +655,9 @@ TEST_POINT("move only ->") {
     }
     {
         MoveOnlyArrowRange r1, r2;
-
         using CV = decltype(std::views::concat(r1, r2));
         using It = std::ranges::iterator_t<CV>;
-        static_assert(!std::ranges::__has_arrow<It>);
+        static_assert(std::ranges::__has_arrow<It>);
     }
 }
 
