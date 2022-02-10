@@ -117,12 +117,10 @@ handled per design, and the construct expresses the intent cleanly and
 directly.
 
 In the second example, the user has a class composed of fragmented and indirect
-data and attempts to implement a member function that provides a range-like
-view to all this data sequenced together in some order, and without creating
-any copies. The "Before" implementation is needlessly complex, creates a
-temporary container, and is not even returning a view. `concat_view` based
-implementation is a neat one-liner as this proposed view squarely satisfies this
-very use case.
+data. They want to implement a member function that provides a range-like view
+to all this data sequenced together in some order, and without creating any
+copies. The "Before" implementation is needlessly complex and creates a
+temporary container. `concat_view` based implementation is a neat one-liner.
 
 
 # Design
@@ -137,9 +135,9 @@ point object.
 Adaptability of any given two or more distinct `range`s into a sequence that
 itself models a `range`, depends on the compatibility of the reference and the
 value types of these ranges. A precise formulation is made in terms of
-`std::common_reference_t` and `std::common_type_t`, and is captured by the exposition
-only concept `concatable`. See
-[Wording](#class-template-concat_view-range.concat.view). Proposed `concat_view`
+`std::common_reference_t` and `std::common_type_t`, and is captured by the
+exposition only concept `concatable`. See
+[Wording](#concatable_def). Proposed `concat_view`
 is then additionally constrained by this concept. (Note that, this is an
 improvement over [@rangev3] `concat_view` which lacks such constraints, and
 fails with hard errors instead.)
@@ -433,7 +431,7 @@ template <class... Rs>
 concept @_concatable_@ = @_see below_@;
 ```
 
-[1]{.pnum} The exposition-only `@_concatable_@` concept is equivalent to:
+[1]{.pnum, #concatable_def} The exposition-only `@_concatable_@` concept is equivalent to:
 
 ```cpp
     template <class... Rs>
