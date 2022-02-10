@@ -83,5 +83,5 @@ concept has_value_type = requires() {
     typename T::value_type;
 };
 
-
-
+template <typename T>
+using pointer_t = typename std::iterator_traits<T>::pointer;
