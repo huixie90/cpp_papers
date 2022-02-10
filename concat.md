@@ -275,17 +275,6 @@ went with the second constraint. In this paper, both are supported.
 `concat_view` can be `sized_range` if all the underlying ranges model
 `sized_range`
 
-## `noexcept` for `iter_move` and `iter_swap`
-
-This proposal uses `std::variant` as an exposition only member to store
-underlying iterators and `std::variant` can be in the valueless state if
-underlying iterators throw during copy/move constructions. Therefore,
-`concat_view`'s iterator's `iter_move` and `iter_swap` may throw. As a result,
-`noexcept` cannot be added to these two customization points even if all
-underlying iterators never throw in their `iter_move` and `iter_swap`. However,
-implementations can add a conditional `noexcept` if their implementation of
-`concat_view`'s iterator can never be in a valueless state.
-
 ## Implementation experience
 
 `views::concat` has been implemented in [@rangev3], with equivalent semantics as
@@ -657,9 +646,9 @@ namespace std::ranges{
     friend constexpr difference_type operator-(default_sentinel_t, const @_iterator_@& x) 
         requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 
-    friend constexpr decltype(auto) iter_move(iterator const& it);
+    friend constexpr decltype(auto) iter_move(iterator const& it) noexcept(@*see below*@);
 
-    friend constexpr void iter_swap(const iterator& x, const iterator& y)      
+    friend constexpr void iter_swap(const iterator& x, const iterator& y) noexcept(@*see below*@)
         requires @*see below*@;
   };
 
@@ -741,7 +730,7 @@ constexpr void @_prev_@();                                // exposition only
 
 ```cpp
 template <std::size_t N>
-constexpr void @_advance_bwd_@(difference_type offset, difference_type steps); // exposition only
+constexpr void @_advance_fwd_@(difference_type offset, difference_type steps); // exposition only
 ```
 
 [5]{.pnum} *Effects*: Equivalent to:
@@ -807,7 +796,9 @@ initializes `@*it_*@` with `std::move(i.@*it_*@)`.
 constexpr reference operator*() const;
 ```
 
-[9]{.pnum} *Effects*: Equivalent to:
+[9]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
+
+[10]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return std::visit([](auto&& it) -> reference { 
@@ -818,7 +809,9 @@ constexpr reference operator*() const;
 constexpr auto operator->() const requires @*see below*@;
 ```
 
-[10]{.pnum} *Effects*: Equivalent to:
+[11]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
+
+[12]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return visit(
@@ -827,7 +820,7 @@ constexpr auto operator->() const requires @*see below*@;
         }, @*it_*@);
 ```
 
-[11]{.pnum} *Remarks*: The expression in the requires-clause is equivalent to:
+[13]{.pnum} *Remarks*: The expression in the requires-clause is equivalent to:
 
 ```cpp
     requires {
@@ -842,7 +835,9 @@ constexpr auto operator->() const requires @*see below*@;
 constexpr @_iterator_@& operator++();
 ```
 
-[12]{.pnum} *Effects*: Let `@*i*@` be `@*it_.index()*@`. Equivalent to:
+[14]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
+
+[15]{.pnum} *Effects*: Let `@*i*@` be `@*it_.index()*@`. Equivalent to:
 
 ```cpp
     ++get<@*i*@>(@*it_*@);
@@ -854,7 +849,9 @@ constexpr @_iterator_@& operator++();
 constexpr void operator++(int);
 ```
 
-[13]{.pnum} *Effects*: Equivalent to:
+[16]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
+
+[17]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     ++*this;
@@ -865,7 +862,9 @@ constexpr @_iterator_@ operator++(int)
     requires(forward_range<@_maybe-const_@<Const, Views>>&&...);
 ```
 
-[14]{.pnum} *Effects*: Equivalent to:
+[18]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
+
+[19]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     auto tmp = *this;
@@ -878,7 +877,9 @@ constexpr @_iterator_@& operator--()
     requires @_concat-bidirectional_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[15]{.pnum} *Effects*: Let `@*i*@` be `@*it_.index()*@`. Equivalent to:
+[20]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
+
+[21]{.pnum} *Effects*: Let `@*i*@` be `@*it_.index()*@`. Equivalent to:
 
 ```cpp
     @*prev*@<@*i*@>();
@@ -890,7 +891,9 @@ constexpr @_iterator_@ operator--(int)
     requires @_concat-bidirectional_@<@_maybe-const_@<Const, Views>...>
 ```
 
-[16]{.pnum} *Effects*: Equivalent to:
+[22]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
+
+[23]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     auto tmp = *this;
@@ -903,7 +906,9 @@ constexpr @_iterator_@& operator+=(difference_type n)
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[17]{.pnum} *Effects*: Let `@*i*@` be `@*it_.index()*@`. Equivalent to:
+[24]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
+
+[25]{.pnum} *Effects*: Let `@*i*@` be `@*it_.index()*@`. Equivalent to:
 
 ```cpp
     if(n > 0) {
@@ -919,7 +924,9 @@ constexpr @_iterator_@& operator-=(difference_type n)
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[18]{.pnum} *Effects*: Equivalent to:
+[26]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
+
+[27]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     *this += -n;
@@ -931,7 +938,9 @@ constexpr reference operator[](difference_type n) const
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[19]{.pnum} *Effects*: Equivalent to:
+[28]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
+
+[29]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return *((*this) + n);
@@ -942,7 +951,10 @@ friend constexpr bool operator==(const @_iterator_@& x, const @_iterator_@& y)
     requires(equality_comparable<iterator_t<@_maybe-const_@<Const, Views>>>&&...);
 ```
 
-[20]{.pnum} *Effects*: Equivalent to:
+[30]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
+`y.@*it_*@.valueless_by_exception()` are each `false`.
+
+[31]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return x.@*it_*@ == y.@*it_*@;
@@ -952,7 +964,9 @@ friend constexpr bool operator==(const @_iterator_@& x, const @_iterator_@& y)
 friend constexpr bool operator==(const @_iterator_@& it, default_sentinel_t);
 ```
 
-[21]{.pnum} *Effects*: Equivalent to:
+[32]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
+
+[33]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     constexpr auto last_idx = sizeof...(Views) - 1;
@@ -965,7 +979,10 @@ friend constexpr bool operator<(const @_iterator_@& x, const @_iterator_@& y)
     requires(random_access_range<@_maybe-const_@<Const, Views>>&&...);
 ```
 
-[22]{.pnum} *Effects*: Equivalent to:
+[34]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
+`y.@*it_*@.valueless_by_exception()` are each `false`.
+
+[35]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return x.@*it_*@ < y.@*it_*@;
@@ -976,7 +993,10 @@ friend constexpr bool operator>(const @_iterator_@& x, const @_iterator_@& y)
     requires(random_access_range<@_maybe-const_@<Const, Views>>&&...);
 ```
 
-[23]{.pnum} *Effects*: Equivalent to:
+[36]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
+`y.@*it_*@.valueless_by_exception()` are each `false`.
+
+[37]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return y < x;
@@ -987,7 +1007,10 @@ friend constexpr bool operator<=(const @_iterator_@& x, const @_iterator_@& y)
     requires(random_access_range<@_maybe-const_@<Const, Views>>&&...);
 ```
 
-[24]{.pnum} *Effects*: Equivalent to:
+[38]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
+`y.@*it_*@.valueless_by_exception()` are each `false`.
+
+[39]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return !(y < x);
@@ -998,7 +1021,10 @@ friend constexpr bool operator>=(const @_iterator_@& x, const @_iterator_@& y)
     requires(random_access_range<@_maybe-const_@<Const, Views>>&&...);
 ```
 
-[25]{.pnum} *Effects*: Equivalent to:
+[40]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
+`y.@*it_*@.valueless_by_exception()` are each `false`.
+
+[41]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return !(x < y);
@@ -1010,7 +1036,10 @@ friend constexpr auto operator<=>(const @_iterator_@& x, const @_iterator_@& y)
      three_way_comparable<@_maybe-const_@<Const, Views>>)&&...);
 ```
 
-[26]{.pnum} *Effects*: Equivalent to:
+[42]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
+`y.@*it_*@.valueless_by_exception()` are each `false`.
+
+[43]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return x.@*it_*@ <=> y.@*it_*@;
@@ -1021,7 +1050,9 @@ friend constexpr @_iterator_@ operator+(const @_iterator_@& it, difference_type 
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[27]{.pnum} *Effects*: Equivalent to:
+[44]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
+
+[45]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return @_iterator_@{it} += n;
@@ -1032,7 +1063,9 @@ friend constexpr @_iterator_@ operator+(difference_type n, const @_iterator_@& i
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[28]{.pnum} *Effects*: Equivalent to:
+[46]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
+
+[47]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return it + n;
@@ -1043,7 +1076,9 @@ friend constexpr @_iterator_@ operator-(const @_iterator_@& it, difference_type 
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[29]{.pnum} *Effects*: Equivalent to:
+[48]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
+
+[49]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return @*iterator*@{it} -= n;
@@ -1054,10 +1089,13 @@ friend constexpr difference_type operator-(const @_iterator_@& x, const @_iterat
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[30]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()` and `@*i~y~*@`
+[50]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
+`y.@*it_*@.valueless_by_exception()` are each `false`.
+
+[51]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()` and `@*i~y~*@`
 denote `y.@*it_*@.index()`
 
-- [30.1]{.pnum} if `@*i~x~*@ > @*i~y~*@`, let `@*d~y~*@` denote the distance
+- [51.1]{.pnum} if `@*i~x~*@ > @*i~y~*@`, let `@*d~y~*@` denote the distance
   from `get<@*i~y~*@>(y.@*it_*@)` to the end of
   `get<@*i~y~*@>(y.@*parent_*@.@*views_*@)`, `@*d~x~*@` denote the distance from
   the begin of `get<@*i~x~*@>(x.@*parent_*@.@*views_*@)` to
@@ -1070,13 +1108,13 @@ denote `y.@*it_*@.index()`
     return @*d~y~*@ + s + @*d~x~*@;
 ```
 
-- [30.2]{.pnum} otherwise, if `@*i~x~*@ < @*i~y~*@`, equivalent to:
+- [51.2]{.pnum} otherwise, if `@*i~x~*@ < @*i~y~*@`, equivalent to:
 
 ```cpp
     return -(y - x);
 ```
 
-- [30.3]{.pnum} otherwise, equivalent to:
+- [51.3]{.pnum} otherwise, equivalent to:
 
 ```cpp
     return get<@*i~x~*@>(x.@*it_*@) - get<@*i~y~*@>(y.@*it_*@);
@@ -1087,7 +1125,9 @@ friend constexpr difference_type operator-(const @_iterator_@& x, default_sentin
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[31]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()`, `@*d~x~*@`
+[52]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` is `false`.
+
+[53]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()`, `@*d~x~*@`
 denote the distance from `get<@*i~x~*@>(x.@*it_*@)` to the end of
 `get<@*i~x~*@>(x.@*parent_*@.@*views_*@)`. For every integer
 `@*i~x~*@ < @*i*@ < sizeof...(Views)`, let `s` denote the sum of the sizes of
@@ -1103,17 +1143,21 @@ friend constexpr difference_type operator-(default_sentinel_t, const @_iterator_
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
-[32]{.pnum} *Effects*: Equivalent to:
+[54]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` is `false`.
+
+[55]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return -(x - default_sentinel);
 ```
 
 ```cpp
-friend constexpr decltype(auto) iter_move(iterator const& it);
+friend constexpr decltype(auto) iter_move(iterator const& it) noexcept(@*see below*@);
 ```
 
-[33]{.pnum} *Effects*: Equivalent to:
+[56]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
+
+[57]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     return std::visit(
@@ -1124,20 +1168,38 @@ friend constexpr decltype(auto) iter_move(iterator const& it);
         it.@*it_*@);
 ```
 
+[58]{.pnum} *Remarks*: The exception specification is equivalent to:
+
 ```cpp
-friend constexpr void iter_swap(const iterator& x, const iterator& y)      
+    ((is_nothrow_invocable_v<decltype(ranges::iter_move), 
+                               const iterator_t<@_maybe-const_@<Const, Views>>&> &&
+      is_nothrow_convertible_v<range_rvalue_reference_t<@_maybe-const_@<Const, Views>>,
+                                 common_reference_t<range_rvalue_reference_t<
+                                   @_maybe-const_@<Const, Views>>...>>) &&...)
+```
+
+```cpp
+friend constexpr void iter_swap(const iterator& x, const iterator& y) noexcept(@*see below*@)
     requires @*see below*@;
 ```
 
-[34]{.pnum} *Effects*: Equivalent to:
+[59]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
+`y.@*it_*@.valueless_by_exception()` are each `false`.
+
+[60]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
     std::visit(ranges::iter_swap, x.@*it_*@, y.@*it_*@);
 ```
 
-[35]{.pnum} *Remarks*: The expression in the requires-clause is `true` if and
+[61]{.pnum} *Remarks*: The exception specification is `true` if and
 only if: For every combination of two types `X` and `Y` in the set of all types
-in the parameter pack `range_iterator_t<@_maybe-const_@<Const, Views>>>...`,
+in the parameter pack `iterator_t<@_maybe-const_@<Const, Views>>>...`,
+`is_nothrow_invocable_v<decltype(ranges::iter_swap), const X&, const Y&>` is true.
+
+[62]{.pnum} *Remarks*: The expression in the requires-clause is `true` if and
+only if: For every combination of two types `X` and `Y` in the set of all types
+in the parameter pack `iterator_t<@_maybe-const_@<Const, Views>>>...`,
 `indirectly_swappable<X, Y>` is modelled.
 
 ## Feature Test Macro

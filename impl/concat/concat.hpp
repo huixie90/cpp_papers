@@ -485,7 +485,12 @@ class concat_view : public view_interface<concat_view<Views...>> {
             return -(it - default_sentinel);
         }
 
-        friend constexpr decltype(auto) iter_move(iterator const& ii) {
+        friend constexpr decltype(auto) iter_move(iterator const& ii) noexcept(
+            ((std::is_nothrow_invocable_v<decltype(ranges::iter_move),
+                                          const iterator_t<__maybe_const<Const, Views>>&> &&
+              std::is_nothrow_convertible_v<range_rvalue_reference_t<__maybe_const<Const, Views>>,
+                                            common_reference_t<range_rvalue_reference_t<
+                                                __maybe_const<Const, Views>>...>>)&&...)) {
             using common_r_value_ref_t =
                 common_reference_t<range_rvalue_reference_t<__maybe_const<Const, Views>>...>;
             return std::visit(

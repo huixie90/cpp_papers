@@ -54,11 +54,11 @@ inline constexpr sort_fn sort{};
 
 #ifdef __GNUC__
 
-//hack to allow gcc to compile range-v3 views as viewable ranges
+// hack to allow gcc to compile range-v3 views as viewable ranges
 
-namespace std::ranges{
+namespace std::ranges {
 
-template<typename... Ts>
+template <typename... Ts>
 inline constexpr bool enable_borrowed_range<::ranges::zip_view<Ts...>> = true;
 
 }
@@ -80,7 +80,7 @@ TEST_POINT("iter_move") {
     auto i1 = c.begin();
     auto i2 = i1 + v1.size();
 
-   std::ranges::range_value_t<decltype(c)> vi1 = std::ranges::iter_move(i1);
+    std::ranges::range_value_t<decltype(c)> vi1 = std::ranges::iter_move(i1);
 
     *i1 = std::ranges::iter_move(i2);
     *i2 = std::move(vi1);
@@ -91,14 +91,72 @@ TEST_POINT("iter_move") {
     CHECK(a2[0] == 20);
 }
 
+TEST_POINT("iter_move_nothrow") {
+    std::vector v1{10, 11};
+    std::array a1{-10, -11};
+    auto c = std::views::concat(v1, a1);
+    auto it = c.begin();
+    static_assert(noexcept(std::ranges::iter_move(it)));
+}
+
+struct throwing_iter {
+    int* i = nullptr;
+    int& operator*() const { return *i; }
+
+    throwing_iter& operator++() { return *this; }
+    throwing_iter operator++(int) { return {}; }
+
+    bool operator==(throwing_iter) const { return true; }
+
+    using value_type = int;                 // to model indirectly_readable_traits
+    using difference_type = std::ptrdiff_t; // to model incrementable_traits
+    friend int&& iter_move(const throwing_iter& x) /* throws */ { return std::move(*(x.i)); }
+};
+
+struct throwing_range {
+    throwing_iter begin() const { return {}; }
+    throwing_iter end() const { return {}; }
+};
+
+TEST_POINT("iter_move_throw") {
+    throwing_range a, b;
+    auto c = std::views::concat(a, b);
+    auto it = c.begin();
+    static_assert(!noexcept(std::ranges::iter_move(it)));
+}
+
+struct throw_on_move {
+    throw_on_move() = default;
+    throw_on_move(throw_on_move const&) noexcept {}
+    throw_on_move(throw_on_move&&) /*throw*/ {}
+};
+
+TEST_POINT("iter_move_throw_on_converting_to_rvalue_reference") {
+    std::vector<throw_on_move> v;
+    auto tv =
+        std::views::iota(0) | std::views::transform([](auto) { return throw_on_move{}; });
+    
+    auto cv = std::views::concat(v,tv);
+
+    using vector_rvalue_ref = std::ranges::range_rvalue_reference_t<decltype(v)>;
+    using common_rvalue_ref = std::ranges::range_rvalue_reference_t<decltype(cv)>;
+
+    auto it = cv.begin();
+    static_assert(!noexcept(std::ranges::iter_move(it))); // because
+    static_assert(std::same_as<vector_rvalue_ref, throw_on_move&&>);
+    static_assert(std::same_as<common_rvalue_ref, throw_on_move>);
+    static_assert(!std::is_nothrow_convertible_v<throw_on_move&&, throw_on_move>);
+
+}
+
 TEST_POINT("iter_swap_concept") {
-    std::vector v{1,2,3};
-    auto tv = v | std::views::transform([](auto){return 5;});
-    auto cv = std::views::concat(tv,tv);
+    std::vector v{1, 2, 3};
+    auto tv = v | std::views::transform([](auto) { return 5; });
+    auto cv = std::views::concat(tv, tv);
     using It = std::ranges::iterator_t<decltype(cv)>;
     static_assert(!std::indirectly_swappable<It>);
 
-    auto cv2 = std::views::concat(v,v);
+    auto cv2 = std::views::concat(v, v);
     using It2 = std::ranges::iterator_t<decltype(cv2)>;
     static_assert(std::indirectly_swappable<It2>);
 }
