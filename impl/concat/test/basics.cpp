@@ -621,25 +621,6 @@ TEST_POINT("move only ->") {
     }
 }
 
-//
-// TEST_POINT("chained ->") {
-//     struct Foo {
-//         int i;
-//     };
-//     std::vector<Foo> fv{ {1},{2},{3},{5},{4} };
-//     auto fvOdd = fv | std::views::filter([](Foo const& f) { return f.i % 2 == 1; });
-//     auto fvEven = fv | std::views::filter([](Foo const& f) { return f.i % 2 == 0; });
-//
-//     auto c = std::views::concat(fvOdd, fvEven);
-//
-//     auto it = c.begin();
-//     CHECK(it->i == 1);
-//     ++it;
-//     CHECK(it++->i == 3);
-//     CHECK(it->i == 5);
-//     CHECK(++it->i == 4);
-//
-// }
 struct cpp20_input_iter_cpp17_not_iter {
     int operator*() const { return 5; }
 
