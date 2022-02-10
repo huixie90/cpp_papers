@@ -5,6 +5,7 @@
 #include <functional>
 #include <memory>
 #include <numeric>
+#include "std_exposition_only_concepts.hpp"
 
 #define TEST_POINT(x) TEST_CASE(x, "[basics]")
 
@@ -463,16 +464,90 @@ TEST_POINT("iter_move and iter_swap basic") {
     REQUIRE(v3[1] == 9);
 }
 
-TEST_POINT("Sentinel") {
-    // using V = std::vector<int>;
-    // using W = std::list<int>;
 
-    // add non-trivial combinations of underlying ranges/views and concept checks for
-    // - sentinel size independent of number of ranges
-    // - sentinel cross-const comparison
-    // - sentinel being default constructible or not mirroring on last view's property
-    // - ...
+TEST_POINT("->") {
+    struct MyInt {
+        int i = 0;
+    };
+    std::vector<MyInt> v1{{1}}, v2{{2}};
+    const std::vector<MyInt> v3{{3}};
+    std::list<MyInt> l1{{4}};
+    MyInt a1[]{{5}, {6}, {7}};
+
+    SECTION("two vectors") {
+        auto cv = std::views::concat(v1, v2);
+        auto it = cv.begin();
+        using It = decltype(it);
+        STATIC_CHECK(std::ranges::__has_arrow<It>);
+        STATIC_CHECK(std::same_as<pointer_t<It>, MyInt*>);
+        it->i = 4;
+        CHECK(v1[0].i == 4);
+    }
+
+    SECTION("const and non-const vectors") {
+        auto cv = std::views::concat(v1, v2, v3);
+        auto it = cv.begin();
+        using It = decltype(it);
+        STATIC_CHECK(std::ranges::__has_arrow<It>);
+        STATIC_CHECK(std::same_as<pointer_t<It>, MyInt const*>);
+        CHECK(it->i == v1[0].i);
+        std::advance(it, v2.size());
+        CHECK(it->i == v2[0].i);
+        std::advance(it, v3.size());
+        CHECK(it->i == v3[0].i);
+    }
+
+    SECTION("vector and list") {
+        auto cv = std::views::concat(l1, v1);
+        auto it = cv.begin();
+        using It = decltype(it);
+        STATIC_CHECK(std::ranges::__has_arrow<It>);
+        STATIC_CHECK(std::same_as<pointer_t<It>, MyInt*>);
+        CHECK(it->i == l1.front().i);
+        std::advance(it, l1.size());
+        CHECK(it->i == v1[0].i);
+    }
+
+    SECTION("filter views") {
+        v1 = {{1}, {2}, {3}, {4}, {5}};
+        auto fvOdd = v1 | std::views::filter([](auto m) { return m.i % 2 == 1; });
+        auto fvEven = v1 | std::views::filter([](auto m) { return m.i % 2 == 0; });
+        auto cv = std::views::concat(fvOdd, fvEven);
+        auto it = cv.begin();
+        using It = decltype(it);
+        STATIC_CHECK(std::ranges::__has_arrow<It>);
+        STATIC_CHECK(std::same_as<pointer_t<It>, pointer_t<decltype(fvOdd.begin())>>);
+        CHECK(it++->i == 1);
+        CHECK(it++->i == 2);
+        CHECK(it++->i == 4);
+        CHECK(it++->i == 3);
+        CHECK(it++->i == 5);
+    }
+
+    SECTION("raw array and others") {
+        auto cv = std::views::concat(v1, a1, l1);
+        auto it = cv.begin();
+        STATIC_CHECK(std::ranges::__has_arrow<decltype(it)>);
+        CHECK(it->i == v1[0].i);
+        std::advance(it, v1.size());
+        CHECK(it->i == a1[0].i);
+        std::advance(it, std::ranges::size(a1));
+        CHECK(it->i == l1.front().i);
+    }
+
+    SECTION("no arrow") {
+        auto t = v1 | std::views::transform([](auto&& m) -> MyInt& { return m; });
+        using ItBase = decltype(t.begin());
+        STATIC_REQUIRE(!std::ranges::__has_arrow<ItBase>);
+        STATIC_REQUIRE(std::same_as<pointer_t<ItBase>, void>);
+        auto cv = std::views::concat(v1, t);
+        auto it = cv.begin();
+        using It = decltype(it);
+        STATIC_CHECK(!std::ranges::__has_arrow<It>);
+        STATIC_CHECK(std::same_as<pointer_t<It>, void>);
+    }
 }
+
 
 
 template <typename Derived>
@@ -511,31 +586,24 @@ struct MoveOnlyArrowRange {
     std::default_sentinel_t end() const;
 };
 
-struct MyInt {
-    int i = 0;
-};
-
-TEST_POINT("->") {
-    std::vector<MyInt> v1{{1}}, v2{{2}};
-    auto cv = std::views::concat(v1, v2);
-    auto it = cv.begin();
-    static_assert(std::ranges::__has_arrow<decltype(it)>);
-    it->i = 4;
-    REQUIRE(v1[0].i == 4);
-
-    const std::vector<MyInt> v3{{3}};
-    auto cv2 = std::views::concat(v1, v2, v3);
-    auto it2 = cv2.begin();
-    static_assert(std::ranges::__has_arrow<decltype(it2)>);
-    REQUIRE(it2->i == 4);
-
-    std::list<MyInt> l1{{2}};
-    auto cv3 = std::views::concat(v1, l1);
-    auto it3 = cv3.begin();
-    static_assert(!std::ranges::__has_arrow<decltype(it3)>);
-}
-
 TEST_POINT("move only ->") {
+    using Tr1 = std::iterator_traits<ArrowIterator>;
+    using Tr2 = std::iterator_traits<MoveOnlyArrowIterator>;
+
+    STATIC_REQUIRE(requires { typename Tr1::iterator_category; });
+    STATIC_REQUIRE(requires { typename Tr1::value_type; });
+    STATIC_REQUIRE(requires { typename Tr1::reference; });
+    STATIC_REQUIRE(requires { typename Tr1::difference_type; });
+    STATIC_REQUIRE(requires { typename Tr1::pointer; });
+
+    // empty iterator_traits for MoveOnlyArrowIterator
+    STATIC_REQUIRE(!has_iterator_category<Tr2>);
+    STATIC_REQUIRE(!has_value_type<Tr2>);
+
+    STATIC_REQUIRE(std::input_iterator<MoveOnlyArrowIterator>);
+    STATIC_REQUIRE(std::ranges::__has_arrow<MoveOnlyArrowIterator>);
+
+
     {
         ArrowRange r1, r2;
         using CV = decltype(std::views::concat(r1, r2));
@@ -544,8 +612,29 @@ TEST_POINT("move only ->") {
     }
     {
         MoveOnlyArrowRange r1, r2;
+
         using CV = decltype(std::views::concat(r1, r2));
         using It = std::ranges::iterator_t<CV>;
         static_assert(!std::ranges::__has_arrow<It>);
     }
 }
+
+//
+// TEST_POINT("chained ->") {
+//     struct Foo {
+//         int i;
+//     };
+//     std::vector<Foo> fv{ {1},{2},{3},{5},{4} };
+//     auto fvOdd = fv | std::views::filter([](Foo const& f) { return f.i % 2 == 1; });
+//     auto fvEven = fv | std::views::filter([](Foo const& f) { return f.i % 2 == 0; });
+//
+//     auto c = std::views::concat(fvOdd, fvEven);
+//
+//     auto it = c.begin();
+//     CHECK(it->i == 1);
+//     ++it;
+//     CHECK(it++->i == 3);
+//     CHECK(it->i == 5);
+//     CHECK(++it->i == 4);
+//
+// }

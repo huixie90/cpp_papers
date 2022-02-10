@@ -55,17 +55,52 @@ template <class... Rs>
 concept concat_bidirectional = all_but_last<constant_time_reversible<Rs>...>(
     index_sequence_for<Rs...>{}) && bidirectional_range<back<Rs...>>;
 
-template <bool Const, class... Views>
-concept concat_has_arrow = requires {
-    typename common_type<iterator_t<__maybe_const<Const, Views>>...>::type;
-}
-&&(convertible_to<const iterator_t<__maybe_const<Const, Views>>&,
-                  common_type_t<iterator_t<__maybe_const<Const, Views>>...>>&&...) &&
-    __has_arrow<common_type_t<iterator_t<__maybe_const<Const, Views>>...>>;
 
-#if defined(CLANG_FORMAT_FIX_) && 0
-; // without this there is extra indentation in subsequent code (clang-format 13.x bug)
-#endif
+inline namespace not_to_spec {
+
+    // iterator_traits<It>::pointer when present gives the result of arrow, or presumably the result
+    // of arrow is convertible to that.
+
+    // when iterator_traits<It>::pointer is not present for not-a-C++17-iterators, we should
+    // get the pointer type from the arrow expression:
+    template <__has_arrow It>
+    decltype(auto) get_arrow_result(It && it) {
+        if constexpr (__has_member_arrow<It>) {
+            return static_cast<It&&>(it).operator->();
+        } else {
+            return it;
+        }
+    }
+    template <class It, class = void>
+    struct PointerTrait {
+        using type = decltype(get_arrow_result(declval<It>()));
+    };
+
+    template <class It>
+    struct PointerTrait<It, void_t<typename iterator_traits<remove_reference_t<It>>::pointer>> {
+        using type = typename iterator_traits<remove_reference_t<It>>::pointer;
+    };
+
+    template <class... Views>
+    // using concat_pointer = common_type<typename iterator_traits<iterator_t<Views>>::pointer...>;
+    using concat_pointer = common_type<typename PointerTrait<iterator_t<Views>>::type...>;
+
+} // namespace not_to_spec
+
+template <class... Views>
+using concat_pointer_t = typename concat_pointer<Views...>::type;
+
+
+// clang-format off
+template <class... Views>
+concept concat_has_arrow = 
+    (__has_arrow<iterator_t<Views>> && ...) &&    
+    requires { typename concat_pointer_t<Views...>; } &&
+    (convertible_to<const concat_pointer_t<Views>&, concat_pointer_t<Views...>> && ...) &&
+    (copyable<iterator_t<Views>> && ...) // todo: why is this required
+    ;
+// clang-format on
+
 
 inline namespace not_to_spec {
 
@@ -167,6 +202,9 @@ class concat_view : public view_interface<concat_view<Views...>> {
         using value_type = common_type_t<range_value_t<__maybe_const<Const, Views>>...>;
         using difference_type = common_type_t<range_difference_t<__maybe_const<Const, Views>>...>;
         using iterator_concept = decltype(xo::iterator_concept_test<Const, Views...>());
+        using pointer = typename conditional_t<xo::concat_has_arrow<__maybe_const<Const, Views>...>,
+                                               xo::concat_pointer<__maybe_const<Const, Views>...>,
+                                               type_identity<void>>::type;
 
       private:
         using ParentView = __maybe_const<Const, concat_view>;
@@ -264,10 +302,17 @@ class concat_view : public view_interface<concat_view<Views...>> {
             return visit([](auto&& it) -> reference { return *it; }, it_);
         }
 
-        constexpr auto operator->() const requires xo::concat_has_arrow<Const, Views...> {
+        constexpr auto operator->()
+            const requires xo::concat_has_arrow<__maybe_const<Const, Views>...> {
             return visit(
-                [](auto const& it) -> common_type_t<iterator_t<__maybe_const<Const, Views>>...> {
-                    return it;
+                [](auto const& it) -> xo::concat_pointer_t<__maybe_const<Const, Views>...> {
+                    using It = remove_reference_t<decltype(it)>;
+                    if constexpr (__has_member_arrow<It>) {
+                        return it.operator->();
+                    } else {
+                        static_assert(is_pointer_v<It>);
+                        return it;
+                    }
                 },
                 it_);
         }
