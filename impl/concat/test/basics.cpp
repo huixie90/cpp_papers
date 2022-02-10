@@ -508,6 +508,7 @@ TEST_POINT("->") {
         CHECK(it->i == v1[0].i);
     }
 
+#ifndef _LIBCPP_VERSION
     SECTION("filter views") {
         v1 = {{1}, {2}, {3}, {4}, {5}};
         auto fvOdd = v1 | std::views::filter([](auto m) { return m.i % 2 == 1; });
@@ -523,7 +524,7 @@ TEST_POINT("->") {
         CHECK(it++->i == 3);
         CHECK(it++->i == 5);
     }
-
+#endif
     SECTION("raw array and others") {
         auto cv = std::views::concat(v1, a1, l1);
         auto it = cv.begin();

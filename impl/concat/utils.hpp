@@ -46,9 +46,6 @@ using __maybe_const = _Maybe_const<C, T>;
 template <typename T>
 concept __has_arrow = _Has_arrow<T>;
 
-template<typename T>
-concept __has_member_arrow = _Has_member_arrow<T>;
-
 template <typename T>
 concept __simple_view = _Simple_view<T>;
 } // namespace std::ranges
@@ -63,9 +60,6 @@ using __maybe_const = __detail::__maybe_const_t<C, T>;
 
 template <typename T>
 concept __has_arrow = __detail::__has_arrow<T>;
-
-template <typename T>
-concept __has_member_arrow = requires(T it) { it.operator->(); };
 
 template <typename T>
 concept __simple_view = __detail::__simple_view<T>;
