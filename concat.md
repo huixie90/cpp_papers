@@ -117,12 +117,10 @@ handled per design, and the construct expresses the intent cleanly and
 directly.
 
 In the second example, the user has a class composed of fragmented and indirect
-data and attempts to implement a member function that provides a range-like
-view to all this data sequenced together in some order, and without creating
-any copies. The "Before" implementation is needlessly complex, creates a
-temporary container, and is not even returning a view. `concat_view` based
-implementation is a neat one-liner as this proposed view squarely satisfies this
-very use case.
+data. They want to implement a member function that provides a range-like view
+to all this data sequenced together in some order, and without creating any
+copies. The "Before" implementation is needlessly complex and creates a
+temporary container. `concat_view` based implementation is a neat one-liner.
 
 
 # Design
@@ -137,46 +135,38 @@ point object.
 Adaptability of any given two or more distinct `range`s into a sequence that
 itself models a `range`, depends on the compatibility of the reference and the
 value types of these ranges. A precise formulation is made in terms of
-`std::common_reference_t` and `std::common_type_t`, and is captured by the exposition
-only concept `concatable`. See
-[Wording](#class-template-concat_view-range.concat.view). Proposed `concat_view`
+`std::common_reference_t` and `std::common_type_t`, and is captured by the
+exposition only concept `concatable`. See
+[Wording](#concatable-definition). Proposed `concat_view`
 is then additionally constrained by this concept. (Note that, this is an
 improvement over [@rangev3] `concat_view` which lacks such constraints, and
 fails with hard errors instead.)
 
+### Unsupported Cases and Potential Extensions for the Future
 
-## Common types
-
-The value and reference types of the resulting view are also unambiguously
-deduced by the formulation of the `concatable` concept.
-
-<!-- TODO: discuss why we have common_value_t, the proxy iterator support, etc.
--->
-
-## Future Extensions
-
-Above logic is a practical and convenient solution that satisfies the motivation
-as outlined, and is what the authors propose in this paper.
-
-However, there are several potentially important use cases that get left out.
-For instance:
+Common type and reference based `concatable` logic is a practical and convenient
+solution that satisfies the motivation as outlined, and is what the authors
+propose in this paper. However, there are several potentially important use
+cases that get left out:
 
 1. Concatenating ranges of different subclasses, into a range of their common
    base.
 2. Concatenating ranges of unrelated types into a range of a user-determined
    common type, e.g. a `std::variant`.
 
-As an example where `common_reference` formulation can manifest a rather
-counter-intuitive behavior, let `D1` and `D2` be two types only related by their
-common base `B`, and `d1`, `d2`, `b` be some range of these types, respectively.
-`concat(b, d1, d2)` is a well-formed range of `B` by the current formulation;
-but a mere reordering, say to `concat(rd1, rd2, rb)`, yields is one that is not.
+Here is an example of the first case where `common_reference` formulation can
+manifest a rather counter-intuitive behavior: Let `D1` and `D2` be two types
+only related by their common base `B`, and `d1`, `d2`, and `b` be some range of
+these types, respectively. `concat(b, d1, d2)` is a well-formed range of `B` by
+the current formulation, suggesting such usage is supported. However, a mere
+reordering of the sequence, say to `concat(rd1, rd2, rb)`, yields one that is
+not.
 
 The authors believe that such cases should be supported, but can only be done so
-by an adaptor that needs at least one explicit type argument at its interface. A
-future extension may satisfy these use cases, for example a `concat_as` view, or
-by some hypothetical `as` view that is a type-generalized version of the
-`as_const` view of [@P2278R1].
+via an adaptor that needs at least one explicit type argument at its interface.
+A future extension may satisfy these use cases, for example a `concat_as` view,
+or by even generally via a hypothetical `as` view that is a type-generalized
+version of the `as_const` view of [@P2278R1].
 
 
 ## Zero or one view
@@ -191,12 +181,12 @@ by some hypothetical `as` view that is a type-generalized version of the
 Time complexities as required by the `ranges` concepts are formally expressed
 with respect to the total number of elements (the size) of a given range, and
 not to the statically known parameters of that range. Hence, the complexity of
-`concat_view` or its iterators' operations are documented to be independent of
-the number of ranges it concatenates, even though the some of the operations are
-a linear function of this parameter.
+`concat_view` or its iterators' operations are documented to be constant time,
+even though some of these are a linear function of the number of ranges it
+concatenates which is a statically known parameter of this view.
 
-Some examples of these operations are `concat_view`'s copy, `begin` and `size`,
-and its iterators' increment, decrement, advance, distance, etc. This
+Some examples of these operations for `concat_view` are copy, `begin` and
+`size`, and its iterators' increment, decrement, advance, distance. This
 characteristic (but not necessarily the specifics) are very much similar to the
 other n-ary adaptors like `zip_view` [@P2321R2] and `cartesian_view`
 [@P2374R3].
@@ -219,17 +209,17 @@ to which my answer would be no.)
 ## Borrowed vs Cheap Iterator
 
 `concat_view` can be designed to be a `borrowed_range`, if all the underlying
-ranges are. However, this requires the iterator implementation to contain a
-copy of all iterators and sentinels of all underlying ranges at all times (just
-like that of `views::zip` [@P2321R2]). On the other hand (unlike `views::zip`),
-a much cheaper implementation can satisfy all the proposed functionality
-provided it is permitted to be unconditionally not borrowed. This
-implementation would maintain only a single active iterator at a time and
-simply refers to the parent view for the bounds. 
+ranges are. However, this requires the iterator implementation to contain a copy
+of all iterators and sentinels of all underlying ranges at all times (just like
+that of `views::zip` [@P2321R2]). On the other hand (unlike `views::zip`), a
+much cheaper implementation can satisfy all the proposed functionality provided
+it is permitted to be unconditionally not borrowed. This implementation would
+maintain only a single active iterator at a time and simply refers to the parent
+view for the bounds.
 
 Experience shows the borrowed-ness of `concat` is not a major requirement; and
 the existing implementation in [@rangev3] seems to have picked the cheaper
-alternative. We follow suit in this proposal.
+alternative. This paper proposes the same.
 
 ## Common Range
 
@@ -433,7 +423,8 @@ template <class... Rs>
 concept @_concatable_@ = @_see below_@;
 ```
 
-[1]{.pnum} The exposition-only `@_concatable_@` concept is equivalent to:
+[1]{.pnum} []{#concatable-definition} The exposition-only `@_concatable_@`
+concept is equivalent to:
 
 ```cpp
     template <class... Rs>
