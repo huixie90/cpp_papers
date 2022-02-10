@@ -82,15 +82,17 @@ decltype(auto) get_arrow_result(It&& it) {
 template <typename It>
 void get_arrow_result(It&&);
 
-template <class It, class = void>
+template <class It>
 struct PointerTrait {
     using type = decltype(get_arrow_result(declval<It>()));
 };
 
 template <class It>
-struct PointerTrait<It, void_t<typename iterator_traits<remove_reference_t<It>>::pointer>> {
+requires requires { typename iterator_traits<remove_reference_t<It>>::pointer; }
+struct PointerTrait<It> {
     using type = typename iterator_traits<remove_reference_t<It>>::pointer;
 };
+
 
 template <class R>
 using range_pointer_t = typename PointerTrait<iterator_t<R>>::type;
@@ -111,8 +113,7 @@ template <class... Views>
 concept concat_has_arrow = 
     (__has_arrow<iterator_t<Views>> && ...) &&    
     requires { typename concat_pointer_t<Views...>; } &&
-    (convertible_to<const concat_pointer_t<Views>&, concat_pointer_t<Views...>> && ...) &&
-    (copyable<iterator_t<Views>> && ...) // todo: why is this required
+    (convertible_to<const range_pointer_t<Views>&, concat_pointer_t<Views...>> && ...) 
     ;
 // clang-format on
 
