@@ -213,13 +213,9 @@ class concat_view : public view_interface<concat_view<Views...>> {
     template <bool Const>
     class iterator : public xo::iter_cat_base_t<Const, Views...> {
       public:
-        using reference = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
         using value_type = common_type_t<range_value_t<__maybe_const<Const, Views>>...>;
         using difference_type = common_type_t<range_difference_t<__maybe_const<Const, Views>>...>;
         using iterator_concept = decltype(xo::iterator_concept_test<Const, Views...>());
-        using pointer = typename conditional_t<xo::concat_has_arrow<__maybe_const<Const, Views>...>,
-                                               xo::concat_pointer<__maybe_const<Const, Views>...>,
-                                               type_identity<void>>::type;
 
       private:
         using ParentView = __maybe_const<Const, concat_view>;
@@ -313,7 +309,8 @@ class concat_view : public view_interface<concat_view<Views...>> {
             : parent_{i.parent_}
             , it_{std::move(i.it_)} {}
 
-        constexpr reference operator*() const {
+        constexpr decltype(auto) operator*() const {
+            using reference = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
             return visit([](auto&& it) -> reference { return *it; }, it_);
         }
 
@@ -382,7 +379,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
             return *this;
         }
 
-        constexpr reference operator[](difference_type n) const //
+        constexpr decltype(auto) operator[](difference_type n) const //
             requires xo::concat_random_access<__maybe_const<Const, Views>...> {
             return *((*this) + n);
         }
