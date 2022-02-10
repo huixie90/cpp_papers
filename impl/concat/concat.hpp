@@ -56,6 +56,8 @@ concept concat_bidirectional = all_but_last<constant_time_reversible<Rs>...>(
     index_sequence_for<Rs...>{}) && bidirectional_range<back<Rs...>>;
 
 
+static_assert(true); // clang-format badness
+
 inline namespace not_to_spec {
 
 // it is not defined in the standard and we can't refer to it.
@@ -74,9 +76,12 @@ decltype(auto) get_arrow_result(It&& it) {
     if constexpr (has_member_arrow<It>) {
         return static_cast<It&&>(it).operator->();
     } else {
-        return it;
+        return static_cast<It&&>(it);
     }
 }
+template <typename It>
+void get_arrow_result(It&&);
+
 template <class It, class = void>
 struct PointerTrait {
     using type = decltype(get_arrow_result(declval<It>()));
@@ -87,9 +92,13 @@ struct PointerTrait<It, void_t<typename iterator_traits<remove_reference_t<It>>:
     using type = typename iterator_traits<remove_reference_t<It>>::pointer;
 };
 
+template <class R>
+using range_pointer_t = typename PointerTrait<iterator_t<R>>::type;
+
 template <class... Views>
+using concat_pointer = common_type<range_pointer_t<Views>...>;
 // using concat_pointer = common_type<typename iterator_traits<iterator_t<Views>>::pointer...>;
-using concat_pointer = common_type<typename PointerTrait<iterator_t<Views>>::type...>;
+// ^^ hard fails for not-a-c17iterator
 
 } // namespace not_to_spec
 
