@@ -146,9 +146,8 @@ fails with hard errors instead.)
 
 Common type and reference based `concatable` logic is a practical and convenient
 solution that satisfies the motivation as outlined, and is what the authors
-propose in this paper.
-
-However, there are several potentially important use cases that get left out:
+propose in this paper. However, there are several potentially important use
+cases that get left out:
 
 1. Concatenating ranges of different subclasses, into a range of their common
    base.
@@ -182,12 +181,12 @@ version of the `as_const` view of [@P2278R1].
 Time complexities as required by the `ranges` concepts are formally expressed
 with respect to the total number of elements (the size) of a given range, and
 not to the statically known parameters of that range. Hence, the complexity of
-`concat_view` or its iterators' operations are documented to be independent of
-the number of ranges it concatenates, even though the some of the operations are
-a linear function of this parameter.
+`concat_view` or its iterators' operations are documented to be constant time,
+even though some of these are a linear function of the number of ranges it
+concatenates which is a statically known parameter of this view.
 
-Some examples of these operations are `concat_view`'s copy, `begin` and `size`,
-and its iterators' increment, decrement, advance, distance, etc. This
+Some examples of these operations for `concat_view` are copy, `begin` and
+`size`, and its iterators' increment, decrement, advance, distance. This
 characteristic (but not necessarily the specifics) are very much similar to the
 other n-ary adaptors like `zip_view` [@P2321R2] and `cartesian_view`
 [@P2374R3].
@@ -210,17 +209,17 @@ to which my answer would be no.)
 ## Borrowed vs Cheap Iterator
 
 `concat_view` can be designed to be a `borrowed_range`, if all the underlying
-ranges are. However, this requires the iterator implementation to contain a
-copy of all iterators and sentinels of all underlying ranges at all times (just
-like that of `views::zip` [@P2321R2]). On the other hand (unlike `views::zip`),
-a much cheaper implementation can satisfy all the proposed functionality
-provided it is permitted to be unconditionally not borrowed. This
-implementation would maintain only a single active iterator at a time and
-simply refers to the parent view for the bounds. 
+ranges are. However, this requires the iterator implementation to contain a copy
+of all iterators and sentinels of all underlying ranges at all times (just like
+that of `views::zip` [@P2321R2]). On the other hand (unlike `views::zip`), a
+much cheaper implementation can satisfy all the proposed functionality provided
+it is permitted to be unconditionally not borrowed. This implementation would
+maintain only a single active iterator at a time and simply refers to the parent
+view for the bounds.
 
 Experience shows the borrowed-ness of `concat` is not a major requirement; and
 the existing implementation in [@rangev3] seems to have picked the cheaper
-alternative. We follow suit in this proposal.
+alternative. This paper proposes the same.
 
 ## Common Range
 
