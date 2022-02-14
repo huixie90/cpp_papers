@@ -148,7 +148,7 @@ The `reference` type is the `common_reference_t` of all underlying range's
 `range_reference_t`. In addition, as the result of `common_reference_t` is not
 necessarily a reference type, an extra constraint is needed to make sure that
 each underlying range's `range_reference_t` is convertible to that common
-refenrece.
+reference.
 
 ### `value_type`
 
@@ -162,7 +162,7 @@ of all underlying range's `range_value_t`.
 
 To make `concat_view`'s iterator's `iter_move` behave correctly for the cases
 where underlying iterators customise `iter_move`, such as `zip_view`,
-`concat_view` has to respect those customisations. Therefore, `concat_view`
+`concat_view` has to respect those customizations. Therefore, `concat_view`
 requires `common_reference_t` of all underlying ranges's
 `range_rvalue_reference_t` exist and can be converted to from each underlying
 range's `range_rvalue_reference_t`.
@@ -190,7 +190,7 @@ not.
 The authors believe that such cases should be supported, but can only be done so
 via an adaptor that needs at least one explicit type argument at its interface.
 A future extension may satisfy these use cases, for example a `concat_as` view,
-or by even generally via a hypothetical `as` view that is a type-generalized
+or by even generally via an `as` view that is a type-generalized
 version of the `as_const` view of [@P2278R1].
 
 ## Zero or one view
@@ -673,7 +673,7 @@ namespace std::ranges{
   is modeled, then `iterator_concept` denotes `random_access_iterator_tag`.
 - [1.2]{.pnum} Otherwise, if
   `@_concat-bidirectional_@<@_maybe-const_@<Const, Views>...>` is modeled, then
-  `iterator_concept` denotes `bidrectional_iterator_tag`.
+  `iterator_concept` denotes `bidirectional_iterator_tag`.
 - [1.3]{.pnum} Otherwise, if
   `(forward_range<@_maybe-const_@<Const, Views>> && ...)` is modeled, then
   `iterator_concept` denotes `forward_iterator_tag`.
