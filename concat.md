@@ -829,7 +829,7 @@ template <class... Args>
 explicit constexpr @_iterator_@(
             @_maybe-const_@<Const, concat_view>* parent,
             Args&&... args) 
-    requires constructible_from<@*base_iter*@, Args&&...>;
+    requires constructible_from<@*base_iter*@, Args&&...>; // exposition only
 ```
 
 :::bq
