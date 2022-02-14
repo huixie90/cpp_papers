@@ -604,16 +604,16 @@ namespace std::ranges{
     template <std::size_t N>
     constexpr void @_advance_bwd_@(difference_type offset, difference_type steps); // exposition only
 
-  public:
-
-    @_iterator_@() requires(default_initializable<iterator_t<@_maybe-const_@<Const, Views>>>&&...) =
-        default;
-
     template <class... Args>
     explicit constexpr @_iterator_@(
                 @_maybe-const_@<Const, concat_view>* parent,
                 Args&&... args) 
-        requires constructible_from<@*base_iter*@, Args&&...>;
+        requires constructible_from<@*base_iter*@, Args&&...>;  // exposition only
+
+  public:
+
+    @_iterator_@() requires(default_initializable<iterator_t<@_maybe-const_@<Const, Views>>>&&...) =
+        default;
 
     constexpr @_iterator_@(@_iterator_@<!Const> i) 
         requires Const &&

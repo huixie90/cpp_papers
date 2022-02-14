@@ -578,8 +578,9 @@ TEST_POINT("->") {
 
         auto c = std::views::concat(comm, comm);
         auto cit = c.begin();
+#ifndef _MSC_VER
         [[maybe_unused]] auto cp = cit.operator->();
-
+#endif
 
         // auto io = std::views::iota(0);
         // STATIC_CHECK(!std::ranges::common_range<decltype(io)>);
