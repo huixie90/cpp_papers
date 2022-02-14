@@ -142,6 +142,31 @@ is then additionally constrained by this concept. (Note that, this is an
 improvement over [@rangev3] `concat_view` which lacks such constraints, and
 fails with hard errors instead.)
 
+### `reference`
+
+The `reference` type is the `common_reference_t` of all underlying range's
+`range_reference_t`. In addition, as the result of `common_reference_t` is not
+necessarily a reference type, an extra constraint is needed to make sure that
+each underlying range's `range_reference_t` is convertible to that common
+refenrece.
+
+### `value_type`
+
+To support the cases where underlying ranges have proxy iterators, such as
+`zip_view`, the `value_type` cannot simply be the `remove_cvref_t` of the
+`reference` type, and it needs to respect underlying ranges' `value_type`.
+Therefore, in this proposal the `value_type` is defined as the `common_type_t`
+of all underlying range's `range_value_t`.
+
+### `range_rvalue_reference_t`
+
+To make `concat_view`'s iterator's `iter_move` behave correctly for the cases
+where underlying iterators customise `iter_move`, such as `zip_view`,
+`concat_view` has to respect those customisations. Therefore, `concat_view`
+requires `common_reference_t` of all underlying ranges's
+`range_rvalue_reference_t` exist and can be converted to from each underlying
+range's `range_rvalue_reference_t`.
+
 ### Unsupported Cases and Potential Extensions for the Future
 
 Common type and reference based `concatable` logic is a practical and convenient
@@ -159,7 +184,7 @@ manifest a rather counter-intuitive behavior: Let `D1` and `D2` be two types
 only related by their common base `B`, and `d1`, `d2`, and `b` be some range of
 these types, respectively. `concat(b, d1, d2)` is a well-formed range of `B` by
 the current formulation, suggesting such usage is supported. However, a mere
-reordering of the sequence, say to `concat(rd1, rd2, rb)`, yields one that is
+reordering of the sequence, say to `concat(d1, d2, b)`, yields one that is
 not.
 
 The authors believe that such cases should be supported, but can only be done so
@@ -167,7 +192,6 @@ via an adaptor that needs at least one explicit type argument at its interface.
 A future extension may satisfy these use cases, for example a `concat_as` view,
 or by even generally via a hypothetical `as` view that is a type-generalized
 version of the `as_const` view of [@P2278R1].
-
 
 ## Zero or one view
 
