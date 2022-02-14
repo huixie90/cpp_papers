@@ -862,16 +862,16 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <span id="cb19-34"><a href="#cb19-34"></a>    <span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
 <span id="cb19-35"><a href="#cb19-35"></a>    <span class="kw">constexpr</span> <span class="dt">void</span> <em>advance_bwd</em><span class="op">(</span>difference_type offset, difference_type steps<span class="op">)</span>; <span class="co">// exposition only</span></span>
 <span id="cb19-36"><a href="#cb19-36"></a></span>
-<span id="cb19-37"><a href="#cb19-37"></a>  <span class="kw">public</span><span class="op">:</span></span>
-<span id="cb19-38"><a href="#cb19-38"></a></span>
-<span id="cb19-39"><a href="#cb19-39"></a>    <em>iterator</em><span class="op">()</span> <span class="kw">requires</span><span class="op">(</span>default_initializable<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&gt;&amp;&amp;...)</span> <span class="op">=</span></span>
-<span id="cb19-40"><a href="#cb19-40"></a>        <span class="cf">default</span>;</span>
-<span id="cb19-41"><a href="#cb19-41"></a></span>
-<span id="cb19-42"><a href="#cb19-42"></a>    <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Args<span class="op">&gt;</span></span>
-<span id="cb19-43"><a href="#cb19-43"></a>    <span class="kw">explicit</span> <span class="kw">constexpr</span> <em>iterator</em><span class="op">(</span></span>
-<span id="cb19-44"><a href="#cb19-44"></a>                <em>maybe-const</em><span class="op">&lt;</span>Const, concat_view<span class="op">&gt;*</span> parent,</span>
-<span id="cb19-45"><a href="#cb19-45"></a>                Args<span class="op">&amp;&amp;...</span> args<span class="op">)</span> </span>
-<span id="cb19-46"><a href="#cb19-46"></a>        <span class="kw">requires</span> constructible_from<span class="op">&lt;</span><em>base_iter</em>, Args<span class="op">&amp;&amp;...&gt;</span>;</span>
+<span id="cb19-37"><a href="#cb19-37"></a>    <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Args<span class="op">&gt;</span></span>
+<span id="cb19-38"><a href="#cb19-38"></a>    <span class="kw">explicit</span> <span class="kw">constexpr</span> <em>iterator</em><span class="op">(</span></span>
+<span id="cb19-39"><a href="#cb19-39"></a>                <em>maybe-const</em><span class="op">&lt;</span>Const, concat_view<span class="op">&gt;*</span> parent,</span>
+<span id="cb19-40"><a href="#cb19-40"></a>                Args<span class="op">&amp;&amp;...</span> args<span class="op">)</span> </span>
+<span id="cb19-41"><a href="#cb19-41"></a>        <span class="kw">requires</span> constructible_from<span class="op">&lt;</span><em>base_iter</em>, Args<span class="op">&amp;&amp;...&gt;</span>;  <span class="co">// exposition only</span></span>
+<span id="cb19-42"><a href="#cb19-42"></a></span>
+<span id="cb19-43"><a href="#cb19-43"></a>  <span class="kw">public</span><span class="op">:</span></span>
+<span id="cb19-44"><a href="#cb19-44"></a></span>
+<span id="cb19-45"><a href="#cb19-45"></a>    <em>iterator</em><span class="op">()</span> <span class="kw">requires</span><span class="op">(</span>default_initializable<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&gt;&amp;&amp;...)</span> <span class="op">=</span></span>
+<span id="cb19-46"><a href="#cb19-46"></a>        <span class="cf">default</span>;</span>
 <span id="cb19-47"><a href="#cb19-47"></a></span>
 <span id="cb19-48"><a href="#cb19-48"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">(</span><em>iterator</em><span class="op">&lt;!</span>Const<span class="op">&gt;</span> i<span class="op">)</span> </span>
 <span id="cb19-49"><a href="#cb19-49"></a>        <span class="kw">requires</span> Const <span class="op">&amp;&amp;</span></span>

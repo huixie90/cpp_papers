@@ -294,15 +294,16 @@ class concat_view : public view_interface<concat_view<Views...>> {
 
         decltype(auto) get_parent_views() const { return (parent_->views_); }
 
+        template <class... Args>
+        explicit constexpr iterator(ParentView* parent,
+                                    Args&&... args) requires constructible_from<BaseIt, Args&&...>
+            : parent_{parent}, it_{static_cast<Args&&>(args)...} {}
+
 
       public:
         iterator() requires(default_initializable<iterator_t<__maybe_const<Const, Views>>>&&...) =
             default;
 
-        template <class... Args>
-        explicit constexpr iterator(ParentView* parent,
-                                    Args&&... args) requires constructible_from<BaseIt, Args&&...>
-            : parent_{parent}, it_{static_cast<Args&&>(args)...} {}
 
         constexpr iterator(iterator<!Const> i) requires Const &&
             (convertible_to<iterator_t<Views>, iterator_t<__maybe_const<Const, Views>>>&&...)
