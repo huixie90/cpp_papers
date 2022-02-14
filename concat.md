@@ -447,43 +447,55 @@ template <class... Rs>
 concept @_concatable_@ = @_see below_@;
 ```
 
+:::bq
+
 [1]{.pnum} []{#concatable-definition} The exposition-only `@_concatable_@`
 concept is equivalent to:
 
 ```cpp
-    template <class... Rs>
-    concept @_concatable_@ = requires {
-        typename common_reference_t<range_reference_t<Rs>...>;
-        typename common_type_t<range_value_t<Rs>...>;
-        typename common_reference_t<range_rvalue_reference_t<Rs>...>;
-    } && 
-    (convertible_to<range_reference_t<Rs>, 
-        common_reference_t<range_reference_t<Rs>...>> && ...) &&
-    (convertible_to<range_rvalue_reference_t<Rs>, 
-        common_reference_t<range_rvalue_reference_t<Rs>...>> && ...) &&
-    common_reference_with<common_reference_t<range_reference_t<Rs>...>&&,
-        common_type_t<range_value_t<Rs>...>&> &&
-    common_reference_with<common_reference_t<range_reference_t<Rs>...>&&,
-        common_reference_t<range_rvalue_reference_t<Rs>...>&&> &&
-    common_reference_with<common_reference_t<range_rvalue_reference_t<Rs>...>&&,
-        const common_type_t<range_value_t<Rs>...>&>;
+template <class... Rs>
+concept @_concatable_@ = requires {
+    typename common_reference_t<range_reference_t<Rs>...>;
+    typename common_type_t<range_value_t<Rs>...>;
+    typename common_reference_t<range_rvalue_reference_t<Rs>...>;
+} && 
+(convertible_to<range_reference_t<Rs>, 
+    common_reference_t<range_reference_t<Rs>...>> && ...) &&
+(convertible_to<range_rvalue_reference_t<Rs>, 
+    common_reference_t<range_rvalue_reference_t<Rs>...>> && ...) &&
+common_reference_with<common_reference_t<range_reference_t<Rs>...>&&,
+    common_type_t<range_value_t<Rs>...>&> &&
+common_reference_with<common_reference_t<range_reference_t<Rs>...>&&,
+    common_reference_t<range_rvalue_reference_t<Rs>...>&&> &&
+common_reference_with<common_reference_t<range_rvalue_reference_t<Rs>...>&&,
+    const common_type_t<range_value_t<Rs>...>&>;
 ```
+
+:::
 
 ```cpp
 template <class... Rs>
 concept @_concat-bidirectional_@ = @_see below_@;
 ```
 
+:::bq
+
 [2]{.pnum} The pack `Rs...` models `@_concat-bidirectional_@` if,
 
 - [2.1]{.pnum} Last element of `Rs...` models `bidirectional_range`,
 - [2.2]{.pnum} And, all except the last element of `Rs...` model `@_constant-time-reversible_@`.
 
+:::
+
 ```cpp
 constexpr explicit concat_view(Views... views);
 ```
 
+:::bq
+
 [3]{.pnum} *Effects*: Initializes `@*views_*@` with `std::move(views)...`.
+
+:::
 
 ```cpp
 constexpr @_iterator_@<false> begin() requires(!(@_simple-view_@<Views> && ...));
@@ -491,19 +503,25 @@ constexpr @_iterator_@<true> begin() const
   requires((range<const Views> && ...) && @_concatable_@<const Views...>);
 ```
 
+:::bq
+
 [4]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload,
 and `false` otherwise. Equivalent to:
 
 ```cpp
-    @_iterator_@<@_is-const_@> it{this, in_place_index<0>, ranges::begin(get<0>(@*views_*@))};
-    it.template @_satisfy_@<0>();
-    return it;
+@_iterator_@<@_is-const_@> it{this, in_place_index<0>, ranges::begin(get<0>(@*views_*@))};
+it.template @_satisfy_@<0>();
+return it;
 ```
+
+:::
 
 ```cpp
 constexpr auto end() requires(!(@_simple-view_@<Views> && ...));
 constexpr auto end() const requires(range<const Views>&&...);
 ```
+
+:::bq
 
 [5]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload,
 and `false` otherwise, and let `@_last-view_@` be the last element of the pack
@@ -511,35 +529,41 @@ and `false` otherwise, and let `@_last-view_@` be the last element of the pack
 `Views...` otherwise. Equivalent to:
 
 ```cpp
-    if constexpr (common_range<@_last-view_@>) {
-        constexpr auto N = sizeof...(Views);
-        return @_iterator_@<@_is-const_@>{this, in_place_index<N - 1>, 
-                          ranges::end(get<N - 1>(@*views_*@))};
-    } else if constexpr (random_access_range<@_last-view_@> && sized_range<@_last-view_@>) {
-        constexpr auto N = sizeof...(Views);
-        return @_iterator_@<@_is-const_@>{
-            this, in_place_index<N - 1>,
-            ranges::begin(get<N - 1>(@*views_*@)) + ranges::size(get<N - 1>(@*views_*@))};
-    } else {
-        return default_sentinel;
-    }
+if constexpr (common_range<@_last-view_@>) {
+    constexpr auto N = sizeof...(Views);
+    return @_iterator_@<@_is-const_@>{this, in_place_index<N - 1>, 
+                      ranges::end(get<N - 1>(@*views_*@))};
+} else if constexpr (random_access_range<@_last-view_@> && sized_range<@_last-view_@>) {
+    constexpr auto N = sizeof...(Views);
+    return @_iterator_@<@_is-const_@>{
+        this, in_place_index<N - 1>,
+        ranges::begin(get<N - 1>(@*views_*@)) + ranges::size(get<N - 1>(@*views_*@))};
+} else {
+    return default_sentinel;
+}
 ```
+
+:::
 
 ```cpp
 constexpr auto size() requires(sized_range<Views>&&...);
 constexpr auto size() const requires(sized_range<const Views>&&...);
 ```
 
-[5]{.pnum} *Effects*: Equivalent to:
+:::bq
+
+[6]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    return apply(
-        [](auto... sizes) {
-            using CT = make_unsigned_t<common_type_t<decltype(sizes)...>>;
-            return (CT{0} + ... + CT{sizes});
-        },
-        @_tuple-transform_@(ranges::size, @*views_*@));
+return apply(
+    [](auto... sizes) {
+        using CT = make_unsigned_t<common_type_t<decltype(sizes)...>>;
+        return (CT{0} + ... + CT{sizes});
+    },
+    @_tuple-transform_@(ranges::size, @*views_*@));
 ```
+
+:::
 
 #### 24.7.?.3 Class concat_view::iterator [range.concat.iterator] {-}
 
@@ -702,87 +726,103 @@ template <std::size_t N>
 constexpr void @_satisfy_@();                             // exposition only
 ```
 
+:::bq
+
 [3]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    if constexpr (N != (sizeof...(Views) - 1)) {
-        if (get<N>(@*it_*@) == ranges::end(get<N>(@*parent_*@->@*views_*@))) {
-            @*it_*@.template emplace<N + 1>(ranges::begin(get<N + 1>(@*parent_*@->@*views_*@)));
-            @*satisfy*@<N + 1>();
-        }
+if constexpr (N != (sizeof...(Views) - 1)) {
+    if (get<N>(@*it_*@) == ranges::end(get<N>(@*parent_*@->@*views_*@))) {
+        @*it_*@.template emplace<N + 1>(ranges::begin(get<N + 1>(@*parent_*@->@*views_*@)));
+        @*satisfy*@<N + 1>();
     }
+}
 ```
+
+:::
 
 ```cpp
 template <std::size_t N>
 constexpr void @_prev_@();                                // exposition only
 ```
 
+:::bq
+
 [4]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    if constexpr (N == 0) {
-        --get<0>(@*it_*@);
-    } else {
-        if (get<N>(@*it_*@) == ranges::begin(get<N>(@*parent_*@->@*views_*@))) {
-            using prev_view = @_maybe-const_@<Const, tuple_element_t<N - 1, tuple<Views...>>>;
-            if constexpr (common_range<prev_view>) {
-                @*it_*@.template emplace<N - 1>(ranges::end(get<N - 1>(@*parent_*@->@*views_*@)));
-            } else {
-                @*it_*@.template emplace<N - 1>(
-                    ranges::next(ranges::begin(get<N - 1>(@*parent_*@->@*views_*@)),
-                                 ranges::size(get<N - 1>(@*parent_*@->@*views_*@))));
-            }
-            @_prev_@<N - 1>();
+if constexpr (N == 0) {
+    --get<0>(@*it_*@);
+} else {
+    if (get<N>(@*it_*@) == ranges::begin(get<N>(@*parent_*@->@*views_*@))) {
+        using prev_view = @_maybe-const_@<Const, tuple_element_t<N - 1, tuple<Views...>>>;
+        if constexpr (common_range<prev_view>) {
+            @*it_*@.template emplace<N - 1>(ranges::end(get<N - 1>(@*parent_*@->@*views_*@)));
         } else {
-            --get<N>(@*it_*@);
+            @*it_*@.template emplace<N - 1>(
+                ranges::next(ranges::begin(get<N - 1>(@*parent_*@->@*views_*@)),
+                             ranges::size(get<N - 1>(@*parent_*@->@*views_*@))));
         }
+        @_prev_@<N - 1>();
+    } else {
+        --get<N>(@*it_*@);
     }
+}
 ```
+
+:::
 
 ```cpp
 template <std::size_t N>
 constexpr void @_advance_fwd_@(difference_type offset, difference_type steps); // exposition only
 ```
 
+:::bq
+
 [5]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    if constexpr (N == sizeof...(Views) - 1) {
+if constexpr (N == sizeof...(Views) - 1) {
+    get<N>(@*it_*@) += steps;
+} else {
+    auto n_size = ranges::size(get<N>(@*parent_*@->@*views_*@));
+    if (offset + steps < static_cast<difference_type>(n_size)) {
         get<N>(@*it_*@) += steps;
     } else {
-        auto n_size = ranges::size(get<N>(@*parent_*@->@*views_*@));
-        if (offset + steps < static_cast<difference_type>(n_size)) {
-            get<N>(@*it_*@) += steps;
-        } else {
-            @*it_*@.template emplace<N + 1>(ranges::begin(get<N + 1>(@*parent_*@->@*views_*@)));
-            advance_fwd<N + 1>(0, offset + steps - n_size);
-        }
+        @*it_*@.template emplace<N + 1>(ranges::begin(get<N + 1>(@*parent_*@->@*views_*@)));
+        advance_fwd<N + 1>(0, offset + steps - n_size);
     }
+}
 ```
+
+:::
 
 ```cpp
 template <std::size_t N>
 constexpr void @_advance_bwd_@(difference_type offset, difference_type steps); // exposition only
 ```
 
+:::bq
+
 [6]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    if constexpr (N == 0) {
+if constexpr (N == 0) {
+    get<N>(@*it_*@) -= steps;
+} else {
+    if (offset >= steps) {
         get<N>(@*it_*@) -= steps;
     } else {
-        if (offset >= steps) {
-            get<N>(@*it_*@) -= steps;
-        } else {
-            @*it_*@.template emplace<N - 1>(ranges::begin(get<N - 1>(@*parent_*@->views_)) +
-                                        ranges::size(get<N - 1>(@*parent_*@->views_)));
-            advance_bwd<N - 1>(
-                static_cast<difference_type>(ranges::size(get<N - 1>(@*parent_*@->views_))),
-                steps - offset);
-        }
+        @*it_*@.template emplace<N - 1>(ranges::begin(get<N - 1>(@*parent_*@->views_)) +
+                                    ranges::size(get<N - 1>(@*parent_*@->views_)));
+        advance_bwd<N - 1>(
+            static_cast<difference_type>(ranges::size(get<N - 1>(@*parent_*@->views_))),
+            steps - offset);
     }
+}
 ```
+
+:::
 
 ```cpp
 template <class... Args>
@@ -792,8 +832,12 @@ explicit constexpr @_iterator_@(
     requires constructible_from<@*base_iter*@, Args&&...>;
 ```
 
+:::bq
+
 [7]{.pnum} *Effects*: Initializes `@*parent_*@` with `parent`, and initializes
 `@*it_*@` with `std::forward<Args>(args)...`.
+
+:::
 
 ```cpp
 constexpr @_iterator_@(@_iterator_@<!Const> i) 
@@ -801,142 +845,184 @@ constexpr @_iterator_@(@_iterator_@<!Const> i)
     (convertible_to<iterator_t<Views>, iterator_t<@_maybe-const_@<Const, Views>>>&&...);
 ```
 
+:::bq
+
 [8]{.pnum} *Effects*: Initializes `@*parent_*@` with `i.@*parent_*@`, and
 initializes `@*it_*@` with `std::move(i.@*it_*@)`.
+
+:::
 
 ```cpp
 constexpr decltype(auto) operator*() const;
 ```
+
+:::bq
 
 [9]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
 
 [10]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    using reference = common_reference_t<range_reference_t<@_maybe-const_@<Const, Views>>...>;
-    return std::visit([](auto&& it) -> reference { 
-        return *it; }, @*it_*@);
+using reference = common_reference_t<range_reference_t<@_maybe-const_@<Const, Views>>...>;
+return std::visit([](auto&& it) -> reference { 
+    return *it; }, @*it_*@);
 ```
+
+:::
 
 ```cpp
 constexpr @_iterator_@& operator++();
 ```
+
+:::bq
 
 [11]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
 
 [12]{.pnum} *Effects*: Let `@*i*@` be `@*it_.index()*@`. Equivalent to:
 
 ```cpp
-    ++get<@*i*@>(@*it_*@);
-    @*satisfy*@<@*i*@>();
-    return *this;
+++get<@*i*@>(@*it_*@);
+@*satisfy*@<@*i*@>();
+return *this;
 ```
+
+:::
 
 ```cpp
 constexpr void operator++(int);
 ```
+
+:::bq
 
 [13]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
 
 [14]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    ++*this;
+++*this;
 ```
+
+:::
 
 ```cpp
 constexpr @_iterator_@ operator++(int) 
     requires(forward_range<@_maybe-const_@<Const, Views>>&&...);
 ```
 
+:::bq
+
 [15]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
 
 [16]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    auto tmp = *this;
-    ++*this;
-    return tmp;
+auto tmp = *this;
+++*this;
+return tmp;
 ```
+
+:::
 
 ```cpp
 constexpr @_iterator_@& operator--() 
     requires @_concat-bidirectional_@<@_maybe-const_@<Const, Views>...>;
 ```
 
+:::bq
+
 [17]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
 
 [18]{.pnum} *Effects*: Let `@*i*@` be `@*it_.index()*@`. Equivalent to:
 
 ```cpp
-    @*prev*@<@*i*@>();
-    return *this;
+@*prev*@<@*i*@>();
+return *this;
 ```
+
+:::
 
 ```cpp
 constexpr @_iterator_@ operator--(int) 
     requires @_concat-bidirectional_@<@_maybe-const_@<Const, Views>...>
 ```
 
+:::bq
+
 [19]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
 
 [20]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    auto tmp = *this;
-    --*this;
-    return tmp;
+auto tmp = *this;
+--*this;
+return tmp;
 ```
+
+:::
 
 ```cpp
 constexpr @_iterator_@& operator+=(difference_type n) 
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
+:::bq
+
 [21]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
 
 [22]{.pnum} *Effects*: Let `@*i*@` be `@*it_.index()*@`. Equivalent to:
 
 ```cpp
-    if(n > 0) {
-      @*advance_fwd*@<@*i*@>(get<@*i*@>(@*it_*@) - ranges::begin(get<@*i*@>(@*parent_*@->@*views_*@)), n);
-    } else if (n < 0) {
-      @*advance_bwd*@<@*i*@>(get<@*i*@>(@*it_*@) - ranges::begin(get<@*i*@>(@*parent_*@->@*views_*@)), -n);
-    }
-    return *this;
+if(n > 0) {
+  @*advance_fwd*@<@*i*@>(get<@*i*@>(@*it_*@) - ranges::begin(get<@*i*@>(@*parent_*@->@*views_*@)), n);
+} else if (n < 0) {
+  @*advance_bwd*@<@*i*@>(get<@*i*@>(@*it_*@) - ranges::begin(get<@*i*@>(@*parent_*@->@*views_*@)), -n);
+}
+return *this;
 ```
+
+:::
 
 ```cpp
 constexpr @_iterator_@& operator-=(difference_type n) 
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
+:::bq
+
 [23]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
 
 [24]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    *this += -n;
-    return *this;
+*this += -n;
+return *this;
 ```
+
+:::
 
 ```cpp
 constexpr decltype(auto) operator[](difference_type n) const
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
+:::bq
+
 [25]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
 
 [26]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    return *((*this) + n);
+return *((*this) + n);
 ```
+
+:::
 
 ```cpp
 friend constexpr bool operator==(const @_iterator_@& x, const @_iterator_@& y)
     requires(equality_comparable<iterator_t<@_maybe-const_@<Const, Views>>>&&...);
 ```
+
+:::bq
 
 [27]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
 `y.@*it_*@.valueless_by_exception()` are each `false`.
@@ -944,27 +1030,35 @@ friend constexpr bool operator==(const @_iterator_@& x, const @_iterator_@& y)
 [28]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    return x.@*it_*@ == y.@*it_*@;
+return x.@*it_*@ == y.@*it_*@;
 ```
+
+:::
 
 ```cpp
 friend constexpr bool operator==(const @_iterator_@& it, default_sentinel_t);
 ```
+
+:::bq
 
 [29]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
 
 [30]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    constexpr auto last_idx = sizeof...(Views) - 1;
-    return it.@*it_*@.index() == last_idx &&
-           get<last_idx>(it.@*it_*@) == ranges::end(get<last_idx>(it.@*parent_*@->@*views_*@));
+constexpr auto last_idx = sizeof...(Views) - 1;
+return it.@*it_*@.index() == last_idx &&
+       get<last_idx>(it.@*it_*@) == ranges::end(get<last_idx>(it.@*parent_*@->@*views_*@));
 ```
+
+:::
 
 ```cpp
 friend constexpr bool operator<(const @_iterator_@& x, const @_iterator_@& y)
     requires(random_access_range<@_maybe-const_@<Const, Views>>&&...);
 ```
+
+:::bq
 
 [31]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
 `y.@*it_*@.valueless_by_exception()` are each `false`.
@@ -972,13 +1066,17 @@ friend constexpr bool operator<(const @_iterator_@& x, const @_iterator_@& y)
 [32]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    return x.@*it_*@ < y.@*it_*@;
+return x.@*it_*@ < y.@*it_*@;
 ```
+
+:::
 
 ```cpp
 friend constexpr bool operator>(const @_iterator_@& x, const @_iterator_@& y)
     requires(random_access_range<@_maybe-const_@<Const, Views>>&&...);
 ```
+
+:::bq
 
 [33]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
 `y.@*it_*@.valueless_by_exception()` are each `false`.
@@ -986,13 +1084,17 @@ friend constexpr bool operator>(const @_iterator_@& x, const @_iterator_@& y)
 [34]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    return y < x;
+return y < x;
 ```
+
+:::
 
 ```cpp
 friend constexpr bool operator<=(const @_iterator_@& x, const @_iterator_@& y)
     requires(random_access_range<@_maybe-const_@<Const, Views>>&&...);
 ```
+
+:::bq
 
 [35]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
 `y.@*it_*@.valueless_by_exception()` are each `false`.
@@ -1000,13 +1102,17 @@ friend constexpr bool operator<=(const @_iterator_@& x, const @_iterator_@& y)
 [36]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    return !(y < x);
+return !(y < x);
 ```
+
+:::
 
 ```cpp
 friend constexpr bool operator>=(const @_iterator_@& x, const @_iterator_@& y)
     requires(random_access_range<@_maybe-const_@<Const, Views>>&&...);
 ```
+
+:::bq
 
 [37]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
 `y.@*it_*@.valueless_by_exception()` are each `false`.
@@ -1014,8 +1120,10 @@ friend constexpr bool operator>=(const @_iterator_@& x, const @_iterator_@& y)
 [38]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    return !(x < y);
+return !(x < y);
 ```
+
+:::
 
 ```cpp
 friend constexpr auto operator<=>(const @_iterator_@& x, const @_iterator_@& y)
@@ -1023,58 +1131,76 @@ friend constexpr auto operator<=>(const @_iterator_@& x, const @_iterator_@& y)
      three_way_comparable<@_maybe-const_@<Const, Views>>)&&...);
 ```
 
+:::bq
+
 [39]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
 `y.@*it_*@.valueless_by_exception()` are each `false`.
 
 [40]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    return x.@*it_*@ <=> y.@*it_*@;
+return x.@*it_*@ <=> y.@*it_*@;
 ```
+
+:::
 
 ```cpp
 friend constexpr @_iterator_@ operator+(const @_iterator_@& it, difference_type n)
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
+:::bq
+
 [41]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
 
 [42]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    return @_iterator_@{it} += n;
+return @_iterator_@{it} += n;
 ```
+
+:::
 
 ```cpp
 friend constexpr @_iterator_@ operator+(difference_type n, const @_iterator_@& it)
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
+:::bq
+
 [43]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
 
 [44]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    return it + n;
+return it + n;
 ```
+
+:::
 
 ```cpp
 friend constexpr @_iterator_@ operator-(const @_iterator_@& it, difference_type n)
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
+:::bq
+
 [45]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
 
 [46]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    return @*iterator*@{it} -= n;
+return @*iterator*@{it} -= n;
 ```
+
+:::
 
 ```cpp
 friend constexpr difference_type operator-(const @_iterator_@& x, const @_iterator_@& y) 
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
+
+:::bq
 
 [47]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
 `y.@*it_*@.valueless_by_exception()` are each `false`.
@@ -1091,26 +1217,30 @@ denote `y.@*it_*@.index()`
   `get<@*i*@>(x.@*parent_*@.@*views_*@)` if there is any, and `0` otherwise,
   equivalent to
 
-```cpp
-    return @*d~y~*@ + s + @*d~x~*@;
-```
+  ```cpp
+  return @*d~y~*@ + s + @*d~x~*@;
+  ```
 
 - [48.2]{.pnum} otherwise, if `@*i~x~*@ < @*i~y~*@`, equivalent to:
 
-```cpp
-    return -(y - x);
-```
+  ```cpp
+  return -(y - x);
+  ```
 
 - [48.3]{.pnum} otherwise, equivalent to:
 
-```cpp
-    return get<@*i~x~*@>(x.@*it_*@) - get<@*i~y~*@>(y.@*it_*@);
-```
+  ```cpp
+  return get<@*i~x~*@>(x.@*it_*@) - get<@*i~y~*@>(y.@*it_*@);
+  ```
+
+:::
 
 ```cpp
 friend constexpr difference_type operator-(const @_iterator_@& x, default_sentinel_t) 
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
+
+:::bq
 
 [49]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` is `false`.
 
@@ -1122,53 +1252,65 @@ all the ranges `get<@*i*@>(x.@*parent_*@.@*views_*@)` if there is any, and `0`
 otherwise, equivalent to
 
 ```cpp
-    return -(@*d~x~*@ + s);
+return -(@*d~x~*@ + s);
 ```
+
+:::
 
 ```cpp
 friend constexpr difference_type operator-(default_sentinel_t, const @_iterator_@& x) 
     requires @_concat-random-access_@<@_maybe-const_@<Const, Views>...>;
 ```
 
+:::bq
+
 [51]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` is `false`.
 
 [52]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    return -(x - default_sentinel);
+return -(x - default_sentinel);
 ```
+
+:::
 
 ```cpp
 friend constexpr decltype(auto) iter_move(iterator const& it) noexcept(@*see below*@);
 ```
+
+:::bq
 
 [53]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
 
 [54]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    return std::visit(
-        [](auto const& i) ->
-            common_reference_t<range_rvalue_reference_t<@_maybe-const_@<Const, Views>>...> { 
-            return ranges::iter_move(i);
-        },
-        it.@*it_*@);
+return std::visit(
+    [](auto const& i) ->
+        common_reference_t<range_rvalue_reference_t<@_maybe-const_@<Const, Views>>...> { 
+        return ranges::iter_move(i);
+    },
+    it.@*it_*@);
 ```
 
 [55]{.pnum} *Remarks*: The exception specification is equivalent to:
 
 ```cpp
-    ((is_nothrow_invocable_v<decltype(ranges::iter_move), 
-                               const iterator_t<@_maybe-const_@<Const, Views>>&> &&
-      is_nothrow_convertible_v<range_rvalue_reference_t<@_maybe-const_@<Const, Views>>,
-                                 common_reference_t<range_rvalue_reference_t<
-                                   @_maybe-const_@<Const, Views>>...>>) &&...)
+((is_nothrow_invocable_v<decltype(ranges::iter_move), 
+                           const iterator_t<@_maybe-const_@<Const, Views>>&> &&
+  is_nothrow_convertible_v<range_rvalue_reference_t<@_maybe-const_@<Const, Views>>,
+                             common_reference_t<range_rvalue_reference_t<
+                               @_maybe-const_@<Const, Views>>...>>) &&...)
 ```
+
+:::
 
 ```cpp
 friend constexpr void iter_swap(const iterator& x, const iterator& y) noexcept(@*see below*@)
     requires @*see below*@;
 ```
+
+:::bq
 
 [56]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
 `y.@*it_*@.valueless_by_exception()` are each `false`.
@@ -1176,7 +1318,7 @@ friend constexpr void iter_swap(const iterator& x, const iterator& y) noexcept(@
 [57]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-    std::visit(ranges::iter_swap, x.@*it_*@, y.@*it_*@);
+std::visit(ranges::iter_swap, x.@*it_*@, y.@*it_*@);
 ```
 
 [58]{.pnum} *Remarks*: The exception specification is `true` if and
@@ -1188,6 +1330,8 @@ in the parameter pack `iterator_t<@_maybe-const_@<Const, Views>>>...`,
 only if: For every combination of two types `X` and `Y` in the set of all types
 in the parameter pack `iterator_t<@_maybe-const_@<Const, Views>>>...`,
 `indirectly_swappable<X, Y>` is modelled.
+
+:::
 
 ## Feature Test Macro
 
@@ -1219,3 +1363,14 @@ references:
         given: S. Levent
     URL: https://github.com/huixie90/cpp_papers/tree/main/impl/concat
 ---
+
+
+<style>
+.bq{
+    display: block;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 40px;
+    margin-inline-end: 40px;
+}
+</style>
