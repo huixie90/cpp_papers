@@ -627,7 +627,7 @@ to which my answer would be no.)
 </ul>
 Note that the last underlying range does not have to satisfy this constraint because n-1 can never be the last underlying range. If neither of the two constraints is satisfied, in theory we can cache the end-1 position for every single underlying range inside the <code class="sourceCode default">concat_view</code> itself. But the authors do not consider this type of ranges as worth supporting bidirectional</li>
 </ul>
-<p>In the <code class="sourceCode default">cancat</code> implementation in <span class="citation" data-cites="rangev3">[<a href="#ref-rangev3" role="doc-biblioref">range-v3</a>]</span>, <code class="sourceCode default">operator--</code> is only constrained on all underlying ranges being <code class="sourceCode default">bidirectional_range</code> on the declaration, but its implementation is using <code class="sourceCode default">ranges::next(ranges::begin(r), ranges::end(r))</code> which implicitly requires random access to make the operation constant time. So it went with the second constraint. In this paper, both are supported.</p>
+<p>In the <code class="sourceCode default">concat</code> implementation in <span class="citation" data-cites="rangev3">[<a href="#ref-rangev3" role="doc-biblioref">range-v3</a>]</span>, <code class="sourceCode default">operator--</code> is only constrained on all underlying ranges being <code class="sourceCode default">bidirectional_range</code> on the declaration, but its implementation is using <code class="sourceCode default">ranges::next(ranges::begin(r), ranges::end(r))</code> which implicitly requires random access to make the operation constant time. So it went with the second constraint. In this paper, both are supported.</p>
 <h2 data-number="4.7" id="random-access-range"><span class="header-section-number">4.7</span> Random Access Range<a href="#random-access-range" class="self-link"></a></h2>
 <p><code class="sourceCode default">concat_view</code> can be <code class="sourceCode default">random_access_range</code> if all the underlying ranges model <code class="sourceCode default">random_access_range</code> and <code class="sourceCode default">sized_range</code>.</p>
 <h2 data-number="4.8" id="sized-range"><span class="header-section-number">4.8</span> Sized Range<a href="#sized-range" class="self-link"></a></h2>
@@ -636,7 +636,7 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <p><code class="sourceCode default">views::concat</code> has been implemented in <span class="citation" data-cites="rangev3">[<a href="#ref-rangev3" role="doc-biblioref">range-v3</a>]</span>, with equivalent semantics as proposed here. The authors also implemented a version that directly follows the proposed wording below without any issue <span class="citation" data-cites="ours">[<a href="#ref-ours" role="doc-biblioref">ours</a>]</span>.</p>
 <h1 data-number="5" id="wording"><span class="header-section-number">5</span> Wording<a href="#wording" class="self-link"></a></h1>
 <h2 data-number="5.1" id="addition-to-ranges"><span class="header-section-number">5.1</span> Addition to <code class="sourceCode default">&lt;ranges&gt;</code><a href="#addition-to-ranges" class="self-link"></a></h2>
-<p>Add the following to <span>24.2
+<p>Add the following to <span>26.2
  <a href="https://wg21.link/ranges.syn">[ranges.syn]</a></span>, header <code class="sourceCode default">&lt;ranges&gt;</code> synopsis:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1"></a><span class="co">// [...]</span></span>
 <span id="cb5-2"><a href="#cb5-2"></a><span class="kw">namespace</span> std<span class="op">::</span>ranges <span class="op">{</span></span>
@@ -654,8 +654,8 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <span id="cb5-14"><a href="#cb5-14"></a><span class="op">}</span></span></code></pre></div>
 <h2 data-number="5.2" id="range-adaptor-helpers-range.adaptor.helpers"><span class="header-section-number">5.2</span> Range adaptor helpers [range.adaptor.helpers]<a href="#range-adaptor-helpers-range.adaptor.helpers" class="self-link"></a></h2>
 <p>This paper applies the same following changes as in <span class="citation" data-cites="P2374R3">[<a href="#ref-P2374R3" role="doc-biblioref">P2374R3</a>]</span>. If <span class="citation" data-cites="P2374R3">[<a href="#ref-P2374R3" role="doc-biblioref">P2374R3</a>]</span> is merged into the standard, the changes in this section can be dropped.</p>
-<p>New section after Non-propagating cache <span>24.7.4
- <a href="https://wg21.link/range.nonprop.cache">[range.nonprop.cache]</a></span>. Move the definitions of <code class="sourceCode default"><em>tuple-or-pair</em></code>, <code class="sourceCode default"><em>tuple-transform</em></code>, and <code class="sourceCode default"><em>tuple-for-each</em></code> from Class template <code class="sourceCode default">zip_view</code> <span>24.7.19.2
+<p>New section after Non-propagating cache <span>26.7.4
+ <a href="https://wg21.link/range.nonprop.cache">[range.nonprop.cache]</a></span>. Move the definitions of <code class="sourceCode default"><em>tuple-or-pair</em></code>, <code class="sourceCode default"><em>tuple-transform</em></code>, and <code class="sourceCode default"><em>tuple-for-each</em></code> from Class template <code class="sourceCode default">zip_view</code> <span>26.7.20.2
  <a href="https://wg21.link/range.zip.view">[range.zip.view]</a></span> to this section:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1"></a><span class="kw">namespace</span> std<span class="op">::</span>ranges <span class="op">{</span></span>
 <span id="cb6-2"><a href="#cb6-2"></a>    <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Ts<span class="op">&gt;</span></span>
@@ -683,7 +683,7 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <li>Otherwise, <code class="sourceCode default"><em>tuple-or-pair</em>&lt;Ts...&gt;</code> denotes <code class="sourceCode default">tuple&lt;Ts...&gt;</code>.</li>
 </ol>
 <h2 data-number="5.3" id="concat"><span class="header-section-number">5.3</span> <code class="sourceCode default">concat</code><a href="#concat" class="self-link"></a></h2>
-<p>Add the following subclause to <span>24.7
+<p>Add the following subclause to <span>26.7
  <a href="https://wg21.link/range.adaptors">[range.adaptors]</a></span>.</p>
 <h3 class="unnumbered" data-number id="concat-view-range.concat">24.7.? Concat view [range.concat]<a href="#concat-view-range.concat" class="self-link"></a></h3>
 <h4 class="unnumbered" data-number id="overview-range.concat.overview">24.7.?.1 Overview [range.concat.overview]<a href="#overview-range.concat.overview" class="self-link"></a></h4>
