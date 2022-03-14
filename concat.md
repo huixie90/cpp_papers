@@ -273,7 +273,7 @@ the following conditions:
   single underlying range inside the `concat_view` itself. But the authors do
   not consider this type of ranges as worth supporting bidirectional
 
-In the `cancat` implementation in [@rangev3], `operator--` is only constrained
+In the `concat` implementation in [@rangev3], `operator--` is only constrained
 on all underlying ranges being `bidirectional_range` on the declaration, but its
 implementation is using `ranges::next(ranges::begin(r), ranges::end(r))` which
 implicitly requires random access to make the operation constant time. So it
