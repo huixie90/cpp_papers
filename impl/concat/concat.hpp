@@ -16,21 +16,24 @@ namespace std::ranges {
 
 namespace xo { // exposition only things (and persevering face)
 
+template <class... Ts>
+concept have_common_reference = requires {
+    typename common_reference_t<Ts...>;
+}
+&&(convertible_to<Ts, common_reference_t<Ts...>>&&...);
+
 template <class... Rs>
 concept concatable = requires {
-    typename common_reference_t<range_reference_t<Rs>...>;
     typename common_type_t<range_value_t<Rs>...>;
-    typename common_reference_t<range_rvalue_reference_t<Rs>...>;
 }
-&&(convertible_to<range_reference_t<Rs>, common_reference_t<range_reference_t<Rs>...>>&&...) &&
-    (convertible_to<range_rvalue_reference_t<Rs>,
-                    common_reference_t<range_rvalue_reference_t<Rs>...>> &&
-     ...) &&
-    common_reference_with<common_reference_t<range_reference_t<Rs>...>&&, common_type_t<range_value_t<Rs>...>&>&& common_reference_with<
-        common_reference_t<range_reference_t<Rs>...>&&,
-        common_reference_t<range_rvalue_reference_t<
-            Rs>...>&&>&& common_reference_with<common_reference_t<range_rvalue_reference_t<Rs>...>&&,
-                                               const common_type_t<range_value_t<Rs>...>&>;
+&&have_common_reference<range_reference_t<Rs>...>&&
+    have_common_reference<range_rvalue_reference_t<Rs>...>&&
+        common_reference_with<common_reference_t<range_reference_t<Rs>...>&&,
+                              common_type_t<range_value_t<Rs>...>&>&&
+            common_reference_with<common_reference_t<range_reference_t<Rs>...>&&,
+                                  common_reference_t<range_rvalue_reference_t<Rs>...>&&>&&
+                common_reference_with<common_reference_t<range_rvalue_reference_t<Rs>...>&&,
+                                      const common_type_t<range_value_t<Rs>...>&>;
 
 inline namespace not_to_spec {
 
@@ -542,11 +545,6 @@ class concat_view : public view_interface<concat_view<Views...>> {
         if constexpr (common_range<LastView>) {
             constexpr auto N = sizeof...(Views);
             return iterator<false>{this, in_place_index<N - 1>, ranges::end(get<N - 1>(views_))};
-        } else if constexpr (random_access_range<LastView> && sized_range<LastView>) {
-            constexpr auto N = sizeof...(Views);
-            return iterator<false>{
-                this, in_place_index<N - 1>,
-                ranges::begin(get<N - 1>(views_)) + ranges::size(get<N - 1>(views_))};
         } else {
             return default_sentinel;
         }
@@ -557,11 +555,6 @@ class concat_view : public view_interface<concat_view<Views...>> {
         if constexpr (common_range<LastView>) {
             constexpr auto N = sizeof...(Views);
             return iterator<true>{this, in_place_index<N - 1>, ranges::end(get<N - 1>(views_))};
-        } else if constexpr (random_access_range<LastView> && sized_range<LastView>) {
-            constexpr auto N = sizeof...(Views);
-            return iterator<true>{
-                this, in_place_index<N - 1>,
-                ranges::begin(get<N - 1>(views_)) + ranges::size(get<N - 1>(views_))};
         } else {
             return default_sentinel;
         }
