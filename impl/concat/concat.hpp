@@ -16,21 +16,60 @@ namespace std::ranges {
 
 namespace xo { // exposition only things (and persevering face)
 
+inline namespace not_to_spec {
+
 template <class... Rs>
-concept concatable = requires {
-    typename common_reference_t<range_reference_t<Rs>...>;
-    typename common_type_t<range_value_t<Rs>...>;
-    typename common_reference_t<range_rvalue_reference_t<Rs>...>;
-}
-&&(convertible_to<range_reference_t<Rs>, common_reference_t<range_reference_t<Rs>...>>&&...) &&
-    (convertible_to<range_rvalue_reference_t<Rs>,
-                    common_reference_t<range_rvalue_reference_t<Rs>...>> &&
-     ...) &&
-    common_reference_with<common_reference_t<range_reference_t<Rs>...>&&, common_type_t<range_value_t<Rs>...>&>&& common_reference_with<
-        common_reference_t<range_reference_t<Rs>...>&&,
-        common_reference_t<range_rvalue_reference_t<
-            Rs>...>&&>&& common_reference_with<common_reference_t<range_rvalue_reference_t<Rs>...>&&,
-                                               const common_type_t<range_value_t<Rs>...>&>;
+using concat_reference_t = common_reference_t<range_reference_t<Rs>...>;
+template <class... Rs>
+using concat_rvalue_reference_t = common_reference_t<range_rvalue_reference_t<Rs>...>;
+template <class... Rs>
+using concat_value_t = common_type_t<range_value_t<Rs>...>;
+
+template <class... Rs>
+concept concat_has_common_reference = requires {
+    typename concat_reference_t<Rs...>;
+};
+
+template <class... Rs>
+concept concat_has_common_rvalue_reference = requires {
+    typename concat_rvalue_reference_t<Rs...>;
+};
+
+template <class... Rs>
+concept concat_has_common_value = requires {
+    typename concat_value_t<Rs...>;
+};
+
+
+template <class... Rs>
+concept concat_all_convertible_reference =
+    (convertible_to<range_reference_t<Rs>, concat_reference_t<Rs...>> && ...);
+
+template <class... Rs>
+concept concat_all_convertible_rvalue_reference =
+    (convertible_to<range_rvalue_reference_t<Rs>, concat_rvalue_reference_t<Rs...>> && ...);
+
+template <class... Rs>
+concept concat_indirectly_readable =
+    common_reference_with<concat_reference_t<Rs...> &&, concat_value_t<Rs...>&>&&
+        common_reference_with<concat_reference_t<Rs...>&&, concat_rvalue_reference_t<Rs...>&&>&&
+            common_reference_with<concat_rvalue_reference_t<Rs...>&&, concat_value_t<Rs...> const&>;
+
+
+} // namespace not_to_spec
+
+
+// clang-format off
+template <class... Rs>
+concept concatable = concat_has_common_reference<Rs...>
+                  && concat_has_common_rvalue_reference<Rs...>
+                  && concat_has_common_value<Rs...>
+                  && concat_all_convertible_reference<Rs...>
+                  && concat_all_convertible_rvalue_reference<Rs...>
+                  && concat_indirectly_readable<Rs...>;
+// clang-format on
+
+static_assert(true); // clang-format badness
 
 inline namespace not_to_spec {
 
