@@ -18,8 +18,8 @@ toc: true
 - Removed the `common_range` support for underlying ranges that are
   `!common_range && random_access_range && sized_range`
 
-- Introduced extra exposition concept `have_common_reference` to simplify the
-  wording that defines `concatable`
+- Introduced extra exposition concepts to simplify the wording that defines
+  `concatable`
 
 ## R0
 
@@ -280,7 +280,7 @@ the following conditions:
   single underlying range inside the `concat_view` itself. But the authors do
   not consider this type of ranges as worth supporting bidirectional
 
-In the `cancat` implementation in [@rangev3], `operator--` is only constrained
+In the `concat` implementation in [@rangev3], `operator--` is only constrained
 on all underlying ranges being `bidirectional_range` on the declaration, but its
 implementation is using `ranges::next(ranges::begin(r), ranges::end(r))` which
 implicitly requires random access to make the operation constant time. So it
@@ -401,8 +401,19 @@ for(auto&& i : std::views::concat(v1, v2, v3, a, s)){
 ```cpp
 namespace std::ranges {
 
+  template <class... Ts>
+  concept @*have_common_reference*@ = requires {  // exposition only
+      typename common_reference_t<Ts...>;
+  } &&
+  (convertible_to<Ts, common_reference_t<Ts...>> && ...);
+  
+  template <class... Ts>
+  concept @*have_common_type*@ = requires {       // exposition only
+      typename common_type_t<Ts...>;
+  };
+
   template <class... Rs>
-  concept @_have_common_reference_@ = @*see below*@;  // exposition only
+  concept @*concat_indirectly_readable*@ = @*see below*@; // exposition only
 
   template <class... Rs>
   concept @_concatable_@ = @*see below*@;             // exposition only
@@ -453,21 +464,24 @@ namespace std::ranges {
 ```
 
 ```cpp
-template <class... Ts>
-concept @_have_common_reference_@ = @_see below_@;
+template <class... Rs>
+concept @*concat_indirectly_readable*@ = @_see below_@;
 ```
 
 :::bq
 
-[1]{.pnum} The exposition-only `@_have_common_reference_@` concept is equivalent to:
+[1]{.pnum} The exposition-only `@*concat_indirectly_readable*@`
+concept is equivalent to:
 
 ```cpp
-template <class... Ts>
-concept @*have_common_reference*@ = requires {
-    typename common_reference_t<Ts...>;
-}
-&& 
-(convertible_to<Ts, common_reference_t<Ts...>> && ...);
+template <class... Rs>
+concept @*concat_indirectly_readable*@ =
+  common_reference_with<common_reference_t<range_reference_t<Rs>...>&&,
+      common_type_t<range_value_t<Rs>...>&> &&
+  common_reference_with<common_reference_t<range_reference_t<Rs>...>&&,
+      common_reference_t<range_rvalue_reference_t<Rs>...>&&> &&
+  common_reference_with<common_reference_t<range_rvalue_reference_t<Rs>...>&&,
+      const common_type_t<range_value_t<Rs>...>&>;
 ```
 
 :::
@@ -484,17 +498,11 @@ concept is equivalent to:
 
 ```cpp
 template <class... Rs>
-concept @_concatable_@ = requires {
-    typename common_type_t<range_value_t<Rs>...>;
-} && 
-@*have_common_reference*@<range_reference_t<Rs>...> &&
-@*have_common_reference*@<range_rvalue_reference_t<Rs>...> &&
-common_reference_with<common_reference_t<range_reference_t<Rs>...>&&,
-    common_type_t<range_value_t<Rs>...>&> &&
-common_reference_with<common_reference_t<range_reference_t<Rs>...>&&,
-    common_reference_t<range_rvalue_reference_t<Rs>...>&&> &&
-common_reference_with<common_reference_t<range_rvalue_reference_t<Rs>...>&&,
-    const common_type_t<range_value_t<Rs>...>&>;
+concept @_concatable_@ = 
+  @*have_common_reference*@<range_reference_t<Rs>...> &&
+  @*have_common_type*@<range_value_t<Rs>...> &&
+  @*have_common_reference*@<range_rvalue_reference_t<Rs>...> &&
+  @*concat_indirectly_readable*@<Rs...>;
 ```
 
 :::
