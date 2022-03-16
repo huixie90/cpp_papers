@@ -1,7 +1,7 @@
 ---
 title: "`views::concat`"
-document: P2542R0
-date: 2021-02-14
+document: P2542R1
+date: 2021-03-16
 audience: SG9, LEWG
 author:
   - name: Hui Xie
@@ -12,6 +12,16 @@ toc: true
 ---
 
 # Revision History
+
+## R1
+
+- Removed the `common_range` support for underlying ranges that are
+  `!common_range && random_access_range && sized_range`
+
+- Introduced extra exposition concepts to simplify the wording that defines
+  `concatable`
+
+## R0
 
 This is the initial revision.
 
@@ -247,10 +257,7 @@ alternative. This paper proposes the same.
 
 ## Common Range
 
-`concat_view` can be `common_range` if the last underlying range models either
-
-- `common_range`, or
-- `random_access_range && sized_range`
+`concat_view` can be `common_range` if the last underlying range models `common_range`
 
 ## Bidirectional Range
 
@@ -394,6 +401,20 @@ for(auto&& i : std::views::concat(v1, v2, v3, a, s)){
 ```cpp
 namespace std::ranges {
 
+  template <class... Ts>
+  concept @*have_common_reference*@ = requires {  // exposition only
+      typename common_reference_t<Ts...>;
+  } &&
+  (convertible_to<Ts, common_reference_t<Ts...>> && ...);
+  
+  template <class... Ts>
+  concept @*have_common_type*@ = requires {       // exposition only
+      typename common_type_t<Ts...>;
+  };
+
+  template <class... Rs>
+  concept @*concat_indirectly_readable*@ = @*see below*@; // exposition only
+
   template <class... Rs>
   concept @_concatable_@ = @*see below*@;             // exposition only
 
@@ -444,31 +465,44 @@ namespace std::ranges {
 
 ```cpp
 template <class... Rs>
+concept @*concat_indirectly_readable*@ = @_see below_@;
+```
+
+:::bq
+
+[1]{.pnum} The exposition-only `@*concat_indirectly_readable*@`
+concept is equivalent to:
+
+```cpp
+template <class... Rs>
+concept @*concat_indirectly_readable*@ =
+  common_reference_with<common_reference_t<range_reference_t<Rs>...>&&,
+      common_type_t<range_value_t<Rs>...>&> &&
+  common_reference_with<common_reference_t<range_reference_t<Rs>...>&&,
+      common_reference_t<range_rvalue_reference_t<Rs>...>&&> &&
+  common_reference_with<common_reference_t<range_rvalue_reference_t<Rs>...>&&,
+      const common_type_t<range_value_t<Rs>...>&>;
+```
+
+:::
+
+```cpp
+template <class... Rs>
 concept @_concatable_@ = @_see below_@;
 ```
 
 :::bq
 
-[1]{.pnum} []{#concatable-definition} The exposition-only `@_concatable_@`
+[2]{.pnum} []{#concatable-definition} The exposition-only `@_concatable_@`
 concept is equivalent to:
 
 ```cpp
 template <class... Rs>
-concept @_concatable_@ = requires {
-    typename common_reference_t<range_reference_t<Rs>...>;
-    typename common_type_t<range_value_t<Rs>...>;
-    typename common_reference_t<range_rvalue_reference_t<Rs>...>;
-} && 
-(convertible_to<range_reference_t<Rs>, 
-    common_reference_t<range_reference_t<Rs>...>> && ...) &&
-(convertible_to<range_rvalue_reference_t<Rs>, 
-    common_reference_t<range_rvalue_reference_t<Rs>...>> && ...) &&
-common_reference_with<common_reference_t<range_reference_t<Rs>...>&&,
-    common_type_t<range_value_t<Rs>...>&> &&
-common_reference_with<common_reference_t<range_reference_t<Rs>...>&&,
-    common_reference_t<range_rvalue_reference_t<Rs>...>&&> &&
-common_reference_with<common_reference_t<range_rvalue_reference_t<Rs>...>&&,
-    const common_type_t<range_value_t<Rs>...>&>;
+concept @_concatable_@ = 
+  @*have_common_reference*@<range_reference_t<Rs>...> &&
+  @*have_common_type*@<range_value_t<Rs>...> &&
+  @*have_common_reference*@<range_rvalue_reference_t<Rs>...> &&
+  @*concat_indirectly_readable*@<Rs...>
 ```
 
 :::
@@ -480,10 +514,10 @@ concept @_concat-bidirectional_@ = @_see below_@;
 
 :::bq
 
-[2]{.pnum} The pack `Rs...` models `@_concat-bidirectional_@` if,
+[3]{.pnum} The pack `Rs...` models `@_concat-bidirectional_@` if,
 
-- [2.1]{.pnum} Last element of `Rs...` models `bidirectional_range`,
-- [2.2]{.pnum} And, all except the last element of `Rs...` model `@_constant-time-reversible_@`.
+- [3.1]{.pnum} Last element of `Rs...` models `bidirectional_range`,
+- [3.2]{.pnum} And, all except the last element of `Rs...` model `@_constant-time-reversible_@`.
 
 :::
 
@@ -493,7 +527,7 @@ constexpr explicit concat_view(Views... views);
 
 :::bq
 
-[3]{.pnum} *Effects*: Initializes `@*views_*@` with `std::move(views)...`.
+[4]{.pnum} *Effects*: Initializes `@*views_*@` with `std::move(views)...`.
 
 :::
 
@@ -505,7 +539,7 @@ constexpr @_iterator_@<true> begin() const
 
 :::bq
 
-[4]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload,
+[5]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload,
 and `false` otherwise. Equivalent to:
 
 ```cpp
@@ -523,7 +557,7 @@ constexpr auto end() const requires(range<const Views>&&...);
 
 :::bq
 
-[5]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload,
+[6]{.pnum} *Effects*: Let `@*is-const*@` be `true` for const-qualified overload,
 and `false` otherwise, and let `@_last-view_@` be the last element of the pack
 `const Views...` for const-qualified overload, and the last element of the pack
 `Views...` otherwise. Equivalent to:
@@ -533,11 +567,6 @@ if constexpr (common_range<@_last-view_@>) {
     constexpr auto N = sizeof...(Views);
     return @_iterator_@<@_is-const_@>{this, in_place_index<N - 1>, 
                       ranges::end(get<N - 1>(@*views_*@))};
-} else if constexpr (random_access_range<@_last-view_@> && sized_range<@_last-view_@>) {
-    constexpr auto N = sizeof...(Views);
-    return @_iterator_@<@_is-const_@>{
-        this, in_place_index<N - 1>,
-        ranges::begin(get<N - 1>(@*views_*@)) + ranges::size(get<N - 1>(@*views_*@))};
 } else {
     return default_sentinel;
 }
@@ -552,7 +581,7 @@ constexpr auto size() const requires(sized_range<const Views>&&...);
 
 :::bq
 
-[6]{.pnum} *Effects*: Equivalent to:
+[7]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return apply(

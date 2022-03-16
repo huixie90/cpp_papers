@@ -140,14 +140,18 @@ TEST_POINT("end_last_range_non_common_but_random_sized") {
     std::vector<int> v1{1};
     std::ranges::iota_view<int, size_t> io{2, 3};
     std::ranges::concat_view cv{v1, io};
-    static_assert(std::ranges::common_range<decltype(cv)>);
+    static_assert(!std::ranges::common_range<decltype(cv)>,
+                  "This is no longer a common range as we dropped the common support for !common "
+                  "&& random_access && sized");
 
-    auto it = cv.begin();
+    [[maybe_unused]] auto it = cv.begin();
     auto st = cv.end();
-    static_assert(std::same_as<decltype(it), decltype(st)>);
-    auto it2 = std::as_const(cv).begin();
+    // static_assert(std::same_as<decltype(it), decltype(st)>);
+    static_assert(std::same_as<decltype(st), std::default_sentinel_t>);
+    [[maybe_unused]] auto it2 = std::as_const(cv).begin();
     auto st2 = std::as_const(cv).end();
-    static_assert(std::same_as<decltype(it2), decltype(st2)>);
+    // static_assert(std::same_as<decltype(it2), decltype(st2)>);
+    static_assert(std::same_as<decltype(st2), std::default_sentinel_t>);
 
     REQUIRE(*it2 == 1);
     ++it2;

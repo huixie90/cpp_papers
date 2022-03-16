@@ -18,36 +18,25 @@ namespace xo { // exposition only things (and persevering face)
 
 inline namespace not_to_spec {
 
+template <class... Ts>
+concept have_common_reference = requires {
+    typename common_reference_t<Ts...>;
+}
+&&(convertible_to<Ts, common_reference_t<Ts...>>&&...);
+
+template <class... Ts>
+concept have_common_type = requires {
+    typename common_type_t<Ts...>;
+};
+
 template <class... Rs>
 using concat_reference_t = common_reference_t<range_reference_t<Rs>...>;
+
 template <class... Rs>
 using concat_rvalue_reference_t = common_reference_t<range_rvalue_reference_t<Rs>...>;
+
 template <class... Rs>
 using concat_value_t = common_type_t<range_value_t<Rs>...>;
-
-template <class... Rs>
-concept concat_has_common_reference = requires {
-    typename concat_reference_t<Rs...>;
-};
-
-template <class... Rs>
-concept concat_has_common_rvalue_reference = requires {
-    typename concat_rvalue_reference_t<Rs...>;
-};
-
-template <class... Rs>
-concept concat_has_common_value = requires {
-    typename concat_value_t<Rs...>;
-};
-
-
-template <class... Rs>
-concept concat_all_convertible_reference =
-    (convertible_to<range_reference_t<Rs>, concat_reference_t<Rs...>> && ...);
-
-template <class... Rs>
-concept concat_all_convertible_rvalue_reference =
-    (convertible_to<range_rvalue_reference_t<Rs>, concat_rvalue_reference_t<Rs...>> && ...);
 
 template <class... Rs>
 concept concat_indirectly_readable =
@@ -61,11 +50,9 @@ concept concat_indirectly_readable =
 
 // clang-format off
 template <class... Rs>
-concept concatable = concat_has_common_reference<Rs...>
-                  && concat_has_common_rvalue_reference<Rs...>
-                  && concat_has_common_value<Rs...>
-                  && concat_all_convertible_reference<Rs...>
-                  && concat_all_convertible_rvalue_reference<Rs...>
+concept concatable = have_common_reference<range_reference_t<Rs>...>
+                  && have_common_reference<range_rvalue_reference_t<Rs>...>
+                  && have_common_type<range_value_t<Rs>...>
                   && concat_indirectly_readable<Rs...>;
 // clang-format on
 
@@ -581,11 +568,6 @@ class concat_view : public view_interface<concat_view<Views...>> {
         if constexpr (common_range<LastView>) {
             constexpr auto N = sizeof...(Views);
             return iterator<false>{this, in_place_index<N - 1>, ranges::end(get<N - 1>(views_))};
-        } else if constexpr (random_access_range<LastView> && sized_range<LastView>) {
-            constexpr auto N = sizeof...(Views);
-            return iterator<false>{
-                this, in_place_index<N - 1>,
-                ranges::begin(get<N - 1>(views_)) + ranges::size(get<N - 1>(views_))};
         } else {
             return default_sentinel;
         }
@@ -596,11 +578,6 @@ class concat_view : public view_interface<concat_view<Views...>> {
         if constexpr (common_range<LastView>) {
             constexpr auto N = sizeof...(Views);
             return iterator<true>{this, in_place_index<N - 1>, ranges::end(get<N - 1>(views_))};
-        } else if constexpr (random_access_range<LastView> && sized_range<LastView>) {
-            constexpr auto N = sizeof...(Views);
-            return iterator<true>{
-                this, in_place_index<N - 1>,
-                ranges::begin(get<N - 1>(views_)) + ranges::size(get<N - 1>(views_))};
         } else {
             return default_sentinel;
         }
