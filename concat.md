@@ -502,7 +502,7 @@ concept @_concatable_@ =
   @*have_common_reference*@<range_reference_t<Rs>...> &&
   @*have_common_type*@<range_value_t<Rs>...> &&
   @*have_common_reference*@<range_rvalue_reference_t<Rs>...> &&
-  @*concat_indirectly_readable*@<Rs...>
+  @*concat_indirectly_readable*@<Rs...>;
 ```
 
 :::
