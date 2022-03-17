@@ -321,6 +321,27 @@ TEST_POINT("bidirectional_noncommon_random_access_sized") {
     REQUIRE(*it == 1);
 }
 
+
+struct NonCommonRandomSized{
+    const int* begin() const;
+    std::nullptr_t end() const;
+    std::size_t size() const;
+};
+
+TEST_POINT("random_but_not_bidi_impossible"){
+    using namespace std::ranges;
+    static_assert(!common_range<NonCommonRandomSized>);
+    static_assert(random_access_range<NonCommonRandomSized>);
+    static_assert(sized_range<NonCommonRandomSized>);
+
+    using CV = decltype(std::views::concat(NonCommonRandomSized{}, NonCommonRandomSized{}));
+    static_assert(!common_range<CV>);
+    static_assert(bidirectional_range<CV>);
+    static_assert(random_access_range<CV>);
+    static_assert(sized_range<CV>);
+}
+
+
 TEST_POINT("bidirectional_last_range_not_cheaply_reverse") {
 
     std::list<int> l1{1, 2};
