@@ -613,7 +613,7 @@ namespace std::ranges{
   
   public:
     using value_type = common_type_t<range_value_t<@_maybe-const_@<Const, Views>>...>;
-    using difference_type = common_type_t<range_reference_t<@_maybe-const_@<Const, Views>>...>;
+    using difference_type = common_type_t<range_difference_t<@_maybe-const_@<Const, Views>>...>;
     using iterator_concept = @*see below*@;
     using iterator_category = @*see below*@;                  // not always present.
 
