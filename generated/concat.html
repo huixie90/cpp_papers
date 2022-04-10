@@ -450,7 +450,6 @@ code.sourceCode > span { display: inline; }
 <li><a href="#revision-history"><span class="toc-section-number">1</span> Revision History<span></span></a>
 <ul>
 <li><a href="#r1"><span class="toc-section-number">1.1</span> R1<span></span></a></li>
-<li><a href="#r0"><span class="toc-section-number">1.2</span> R0<span></span></a></li>
 </ul></li>
 <li><a href="#abstract"><span class="toc-section-number">2</span> Abstract<span></span></a></li>
 <li><a href="#motivation-and-examples"><span class="toc-section-number">3</span> Motivation and Examples<span></span></a></li>
@@ -489,11 +488,9 @@ code.sourceCode > span { display: inline; }
 <h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
 <h2 data-number="1.1" id="r1"><span class="header-section-number">1.1</span> R1<a href="#r1" class="self-link"></a></h2>
 <ul>
-<li><p>Removed the <code class="sourceCode default">common_range</code> support for underlying ranges that are <code class="sourceCode default">!common_range &amp;&amp; random_access_range &amp;&amp; sized_range</code></p></li>
-<li><p>Introduced extra exposition concepts to simplify the wording that defines <code class="sourceCode default">concatable</code></p></li>
+<li><p>Removed the <code class="sourceCode default">common_range</code> support for underlying ranges that are <code class="sourceCode default">!common_range &amp;&amp; random_access_range &amp;&amp; sized_range</code>.</p></li>
+<li><p>Introduced extra exposition concepts to simplify the wording that defines <code class="sourceCode default">concatable</code>.</p></li>
 </ul>
-<h2 data-number="1.2" id="r0"><span class="header-section-number">1.2</span> R0<a href="#r0" class="self-link"></a></h2>
-<p>This is the initial revision.</p>
 <h1 data-number="2" id="abstract"><span class="header-section-number">2</span> Abstract<a href="#abstract" class="self-link"></a></h1>
 <p>This paper proposes <code class="sourceCode default">views::concat</code> as very briefly introduced in Section 4.7 of <span class="citation" data-cites="P2214R1">[<a href="#ref-P2214R1" role="doc-biblioref">P2214R1</a>]</span>. It is a view factory that takes an arbitrary number of ranges as an argument list, and provides a view that starts at the first element of the first range, ends at the last element of the last range, with all range elements sequenced in between respectively in the order given in the arguments, effectively concatenating, or chaining together the argument ranges.</p>
 <h1 data-number="3" id="motivation-and-examples"><span class="header-section-number">3</span> Motivation and Examples<a href="#motivation-and-examples" class="self-link"></a></h1>
@@ -605,20 +602,6 @@ code.sourceCode > span { display: inline; }
 <h2 data-number="4.3" id="hidden-on-time-complexity-for-n-adapted-ranges"><span class="header-section-number">4.3</span> Hidden <em>O(N)</em> time complexity for <em>N</em> adapted ranges<a href="#hidden-on-time-complexity-for-n-adapted-ranges" class="self-link"></a></h2>
 <p>Time complexities as required by the <code class="sourceCode default">ranges</code> concepts are formally expressed with respect to the total number of elements (the size) of a given range, and not to the statically known parameters of that range. Hence, the complexity of <code class="sourceCode default">concat_view</code> or its iterators’ operations are documented to be constant time, even though some of these are a linear function of the number of ranges it concatenates which is a statically known parameter of this view.</p>
 <p>Some examples of these operations for <code class="sourceCode default">concat_view</code> are copy, <code class="sourceCode default">begin</code> and <code class="sourceCode default">size</code>, and its iterators’ increment, decrement, advance, distance. This characteristic (but not necessarily the specifics) are very much similar to the other n-ary adaptors like <code class="sourceCode default">zip_view</code> <span class="citation" data-cites="P2321R2">[<a href="#ref-P2321R2" role="doc-biblioref">P2321R2</a>]</span> and <code class="sourceCode default">cartesian_view</code> <span class="citation" data-cites="P2374R3">[<a href="#ref-P2374R3" role="doc-biblioref">P2374R3</a>]</span>.</p>
-<!-- TODO: why doesn't join_view provide random access? Does the following
-elaboration make sense? 
-
-It is interesting to note one of the important differences with `join_view`, a
-close-relative of `concat_view`, where the number of elements of the outer range
-are unknown, and could be considered a function of its total size. As a
-consequence, for instance, `join_view` can not model the `random_access_range`
-even when its adaptee's outer and inner ranges do. It's `begin` function is
-documented as
-
-(whether or not to actually include it in the proposal is a separate question, 
-to which my answer would be no.)
-
--->
 <h2 data-number="4.4" id="borrowed-vs-cheap-iterator"><span class="header-section-number">4.4</span> Borrowed vs Cheap Iterator<a href="#borrowed-vs-cheap-iterator" class="self-link"></a></h2>
 <p><code class="sourceCode default">concat_view</code> can be designed to be a <code class="sourceCode default">borrowed_range</code>, if all the underlying ranges are. However, this requires the iterator implementation to contain a copy of all iterators and sentinels of all underlying ranges at all times (just like that of <code class="sourceCode default">views::zip</code> <span class="citation" data-cites="P2321R2">[<a href="#ref-P2321R2" role="doc-biblioref">P2321R2</a>]</span>). On the other hand (unlike <code class="sourceCode default">views::zip</code>), a much cheaper implementation can satisfy all the proposed functionality provided it is permitted to be unconditionally not borrowed. This implementation would maintain only a single active iterator at a time and simply refers to the parent view for the bounds.</p>
 <p>Experience shows the borrowed-ness of <code class="sourceCode default">concat</code> is not a major requirement; and the existing implementation in <span class="citation" data-cites="rangev3">[<a href="#ref-rangev3" role="doc-biblioref">range-v3</a>]</span> seems to have picked the cheaper alternative. This paper proposes the same.</p>
@@ -784,11 +767,11 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
 <span id="cb10-2"><a href="#cb10-2"></a><span class="kw">concept</span> <em>concat_indirectly_readable</em> <span class="op">=</span></span>
 <span id="cb10-3"><a href="#cb10-3"></a>  common_reference_with<span class="op">&lt;</span>common_reference_t<span class="op">&lt;</span>range_reference_t<span class="op">&lt;</span>Rs<span class="op">&gt;...&gt;&amp;&amp;</span>,</span>
-<span id="cb10-4"><a href="#cb10-4"></a>      common_type_t<span class="op">&lt;</span>range_value_t<span class="op">&lt;</span>Rs<span class="op">&gt;...&gt;&amp;&gt;</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a>                        common_type_t<span class="op">&lt;</span>range_value_t<span class="op">&lt;</span>Rs<span class="op">&gt;...&gt;&amp;&gt;</span> <span class="op">&amp;&amp;</span></span>
 <span id="cb10-5"><a href="#cb10-5"></a>  common_reference_with<span class="op">&lt;</span>common_reference_t<span class="op">&lt;</span>range_reference_t<span class="op">&lt;</span>Rs<span class="op">&gt;...&gt;&amp;&amp;</span>,</span>
-<span id="cb10-6"><a href="#cb10-6"></a>      common_reference_t<span class="op">&lt;</span>range_rvalue_reference_t<span class="op">&lt;</span>Rs<span class="op">&gt;...&gt;&amp;&amp;&gt;</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb10-6"><a href="#cb10-6"></a>                        common_reference_t<span class="op">&lt;</span>range_rvalue_reference_t<span class="op">&lt;</span>Rs<span class="op">&gt;...&gt;&amp;&amp;&gt;</span> <span class="op">&amp;&amp;</span></span>
 <span id="cb10-7"><a href="#cb10-7"></a>  common_reference_with<span class="op">&lt;</span>common_reference_t<span class="op">&lt;</span>range_rvalue_reference_t<span class="op">&lt;</span>Rs<span class="op">&gt;...&gt;&amp;&amp;</span>,</span>
-<span id="cb10-8"><a href="#cb10-8"></a>      <span class="kw">const</span> common_type_t<span class="op">&lt;</span>range_value_t<span class="op">&lt;</span>Rs<span class="op">&gt;...&gt;&amp;&gt;</span>;</span></code></pre></div>
+<span id="cb10-8"><a href="#cb10-8"></a>                        common_type_t<span class="op">&lt;</span>range_value_t<span class="op">&lt;</span>Rs<span class="op">&gt;...&gt;</span> <span class="kw">const</span> <span class="op">&amp;&gt;</span>;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
 <span id="cb11-2"><a href="#cb11-2"></a><span class="kw">concept</span> <em>concatable</em> <span class="op">=</span> <em>see below</em>;</span></code></pre></div>
