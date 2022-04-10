@@ -16,14 +16,10 @@ toc: true
 ## R1
 
 - Removed the `common_range` support for underlying ranges that are
-  `!common_range && random_access_range && sized_range`
+  `!common_range && random_access_range && sized_range`.
 
 - Introduced extra exposition concepts to simplify the wording that defines
-  `concatable`
-
-## R0
-
-This is the initial revision.
+  `concatable`.
 
 # Abstract
 
@@ -231,20 +227,6 @@ characteristic (but not necessarily the specifics) are very much similar to the
 other n-ary adaptors like `zip_view` [@P2321R2] and `cartesian_view`
 [@P2374R3].
 
-<!-- TODO: why doesn't join_view provide random access? Does the following
-elaboration make sense? 
-
-It is interesting to note one of the important differences with `join_view`, a
-close-relative of `concat_view`, where the number of elements of the outer range
-are unknown, and could be considered a function of its total size. As a
-consequence, for instance, `join_view` can not model the `random_access_range`
-even when its adaptee's outer and inner ranges do. It's `begin` function is
-documented as
-
-(whether or not to actually include it in the proposal is a separate question, 
-to which my answer would be no.)
-
--->
 
 ## Borrowed vs Cheap Iterator
 
@@ -483,11 +465,11 @@ concept is equivalent to:
 template <class... Rs>
 concept @*concat_indirectly_readable*@ =
   common_reference_with<common_reference_t<range_reference_t<Rs>...>&&,
-      common_type_t<range_value_t<Rs>...>&> &&
+                        common_type_t<range_value_t<Rs>...>&> &&
   common_reference_with<common_reference_t<range_reference_t<Rs>...>&&,
-      common_reference_t<range_rvalue_reference_t<Rs>...>&&> &&
+                        common_reference_t<range_rvalue_reference_t<Rs>...>&&> &&
   common_reference_with<common_reference_t<range_rvalue_reference_t<Rs>...>&&,
-      const common_type_t<range_value_t<Rs>...>&>;
+                        common_type_t<range_value_t<Rs>...> const &>;
 ```
 
 :::
