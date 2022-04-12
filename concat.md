@@ -99,7 +99,7 @@ class Bar{
 class MyClass{
   Foo foo_;
   std::vector<Bar> bars_;
-
+  // TODO: this no longer works
   auto getFoos () const{
     using views = std::views;
     return views::concat(views::single(std::cref(foo_), 

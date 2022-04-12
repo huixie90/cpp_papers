@@ -54,9 +54,38 @@ struct BigCopyable {
     int bigdata[1024];
 };
 
+namespace ex {
+
+struct Foo {
+    int i;
+};
+
+struct Bar {
+    Foo foo_;
+    const Foo& getFoo() const { return foo_; }
+};
+
+struct MyClass {
+    Foo foo_;
+    std::vector<Bar> bars_;
+
+    /* this no longer works
+        auto getFoos() const {
+            return std::views::concat(
+                std::ranges::single_view(std::cref(foo_)), bars_ |
+            std::views::transform(&Bar::getFoo)));
+        }
+    */
+
+    auto getFoos() const {
+        return std::views::concat(
+            std::ranges::single_view(&foo_) |
+                std::views::transform([](auto&& x) -> decltype(auto) { return *x; }),
+            bars_ | std::views::transform(&Bar::getFoo));
+    }
+};
+} // namespace ex
 } // namespace
-
-
 
 TEST_POINT("motivation") {
     using V = std::vector<int>;
@@ -66,6 +95,21 @@ TEST_POINT("motivation") {
     REQUIRE(std::ranges::size(cv) == 5);
 }
 
+TEST_POINT("example") {
+    ex::MyClass c{ex::Foo{1}, std::vector<ex::Bar>{
+                                  ex::Bar{ex::Foo{2}},
+                                  ex::Bar{ex::Foo{3}},
+                              }};
+    auto foos = c.getFoos();
+    auto it = foos.begin();
+    REQUIRE((*it).i == 1);
+    ++it;
+    REQUIRE((*it).i == 2);
+    ++it;
+    REQUIRE((*it).i == 3);
+    ++it;
+    REQUIRE(it == foos.end());
+}
 
 
 TEST_POINT("concept") {
@@ -224,7 +268,7 @@ TEST_POINT("compare with unreachable sentinel") {
 
 
 TEST_POINT("compare with reachable sentinel") {
-    std::ranges::concat_view cv{std::views::iota(0,1), std::ranges::iota_view<int, size_t>(0, 2)};
+    std::ranges::concat_view cv{std::views::iota(0, 1), std::ranges::iota_view<int, size_t>(0, 2)};
 
     auto it = std::ranges::begin(cv);
     auto st = std::ranges::end(cv);
@@ -261,11 +305,13 @@ TEST_POINT("bidirectional_concept") {
     using IntV = std::vector<int>;
 
     STATIC_CHECK(bidirectional_range<concat_view_of<IntV&, IntV&>>);
-    STATIC_CHECK(bidirectional_range<concat_view_of<iota_view<int, int>, iota_view<int, int>>>); // because
+    STATIC_CHECK(
+        bidirectional_range<concat_view_of<iota_view<int, int>, iota_view<int, int>>>); // because
     STATIC_REQUIRE(bidirectional_range<iota_view<int, int>>);
     STATIC_REQUIRE(common_range<iota_view<int, int>>);
 
-    STATIC_CHECK(bidirectional_range<concat_view_of<iota_view<int, size_t>,iota_view<int, size_t>>>); // because
+    STATIC_CHECK(bidirectional_range<
+                 concat_view_of<iota_view<int, size_t>, iota_view<int, size_t>>>); // because
     STATIC_REQUIRE(bidirectional_range<iota_view<int, size_t>>);
     STATIC_REQUIRE(!common_range<iota_view<int, size_t>>);
     STATIC_REQUIRE(random_access_range<iota_view<int, size_t>>);

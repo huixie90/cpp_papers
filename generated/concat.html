@@ -558,7 +558,7 @@ code.sourceCode > span { display: inline; }
 <span id="cb4-7"><a href="#cb4-7"></a><span class="kw">class</span> MyClass<span class="op">{</span></span>
 <span id="cb4-8"><a href="#cb4-8"></a>  Foo foo_;</span>
 <span id="cb4-9"><a href="#cb4-9"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>Bar<span class="op">&gt;</span> bars_;</span>
-<span id="cb4-10"><a href="#cb4-10"></a></span>
+<span id="cb4-10"><a href="#cb4-10"></a>  <span class="co">// </span><span class="al">TODO</span><span class="co">: this no longer works</span></span>
 <span id="cb4-11"><a href="#cb4-11"></a>  <span class="kw">auto</span> getFoos <span class="op">()</span> <span class="kw">const</span><span class="op">{</span></span>
 <span id="cb4-12"><a href="#cb4-12"></a>    <span class="kw">using</span> views <span class="op">=</span> std<span class="op">::</span>views;</span>
 <span id="cb4-13"><a href="#cb4-13"></a>    <span class="cf">return</span> views<span class="op">::</span>concat<span class="op">(</span>views<span class="op">::</span>single<span class="op">(</span>std<span class="op">::</span>cref<span class="op">(</span>foo_<span class="op">)</span>, </span>
