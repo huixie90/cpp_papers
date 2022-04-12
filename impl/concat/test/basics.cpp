@@ -1,5 +1,6 @@
 #include "concat.hpp"
 #include <catch2/catch_test_macros.hpp>
+#include <algorithm>
 #include <list>
 #include <vector>
 #include <functional>
@@ -13,16 +14,26 @@
 namespace {
 
 template <typename... R>
-concept concat_viewable = requires(R&&... r) {
-    std::ranges::views::concat((R &&) r...);
-};
+concept concat_viewable = requires(R&&... r) { std::ranges::views::concat((R &&) r...); };
 
+constexpr auto concatable = [](auto&&... rs) { return concat_viewable<decltype(rs)...>; };
 
 template <typename R>
 R f(int);
 
 template <typename R>
 using make_view_of = decltype(std::views::iota(0) | std::views::transform(f<R>));
+
+
+template <class T>
+constexpr auto copy(T&& t) {
+    return t | std::views::transform([](auto&& e) {
+               return std::ranges::range_value_t<std::ranges::views::all_t<T&&>>(e);
+           });
+}
+
+template <class T>
+using copy_of = decltype(copy(std::declval<T&&>()));
 
 struct Foo {};
 
@@ -76,14 +87,27 @@ TEST_POINT("concept") {
     // nominal use
     STATIC_CHECK(concat_viewable<IntV&, IntV&>);
     STATIC_CHECK(concat_viewable<IntV&, IntV const&>);
-    STATIC_CHECK(concat_viewable<IntV&, std::vector<std::reference_wrapper<int>>&>);
     STATIC_CHECK(concat_viewable<IntV&, IntL&, IntV&>);
     STATIC_CHECK(concat_viewable<FooV&, BarV&>);
     STATIC_CHECK(concat_viewable<BarV&, FooV&>);
     STATIC_CHECK(concat_viewable<FooV&, BarV&, QuxV const&>);
     STATIC_CHECK(concat_viewable<IntV&, make_view_of<int&>>);
-    STATIC_CHECK(concat_viewable<make_view_of<int&>, make_view_of<int&&>, make_view_of<int>>);
     STATIC_CHECK(concat_viewable<make_view_of<MoveOnly>, make_view_of<MoveOnly>&&>);
+
+    // rvalue reference to prvalue conversion in operator*
+    STATIC_CHECK(!concat_viewable<make_view_of<int&>, make_view_of<int&&>, make_view_of<int>>);
+    STATIC_CHECK(concat_viewable<copy_of<make_view_of<int&>>, copy_of<make_view_of<int&&>>,
+                                 make_view_of<int>>);
+
+    std::vector<int> intVecLref{1, 2, 3};
+    std::vector<std::reference_wrapper<int>> refVecLref{intVecLref[0]};
+
+    // rvalue reference to prvalue conversion in iter_move
+    // FLAG: note, this is relatively common
+    STATIC_CHECK(!concatable(intVecLref, refVecLref));
+    STATIC_CHECK(!concatable(
+        intVecLref, intVecLref | std::views::transform([](auto&& i) { return std::ref(i); })));
+    STATIC_CHECK(!concatable(intVecLref, std::views::iota(0, 2)));
 
 
     // invalid concat use:
@@ -100,7 +124,8 @@ TEST_POINT("concept") {
     //    ref_t == Foo& would work just fine if it wasn't common_reference_t logic.
 
     // Flag:
-    STATIC_CHECK(concat_viewable<make_view_of<BigCopyable>, make_view_of<BigCopyable&>>);
+    // update: this no long compiles
+    STATIC_CHECK(!concat_viewable<make_view_of<BigCopyable>, make_view_of<BigCopyable&>>);
     //    common_reference_t is BigCopyable (a temporary). 2nd range has BigCopyable& type.
     //    so that means operator* will copy an lvalue to a temporary: a valid but most likely a
     //    useless operation. Should this be ignored as programmer error and silently accepted?
@@ -109,6 +134,10 @@ TEST_POINT("concept") {
     //           to return a reference). Is there a better  solution, diagnostic, documentation at
     //           least?
     //    [TODO] mention in Design.
+    std::vector<BigCopyable> bigVecLRef{};
+    auto bigVecPR = std::views::iota(0) | std::views::transform([](auto) { return BigCopyable{}; });
+    STATIC_CHECK(!concatable(bigVecLRef, bigVecPR));
+    STATIC_CHECK(concatable(copy(bigVecLRef), bigVecPR)); // copy needs to be explicit
 }
 
 
@@ -137,7 +166,7 @@ TEST_POINT("end_basic_common_range") {
 }
 
 TEST_POINT("end_last_range_non_common_but_random_sized") {
-    std::vector<int> v1{1};
+    std::ranges::iota_view<int, size_t> v1{1, 2};
     std::ranges::iota_view<int, size_t> io{2, 3};
     std::ranges::concat_view cv{v1, io};
     static_assert(!std::ranges::common_range<decltype(cv)>,
@@ -177,8 +206,7 @@ TEST_POINT("operator++") {
 }
 
 TEST_POINT("compare with unreachable sentinel") {
-    std::vector v{1};
-    std::ranges::concat_view cv{v, std::views::iota(0)};
+    std::ranges::concat_view cv{std::views::iota(0, 2), std::views::iota(0)};
     auto it = std::ranges::begin(cv);
     auto st = std::ranges::end(cv);
     REQUIRE(it != st);
@@ -196,8 +224,7 @@ TEST_POINT("compare with unreachable sentinel") {
 
 
 TEST_POINT("compare with reachable sentinel") {
-    std::vector v{1};
-    std::ranges::concat_view cv{v, std::ranges::iota_view<int, size_t>(0, 2)};
+    std::ranges::concat_view cv{std::views::iota(0,1), std::ranges::iota_view<int, size_t>(0, 2)};
 
     auto it = std::ranges::begin(cv);
     auto st = std::ranges::end(cv);
@@ -234,17 +261,17 @@ TEST_POINT("bidirectional_concept") {
     using IntV = std::vector<int>;
 
     STATIC_CHECK(bidirectional_range<concat_view_of<IntV&, IntV&>>);
-    STATIC_CHECK(bidirectional_range<concat_view_of<iota_view<int, int>, IntV&>>); // because
+    STATIC_CHECK(bidirectional_range<concat_view_of<iota_view<int, int>, iota_view<int, int>>>); // because
     STATIC_REQUIRE(bidirectional_range<iota_view<int, int>>);
     STATIC_REQUIRE(common_range<iota_view<int, int>>);
 
-    STATIC_CHECK(bidirectional_range<concat_view_of<iota_view<int, size_t>, IntV&>>); // because
+    STATIC_CHECK(bidirectional_range<concat_view_of<iota_view<int, size_t>,iota_view<int, size_t>>>); // because
     STATIC_REQUIRE(bidirectional_range<iota_view<int, size_t>>);
     STATIC_REQUIRE(!common_range<iota_view<int, size_t>>);
     STATIC_REQUIRE(random_access_range<iota_view<int, size_t>>);
     STATIC_REQUIRE(sized_range<iota_view<int, size_t>>);
 
-    STATIC_CHECK(!bidirectional_range<concat_view_of<iota_view<int>, IntV&>>); // because
+    STATIC_CHECK(!bidirectional_range<concat_view_of<iota_view<int>, iota_view<int>>>); // because
     STATIC_REQUIRE(bidirectional_range<iota_view<int>>);
     STATIC_REQUIRE(!common_range<iota_view<int>>);
     STATIC_REQUIRE(random_access_range<iota_view<int>>);
@@ -297,7 +324,7 @@ TEST_POINT("bidirectional_noncommon_random_access_sized") {
     std::ranges::empty_view<int> e2{};
     std::ranges::iota_view<int, size_t> i3{0, 0};
     std::ranges::iota_view<int, size_t> i4{2, 4};
-    auto cv = std::views::concat(v1, e2, i3, i4);
+    auto cv = std::views::concat(copy(v1), copy(e2), i3, i4);
 
     auto it = std::ranges::begin(cv);
     REQUIRE(*it == 1);
@@ -322,13 +349,13 @@ TEST_POINT("bidirectional_noncommon_random_access_sized") {
 }
 
 
-struct NonCommonRandomSized{
+struct NonCommonRandomSized {
     const int* begin() const;
     std::nullptr_t end() const;
     std::size_t size() const;
 };
 
-TEST_POINT("random_but_not_bidi_impossible"){
+TEST_POINT("random_but_not_bidi_impossible") {
     using namespace std::ranges;
     static_assert(!common_range<NonCommonRandomSized>);
     static_assert(random_access_range<NonCommonRandomSized>);

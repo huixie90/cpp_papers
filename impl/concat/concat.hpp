@@ -22,7 +22,8 @@ template <class... Ts>
 concept have_common_reference = requires {
     typename common_reference_t<Ts...>;
 }
-&&(convertible_to<Ts, common_reference_t<Ts...>>&&...);
+&&(convertible_to<Ts, common_reference_t<Ts...>>&&...) && 
+(is_reference_v<common_reference_t<Ts...>> || ((!is_rvalue_reference_v<Ts>) && ...));
 
 template <class... Ts>
 concept have_common_type = requires {
