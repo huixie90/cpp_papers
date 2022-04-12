@@ -461,7 +461,8 @@ code.sourceCode > span { display: inline; }
 <li><a href="#value_type"><span class="toc-section-number">4.1.2</span> <code class="sourceCode default">value_type</code><span></span></a></li>
 <li><a href="#range_rvalue_reference_t"><span class="toc-section-number">4.1.3</span> <code class="sourceCode default">range_rvalue_reference_t</code><span></span></a></li>
 <li><a href="#indirectly_readable"><span class="toc-section-number">4.1.4</span> <code class="sourceCode default">indirectly_readable</code><span></span></a></li>
-<li><a href="#unsupported-cases-and-potential-extensions-for-the-future"><span class="toc-section-number">4.1.5</span> Unsupported Cases and Potential Extensions for the Future<span></span></a></li>
+<li><a href="#xvalue-to-prvalue-conversions"><span class="toc-section-number">4.1.5</span> xvalue to prvalue conversions<span></span></a></li>
+<li><a href="#unsupported-cases-and-potential-extensions-for-the-future"><span class="toc-section-number">4.1.6</span> Unsupported Cases and Potential Extensions for the Future<span></span></a></li>
 </ul></li>
 <li><a href="#zero-or-one-view"><span class="toc-section-number">4.2</span> Zero or one view<span></span></a></li>
 <li><a href="#hidden-on-time-complexity-for-n-adapted-ranges"><span class="toc-section-number">4.3</span> Hidden <em>O(N)</em> time complexity for <em>N</em> adapted ranges<span></span></a></li>
@@ -586,7 +587,9 @@ code.sourceCode > span { display: inline; }
 <p>To make <code class="sourceCode default">concat_view</code>’s iterator’s <code class="sourceCode default">iter_move</code> behave correctly for the cases where underlying iterators customise <code class="sourceCode default">iter_move</code>, such as <code class="sourceCode default">zip_view</code>, <code class="sourceCode default">concat_view</code> has to respect those customizations. Therefore, <code class="sourceCode default">concat_view</code> requires <code class="sourceCode default">common_reference_t</code> of all underlying ranges’s <code class="sourceCode default">range_rvalue_reference_t</code> exist and can be converted to from each underlying range’s <code class="sourceCode default">range_rvalue_reference_t</code>.</p>
 <h3 data-number="4.1.4" id="indirectly_readable"><span class="header-section-number">4.1.4</span> <code class="sourceCode default">indirectly_readable</code><a href="#indirectly_readable" class="self-link"></a></h3>
 <p>In order to make <code class="sourceCode default">concat_view</code> model <code class="sourceCode default">input_range</code>, <code class="sourceCode default">reference</code>, <code class="sourceCode default">value_type</code>, and <code class="sourceCode default">range_rvalue_reference_t</code> have to be constrained so that the iterator of the <code class="sourceCode default">concat_view</code> models <code class="sourceCode default">indirectly_readable</code>.</p>
-<h3 data-number="4.1.5" id="unsupported-cases-and-potential-extensions-for-the-future"><span class="header-section-number">4.1.5</span> Unsupported Cases and Potential Extensions for the Future<a href="#unsupported-cases-and-potential-extensions-for-the-future" class="self-link"></a></h3>
+<h3 data-number="4.1.5" id="xvalue-to-prvalue-conversions"><span class="header-section-number">4.1.5</span> xvalue to prvalue conversions<a href="#xvalue-to-prvalue-conversions" class="self-link"></a></h3>
+<p>TODO</p>
+<h3 data-number="4.1.6" id="unsupported-cases-and-potential-extensions-for-the-future"><span class="header-section-number">4.1.6</span> Unsupported Cases and Potential Extensions for the Future<a href="#unsupported-cases-and-potential-extensions-for-the-future" class="self-link"></a></h3>
 <p>Common type and reference based <code class="sourceCode default">concatable</code> logic is a practical and convenient solution that satisfies the motivation as outlined, and is what the authors propose in this paper. However, there are several potentially important use cases that get left out:</p>
 <ol type="1">
 <li>Concatenating ranges of different subclasses, into a range of their common base.</li>
