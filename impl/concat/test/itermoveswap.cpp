@@ -131,8 +131,6 @@ struct throw_on_move {
     throw_on_move(throw_on_move&&) /*throw*/ {}
 };
 
-// move construction on iter_move is no longer supported
-/*
 TEST_POINT("iter_move_throw_on_converting_to_rvalue_reference") {
     std::vector<throw_on_move> v;
     auto tv =
@@ -150,7 +148,6 @@ TEST_POINT("iter_move_throw_on_converting_to_rvalue_reference") {
     static_assert(!std::is_nothrow_convertible_v<throw_on_move&&, throw_on_move>);
 
 }
-*/
 
 TEST_POINT("iter_swap_concept") {
     std::vector v{1, 2, 3};

@@ -99,7 +99,7 @@ class Bar{
 class MyClass{
   Foo foo_;
   std::vector<Bar> bars_;
-  // TODO: this no longer works
+
   auto getFoos () const{
     using views = std::views;
     return views::concat(views::single(std::cref(foo_), 
@@ -178,9 +178,6 @@ range's `range_rvalue_reference_t`.
 In order to make `concat_view` model `input_range`, `reference`, `value_type`,
 and `range_rvalue_reference_t` have to be constrained so that the iterator of
 the `concat_view` models `indirectly_readable`.
-
-### xvalue to prvalue conversions
-TODO
 
 ### Unsupported Cases and Potential Extensions for the Future
 
