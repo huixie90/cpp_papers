@@ -63,6 +63,7 @@ std::cout << std::format("{}\n",
 class Foo;
 
 class Bar{
+public:
   const Foo& getFoo() const;
 };
 
@@ -93,17 +94,18 @@ for(const auto& fooRef: myClass.getFoos() | views::filter(pred)){
 class Foo;
 
 class Bar{
+public:
   const Foo& getFoo() const;
 };
 
 class MyClass{
   Foo foo_;
   std::vector<Bar> bars_;
-
+public:
   auto getFoos () const{
     using views = std::views;
-    return views::concat(views::single(std::cref(foo_), 
-        bars_ | views::transform(&Bar::getFoo)));
+    return views::concat(views::single(std::cref(foo_)), 
+        bars_ | views::transform(&Bar::getFoo));
   }
 };
 
