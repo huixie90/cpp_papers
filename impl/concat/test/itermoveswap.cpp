@@ -22,36 +22,6 @@
 #include <algorithm>
 
 
-#ifdef _LIBCPP_VERSION
-
-namespace std::ranges {
-struct sort_fn {
-    template <random_access_iterator It,
-              sentinel_for<It> St,
-              typename C = ranges::less,
-              typename P = identity>
-    // requires sortable<It, C, P>
-    constexpr It operator()(It first, St last, C cmp = {}, P proj = {}) const {
-        auto common_sentinel = ranges::next(first, last);
-        std::sort(std::move(first), common_sentinel, [&](auto&& x, auto&& y) {
-            return std::invoke(cmp, std::invoke(proj, static_cast<decltype(x)>(x)),
-                               std::invoke(proj, static_cast<decltype(y)>(y)));
-        });
-        return common_sentinel;
-    }
-
-    template <random_access_range R, typename C = ranges::less, typename P = identity>
-    //  requires sortable<iterator_t<R>, C, P>
-    constexpr borrowed_iterator_t<R> operator()(R&& r, C cmp = {}, P proj = {}) const {
-        return (*this)(ranges::begin(r), ranges::end(r), std::move(cmp), std::move(proj));
-    }
-};
-
-inline constexpr sort_fn sort{};
-} // namespace std::ranges
-
-#endif
-
 #ifdef __GNUC__
 
 // hack to allow gcc to compile range-v3 views as viewable ranges

@@ -1,5 +1,6 @@
 #include "concat.hpp"
 #include <catch2/catch_test_macros.hpp>
+#include <algorithm>
 #include <list>
 #include <vector>
 #include <functional>
