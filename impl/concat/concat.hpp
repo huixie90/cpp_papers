@@ -16,7 +16,6 @@ namespace std::ranges {
 
 namespace xo { // exposition only things (and persevering face)
 
-inline namespace not_to_spec {
 
 template <class... Ts>
 concept have_common_reference = requires {
@@ -29,23 +28,42 @@ concept have_common_type = requires {
     typename common_type_t<Ts...>;
 };
 
-template <class... Rs>
-using concat_reference_t = common_reference_t<range_reference_t<Rs>...>;
+template <class... Ts>
+concept needs_proxy = !is_reference_v<common_reference_t<Ts...>> && 
+                      (is_rvalue_reference_v<Ts> || ...);
+
+template <class... It>
+class concat_deref_proxy;
+
+template <class... It>
+class concat_move_proxy;
+
+inline namespace not_to_spec {
 
 template <class... Rs>
-using concat_rvalue_reference_t = common_reference_t<range_rvalue_reference_t<Rs>...>;
+using concat_reference_t = std::conditional_t<
+    needs_proxy<range_reference_t<Rs>...>,
+    concat_deref_proxy<iterator_t<Rs>...>,
+    common_reference_t<range_reference_t<Rs>...>>;
+
+template <class... Rs>
+using concat_rvalue_reference_t = std::conditional_t<
+    needs_proxy<range_rvalue_reference_t<Rs>...>,
+    concat_move_proxy<iterator_t<Rs>...>,
+    common_reference_t<range_rvalue_reference_t<Rs>...>>;
 
 template <class... Rs>
 using concat_value_t = common_type_t<range_value_t<Rs>...>;
 
+} // namespace not_to_spec
+
+// clang-format off
 template <class... Rs>
 concept concat_indirectly_readable =
     common_reference_with<concat_reference_t<Rs...> &&, concat_value_t<Rs...>&>&&
-        common_reference_with<concat_reference_t<Rs...>&&, concat_rvalue_reference_t<Rs...>&&>&&
-            common_reference_with<concat_rvalue_reference_t<Rs...>&&, concat_value_t<Rs...> const&>;
-
-
-} // namespace not_to_spec
+    common_reference_with<concat_reference_t<Rs...>&&, concat_rvalue_reference_t<Rs...>&&>&&
+    common_reference_with<concat_rvalue_reference_t<Rs...>&&, concat_value_t<Rs...> const&>;
+// clang-format on
 
 
 // clang-format off
@@ -53,8 +71,44 @@ template <class... Rs>
 concept concatable = have_common_reference<range_reference_t<Rs>...>
                   && have_common_reference<range_rvalue_reference_t<Rs>...>
                   && have_common_type<range_value_t<Rs>...>
+                  && ((!needs_proxy<range_reference_t<Rs>...> && !needs_proxy<range_rvalue_reference_t<Rs>...>)
+                     || (forward_range<Rs> && ...))
                   && concat_indirectly_readable<Rs...>;
 // clang-format on
+
+
+template <class... It>
+class concat_deref_proxy {
+    std::variant<It...> it_;
+
+    using reference = common_reference_t<iter_reference_t<It>...>;
+  public:
+    constexpr concat_deref_proxy(const std::variant<It...>& it)
+        : it_(std::move(it)) {}
+
+    constexpr operator reference() const {
+        return visit([](auto&& it) -> reference { return *it; }, it_);
+    }
+
+    constexpr operator concat_move_proxy<It...>() && {
+        return concat_move_proxy{std::move(it_)};
+    }
+};
+
+
+template <class... It>
+class concat_move_proxy{
+    std::variant<It...> it_;
+
+    using rvalue_reference = common_reference_t<iter_rvalue_reference_t<It>...>;
+  public:
+    constexpr concat_move_proxy(const std::variant<It...>& it)
+        : it_(std::move(it)) {}
+
+    constexpr operator rvalue_reference() const {
+        return visit([](auto&& it) -> rvalue_reference { return ranges::iter_move(it); }, it_);
+    }
+};
 
 static_assert(true); // clang-format badness
 
@@ -338,8 +392,13 @@ class concat_view : public view_interface<concat_view<Views...>> {
             , it_{std::move(i.it_)} {}
 
         constexpr decltype(auto) operator*() const {
-            using reference = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
-            return visit([](auto&& it) -> reference { return *it; }, it_);
+            if constexpr (xo::needs_proxy<range_reference_t<__maybe_const<Const, Views>>...>) {
+                return xo::concat_deref_proxy{it_};
+            } else {
+                using reference =
+                    common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
+                return visit([](auto&& it) -> reference { return *it; }, it_);
+            }
         }
 
         constexpr auto operator->()
@@ -525,6 +584,9 @@ class concat_view : public view_interface<concat_view<Views...>> {
               std::is_nothrow_convertible_v<range_rvalue_reference_t<__maybe_const<Const, Views>>,
                                             common_reference_t<range_rvalue_reference_t<
                                                 __maybe_const<Const, Views>>...>>)&&...)) {
+            if constexpr(xo::needs_proxy<range_rvalue_reference_t<__maybe_const<Const, Views>>...>){
+                return xo::concat_move_proxy{ii.it_};
+            } else {
             using common_r_value_ref_t =
                 common_reference_t<range_rvalue_reference_t<__maybe_const<Const, Views>>...>;
             return std::visit(
@@ -532,6 +594,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
                     return ranges::iter_move(i);
                 },
                 ii.it_);
+            }
         }
 
         friend constexpr void iter_swap(const iterator& x, const iterator& y) requires

@@ -1,5 +1,6 @@
 
 #include "concat.hpp"
+#include "range_fixtures.hpp"
 #include <catch2/catch_test_macros.hpp>
 
 #include <vector>
@@ -40,11 +41,13 @@ TEST_POINT("operator* : reference mixing xvalue with prvalue") {
     auto cv = std::views::concat(r1, r2);
     auto it = cv.begin();
     *it;
-    CHECK(*it == "abc"s); // failing at the moment
+    // CHECK(*it == "abc"s); // does not compile
+    CHECK(std::string(*it) == "abc"s);
 
     it += 2;
     *it;
-    CHECK(*it == "0"s);
+    // CHECK(*it == "0"s);// does not compile
+    CHECK(std::string(*it) == "0"s);
 }
 
 TEST_POINT("operator* : reference mixing lvalue-ref with prvalue") {
@@ -91,6 +94,17 @@ TEST_POINT("operator* : reference_wrapper with prvalue") {
     CHECK(*it == "0"s);
 }
 
+/*
+
+This no longer works because the following in indirectly_readable fails
+std::common_reference_with<std::iter_reference_t<In>&&, std::iter_value_t<In>&>
+
+It used to work because
+common_reference_t<MoveOnly&&, MoveOnly&> is const MoveOnly& and both operands can be converted to it.
+
+But
+common_reference_t<Proxy&&, MoveOnly&> is MoveOnly and the second operator cannot be converted to it
+
 TEST_POINT("operator* : move only") {
     std::vector<Foo> v{};
     v.emplace_back(5);
@@ -100,12 +114,14 @@ TEST_POINT("operator* : move only") {
     auto cv = std::views::concat(r1, r2);
     auto it = cv.begin();
     *it;
-    CHECK((*it).i == 5); // failing at the moment
+    // CHECK((*it).i == 5); // does not compile
+    CHECK(Foo{(*it)}.i == 5);
 
     ++it;
     *it;
-    CHECK((*it).i == 0);
+    CHECK(Foo{(*it)}.i == 0);
 }
+*/
 
 TEST_POINT(
     "iter_move : r1: reference:lvalue rvalue_reference:xvalue.\nr2: reference and "
@@ -119,7 +135,7 @@ TEST_POINT(
 
     std::ignore = std::ranges::iter_move(it); // in libcxx iter_move is marked nodiscard
     std::ranges::range_value_t<decltype(cv)> value = std::ranges::iter_move(it);
-    CHECK(value == "abc"s); // fails at the moment
+    CHECK(value == "abc"s); // pass with proxies
 
     it += 2;
     std::ignore = std::ranges::iter_move(it); // in libcxx iter_move is marked nodiscard
@@ -141,7 +157,7 @@ TEST_POINT("iter_move : reference_wrapper") {
     ++it;
     std::ignore = std::ranges::iter_move(it); // in libcxx iter_move is marked nodiscard
     std::ranges::range_value_t<decltype(cv)> value2 = std::ranges::iter_move(it);
-    CHECK(value2 == "def"s); // fails at the moment
+    CHECK(value2 == "def"s); // pass with proxies
 }
 
 TEST_POINT("iter_move : reference_wrapper with prvalue") {
@@ -159,8 +175,18 @@ TEST_POINT("iter_move : reference_wrapper with prvalue") {
     ++it;
     std::ignore = std::ranges::iter_move(it); // in libcxx iter_move is marked nodiscard
     std::ranges::range_value_t<decltype(cv)> value2 = std::ranges::iter_move(it);
-    CHECK(value2 == "0"s); // fails at the moment
+    CHECK(value2 == "0"s); // pass with proxies
 }
+/*
+
+This no longer works because the following in indirectly_readable fails
+std::common_reference_with<std::iter_reference_t<In>&&, std::iter_value_t<In>&>
+
+It used to work because
+common_reference_t<MoveOnly&&, MoveOnly&> is const MoveOnly& and both operands can be converted to it.
+
+But
+common_reference_t<Proxy&&, MoveOnly&> is MoveOnly and the second operator cannot be converted to it
 
 TEST_POINT("iter_move : move only") {
     std::vector<Foo> v{};
@@ -173,11 +199,68 @@ TEST_POINT("iter_move : move only") {
 
     std::ignore = std::ranges::iter_move(it); // in libcxx iter_move is marked nodiscard
     std::ranges::range_value_t<decltype(cv)> value = std::ranges::iter_move(it);
-    CHECK(value.i == 5); // fails at the moment
+    CHECK(value.i == 5); // pass with proxies
 
     ++it;
     std::ignore = std::ranges::iter_move(it); // in libcxx iter_move is marked nodiscard
     std::ranges::range_value_t<decltype(cv)> value2 = std::ranges::iter_move(it);
     CHECK(value2.i == 0);
+}
+*/
+template <typename... R>
+concept concat_able = requires(R&&... r) { std::ranges::concat_view{(R &&) r...}; };
+
+
+struct InputRangePRValue : std::ranges::view_base {
+    Cpp17InputIter begin() const;
+    Cpp17InputIter end() const;
+};
+static_assert(std::ranges::input_range<InputRangePRValue>);
+static_assert(!std::ranges::forward_range<InputRangePRValue>);
+static_assert(std::same_as<int, std::ranges::range_reference_t<InputRangePRValue>>);
+static_assert(std::same_as<int, std::ranges::range_rvalue_reference_t<InputRangePRValue>>);
+
+
+TEST_POINT("deref proxy input range not concatable") {
+    std::vector<int> v{1, 2, 3};
+    auto xvalue = v | std::views::transform([](auto&& i) -> int&& { return std::move(i); });
+    using XValueRange = decltype(xvalue);
+    static_assert(concat_able<InputRangePRValue, InputRangePRValue>);
+    static_assert(concat_able<XValueRange, XValueRange>);
+    static_assert(!concat_able<InputRangePRValue, XValueRange>);
+}
+
+
+struct cpp20_input_iterator {
+    using It = int*;
+    It it;
+
+    decltype(auto) operator*() const { return *it; }
+
+    cpp20_input_iterator& operator++() {
+        ++it;
+        return *this;
+    }
+    void operator++(int) { it++; }
+
+    friend bool operator==(cpp20_input_iterator const&, cpp20_input_iterator const&) = default;
+
+    using value_type = std::iter_value_t<It>;
+    using difference_type = std::ptrdiff_t;
+    using iterator_concept = std::input_iterator_tag;
+};
+
+struct InputRangeRef{
+    cpp20_input_iterator begin() const;
+    cpp20_input_iterator end() const;
+};
+static_assert(std::ranges::input_range<InputRangeRef>);
+static_assert(!std::ranges::forward_range<InputRangeRef>);
+static_assert(std::same_as<int&, std::ranges::range_reference_t<InputRangeRef>>);
+static_assert(std::same_as<int&&, std::ranges::range_rvalue_reference_t<InputRangeRef>>);
+
+TEST_POINT("iter_move proxy input range not concatable") {
+    static_assert(concat_able<InputRangeRef, InputRangeRef>);
+    static_assert(!concat_able<InputRangeRef, InputRangePRValue>);
 }
 
