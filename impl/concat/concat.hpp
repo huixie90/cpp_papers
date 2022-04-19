@@ -337,10 +337,25 @@ class concat_view : public view_interface<concat_view<Views...>> {
             : parent_{i.parent_}
             , it_{std::move(i.it_)} {}
 
+
         constexpr decltype(auto) operator*() const {
             using reference = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
-            return visit([](auto&& it) -> reference { return *it; }, it_);
+            constexpr bool useRefProxy =
+                !is_reference_v<reference> &&
+                (is_rvalue_reference_v<range_reference_t<__maybe_const<Const, Views>>> || ...);
+            if constexpr (!useRefProxy) {
+                return visit([](auto&& it) -> reference { return *it; }, it_);
+            } else {
+                struct DerefProxy {
+                    iterator concatIter;
+                    constexpr operator reference() const {
+                        return visit([](auto&& it) -> reference { return *it; }, concatIter.it_);
+                    }
+                };
+                return DerefProxy{*this};
+            }
         }
+
 
         constexpr auto operator->()
             const requires xo::concat_has_arrow<__maybe_const<Const, Views>...> {
