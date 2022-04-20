@@ -775,7 +775,7 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <span id="cb10-7"><a href="#cb10-7"></a>  common_reference_with<span class="op">&lt;</span>common_reference_t<span class="op">&lt;</span>range_rvalue_reference_t<span class="op">&lt;</span>Rs<span class="op">&gt;...&gt;&amp;&amp;</span>,</span>
 <span id="cb10-8"><a href="#cb10-8"></a>                        common_type_t<span class="op">&lt;</span>range_value_t<span class="op">&lt;</span>Rs<span class="op">&gt;...&gt;</span> <span class="kw">const</span> <span class="op">&amp;&gt;</span>;</span></code></pre></div>
 <ul>
-<li><span class="marginalizedparent"><a class="marginalized">(1.1)</a></span> In addition, <code class="sourceCode default">reference_t&lt;concat&lt;Rs...&gt;&gt; ref = *it</code> for each iterator <code class="sourceCode default">it</code> of the underlying ranges <code class="sourceCode default">Rs...</code> should be equality preserving ([concepts.equality]).</li>
+<li><span class="marginalizedparent"><a class="marginalized">(1.1)</a></span> In addition, the expression <code class="sourceCode default">reference_t&lt;concat_view&lt;Rs...&gt;&gt; ref = *it</code> for each iterator <code class="sourceCode default">it</code> of the underlying ranges <code class="sourceCode default">Rs...</code> should be equality preserving ([concepts.equality]). If this semantic requirement is not satisfied, the program is ill-formed, no diagnostic required.</li>
 </ul>
 </div>
 <div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
