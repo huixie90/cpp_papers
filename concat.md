@@ -474,6 +474,11 @@ concept @*concat_indirectly_readable*@ =
                         common_type_t<range_value_t<Rs>...> const &>;
 ```
 
+- [1.1]{.pnum} In addition, the expression `reference_t<concat_view<Rs...>> ref = *it`
+  for each iterator `it` of the underlying ranges `Rs...` should be equality preserving
+  ([concepts.equality]). If this semantic requirement is not satisfied, the program
+  is ill-formed, no diagnostic required.
+
 :::
 
 ```cpp
