@@ -1,7 +1,7 @@
 ---
 title: "`views::concat`"
-document: P2542R1
-date: 2021-03-16
+document: P2542R2
+date: 2021-04-21
 audience: SG9, LEWG
 author:
   - name: Hui Xie
@@ -180,6 +180,42 @@ range's `range_rvalue_reference_t`.
 In order to make `concat_view` model `input_range`, `reference`, `value_type`,
 and `range_rvalue_reference_t` have to be constrained so that the iterator of
 the `concat_view` models `indirectly_readable`.
+
+### Mixing xvalue ranges with prvalue ranges
+
+In the following example,
+
+```cpp
+std::vector<std::string> v = ...;
+auto r1 = v |
+          std::views::transform([](auto&& s) -> std::string&& {return std::move(s);});
+auto r2 = std::views::iota(0, 2) |
+          std::views::transform([](auto i){return std::to_string(i)});
+auto cv = std::views::concat(r1, r2);
+auto it = cv.begin();
+*it; // first deref
+*it; // second deref
+```
+
+`r1` is a range of which `range_reference_t` is `std::string&&`, while `r2`'s
+`range_reference_t` is `std::string`. The `common_reference_t` between these two
+`reference`s would be `std::string`. After the "first deref", even though the
+result is unused, there is a conversion from `std::string&&` to `std::string`
+when the result of underlying iterator's `operator*` is converted to the
+`common_reference_t`. This is a move construction and the underlying `vector`'s
+element is modified to a moved-from state. Later when the "second deref" is
+called, the result is a moved-from `std::string`. This breaks the "equality
+preservation" requirements.
+
+A naive solution for this problem is to ban all the usages of mixing xvalue
+ranges with prvalue ranges. However, not all of this kind of mixing are
+problematic. For example, `concat`ing a range of `std::string&&` with a range of
+prvalue `std::string_view` is OK, because converting `std::string&&` to
+`std::string_view` does not modify the `std::string&&`. In general, it is not
+possible to decide whether the conversion from `T&&` to `U` modifies `T&&`
+through syntactic requirements. Therefore, the authors of this paper propose
+additional semantic requirements to ensure that the conversion from underlying
+references to the common reference does not modify the underlying values.
 
 ### Unsupported Cases and Potential Extensions for the Future
 
