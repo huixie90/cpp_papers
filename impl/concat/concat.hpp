@@ -18,17 +18,6 @@ namespace xo { // exposition only things (and persevering face)
 
 inline namespace not_to_spec {
 
-template <class... Ts>
-concept have_common_reference = requires {
-    typename common_reference_t<Ts...>;
-}
-&&(convertible_to<Ts, common_reference_t<Ts...>>&&...);
-
-template <class... Ts>
-concept have_common_type = requires {
-    typename common_type_t<Ts...>;
-};
-
 template <class... Rs>
 using concat_reference_t = common_reference_t<range_reference_t<Rs>...>;
 
@@ -38,11 +27,20 @@ using concat_rvalue_reference_t = common_reference_t<range_rvalue_reference_t<Rs
 template <class... Rs>
 using concat_value_t = common_type_t<range_value_t<Rs>...>;
 
+// clang-format off
+template <class Ref, class RRef, class It>
+concept concat_indirectly_readable_impl = requires (const It it){
+    static_cast<Ref>(*it);
+    static_cast<RRef>(ranges::iter_move(it));
+};
+
 template <class... Rs>
 concept concat_indirectly_readable =
     common_reference_with<concat_reference_t<Rs...> &&, concat_value_t<Rs...>&>&&
-        common_reference_with<concat_reference_t<Rs...>&&, concat_rvalue_reference_t<Rs...>&&>&&
-            common_reference_with<concat_rvalue_reference_t<Rs...>&&, concat_value_t<Rs...> const&>;
+    common_reference_with<concat_reference_t<Rs...>&&, concat_rvalue_reference_t<Rs...>&&>&&
+    common_reference_with<concat_rvalue_reference_t<Rs...>&&, concat_value_t<Rs...> const&> &&
+    (concat_indirectly_readable_impl<concat_reference_t<Rs...>, concat_rvalue_reference_t<Rs...>, iterator_t<Rs>> && ...);
+// clang-format on
 
 
 } // namespace not_to_spec
@@ -50,10 +48,11 @@ concept concat_indirectly_readable =
 
 // clang-format off
 template <class... Rs>
-concept concatable = have_common_reference<range_reference_t<Rs>...>
-                  && have_common_reference<range_rvalue_reference_t<Rs>...>
-                  && have_common_type<range_value_t<Rs>...>
-                  && concat_indirectly_readable<Rs...>;
+concept concatable = requires {
+    typename concat_reference_t<Rs...>;
+    typename concat_value_t<Rs...>;
+    typename concat_rvalue_reference_t<Rs...>;
+} && concat_indirectly_readable<Rs...>;
 // clang-format on
 
 static_assert(true); // clang-format badness
