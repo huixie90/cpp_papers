@@ -217,6 +217,29 @@ through syntactic requirements. Therefore, the authors of this paper propose
 additional semantic requirements to ensure that the conversion from underlying
 references to the common reference does not modify the underlying values.
 
+### Mixing lvalue-reference ranges with prvalue ranges
+
+Similar to `operator*`, `ranges::iter_move` has a similar issue, and it is more
+common to have this issue. For example,
+
+```cpp
+std::vector<std::string> v = ...;
+auto r2 = std::views::iota(0, 2) |
+          std::views::transform([](auto i){return std::to_string(i)});
+auto cv = std::views::concat(v, r2);
+auto it = cv.begin();
+std::ranges::iter_move(it); // first iter_move
+std::ranges::iter_move(it); // second iter_move
+```
+
+`v`'s `range_rvalue_reference_t` is `std::string&&`, and `r2`'s
+`range_rvalue_reference_t` is `std::string`, the `common_reference_t` between
+them is `std::string`. After the first `iter_move`, the underlying `vector`'s
+first element is moved to construct the temporary `common_reference_t`, aka
+`std::string`. As a result, the second `iter_move` results in a moved-from state
+`std::string`. This breaks the "non-modifying" equality-preserving contract in
+`indirectly_readable` concept.
+
 ### Unsupported Cases and Potential Extensions for the Future
 
 Common type and reference based `concatable` logic is a practical and convenient
