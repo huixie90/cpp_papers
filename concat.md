@@ -13,6 +13,11 @@ toc: true
 
 # Revision History
 
+## R2
+
+- Adding extra semantic constraints in the concept `concat_indirectly_readable`
+  to prevent non-equality-preserving behaviour of `operator*` and `iter_move`.
+
 ## R1
 
 - Removed the `common_range` support for underlying ranges that are
@@ -104,7 +109,9 @@ class MyClass{
 public:
   auto getFoos () const{
     using views = std::views;
-    return views::concat(views::single(std::cref(foo_)), 
+    return views::concat(
+        views::single(std::cref(foo_) 
+          | views::transform(&std::reference_wrapper<const Foo>::get)), 
         bars_ | views::transform(&Bar::getFoo));
   }
 };
@@ -181,7 +188,7 @@ In order to make `concat_view` model `input_range`, `reference`, `value_type`,
 and `range_rvalue_reference_t` have to be constrained so that the iterator of
 the `concat_view` models `indirectly_readable`.
 
-### Mixing xvalue ranges with prvalue ranges
+### Mixing ranges of references with ranges of prvalues
 
 In the following example,
 
@@ -206,40 +213,39 @@ element is modified to a moved-from state. Later when the "second deref" is
 called, the result is a moved-from `std::string`. This breaks the "equality
 preserving" requirements.
 
-A naive solution for this problem is to ban all the usages of mixing xvalue
-ranges with prvalue ranges. However, not all of this kind of mixing are
-problematic. For example, `concat`ing a range of `std::string&&` with a range of
-prvalue `std::string_view` is OK, because converting `std::string&&` to
-`std::string_view` does not modify the `std::string&&`. In general, it is not
-possible to decide whether the conversion from `T&&` to `U` modifies `T&&`
-through syntactic requirements. Therefore, the authors of this paper propose to
-use the "equality-preserving" semantic requirements of the requires-expression
-as defined in [concepts.equality].
-
-### Mixing lvalue-reference ranges with prvalue ranges
-
-Similar to `operator*`, `ranges::iter_move` has a similar issue, and it is more
-common to have this issue. For example,
+Similar to `operator*`, `ranges::iter_move` has this same issue, and it is more
+common to run into this problem. For example,
 
 ```cpp
 std::vector<std::string> v = ...;
-auto r2 = std::views::iota(0, 2)
-            | std::views::transform([](auto i){return std::to_string(i)});
-auto cv = std::views::concat(v, r2);
+auto r = std::views::iota(0, 2)
+           | std::views::transform([](auto i){return std::to_string(i)});
+auto cv = std::views::concat(v, r);
 auto it = cv.begin();
 std::ranges::iter_move(it); // first iter_move
 std::ranges::iter_move(it); // second iter_move
 ```
 
-`v`'s `range_rvalue_reference_t` is `std::string&&`, and `r2`'s
+`v`'s `range_rvalue_reference_t` is `std::string&&`, and `r`'s
 `range_rvalue_reference_t` is `std::string`, the `common_reference_t` between
 them is `std::string`. After the first `iter_move`, the underlying `vector`'s
 first element is moved to construct the temporary `common_reference_t`, aka
 `std::string`. As a result, the second `iter_move` results in a moved-from state
 `std::string`. This breaks the "non-modifying" equality-preserving contract in
-`indirectly_readable` concept. Similar to `operator*`, in this paper, such
-modifying conversion is disallowed through the "equality-preserving" semantic
-requirements.
+`indirectly_readable` concept.
+
+A naive solution for this problem is to ban all the usages of mixing ranges of
+references with ranges of prvalues. However, not all of this kind of mixing are
+problematic. For example, `concat`ing a range of `std::string&&` with a range of
+prvalue `std::string_view` is OK, because converting `std::string&&` to
+`std::string_view` does not modify the `std::string&&`. In general, it is not
+possible to detect whether the conversion from `T&&` to `U` modifies `T&&`
+through syntactic requirements. Therefore, the authors of this paper propose to
+use the "equality-preserving" semantic requirements of the requires-expression
+and the notational convention that constant lvalues shall not be modified in a
+manner observable to equality-preserving as defined in
+[concepts.equality]{.sref}. See
+[Wording](#concat-indirectly-readable-definition).
 
 ### Unsupported Cases and Potential Extensions for the Future
 

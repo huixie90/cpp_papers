@@ -323,7 +323,7 @@ TEST_POINT("bidirectional_noncommon_random_access_sized") {
 }
 
 
-struct NonCommonRandomSized{
+struct NonCommonRandomSized : std::ranges::view_base{
     const int* begin() const;
     std::nullptr_t end() const;
     std::size_t size() const;
