@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <ranges>
+#include <functional>
 
 #define TEST_POINT(x) TEST_CASE(x, "[example]")
 
@@ -24,7 +25,9 @@ struct Foo {
 
 struct Bar {
     Foo foo_;
-    const Foo& getFoo() const { return foo_; };
+    const Foo& getFoo() const {
+        return foo_;
+    };
 };
 
 struct MyClass {
@@ -32,8 +35,10 @@ struct MyClass {
     std::vector<Bar> bars_;
 
     auto getFoos() const {
-        return std::views::concat(std::ranges::single_view(std::cref(foo_)),
-                                  bars_ | std::views::transform(&Bar::getFoo));
+        return std::views::concat(
+            std::ranges::single_view(std::cref(foo_)) |
+                std::views::transform([](auto&& w) -> const Foo& { return w.get(); }),
+            bars_ | std::views::transform(&Bar::getFoo));
     }
 };
 
