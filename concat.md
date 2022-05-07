@@ -108,18 +108,16 @@ class MyClass{
   Bar bar_;
 public:
   auto getFoos () const{
-    using views = std::views;
-    return views::concat(
-      return std::views::concat(
-        foos_,
-        std::views::single(std::cref(bar_)) | std::views::transform(&Bar::getFoo)
-      );
+    return std::views::concat(
+      foos_,
+      std::views::single(std::cref(bar_)) | std::views::transform(&Bar::getFoo)
+    );
   }
 };
 
 // user
 for(const auto& foo: myClass.getFoos()){
-  // use foo
+  // use foo, which is Foo const &
 }
 ```
 

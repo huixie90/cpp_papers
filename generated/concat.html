@@ -567,19 +567,17 @@ code.sourceCode > span { display: inline; }
 <span id="cb4-10"><a href="#cb4-10"></a>  Bar bar_;</span>
 <span id="cb4-11"><a href="#cb4-11"></a><span class="kw">public</span><span class="op">:</span></span>
 <span id="cb4-12"><a href="#cb4-12"></a>  <span class="kw">auto</span> getFoos <span class="op">()</span> <span class="kw">const</span><span class="op">{</span></span>
-<span id="cb4-13"><a href="#cb4-13"></a>    <span class="kw">using</span> views <span class="op">=</span> std<span class="op">::</span>views;</span>
-<span id="cb4-14"><a href="#cb4-14"></a>    <span class="cf">return</span> views<span class="op">::</span>concat<span class="op">(</span></span>
-<span id="cb4-15"><a href="#cb4-15"></a>      <span class="cf">return</span> std<span class="op">::</span>views<span class="op">::</span>concat<span class="op">(</span></span>
-<span id="cb4-16"><a href="#cb4-16"></a>        foos_,</span>
-<span id="cb4-17"><a href="#cb4-17"></a>        std<span class="op">::</span>views<span class="op">::</span>single<span class="op">(</span>std<span class="op">::</span>cref<span class="op">(</span>bar_<span class="op">))</span> <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(&amp;</span>Bar<span class="op">::</span>getFoo<span class="op">)</span></span>
-<span id="cb4-18"><a href="#cb4-18"></a>      <span class="op">)</span>;</span>
-<span id="cb4-19"><a href="#cb4-19"></a>  <span class="op">}</span></span>
-<span id="cb4-20"><a href="#cb4-20"></a><span class="op">}</span>;</span>
-<span id="cb4-21"><a href="#cb4-21"></a></span>
-<span id="cb4-22"><a href="#cb4-22"></a><span class="co">// user</span></span>
-<span id="cb4-23"><a href="#cb4-23"></a><span class="cf">for</span><span class="op">(</span><span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> foo<span class="op">:</span> myClass<span class="op">.</span>getFoos<span class="op">()){</span></span>
-<span id="cb4-24"><a href="#cb4-24"></a>  <span class="co">// use foo</span></span>
-<span id="cb4-25"><a href="#cb4-25"></a><span class="op">}</span></span></code></pre></div></td>
+<span id="cb4-13"><a href="#cb4-13"></a>    <span class="cf">return</span> std<span class="op">::</span>views<span class="op">::</span>concat<span class="op">(</span></span>
+<span id="cb4-14"><a href="#cb4-14"></a>      foos_,</span>
+<span id="cb4-15"><a href="#cb4-15"></a>      std<span class="op">::</span>views<span class="op">::</span>single<span class="op">(</span>std<span class="op">::</span>cref<span class="op">(</span>bar_<span class="op">))</span> <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(&amp;</span>Bar<span class="op">::</span>getFoo<span class="op">)</span></span>
+<span id="cb4-16"><a href="#cb4-16"></a>    <span class="op">)</span>;</span>
+<span id="cb4-17"><a href="#cb4-17"></a>  <span class="op">}</span></span>
+<span id="cb4-18"><a href="#cb4-18"></a><span class="op">}</span>;</span>
+<span id="cb4-19"><a href="#cb4-19"></a></span>
+<span id="cb4-20"><a href="#cb4-20"></a><span class="co">// user</span></span>
+<span id="cb4-21"><a href="#cb4-21"></a><span class="cf">for</span><span class="op">(</span><span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> foo<span class="op">:</span> myClass<span class="op">.</span>getFoos<span class="op">()){</span></span>
+<span id="cb4-22"><a href="#cb4-22"></a>  <span class="co">// use foo, which is Foo const &amp;</span></span>
+<span id="cb4-23"><a href="#cb4-23"></a><span class="op">}</span></span></code></pre></div></td>
 </tr>
 </tbody>
 </table>
