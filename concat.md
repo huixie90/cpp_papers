@@ -73,24 +73,24 @@ public:
 };
 
 class MyClass{
-  Foo foo_;
-  std::vector<Bar> bars_;
+  std::vector<Foo> foos_;
+  Bar bar_;
 public:
   auto getFoos () const{
     std::vector<std::reference_wrapper<Foo const>> fooRefs;
-    fooRefs.reserve(bars_.size() + 1);
-    fooRefs.push_back(std::cref(foo_));
-    std::ranges::transform(bars_, std::back_inserter(bars), 
-          [](const Bar& bar){
-            return std::cref(bar.getFoo());
-          });
+    fooRefs.reserve(foos_.size() + 1);
+
+    for (auto const& f : foos_) {
+      fooRefs.emplace_back(f);
+    }
+    fooRefs.emplace_back(bar_.getFoo());
     return fooRefs;
   }
 };
 
 // user
-for(const auto& fooRef: myClass.getFoos() | views::filter(pred)){
-  // `foo` is std::reference_wrapper<Foo const>
+for(const auto& foo: myClass.getFoos()){
+  // `foo` is std::reference_wrapper<Foo const>, not simply a Foo
   // ...
 }
 ```
@@ -104,20 +104,21 @@ public:
 };
 
 class MyClass{
-  Foo foo_;
-  std::vector<Bar> bars_;
+  std::vector<Foo> foos_;
+  Bar bar_;
 public:
   auto getFoos () const{
     using views = std::views;
     return views::concat(
-        views::single(std::cref(foo_) 
-          | views::transform(&std::reference_wrapper<const Foo>::get)), 
-        bars_ | views::transform(&Bar::getFoo));
+      return std::views::concat(
+        foos_,
+        std::views::single(std::cref(bar_)) | std::views::transform(&Bar::getFoo)
+      );
   }
 };
 
 // user
-for(const auto& foo: myClass.getFoos() | views::filter(pred)){
+for(const auto& foo: myClass.getFoos()){
   // use foo
 }
 ```
@@ -135,7 +136,8 @@ In the second example, the user has a class composed of fragmented and indirect
 data. They want to implement a member function that provides a range-like view
 to all this data sequenced together in some order, and without creating any
 copies. The "Before" implementation is needlessly complex and creates a
-temporary container. `concat_view` based implementation is a neat one-liner.
+temporary container with a potentially problematic indirection in its value type. 
+`concat_view` based implementation is a neat one-liner.
 
 
 # Design

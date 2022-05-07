@@ -13,12 +13,12 @@ struct Foo {
     int i;
     Foo(int ii)
         : i{ii} {}
-    Foo(Foo&& other)
+    Foo(Foo&& other) noexcept
         : i{other.i} {
         other.i = -1;
     }
     Foo(const Foo&) = delete;
-    Foo& operator=(Foo&& other) {
+    Foo& operator=(Foo&& other) noexcept {
         if (this == &other) {
             return *this;
         }
@@ -39,8 +39,9 @@ TEST_POINT("operator* : reference mixing xvalue with prvalue") {
 
     auto cv = std::views::concat(r1, r2);
     auto it = cv.begin();
+    CHECK(*it == "abc"s);
     *it;
-    CHECK(*it == "abc"s); // failing at the moment
+    CHECK(*it == ""s); // SURPRISE! should've been same "abc"
 
     it += 2;
     *it;
@@ -99,8 +100,8 @@ TEST_POINT("operator* : move only") {
 
     auto cv = std::views::concat(r1, r2);
     auto it = cv.begin();
-    *it;
-    CHECK((*it).i == 5); // failing at the moment
+    CHECK((*it).i == 5);
+    CHECK((*it).i == -1); // SURPRISE! previous *it called move constructor
 
     ++it;
     *it;
@@ -119,7 +120,8 @@ TEST_POINT(
 
     std::ignore = std::ranges::iter_move(it); // in libcxx iter_move is marked nodiscard
     std::ranges::range_value_t<decltype(cv)> value = std::ranges::iter_move(it);
-    CHECK(value == "abc"s); // fails at the moment
+    CHECK(value.empty());
+    //    ^^^ SURPRISE! value should have been "abc", but unused iter_move destroyed it.
 
     it += 2;
     std::ignore = std::ranges::iter_move(it); // in libcxx iter_move is marked nodiscard
@@ -141,7 +143,7 @@ TEST_POINT("iter_move : reference_wrapper") {
     ++it;
     std::ignore = std::ranges::iter_move(it); // in libcxx iter_move is marked nodiscard
     std::ranges::range_value_t<decltype(cv)> value2 = std::ranges::iter_move(it);
-    CHECK(value2 == "def"s); // fails at the moment
+    CHECK(value2 == ""s); // SURPRISE! should be "def", but unused iter_move destroyed it.
 }
 
 TEST_POINT("iter_move : reference_wrapper with prvalue") {
@@ -173,11 +175,11 @@ TEST_POINT("iter_move : move only") {
 
     std::ignore = std::ranges::iter_move(it); // in libcxx iter_move is marked nodiscard
     std::ranges::range_value_t<decltype(cv)> value = std::ranges::iter_move(it);
-    CHECK(value.i == 5); // fails at the moment
+    CHECK(value.i == -1);
+    //    ^^^ SURPRISE! unused iter_move() already called move constructor.
 
     ++it;
     std::ignore = std::ranges::iter_move(it); // in libcxx iter_move is marked nodiscard
     std::ranges::range_value_t<decltype(cv)> value2 = std::ranges::iter_move(it);
     CHECK(value2.i == 0);
 }
-

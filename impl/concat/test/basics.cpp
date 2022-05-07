@@ -707,7 +707,7 @@ struct cpp20_input_range {
 };
 
 
-TEST_POINT("this should work") {
+TEST_POINT("cpp20 input range") {
     static_assert(std::ranges::input_range<cpp20_input_range>);
     cpp20_input_range r1, r2;
     auto x = std::views::concat(r1, r2);
