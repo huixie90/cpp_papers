@@ -89,7 +89,7 @@ public:
 };
 
 // user
-for(const auto& foo: myClass.getFoos() | views::filter(pred)){
+for(const auto& foo: myClass.getFoos()){
   // `foo` is std::reference_wrapper<Foo const>, not simply a Foo
   // ...
 }
@@ -116,7 +116,7 @@ public:
 };
 
 // user
-for(const auto& foo: myClass.getFoos() | views::filter(pred)){
+for(const auto& foo: myClass.getFoos()){
   // use foo, which is Foo const &
 }
 ```
