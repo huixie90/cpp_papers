@@ -110,7 +110,8 @@ public:
   auto getFoos () const{
     return std::views::concat(
       foos_,
-      std::views::single(std::cref(bar_)) | std::views::transform(&Bar::getFoo)
+      std::views::single(std::cref(bar_))
+      | std::views::transform(&Bar::getFoo)
     );
   }
 };
@@ -371,7 +372,7 @@ namespace std::ranges {
 
   // [range.concat], concat view
   template <input_range... Views>
-    requires @_see below_@
+    requires @*see below*@
   class concat_view;
 
   namespace views {
@@ -394,7 +395,7 @@ this section:
 ```cpp
 namespace std::ranges {
     template <class... Ts>
-    using @_tuple-or-pair_@ = @_see-below_@;                     // exposition only
+    using @_tuple-or-pair_@ = @*see below*@;                     // exposition only
 
     template<class F, class Tuple>
     constexpr auto @_tuple-transform_@(F&& f, Tuple&& tuple) { // exposition only
@@ -482,7 +483,7 @@ namespace std::ranges {
     (sized_range<R> && random_access_range<R>);
 
   template <class... Rs>
-  concept @_concat-bidirectional_@ = @_see below_@;   // exposition only
+  concept @_concat-bidirectional_@ = @*see below*@;   // exposition only
 
   template <input_range... Views>
     requires (view<Views> && ...) && (sizeof...(Views) > 0) &&
@@ -519,7 +520,7 @@ namespace std::ranges {
 
 ```cpp
 template <class... Rs>
-concept @*concat-indirectly-readable*@ = @_see below_@;
+concept @*concat-indirectly-readable*@ = @*see below*@;
 ```
 
 :::bq
@@ -551,7 +552,7 @@ concept @*concat-indirectly-readable*@ =
 
 ```cpp
 template <class... Rs>
-concept @_concatable_@ = @_see below_@;
+concept @_concatable_@ = @*see below*@;
 ```
 
 :::bq
@@ -572,7 +573,7 @@ concept @_concatable_@ = requires {
 
 ```cpp
 template <class... Rs>
-concept @_concat-bidirectional_@ = @_see below_@;
+concept @_concat-bidirectional_@ = @*see below*@;
 ```
 
 :::bq

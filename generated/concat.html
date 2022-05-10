@@ -569,15 +569,16 @@ code.sourceCode > span { display: inline; }
 <span id="cb4-12"><a href="#cb4-12"></a>  <span class="kw">auto</span> getFoos <span class="op">()</span> <span class="kw">const</span><span class="op">{</span></span>
 <span id="cb4-13"><a href="#cb4-13"></a>    <span class="cf">return</span> std<span class="op">::</span>views<span class="op">::</span>concat<span class="op">(</span></span>
 <span id="cb4-14"><a href="#cb4-14"></a>      foos_,</span>
-<span id="cb4-15"><a href="#cb4-15"></a>      std<span class="op">::</span>views<span class="op">::</span>single<span class="op">(</span>std<span class="op">::</span>cref<span class="op">(</span>bar_<span class="op">))</span> <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(&amp;</span>Bar<span class="op">::</span>getFoo<span class="op">)</span></span>
-<span id="cb4-16"><a href="#cb4-16"></a>    <span class="op">)</span>;</span>
-<span id="cb4-17"><a href="#cb4-17"></a>  <span class="op">}</span></span>
-<span id="cb4-18"><a href="#cb4-18"></a><span class="op">}</span>;</span>
-<span id="cb4-19"><a href="#cb4-19"></a></span>
-<span id="cb4-20"><a href="#cb4-20"></a><span class="co">// user</span></span>
-<span id="cb4-21"><a href="#cb4-21"></a><span class="cf">for</span><span class="op">(</span><span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> foo<span class="op">:</span> myClass<span class="op">.</span>getFoos<span class="op">()){</span></span>
-<span id="cb4-22"><a href="#cb4-22"></a>  <span class="co">// use foo, which is Foo const &amp;</span></span>
-<span id="cb4-23"><a href="#cb4-23"></a><span class="op">}</span></span></code></pre></div></td>
+<span id="cb4-15"><a href="#cb4-15"></a>      std<span class="op">::</span>views<span class="op">::</span>single<span class="op">(</span>std<span class="op">::</span>cref<span class="op">(</span>bar_<span class="op">))</span></span>
+<span id="cb4-16"><a href="#cb4-16"></a>      <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(&amp;</span>Bar<span class="op">::</span>getFoo<span class="op">)</span></span>
+<span id="cb4-17"><a href="#cb4-17"></a>    <span class="op">)</span>;</span>
+<span id="cb4-18"><a href="#cb4-18"></a>  <span class="op">}</span></span>
+<span id="cb4-19"><a href="#cb4-19"></a><span class="op">}</span>;</span>
+<span id="cb4-20"><a href="#cb4-20"></a></span>
+<span id="cb4-21"><a href="#cb4-21"></a><span class="co">// user</span></span>
+<span id="cb4-22"><a href="#cb4-22"></a><span class="cf">for</span><span class="op">(</span><span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> foo<span class="op">:</span> myClass<span class="op">.</span>getFoos<span class="op">()){</span></span>
+<span id="cb4-23"><a href="#cb4-23"></a>  <span class="co">// use foo, which is Foo const &amp;</span></span>
+<span id="cb4-24"><a href="#cb4-24"></a><span class="op">}</span></span></code></pre></div></td>
 </tr>
 </tbody>
 </table>
@@ -682,7 +683,7 @@ Note that the last underlying range does not have to satisfy this constraint bec
  <a href="https://wg21.link/range.zip.view">[range.zip.view]</a></span> to this section:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">namespace</span> std<span class="op">::</span>ranges <span class="op">{</span></span>
 <span id="cb8-2"><a href="#cb8-2"></a>    <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Ts<span class="op">&gt;</span></span>
-<span id="cb8-3"><a href="#cb8-3"></a>    <span class="kw">using</span> <em>tuple-or-pair</em> <span class="op">=</span> <em>see-below</em>;                     <span class="co">// exposition only</span></span>
+<span id="cb8-3"><a href="#cb8-3"></a>    <span class="kw">using</span> <em>tuple-or-pair</em> <span class="op">=</span> <em>see below</em>;                     <span class="co">// exposition only</span></span>
 <span id="cb8-4"><a href="#cb8-4"></a></span>
 <span id="cb8-5"><a href="#cb8-5"></a>    <span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> F, <span class="kw">class</span> Tuple<span class="op">&gt;</span></span>
 <span id="cb8-6"><a href="#cb8-6"></a>    <span class="kw">constexpr</span> <span class="kw">auto</span> <em>tuple-transform</em><span class="op">(</span>F<span class="op">&amp;&amp;</span> f, Tuple<span class="op">&amp;&amp;</span> tuple<span class="op">)</span> <span class="op">{</span> <span class="co">// exposition only</span></span>
