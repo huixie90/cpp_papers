@@ -884,11 +884,11 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <span id="cb23-13"><a href="#cb23-13"></a>    <span class="kw">using</span> iterator_category <span class="op">=</span> <em>see below</em>;                  <span class="co">// not always present.</span></span>
 <span id="cb23-14"><a href="#cb23-14"></a></span>
 <span id="cb23-15"><a href="#cb23-15"></a>  <span class="kw">private</span><span class="op">:</span></span>
-<span id="cb23-16"><a href="#cb23-16"></a>    <span class="kw">using</span> <em>base_iter</em> <span class="op">=</span>                                     <span class="co">// exposition only</span></span>
+<span id="cb23-16"><a href="#cb23-16"></a>    <span class="kw">using</span> <em>base-iter</em> <span class="op">=</span>                                     <span class="co">// exposition only</span></span>
 <span id="cb23-17"><a href="#cb23-17"></a>      variant<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;...&gt;</span>;</span>
 <span id="cb23-18"><a href="#cb23-18"></a>    </span>
 <span id="cb23-19"><a href="#cb23-19"></a>    <em>maybe-const</em><span class="op">&lt;</span>Const, concat_view<span class="op">&gt;*</span> <em>parent_</em> <span class="op">=</span> <span class="kw">nullptr</span>;   <span class="co">// exposition only</span></span>
-<span id="cb23-20"><a href="#cb23-20"></a>    <em>base_iter</em> <em>it_</em> <span class="op">=</span> <em>base_iter</em><span class="op">()</span>;                          <span class="co">// exposition only</span></span>
+<span id="cb23-20"><a href="#cb23-20"></a>    <em>base-iter</em> <em>it_</em> <span class="op">=</span> <em>base-iter</em><span class="op">()</span>;                          <span class="co">// exposition only</span></span>
 <span id="cb23-21"><a href="#cb23-21"></a></span>
 <span id="cb23-22"><a href="#cb23-22"></a>    <span class="kw">friend</span> <span class="kw">class</span> <em>iterator</em><span class="op">&lt;!</span>Const<span class="op">&gt;</span>;</span>
 <span id="cb23-23"><a href="#cb23-23"></a>    <span class="kw">friend</span> <span class="kw">class</span> concat_view;</span>
@@ -900,16 +900,16 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <span id="cb23-29"><a href="#cb23-29"></a>    <span class="kw">constexpr</span> <span class="dt">void</span> <em>prev</em><span class="op">()</span>;                                <span class="co">// exposition only</span></span>
 <span id="cb23-30"><a href="#cb23-30"></a></span>
 <span id="cb23-31"><a href="#cb23-31"></a>    <span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
-<span id="cb23-32"><a href="#cb23-32"></a>    <span class="kw">constexpr</span> <span class="dt">void</span> <em>advance_fwd</em><span class="op">(</span>difference_type offset, difference_type steps<span class="op">)</span>; <span class="co">// exposition only</span></span>
+<span id="cb23-32"><a href="#cb23-32"></a>    <span class="kw">constexpr</span> <span class="dt">void</span> <em>advance-fwd</em><span class="op">(</span>difference_type offset, difference_type steps<span class="op">)</span>; <span class="co">// exposition only</span></span>
 <span id="cb23-33"><a href="#cb23-33"></a></span>
 <span id="cb23-34"><a href="#cb23-34"></a>    <span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
-<span id="cb23-35"><a href="#cb23-35"></a>    <span class="kw">constexpr</span> <span class="dt">void</span> <em>advance_bwd</em><span class="op">(</span>difference_type offset, difference_type steps<span class="op">)</span>; <span class="co">// exposition only</span></span>
+<span id="cb23-35"><a href="#cb23-35"></a>    <span class="kw">constexpr</span> <span class="dt">void</span> <em>advance-bwd</em><span class="op">(</span>difference_type offset, difference_type steps<span class="op">)</span>; <span class="co">// exposition only</span></span>
 <span id="cb23-36"><a href="#cb23-36"></a></span>
 <span id="cb23-37"><a href="#cb23-37"></a>    <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Args<span class="op">&gt;</span></span>
 <span id="cb23-38"><a href="#cb23-38"></a>    <span class="kw">explicit</span> <span class="kw">constexpr</span> <em>iterator</em><span class="op">(</span></span>
 <span id="cb23-39"><a href="#cb23-39"></a>                <em>maybe-const</em><span class="op">&lt;</span>Const, concat_view<span class="op">&gt;*</span> parent,</span>
 <span id="cb23-40"><a href="#cb23-40"></a>                Args<span class="op">&amp;&amp;...</span> args<span class="op">)</span> </span>
-<span id="cb23-41"><a href="#cb23-41"></a>        <span class="kw">requires</span> constructible_from<span class="op">&lt;</span><em>base_iter</em>, Args<span class="op">&amp;&amp;...&gt;</span>;  <span class="co">// exposition only</span></span>
+<span id="cb23-41"><a href="#cb23-41"></a>        <span class="kw">requires</span> constructible_from<span class="op">&lt;</span><em>base-iter</em>, Args<span class="op">&amp;&amp;...&gt;</span>;  <span class="co">// exposition only</span></span>
 <span id="cb23-42"><a href="#cb23-42"></a></span>
 <span id="cb23-43"><a href="#cb23-43"></a>  <span class="kw">public</span><span class="op">:</span></span>
 <span id="cb23-44"><a href="#cb23-44"></a></span>
@@ -1042,7 +1042,7 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <span id="cb27-17"><a href="#cb27-17"></a><span class="op">}</span></span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb28"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb28-1"><a href="#cb28-1"></a><span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
-<span id="cb28-2"><a href="#cb28-2"></a><span class="kw">constexpr</span> <span class="dt">void</span> <em>advance_fwd</em><span class="op">(</span>difference_type offset, difference_type steps<span class="op">)</span>; <span class="co">// exposition only</span></span></code></pre></div>
+<span id="cb28-2"><a href="#cb28-2"></a><span class="kw">constexpr</span> <span class="dt">void</span> <em>advance-fwd</em><span class="op">(</span>difference_type offset, difference_type steps<span class="op">)</span>; <span class="co">// exposition only</span></span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">5</a></span> <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb29"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb29-1"><a href="#cb29-1"></a><span class="cf">if</span> <span class="kw">constexpr</span> <span class="op">(</span>N <span class="op">==</span> <span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">)</span> <span class="op">-</span> <span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
@@ -1053,12 +1053,12 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <span id="cb29-6"><a href="#cb29-6"></a>        get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">+=</span> steps;</span>
 <span id="cb29-7"><a href="#cb29-7"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
 <span id="cb29-8"><a href="#cb29-8"></a>        <em>it_</em><span class="op">.</span><span class="kw">template</span> emplace<span class="op">&lt;</span>N <span class="op">+</span> <span class="dv">1</span><span class="op">&gt;(</span>ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span>N <span class="op">+</span> <span class="dv">1</span><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">)))</span>;</span>
-<span id="cb29-9"><a href="#cb29-9"></a>        advance_fwd<span class="op">&lt;</span>N <span class="op">+</span> <span class="dv">1</span><span class="op">&gt;(</span><span class="dv">0</span>, offset <span class="op">+</span> steps <span class="op">-</span> n_size<span class="op">)</span>;</span>
+<span id="cb29-9"><a href="#cb29-9"></a>        advance<span class="op">-</span>fwd<span class="op">&lt;</span>N <span class="op">+</span> <span class="dv">1</span><span class="op">&gt;(</span><span class="dv">0</span>, offset <span class="op">+</span> steps <span class="op">-</span> n_size<span class="op">)</span>;</span>
 <span id="cb29-10"><a href="#cb29-10"></a>    <span class="op">}</span></span>
 <span id="cb29-11"><a href="#cb29-11"></a><span class="op">}</span></span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb30"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb30-1"><a href="#cb30-1"></a><span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
-<span id="cb30-2"><a href="#cb30-2"></a><span class="kw">constexpr</span> <span class="dt">void</span> <em>advance_bwd</em><span class="op">(</span>difference_type offset, difference_type steps<span class="op">)</span>; <span class="co">// exposition only</span></span></code></pre></div>
+<span id="cb30-2"><a href="#cb30-2"></a><span class="kw">constexpr</span> <span class="dt">void</span> <em>advance-bwd</em><span class="op">(</span>difference_type offset, difference_type steps<span class="op">)</span>; <span class="co">// exposition only</span></span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">6</a></span> <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb31-1"><a href="#cb31-1"></a><span class="cf">if</span> <span class="kw">constexpr</span> <span class="op">(</span>N <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
@@ -1069,7 +1069,7 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <span id="cb31-6"><a href="#cb31-6"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
 <span id="cb31-7"><a href="#cb31-7"></a>        <em>it_</em><span class="op">.</span><span class="kw">template</span> emplace<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span>ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span>views_<span class="op">))</span> <span class="op">+</span></span>
 <span id="cb31-8"><a href="#cb31-8"></a>                                    ranges<span class="op">::</span>size<span class="op">(</span>get<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span>views_<span class="op">)))</span>;</span>
-<span id="cb31-9"><a href="#cb31-9"></a>        advance_bwd<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span></span>
+<span id="cb31-9"><a href="#cb31-9"></a>        advance<span class="op">-</span>bwd<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span></span>
 <span id="cb31-10"><a href="#cb31-10"></a>            <span class="kw">static_cast</span><span class="op">&lt;</span>difference_type<span class="op">&gt;(</span>ranges<span class="op">::</span>size<span class="op">(</span>get<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span>views_<span class="op">)))</span>,</span>
 <span id="cb31-11"><a href="#cb31-11"></a>            steps <span class="op">-</span> offset<span class="op">)</span>;</span>
 <span id="cb31-12"><a href="#cb31-12"></a>    <span class="op">}</span></span>
@@ -1079,7 +1079,7 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <span id="cb32-2"><a href="#cb32-2"></a><span class="kw">explicit</span> <span class="kw">constexpr</span> <em>iterator</em><span class="op">(</span></span>
 <span id="cb32-3"><a href="#cb32-3"></a>            <em>maybe-const</em><span class="op">&lt;</span>Const, concat_view<span class="op">&gt;*</span> parent,</span>
 <span id="cb32-4"><a href="#cb32-4"></a>            Args<span class="op">&amp;&amp;...</span> args<span class="op">)</span> </span>
-<span id="cb32-5"><a href="#cb32-5"></a>    <span class="kw">requires</span> constructible_from<span class="op">&lt;</span><em>base_iter</em>, Args<span class="op">&amp;&amp;...&gt;</span>; <span class="co">// exposition only</span></span></code></pre></div>
+<span id="cb32-5"><a href="#cb32-5"></a>    <span class="kw">requires</span> constructible_from<span class="op">&lt;</span><em>base-iter</em>, Args<span class="op">&amp;&amp;...&gt;</span>; <span class="co">// exposition only</span></span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">7</a></span> <em>Effects</em>: Initializes <code class="sourceCode default"><em>parent_</em></code> with <code class="sourceCode default">parent</code>, and initializes <code class="sourceCode default"><em>it_</em></code> with <code class="sourceCode default">std::forward&lt;Args&gt;(args)...</code>.</p>
 </div>
@@ -1143,9 +1143,9 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <p><span class="marginalizedparent"><a class="marginalized">21</a></span> <em>Preconditions</em>: <code class="sourceCode default"><em>it_</em>.valueless_by_exception()</code> is <code class="sourceCode default">false</code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">22</a></span> <em>Effects</em>: Let <code class="sourceCode default"><em>i</em></code> be <code class="sourceCode default"><em>it_.index()</em></code>. Equivalent to:</p>
 <div class="sourceCode" id="cb47"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb47-1"><a href="#cb47-1"></a><span class="cf">if</span><span class="op">(</span>n <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb47-2"><a href="#cb47-2"></a>  <em>advance_fwd</em><span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">-</span> ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))</span>, n<span class="op">)</span>;</span>
+<span id="cb47-2"><a href="#cb47-2"></a>  <em>advance-fwd</em><span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">-</span> ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))</span>, n<span class="op">)</span>;</span>
 <span id="cb47-3"><a href="#cb47-3"></a><span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>n <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb47-4"><a href="#cb47-4"></a>  <em>advance_bwd</em><span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">-</span> ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))</span>, <span class="op">-</span>n<span class="op">)</span>;</span>
+<span id="cb47-4"><a href="#cb47-4"></a>  <em>advance-bwd</em><span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">-</span> ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))</span>, <span class="op">-</span>n<span class="op">)</span>;</span>
 <span id="cb47-5"><a href="#cb47-5"></a><span class="op">}</span></span>
 <span id="cb47-6"><a href="#cb47-6"></a><span class="cf">return</span> <span class="op">*</span><span class="kw">this</span>;</span></code></pre></div>
 </div>

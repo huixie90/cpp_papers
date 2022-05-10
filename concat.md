@@ -676,11 +676,11 @@ namespace std::ranges{
     using iterator_category = @*see below*@;                  // not always present.
 
   private:
-    using @*base_iter*@ =                                     // exposition only
+    using @*base-iter*@ =                                     // exposition only
       variant<iterator_t<@_maybe-const_@<Const, Views>>...>;
     
     @_maybe-const_@<Const, concat_view>* @*parent_*@ = nullptr;   // exposition only
-    @*base_iter*@ @*it_*@ = @*base_iter*@();                          // exposition only
+    @*base-iter*@ @*it_*@ = @*base-iter*@();                          // exposition only
 
     friend class @*iterator*@<!Const>;
     friend class concat_view;
@@ -692,16 +692,16 @@ namespace std::ranges{
     constexpr void @_prev_@();                                // exposition only
 
     template <std::size_t N>
-    constexpr void @_advance_fwd_@(difference_type offset, difference_type steps); // exposition only
+    constexpr void @_advance-fwd_@(difference_type offset, difference_type steps); // exposition only
 
     template <std::size_t N>
-    constexpr void @_advance_bwd_@(difference_type offset, difference_type steps); // exposition only
+    constexpr void @_advance-bwd_@(difference_type offset, difference_type steps); // exposition only
 
     template <class... Args>
     explicit constexpr @_iterator_@(
                 @_maybe-const_@<Const, concat_view>* parent,
                 Args&&... args) 
-        requires constructible_from<@*base_iter*@, Args&&...>;  // exposition only
+        requires constructible_from<@*base-iter*@, Args&&...>;  // exposition only
 
   public:
 
@@ -867,7 +867,7 @@ if constexpr (N == 0) {
 
 ```cpp
 template <std::size_t N>
-constexpr void @_advance_fwd_@(difference_type offset, difference_type steps); // exposition only
+constexpr void @_advance-fwd_@(difference_type offset, difference_type steps); // exposition only
 ```
 
 :::bq
@@ -883,7 +883,7 @@ if constexpr (N == sizeof...(Views) - 1) {
         get<N>(@*it_*@) += steps;
     } else {
         @*it_*@.template emplace<N + 1>(ranges::begin(get<N + 1>(@*parent_*@->@*views_*@)));
-        advance_fwd<N + 1>(0, offset + steps - n_size);
+        advance-fwd<N + 1>(0, offset + steps - n_size);
     }
 }
 ```
@@ -892,7 +892,7 @@ if constexpr (N == sizeof...(Views) - 1) {
 
 ```cpp
 template <std::size_t N>
-constexpr void @_advance_bwd_@(difference_type offset, difference_type steps); // exposition only
+constexpr void @_advance-bwd_@(difference_type offset, difference_type steps); // exposition only
 ```
 
 :::bq
@@ -908,7 +908,7 @@ if constexpr (N == 0) {
     } else {
         @*it_*@.template emplace<N - 1>(ranges::begin(get<N - 1>(@*parent_*@->views_)) +
                                     ranges::size(get<N - 1>(@*parent_*@->views_)));
-        advance_bwd<N - 1>(
+        advance-bwd<N - 1>(
             static_cast<difference_type>(ranges::size(get<N - 1>(@*parent_*@->views_))),
             steps - offset);
     }
@@ -922,7 +922,7 @@ template <class... Args>
 explicit constexpr @_iterator_@(
             @_maybe-const_@<Const, concat_view>* parent,
             Args&&... args) 
-    requires constructible_from<@*base_iter*@, Args&&...>; // exposition only
+    requires constructible_from<@*base-iter*@, Args&&...>; // exposition only
 ```
 
 :::bq
@@ -1066,9 +1066,9 @@ constexpr @_iterator_@& operator+=(difference_type n)
 
 ```cpp
 if(n > 0) {
-  @*advance_fwd*@<@*i*@>(get<@*i*@>(@*it_*@) - ranges::begin(get<@*i*@>(@*parent_*@->@*views_*@)), n);
+  @*advance-fwd*@<@*i*@>(get<@*i*@>(@*it_*@) - ranges::begin(get<@*i*@>(@*parent_*@->@*views_*@)), n);
 } else if (n < 0) {
-  @*advance_bwd*@<@*i*@>(get<@*i*@>(@*it_*@) - ranges::begin(get<@*i*@>(@*parent_*@->@*views_*@)), -n);
+  @*advance-bwd*@<@*i*@>(get<@*i*@>(@*it_*@) - ranges::begin(get<@*i*@>(@*parent_*@->@*views_*@)), -n);
 }
 return *this;
 ```
