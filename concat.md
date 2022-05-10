@@ -15,7 +15,7 @@ toc: true
 
 ## R2
 
-- Adding extra semantic constraints in the concept `concat_indirectly_readable`
+- Adding extra semantic constraints in the concept `concat-indirectly-readable`
   to prevent non-equality-preserving behaviour of `operator*` and `iter_move`.
 
 ## R1
@@ -458,16 +458,16 @@ for(auto&& i : std::views::concat(v1, v2, v3, a, s)){
 namespace std::ranges {
 
   template <class... Rs>
-  using @*concat_reference_t*@ = common_reference_t<range_reference_t<Rs>...>; // exposition only
+  using @*concat-reference-t*@ = common_reference_t<range_reference_t<Rs>...>; // exposition only
 
   template <class... Rs>
-  using @*concat_value_t*@ = common_type_t<range_value_t<Rs>...>; // exposition only
+  using @*concat-value-t*@ = common_type_t<range_value_t<Rs>...>; // exposition only
 
   template <class... Rs>
-  using @*concat_rvalue_reference_t*@ = common_reference_t<range_rvalue_reference_t<Rs>...>; // exposition only
+  using @*concat-rvalue-reference-t*@ = common_reference_t<range_rvalue_reference_t<Rs>...>; // exposition only
 
   template <class... Rs>
-  concept @*concat_indirectly_readable*@ = @*see below*@; // exposition only
+  concept @*concat-indirectly-readable*@ = @*see below*@; // exposition only
 
   template <class... Rs>
   concept @_concatable_@ = @*see below*@;             // exposition only
@@ -519,31 +519,31 @@ namespace std::ranges {
 
 ```cpp
 template <class... Rs>
-concept @*concat_indirectly_readable*@ = @_see below_@;
+concept @*concat-indirectly-readable*@ = @_see below_@;
 ```
 
 :::bq
 
 [1]{.pnum} []{#concat-indirectly-readable-definition} The exposition-only
-`@*concat_indirectly_readable*@` concept is equivalent to:
+`@*concat-indirectly-readable*@` concept is equivalent to:
 
 ```cpp
 template <class Ref, class RRef, class It>
-concept @*concat_indirectly_readable_impl*@ = requires (const It it){
+concept @*concat-indirectly-readable-impl*@ = requires (const It it){
   static_cast<Ref>(*it);
   static_cast<RRef>(ranges::iter_move(it));
 };
 
 template <class... Rs>
-concept @*concat_indirectly_readable*@ =
-  common_reference_with<@*concat_reference_t*@<Rs...>&&, 
-                        @*concat_value_t*@<Rs...>&> &&
-  common_reference_with<@*concat_reference_t*@<Rs...>&&, 
-                        @*concat_rvalue_reference_t*@<Rs...>&&> &&
-  common_reference_with<@*concat_rvalue_reference_t*@<Rs...>&&, 
-                        @*concat_value_t*@<Rs...> const&> &&
-  (@*concat_indirectly_readable_impl*@<@*concat_reference_t*@<Rs...>, 
-                                   @*concat_rvalue_reference_t*@<Rs...>, 
+concept @*concat-indirectly-readable*@ =
+  common_reference_with<@*concat-reference-t*@<Rs...>&&, 
+                        @*concat-value-t*@<Rs...>&> &&
+  common_reference_with<@*concat-reference-t*@<Rs...>&&, 
+                        @*concat-rvalue-reference-t*@<Rs...>&&> &&
+  common_reference_with<@*concat-rvalue-reference-t*@<Rs...>&&, 
+                        @*concat-value-t*@<Rs...> const&> &&
+  (@*concat-indirectly-readable-impl*@<@*concat-reference-t*@<Rs...>, 
+                                   @*concat-rvalue-reference-t*@<Rs...>, 
                                    iterator_t<Rs>> && ...);
 ```
 
@@ -562,10 +562,10 @@ concept is equivalent to:
 ```cpp
 template <class... Rs>
 concept @_concatable_@ = requires {
-  typename @*concat_reference_t*@<Rs...>;
-  typename @*concat_value_t*@<Rs...>;
-  typename @*concat_rvalue_reference_t*@<Rs...>;
-} && @*concat_indirectly_readable*@<Rs...>;
+  typename @*concat-reference-t*@<Rs...>;
+  typename @*concat-value-t*@<Rs...>;
+  typename @*concat-rvalue-reference-t*@<Rs...>;
+} && @*concat-indirectly-readable*@<Rs...>;
 ```
 
 :::

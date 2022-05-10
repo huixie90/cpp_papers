@@ -490,7 +490,7 @@ code.sourceCode > span { display: inline; }
 <h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
 <h2 data-number="1.1" id="r2"><span class="header-section-number">1.1</span> R2<a href="#r2" class="self-link"></a></h2>
 <ul>
-<li>Adding extra semantic constraints in the concept <code class="sourceCode default">concat_indirectly_readable</code> to prevent non-equality-preserving behaviour of <code class="sourceCode default">operator*</code> and <code class="sourceCode default">iter_move</code>.</li>
+<li>Adding extra semantic constraints in the concept <code class="sourceCode default">concat-indirectly-readable</code> to prevent non-equality-preserving behaviour of <code class="sourceCode default">operator*</code> and <code class="sourceCode default">iter_move</code>.</li>
 </ul>
 <h2 data-number="1.2" id="r1"><span class="header-section-number">1.2</span> R1<a href="#r1" class="self-link"></a></h2>
 <ul>
@@ -732,16 +732,16 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">namespace</span> std<span class="op">::</span>ranges <span class="op">{</span></span>
 <span id="cb10-2"><a href="#cb10-2"></a></span>
 <span id="cb10-3"><a href="#cb10-3"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
-<span id="cb10-4"><a href="#cb10-4"></a>  <span class="kw">using</span> <em>concat_reference_t</em> <span class="op">=</span> common_reference_t<span class="op">&lt;</span>range_reference_t<span class="op">&lt;</span>Rs<span class="op">&gt;...&gt;</span>; <span class="co">// exposition only</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a>  <span class="kw">using</span> <em>concat-reference-t</em> <span class="op">=</span> common_reference_t<span class="op">&lt;</span>range_reference_t<span class="op">&lt;</span>Rs<span class="op">&gt;...&gt;</span>; <span class="co">// exposition only</span></span>
 <span id="cb10-5"><a href="#cb10-5"></a></span>
 <span id="cb10-6"><a href="#cb10-6"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
-<span id="cb10-7"><a href="#cb10-7"></a>  <span class="kw">using</span> <em>concat_value_t</em> <span class="op">=</span> common_type_t<span class="op">&lt;</span>range_value_t<span class="op">&lt;</span>Rs<span class="op">&gt;...&gt;</span>; <span class="co">// exposition only</span></span>
+<span id="cb10-7"><a href="#cb10-7"></a>  <span class="kw">using</span> <em>concat-value-t</em> <span class="op">=</span> common_type_t<span class="op">&lt;</span>range_value_t<span class="op">&lt;</span>Rs<span class="op">&gt;...&gt;</span>; <span class="co">// exposition only</span></span>
 <span id="cb10-8"><a href="#cb10-8"></a></span>
 <span id="cb10-9"><a href="#cb10-9"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
-<span id="cb10-10"><a href="#cb10-10"></a>  <span class="kw">using</span> <em>concat_rvalue_reference_t</em> <span class="op">=</span> common_reference_t<span class="op">&lt;</span>range_rvalue_reference_t<span class="op">&lt;</span>Rs<span class="op">&gt;...&gt;</span>; <span class="co">// exposition only</span></span>
+<span id="cb10-10"><a href="#cb10-10"></a>  <span class="kw">using</span> <em>concat-rvalue-reference-t</em> <span class="op">=</span> common_reference_t<span class="op">&lt;</span>range_rvalue_reference_t<span class="op">&lt;</span>Rs<span class="op">&gt;...&gt;</span>; <span class="co">// exposition only</span></span>
 <span id="cb10-11"><a href="#cb10-11"></a></span>
 <span id="cb10-12"><a href="#cb10-12"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
-<span id="cb10-13"><a href="#cb10-13"></a>  <span class="kw">concept</span> <em>concat_indirectly_readable</em> <span class="op">=</span> <em>see below</em>; <span class="co">// exposition only</span></span>
+<span id="cb10-13"><a href="#cb10-13"></a>  <span class="kw">concept</span> <em>concat-indirectly-readable</em> <span class="op">=</span> <em>see below</em>; <span class="co">// exposition only</span></span>
 <span id="cb10-14"><a href="#cb10-14"></a></span>
 <span id="cb10-15"><a href="#cb10-15"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
 <span id="cb10-16"><a href="#cb10-16"></a>  <span class="kw">concept</span> <em>concatable</em> <span class="op">=</span> <em>see below</em>;             <span class="co">// exposition only</span></span>
@@ -790,25 +790,25 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <span id="cb10-59"><a href="#cb10-59"></a>    concat_view<span class="op">(</span>R<span class="op">&amp;&amp;...)</span> <span class="op">-&gt;</span> concat_view<span class="op">&lt;</span>views<span class="op">::</span>all_t<span class="op">&lt;</span>R<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb10-60"><a href="#cb10-60"></a><span class="op">}</span></span></code></pre></div>
 <div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
-<span id="cb11-2"><a href="#cb11-2"></a><span class="kw">concept</span> <em>concat_indirectly_readable</em> <span class="op">=</span> <em>see below</em>;</span></code></pre></div>
+<span id="cb11-2"><a href="#cb11-2"></a><span class="kw">concept</span> <em>concat-indirectly-readable</em> <span class="op">=</span> <em>see below</em>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">1</a></span> <span id="concat-indirectly-readable-definition"></span> The exposition-only <code class="sourceCode default"><em>concat_indirectly_readable</em></code> concept is equivalent to:</p>
+<p><span class="marginalizedparent"><a class="marginalized">1</a></span> <span id="concat-indirectly-readable-definition"></span> The exposition-only <code class="sourceCode default"><em>concat-indirectly-readable</em></code> concept is equivalent to:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Ref, <span class="kw">class</span> RRef, <span class="kw">class</span> It<span class="op">&gt;</span></span>
-<span id="cb12-2"><a href="#cb12-2"></a><span class="kw">concept</span> <em>concat_indirectly_readable_impl</em> <span class="op">=</span> <span class="kw">requires</span> <span class="op">(</span><span class="kw">const</span> It it<span class="op">){</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a><span class="kw">concept</span> <em>concat-indirectly-readable-impl</em> <span class="op">=</span> <span class="kw">requires</span> <span class="op">(</span><span class="kw">const</span> It it<span class="op">){</span></span>
 <span id="cb12-3"><a href="#cb12-3"></a>  <span class="kw">static_cast</span><span class="op">&lt;</span>Ref<span class="op">&gt;(*</span>it<span class="op">)</span>;</span>
 <span id="cb12-4"><a href="#cb12-4"></a>  <span class="kw">static_cast</span><span class="op">&lt;</span>RRef<span class="op">&gt;(</span>ranges<span class="op">::</span>iter_move<span class="op">(</span>it<span class="op">))</span>;</span>
 <span id="cb12-5"><a href="#cb12-5"></a><span class="op">}</span>;</span>
 <span id="cb12-6"><a href="#cb12-6"></a></span>
 <span id="cb12-7"><a href="#cb12-7"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
-<span id="cb12-8"><a href="#cb12-8"></a><span class="kw">concept</span> <em>concat_indirectly_readable</em> <span class="op">=</span></span>
-<span id="cb12-9"><a href="#cb12-9"></a>  common_reference_with<span class="op">&lt;</span><em>concat_reference_t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;&amp;&amp;</span>, </span>
-<span id="cb12-10"><a href="#cb12-10"></a>                        <em>concat_value_t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;&amp;&gt;</span> <span class="op">&amp;&amp;</span></span>
-<span id="cb12-11"><a href="#cb12-11"></a>  common_reference_with<span class="op">&lt;</span><em>concat_reference_t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;&amp;&amp;</span>, </span>
-<span id="cb12-12"><a href="#cb12-12"></a>                        <em>concat_rvalue_reference_t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;&amp;&amp;&gt;</span> <span class="op">&amp;&amp;</span></span>
-<span id="cb12-13"><a href="#cb12-13"></a>  common_reference_with<span class="op">&lt;</span><em>concat_rvalue_reference_t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;&amp;&amp;</span>, </span>
-<span id="cb12-14"><a href="#cb12-14"></a>                        <em>concat_value_t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;</span> <span class="kw">const</span><span class="op">&amp;&gt;</span> <span class="op">&amp;&amp;</span></span>
-<span id="cb12-15"><a href="#cb12-15"></a>  <span class="op">(</span><em>concat_indirectly_readable_impl</em><span class="op">&lt;</span><em>concat_reference_t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;</span>, </span>
-<span id="cb12-16"><a href="#cb12-16"></a>                                   <em>concat_rvalue_reference_t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;</span>, </span>
+<span id="cb12-8"><a href="#cb12-8"></a><span class="kw">concept</span> <em>concat-indirectly-readable</em> <span class="op">=</span></span>
+<span id="cb12-9"><a href="#cb12-9"></a>  common_reference_with<span class="op">&lt;</span><em>concat-reference-t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;&amp;&amp;</span>, </span>
+<span id="cb12-10"><a href="#cb12-10"></a>                        <em>concat-value-t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;&amp;&gt;</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb12-11"><a href="#cb12-11"></a>  common_reference_with<span class="op">&lt;</span><em>concat-reference-t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;&amp;&amp;</span>, </span>
+<span id="cb12-12"><a href="#cb12-12"></a>                        <em>concat-rvalue-reference-t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;&amp;&amp;&gt;</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb12-13"><a href="#cb12-13"></a>  common_reference_with<span class="op">&lt;</span><em>concat-rvalue-reference-t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;&amp;&amp;</span>, </span>
+<span id="cb12-14"><a href="#cb12-14"></a>                        <em>concat-value-t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;</span> <span class="kw">const</span><span class="op">&amp;&gt;</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb12-15"><a href="#cb12-15"></a>  <span class="op">(</span><em>concat-indirectly-readable-impl</em><span class="op">&lt;</span><em>concat-reference-t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;</span>, </span>
+<span id="cb12-16"><a href="#cb12-16"></a>                                   <em>concat-rvalue-reference-t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;</span>, </span>
 <span id="cb12-17"><a href="#cb12-17"></a>                                   iterator_t<span class="op">&lt;</span>Rs<span class="op">&gt;&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span>;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb13"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
@@ -817,10 +817,10 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <p><span class="marginalizedparent"><a class="marginalized">2</a></span> <span id="concatable-definition"></span> The exposition-only <code class="sourceCode default"><em>concatable</em></code> concept is equivalent to:</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
 <span id="cb14-2"><a href="#cb14-2"></a><span class="kw">concept</span> <em>concatable</em> <span class="op">=</span> <span class="kw">requires</span> <span class="op">{</span></span>
-<span id="cb14-3"><a href="#cb14-3"></a>  <span class="kw">typename</span> <em>concat_reference_t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;</span>;</span>
-<span id="cb14-4"><a href="#cb14-4"></a>  <span class="kw">typename</span> <em>concat_value_t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;</span>;</span>
-<span id="cb14-5"><a href="#cb14-5"></a>  <span class="kw">typename</span> <em>concat_rvalue_reference_t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;</span>;</span>
-<span id="cb14-6"><a href="#cb14-6"></a><span class="op">}</span> <span class="op">&amp;&amp;</span> <em>concat_indirectly_readable</em><span class="op">&lt;</span>Rs<span class="op">...&gt;</span>;</span></code></pre></div>
+<span id="cb14-3"><a href="#cb14-3"></a>  <span class="kw">typename</span> <em>concat-reference-t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;</span>;</span>
+<span id="cb14-4"><a href="#cb14-4"></a>  <span class="kw">typename</span> <em>concat-value-t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;</span>;</span>
+<span id="cb14-5"><a href="#cb14-5"></a>  <span class="kw">typename</span> <em>concat-rvalue-reference-t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;</span>;</span>
+<span id="cb14-6"><a href="#cb14-6"></a><span class="op">}</span> <span class="op">&amp;&amp;</span> <em>concat-indirectly-readable</em><span class="op">&lt;</span>Rs<span class="op">...&gt;</span>;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb15"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
 <span id="cb15-2"><a href="#cb15-2"></a><span class="kw">concept</span> <em>concat-bidirectional</em> <span class="op">=</span> <em>see below</em>;</span></code></pre></div>
