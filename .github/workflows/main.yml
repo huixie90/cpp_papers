@@ -31,6 +31,7 @@ jobs:
         run: |
           make concat.html
           make P2483R0.html
+          make ref_wrapper_common_ref.html
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.2.2
