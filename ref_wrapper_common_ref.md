@@ -169,7 +169,6 @@ In [functional.syn]{.sref}, at the end of the section
 // [refwrap], reference_­wrapper
 ```
 
-
 Add the following
 
 ```cpp
@@ -183,27 +182,6 @@ struct basic_common_reference<reference_wrapper<T>, T, TQual, UQual> {
     using type = std::common_reference_t<UQual<T>, T&>;
 };
 ```
-
----
-references:
-  - id: rangev3
-    citation-label: range-v3
-    title: "range-v3 library"
-    author:
-      - family: Niebler
-        given: Eric
-    URL: https://github.com/ericniebler/range-v3
-
-  - id: ours
-    citation-label: ours
-    title: "A proof-of-concept implementation of views::concat"
-    author:
-      - family: Xie
-        given: Hui
-      - family: Yilmaz
-        given: S. Levent
-    URL: https://github.com/huixie90/cpp_papers/tree/main/impl/concat
----
 
 <style>
 .bq{
