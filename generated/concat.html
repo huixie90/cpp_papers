@@ -88,12 +88,6 @@ font-family: serif;
 
 hyphens: auto;
 line-height: 1.35;
-text-align: justify;
-}
-@media screen and (max-width: 30em) {
-body {
-margin: 1.5em;
-}
 }
 div.wrapper {
 max-width: 60em;
@@ -685,7 +679,7 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <h2 data-number="5.2" id="range-adaptor-helpers-range.adaptor.helpers"><span class="header-section-number">5.2</span> Range adaptor helpers [range.adaptor.helpers]<a href="#range-adaptor-helpers-range.adaptor.helpers" class="self-link"></a></h2>
 <p>This paper applies the same following changes as in <span class="citation" data-cites="P2374R3">[<a href="#ref-P2374R3" role="doc-biblioref">P2374R3</a>]</span>. If <span class="citation" data-cites="P2374R3">[<a href="#ref-P2374R3" role="doc-biblioref">P2374R3</a>]</span> is merged into the standard, the changes in this section can be dropped.</p>
 <p>New section after Non-propagating cache <span>26.7.4
- <a href="https://wg21.link/range.nonprop.cache">[range.nonprop.cache]</a></span>. Move the definitions of <code class="sourceCode default"><em>tuple-or-pair</em></code>, <code class="sourceCode default"><em>tuple-transform</em></code>, and <code class="sourceCode default"><em>tuple-for-each</em></code> from Class template <code class="sourceCode default">zip_view</code> <span>26.7.20.2
+ <a href="https://wg21.link/range.nonprop.cache">[range.nonprop.cache]</a></span>. Move the definitions of <code class="sourceCode default"><em>tuple-or-pair</em></code>, <code class="sourceCode default"><em>tuple-transform</em></code>, and <code class="sourceCode default"><em>tuple-for-each</em></code> from Class template <code class="sourceCode default">zip_view</code> <span>26.7.23.2
  <a href="https://wg21.link/range.zip.view">[range.zip.view]</a></span> to this section:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">namespace</span> std<span class="op">::</span>ranges <span class="op">{</span></span>
 <span id="cb8-2"><a href="#cb8-2"></a>    <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Ts<span class="op">&gt;</span></span>
