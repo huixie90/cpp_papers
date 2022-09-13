@@ -10,7 +10,6 @@ cxx-bucket-vs*/
 .vs/
 .vscode/
 .cache/
-generated/
 out/
 .gdb_history
 build-*
