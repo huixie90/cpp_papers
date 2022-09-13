@@ -1,5 +1,5 @@
 ---
-title: "`common_reference_t` of `reference_wrapper` should be a reference type"
+title: "`common_reference_t` of `reference_wrapper` Should Be a Reference Type"
 document: PXXXXX
 date: 2022-09-12
 audience: SG9, LEWG
@@ -204,7 +204,6 @@ references:
         given: S. Levent
     URL: https://github.com/huixie90/cpp_papers/tree/main/impl/concat
 ---
-
 
 <style>
 .bq{
