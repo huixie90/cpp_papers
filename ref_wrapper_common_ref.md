@@ -195,15 +195,22 @@ template `basic_­common_­reference`, it is straightforward to customise
 
 # Wording
 
-In [functional.syn]{.sref}, at the end of the section
+Modify [functional.syn]{.sref} to add to the end of `reference_wrapper` section:
 
-```cpp
-// [refwrap], reference_­wrapper
+:::add
+
+> ```
+> template<class T, template<class> class TQual, template<class> class UQual>
+> struct basic_common_reference<T, reference_wrapper<T>, TQual, UQual>;
+> ```
+
+:::
+
+Add the following subclause to [refwrap]{.sref}:
+
+#### 22.10.6.? `common_reference` related specialization [refwrap.common.ref] {-}
+
 ```
-
-Add the following
-
-```cpp
 template<class T, template<class> class TQual, template<class> class UQual>
 struct basic_common_reference<T, reference_wrapper<T>, TQual, UQual> {
     using type = std::common_reference_t<TQual<T>, T&>;
