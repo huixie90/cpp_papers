@@ -23,9 +23,40 @@ This paper proposes a fix that makes the `common_reference_t<T&, reference_wrapp
 
 # Motivation and Examples
 
+C++20 introduced the meta-programming utility `common_reference`
+[meta.trans.other]{.sref} in order to programmatically determine a common
+reference type to which one or more types can be converted or bounded.
+
+The precise rules are rather convoluted, but roughly speaking, for given two
+non-reference types `X` and `Y`, `common_reference<X&, Y&>` is equivalent to the
+expression `decltype(false ? declval<X&>() : declval<Y&>())` provided it is
+valid. And if not, then user or a library is free to specialize the
+`basic_­common_­reference` trait for any given type(s). Two such specializations
+are provided by the standard library, namely, for `std::pair` and `std::tuple`
+(which map `common_reference` to their respective elements). And if no such
+specialization exists, then the result is `common_type<X,Y>`.
+
+
+The canonical use of `reference_wrapper<T>` is being a surrogate for `T&`. So it
+might be surprising to find out the following:
+
+```cpp
+int i = 1, j = 2;
+std::reference_wrapper<int> jr = j; // ok - implicit constructor
+int & ir = std::ref(i); // ok - implicit conversion
+int & r = false ? i : std::ref(j); // error!
+```
+
+The reason for the error is not because `i` and `ref(j)` (an `int&` and a
+`reference_wrapper<int>`) are incompatible. It is because they are too
+compatible: Both types can be converted to one another, so the type of the
+ternary expression is ambiguous.
+
+
+
 ::: cmptable
 
-## Before
+## C++20
 
 ```cpp
 static_assert(same_as<
@@ -37,7 +68,7 @@ static_assert(same_as<
                 int>);
 ```
 
-## After
+## Proposed
 
 ```cpp
 static_assert(same_as<
@@ -123,12 +154,13 @@ The first example shows that currently the `common_reference_t` of `T&` and
 `reference_wrapper<T>` yields a value type `T`, rather than a reference type.
 
 In the second and the third example, the user would like to use
-`views::join_with` and `views::concat` (Proposed in P2542R2) with a range of
-`Foo`s and a single `Foo`. The user passes in a `reference_wrapper` to avoid
-copies, because of performance reasons, or simply because copying is not the
-right semantic in the application. However, due to both range adaptors use
-`common_reference_t` in their implementations, the results are ranges of
-temporary copies of `Foo`s.
+`views::join_with` and `views::concat` [@P2542R2], respectively, with a range of
+`Foo`s and a single `Foo` for which they use a `reference_wrapper` to avoid
+copies. Both range adaptors happen to rely on `common_reference_t` in their
+implementations. This is the reason why the counter-intuitive behavior manifests
+as shown, where the resultant range's reference type is a prvalue `Foo`. There
+does not seem to be any way for the range adaptor implementations to account for
+such use cases.
 
 # Design
 
