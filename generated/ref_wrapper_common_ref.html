@@ -579,19 +579,28 @@ code.sourceCode > span { display: inline; }
 <h2 data-number="4.2" id="the-fix"><span class="header-section-number">4.2</span> The Fix<a href="#the-fix" class="self-link"></a></h2>
 <p>As <code class="sourceCode default">common_reference</code> allows users to customise its behaviour by specialising the template <code class="sourceCode default">basic_­common_­reference</code>, it is straightforward to customise <code class="sourceCode default">reference_wrapper</code> through <code class="sourceCode default">basic_­common_­reference</code>.</p>
 <h1 data-number="5" id="wording"><span class="header-section-number">5</span> Wording<a href="#wording" class="self-link"></a></h1>
-<p>In <span>22.10.2
- <a href="https://wg21.link/functional.syn">[functional.syn]</a></span>, at the end of the section</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1"></a><span class="co">// [refwrap], reference_­wrapper</span></span></code></pre></div>
-<p>Add the following</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> T, <span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> TQual, <span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> UQual<span class="op">&gt;</span></span>
-<span id="cb10-2"><a href="#cb10-2"></a><span class="kw">struct</span> basic_common_reference<span class="op">&lt;</span>T, reference_wrapper<span class="op">&lt;</span>T<span class="op">&gt;</span>, TQual, UQual<span class="op">&gt;</span> <span class="op">{</span></span>
-<span id="cb10-3"><a href="#cb10-3"></a>    <span class="kw">using</span> type <span class="op">=</span> std<span class="op">::</span>common_reference_t<span class="op">&lt;</span>TQual<span class="op">&lt;</span>T<span class="op">&gt;</span>, T<span class="op">&amp;&gt;</span>;</span>
-<span id="cb10-4"><a href="#cb10-4"></a><span class="op">}</span>;</span>
+<p>Modify <span>22.10.2
+ <a href="https://wg21.link/functional.syn">[functional.syn]</a></span> to add to the end of <code class="sourceCode default">reference_wrapper</code> section:</p>
+<div class="add" style="color: #006e28">
+
+<blockquote>
+<div class="sourceCode" id="cb9"><pre class="sourceCode default default"><code class="sourceCode default"><span id="cb9-1"><a href="#cb9-1"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
+<span id="cb9-2"><a href="#cb9-2"></a>struct basic_common_reference&lt;T, reference_wrapper&lt;T&gt;, TQual, UQual&gt;;</span></code></pre></div>
+</blockquote>
+
+</div>
+<p>Add the following subclause to <span>22.10.6
+ <a href="https://wg21.link/refwrap">[refwrap]</a></span>:</p>
+<h4 class="unnumbered" data-number id="common_reference-related-specialization-refwrap.common.ref">22.10.6.? <code class="sourceCode default">common_reference</code> related specialization [refwrap.common.ref]<a href="#common_reference-related-specialization-refwrap.common.ref" class="self-link"></a></h4>
+<div class="sourceCode" id="cb10"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb10-1"><a href="#cb10-1"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
+<span id="cb10-2"><a href="#cb10-2"></a>struct basic_common_reference&lt;T, reference_wrapper&lt;T&gt;, TQual, UQual&gt; {</span>
+<span id="cb10-3"><a href="#cb10-3"></a>    using type = std::common_reference_t&lt;TQual&lt;T&gt;, T&amp;&gt;;</span>
+<span id="cb10-4"><a href="#cb10-4"></a>};</span>
 <span id="cb10-5"><a href="#cb10-5"></a></span>
-<span id="cb10-6"><a href="#cb10-6"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> T, <span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> TQual, <span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> UQual<span class="op">&gt;</span></span>
-<span id="cb10-7"><a href="#cb10-7"></a><span class="kw">struct</span> basic_common_reference<span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span>T<span class="op">&gt;</span>, T, TQual, UQual<span class="op">&gt;</span> <span class="op">{</span></span>
-<span id="cb10-8"><a href="#cb10-8"></a>    <span class="kw">using</span> type <span class="op">=</span> std<span class="op">::</span>common_reference_t<span class="op">&lt;</span>UQual<span class="op">&lt;</span>T<span class="op">&gt;</span>, T<span class="op">&amp;&gt;</span>;</span>
-<span id="cb10-9"><a href="#cb10-9"></a><span class="op">}</span>;</span></code></pre></div>
+<span id="cb10-6"><a href="#cb10-6"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
+<span id="cb10-7"><a href="#cb10-7"></a>struct basic_common_reference&lt;reference_wrapper&lt;T&gt;, T, TQual, UQual&gt; {</span>
+<span id="cb10-8"><a href="#cb10-8"></a>    using type = std::common_reference_t&lt;UQual&lt;T&gt;, T&amp;&gt;;</span>
+<span id="cb10-9"><a href="#cb10-9"></a>};</span></code></pre></div>
 <style>
 .bq{
     display: block;
