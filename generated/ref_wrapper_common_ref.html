@@ -583,12 +583,12 @@ code.sourceCode > span { display: inline; }
 <h4 class="unnumbered" data-number id="common_reference-related-specialization-refwrap.common.ref">22.10.6.? <code class="sourceCode default">common_reference</code> related specialization [refwrap.common.ref]<a href="#common_reference-related-specialization-refwrap.common.ref" class="self-link"></a></h4>
 <div class="sourceCode" id="cb9"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb9-1"><a href="#cb9-1"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
 <span id="cb9-2"><a href="#cb9-2"></a>struct basic_common_reference&lt;T, reference_wrapper&lt;T&gt;, TQual, UQual&gt; {</span>
-<span id="cb9-3"><a href="#cb9-3"></a>    using type = std::common_reference_t&lt;TQual&lt;T&gt;, T&amp;&gt;;</span>
+<span id="cb9-3"><a href="#cb9-3"></a>    using type = common_reference_t&lt;TQual&lt;T&gt;, T&amp;&gt;;</span>
 <span id="cb9-4"><a href="#cb9-4"></a>};</span>
 <span id="cb9-5"><a href="#cb9-5"></a></span>
 <span id="cb9-6"><a href="#cb9-6"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
 <span id="cb9-7"><a href="#cb9-7"></a>struct basic_common_reference&lt;reference_wrapper&lt;T&gt;, T, TQual, UQual&gt; {</span>
-<span id="cb9-8"><a href="#cb9-8"></a>    using type = std::common_reference_t&lt;UQual&lt;T&gt;, T&amp;&gt;;</span>
+<span id="cb9-8"><a href="#cb9-8"></a>    using type = common_reference_t&lt;UQual&lt;T&gt;, T&amp;&gt;;</span>
 <span id="cb9-9"><a href="#cb9-9"></a>};</span></code></pre></div>
 <style>
 .bq{
