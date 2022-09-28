@@ -453,8 +453,9 @@ code.sourceCode > span { display: inline; }
 </ul></li>
 <li><a href="#abstract"><span class="toc-section-number">2</span> Abstract<span></span></a></li>
 <li><a href="#motivation-and-examples"><span class="toc-section-number">3</span> Motivation and Examples<span></span></a></li>
-<li><a href="#wording"><span class="toc-section-number">4</span> Wording<span></span></a></li>
-<li><a href="#bibliography"><span class="toc-section-number">5</span> References<span></span></a></li>
+<li><a href="#implementation-experience"><span class="toc-section-number">4</span> Implementation Experience<span></span></a></li>
+<li><a href="#wording"><span class="toc-section-number">5</span> Wording<span></span></a></li>
+<li><a href="#bibliography"><span class="toc-section-number">6</span> References<span></span></a></li>
 </ul>
 </div>
 <h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
@@ -564,7 +565,12 @@ code.sourceCode > span { display: inline; }
 </tbody>
 </table>
 <p>In the second and the third example, the user would like to use <code class="sourceCode default">views::join_with</code> and <code class="sourceCode default">views::concat</code> <span class="citation" data-cites="P2542R2">[<a href="#ref-P2542R2" role="doc-biblioref">P2542R2</a>]</span>, respectively, with a range of <code class="sourceCode default">Foo</code>s and a single <code class="sourceCode default">Foo</code> for which they use a <code class="sourceCode default">reference_wrapper</code> to avoid copies. Both of the range adaptors rely on <code class="sourceCode default">common_reference_t</code> in their respective implementations (and specifications). As a consequence, the counter-intuitive behavior manifests as shown, where the resultant views’ reference type is a prvalue <code class="sourceCode default">Foo</code>. There does not seem to be any way for the range adaptor implementations to account for such use cases in isolation.</p>
-<h1 data-number="4" id="wording"><span class="header-section-number">4</span> Wording<a href="#wording" class="self-link"></a></h1>
+<h1 data-number="4" id="implementation-experience"><span class="header-section-number">4</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
+<ul>
+<li><p>The authors implemented the proposed wording below without any issue.</p></li>
+<li><p>The authors also applied the proposed wording in LLVM’s libc++ and all libc++ tests passed.</p></li>
+</ul>
+<h1 data-number="5" id="wording"><span class="header-section-number">5</span> Wording<a href="#wording" class="self-link"></a></h1>
 <p>Modify <span>22.10.2
  <a href="https://wg21.link/functional.syn">[functional.syn]</a></span> to add to the end of <code class="sourceCode default">reference_wrapper</code> section:</p>
 <div class="add" style="color: #006e28">
@@ -599,7 +605,7 @@ code.sourceCode > span { display: inline; }
     margin-inline-end: 40px;
 }
 </style>
-<h1 data-number="5" id="bibliography"><span class="header-section-number">5</span> References<a href="#bibliography" class="self-link"></a></h1>
+<h1 data-number="6" id="bibliography"><span class="header-section-number">6</span> References<a href="#bibliography" class="self-link"></a></h1>
 <div id="refs" class="references hanging-indent" role="doc-bibliography">
 <div id="ref-P2542R2">
 <p>[P2542R2] Hui Xie, S. Levent Yilmaz. 2022-05-11. views::concat. <br />
