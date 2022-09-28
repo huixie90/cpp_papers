@@ -173,6 +173,11 @@ counter-intuitive behavior manifests as shown, where the resultant views'
 reference type is a prvalue `Foo`. There does not seem to be any way for the
 range adaptor implementations to account for such use cases in isolation.
 
+# Implementation Experience
+
+- The authors implemented the proposed wording below without any issue.
+
+- The authors also applied the proposed wording in LLVM's libc++ and all libc++ tests passed.
 
 # Wording
 

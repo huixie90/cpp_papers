@@ -49,3 +49,25 @@ target_sources(concat-test PRIVATE ${concat_test_src})
 target_link_libraries(concat-test PRIVATE Catch2::Catch2WithMain)
 target_include_directories(concat-test PRIVATE concat)
 target_link_libraries(concat-test PRIVATE range-v3)
+
+
+#  +---------------+
+#  |  REF-WRAPPER  |
+#  +---------------+
+# for now, all in one file. ideally if things grow, consider splitting CMake logic to individual directories, via
+#    add_subdirectory(ref_wrapper) etc.
+file(GLOB_RECURSE ref_wrapper_hdr  RELATIVE ${CMAKE_SOURCE_DIR} ref_wrapper/*.hpp)
+add_library(ref_wrapper INTERFACE) # header-only library
+target_sources(ref_wrapper INTERFACE ${ref_wrapper_hdr})
+
+
+#  +--------------------+
+#  |  REF-WRAPPER-TEST  |
+#  +--------------------+
+
+file(GLOB_RECURSE ref_wrapper_test_src RELATIVE ${CMAKE_SOURCE_DIR} CONFIGURE_DEPENDS  ref_wrapper/test/*.cpp)
+add_executable(ref_wrapper-test)
+target_sources(ref_wrapper-test PRIVATE ${ref_wrapper_test_src})
+target_link_libraries(ref_wrapper-test PRIVATE Catch2::Catch2WithMain)
+target_include_directories(ref_wrapper-test PRIVATE ref_wrapper)
+#target_link_libraries(ref_wrapper-test PRIVATE range-v3)
