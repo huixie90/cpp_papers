@@ -31,14 +31,14 @@ The precise rules are rather convoluted, but roughly speaking, for given two
 non-reference types `X` and `Y`, `common_reference<X&, Y&>` is equivalent to the
 expression `decltype(false ? declval<X&>() : declval<Y&>())` provided it is
 valid. And if not, then user or a library is free to specialize the
-`basic_­common_­reference` trait for any given type(s). Two such specializations
+`basic_­common_­reference` trait for any given type(s). (Two such specializations
 are provided by the standard library, namely, for `std::pair` and `std::tuple`
-(which map `common_reference` to their respective elements). And if no such
+which map `common_reference` to their respective elements.) And if no such
 specialization exists, then the result is `common_type<X,Y>`.
 
 
-The canonical use of `reference_wrapper<T>` is being a surrogate for `T&`. So it
-might be surprising to find out the following:
+The canonical use of `reference_wrapper<T>` is its being a surrogate for `T&`.
+So it might be surprising to find out the following:
 
 ```cpp
 int i = 1, j = 2;
@@ -49,10 +49,24 @@ int & r = false ? i : std::ref(j); // error!
 
 The reason for the error is not because `i` and `ref(j)` (an `int&` and a
 `reference_wrapper<int>`) are incompatible. It is because they are too
-compatible: Both types can be converted to one another, so the type of the
+compatible! Both types can be converted to one another, so the type of the
 ternary expression is ambiguous.
 
+Hence, per the current rules of `common_reference`, the evaluation falls back to
+`common_type<T, reference_wrapper<T>>`, whose `::type` is valid and equal to `T`
+(there is no ambiguity here with prvalue `T` and `reference_wrapper<T>`, since
+former is convertible to latter, but not vice versa).
 
+The authors believe the current determination logic for `common_reference` for
+an lvalue reference to a type `T` and its `reference_wrapper<T>` is merely an
+accident, and is incompatible with the canonical purpose of `reference_wrapper`.
+Therefore, this article proposes an update to the standard which would change
+the behavior of `common_reference` to evaluate as `T&` given `T&` and any
+reference or prvalue of type `reference_wrapper<T>`, commutatively. Furthermore,
+the authors propose to implement this change via a partial specialization of
+`basic_common_reference` trait.
+
+Below are some motivating examples:
 
 ::: cmptable
 
@@ -150,48 +164,15 @@ class MyClass {
 
 :::
 
-The first example shows that currently the `common_reference_t` of `T&` and
-`reference_wrapper<T>` yields a value type `T`, rather than a reference type.
-
 In the second and the third example, the user would like to use
 `views::join_with` and `views::concat` [@P2542R2], respectively, with a range of
 `Foo`s and a single `Foo` for which they use a `reference_wrapper` to avoid
-copies. Both range adaptors happen to rely on `common_reference_t` in their
-implementations. This is the reason why the counter-intuitive behavior manifests
-as shown, where the resultant range's reference type is a prvalue `Foo`. There
-does not seem to be any way for the range adaptor implementations to account for
-such use cases.
+copies. Both of the range adaptors rely on `common_reference_t` in their
+respective implementations (and specifications). As a consequence, the
+counter-intuitive behavior manifests as shown, where the resultant views'
+reference type is a prvalue `Foo`. There does not seem to be any way for the
+range adaptor implementations to account for such use cases in isolation.
 
-# Design
-
-## Why Is `common_reference_t<T&, reference_wrapper<T>>` Not `T&`
-
-The definition of `common_reference` is complicated. See details in
-[meta.trans.other]{.sref}. Most part of the logic depends on the type of the
-ternary expression `b ? x : y` if it is well formed. However, in the case of
-`reference_wrapper`, the following code isn't valid
-
-```cpp
-int i = 5;
-using t = decltype(false ? i : reference_wrapper<int>(i)); // error
-```
-
-The problem is that `int&` can be implicitly converted to
-`reference_wrapper<int>` and `reference_wrapper<int>` can also be implicitly
-converted to `int&`. There is no way to tell which conversion is better so the
-ternary expression is not well formed.
-
-Next `common_reference` checks if `basic_common_reference` is specialised and
-the answer is no in this case.
-
-Then `common_reference` falls back to `common_type`. And `common_type` would
-`decay` the inputs so we will never have a reference type result.
-
-## The Fix
-
-As `common_reference` allows users to customise its behaviour by specialising the
-template `basic_­common_­reference`, it is straightforward to customise
-`reference_wrapper` through `basic_­common_­reference`.
 
 # Wording
 
@@ -202,6 +183,9 @@ Modify [functional.syn]{.sref} to add to the end of `reference_wrapper` section:
 > ```
 > template<class T, template<class> class TQual, template<class> class UQual>
 > struct basic_common_reference<T, reference_wrapper<T>, TQual, UQual>;
+>
+> template<class T, template<class> class TQual, template<class> class UQual>
+> struct basic_common_reference<reference_wrapper<T>, T, TQual, UQual>;
 > ```
 
 :::

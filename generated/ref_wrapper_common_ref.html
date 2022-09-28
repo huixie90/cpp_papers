@@ -453,13 +453,8 @@ code.sourceCode > span { display: inline; }
 </ul></li>
 <li><a href="#abstract"><span class="toc-section-number">2</span> Abstract<span></span></a></li>
 <li><a href="#motivation-and-examples"><span class="toc-section-number">3</span> Motivation and Examples<span></span></a></li>
-<li><a href="#design"><span class="toc-section-number">4</span> Design<span></span></a>
-<ul>
-<li><a href="#why-is-common_reference_tt-reference_wrappert-not-t"><span class="toc-section-number">4.1</span> Why Is <code class="sourceCode default">common_reference_t&lt;T&amp;, reference_wrapper&lt;T&gt;&gt;</code> Not <code class="sourceCode default">T&amp;</code><span></span></a></li>
-<li><a href="#the-fix"><span class="toc-section-number">4.2</span> The Fix<span></span></a></li>
-</ul></li>
-<li><a href="#wording"><span class="toc-section-number">5</span> Wording<span></span></a></li>
-<li><a href="#bibliography"><span class="toc-section-number">6</span> References<span></span></a></li>
+<li><a href="#wording"><span class="toc-section-number">4</span> Wording<span></span></a></li>
+<li><a href="#bibliography"><span class="toc-section-number">5</span> References<span></span></a></li>
 </ul>
 </div>
 <h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
@@ -472,13 +467,16 @@ code.sourceCode > span { display: inline; }
 <h1 data-number="3" id="motivation-and-examples"><span class="header-section-number">3</span> Motivation and Examples<a href="#motivation-and-examples" class="self-link"></a></h1>
 <p>C++20 introduced the meta-programming utility <code class="sourceCode default">common_reference</code> <span>21.3.8.7
  <a href="https://wg21.link/meta.trans.other">[meta.trans.other]</a></span> in order to programmatically determine a common reference type to which one or more types can be converted or bounded.</p>
-<p>The precise rules are rather convoluted, but roughly speaking, for given two non-reference types <code class="sourceCode default">X</code> and <code class="sourceCode default">Y</code>, <code class="sourceCode default">common_reference&lt;X&amp;, Y&amp;&gt;</code> is equivalent to the expression <code class="sourceCode default">decltype(false ? declval&lt;X&amp;&gt;() : declval&lt;Y&amp;&gt;())</code> provided it is valid. And if not, then user or a library is free to specialize the <code class="sourceCode default">basic_­common_­reference</code> trait for any given type(s). Two such specializations are provided by the standard library, namely, for <code class="sourceCode default">std::pair</code> and <code class="sourceCode default">std::tuple</code> (which map <code class="sourceCode default">common_reference</code> to their respective elements). And if no such specialization exists, then the result is <code class="sourceCode default">common_type&lt;X,Y&gt;</code>.</p>
-<p>The canonical use of <code class="sourceCode default">reference_wrapper&lt;T&gt;</code> is being a surrogate for <code class="sourceCode default">T&amp;</code>. So it might be surprising to find out the following:</p>
+<p>The precise rules are rather convoluted, but roughly speaking, for given two non-reference types <code class="sourceCode default">X</code> and <code class="sourceCode default">Y</code>, <code class="sourceCode default">common_reference&lt;X&amp;, Y&amp;&gt;</code> is equivalent to the expression <code class="sourceCode default">decltype(false ? declval&lt;X&amp;&gt;() : declval&lt;Y&amp;&gt;())</code> provided it is valid. And if not, then user or a library is free to specialize the <code class="sourceCode default">basic_­common_­reference</code> trait for any given type(s). (Two such specializations are provided by the standard library, namely, for <code class="sourceCode default">std::pair</code> and <code class="sourceCode default">std::tuple</code> which map <code class="sourceCode default">common_reference</code> to their respective elements.) And if no such specialization exists, then the result is <code class="sourceCode default">common_type&lt;X,Y&gt;</code>.</p>
+<p>The canonical use of <code class="sourceCode default">reference_wrapper&lt;T&gt;</code> is its being a surrogate for <code class="sourceCode default">T&amp;</code>. So it might be surprising to find out the following:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1"></a><span class="dt">int</span> i <span class="op">=</span> <span class="dv">1</span>, j <span class="op">=</span> <span class="dv">2</span>;</span>
 <span id="cb1-2"><a href="#cb1-2"></a>std<span class="op">::</span>reference_wrapper<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;</span> jr <span class="op">=</span> j; <span class="co">// ok - implicit constructor</span></span>
 <span id="cb1-3"><a href="#cb1-3"></a><span class="dt">int</span> <span class="op">&amp;</span> ir <span class="op">=</span> std<span class="op">::</span>ref<span class="op">(</span>i<span class="op">)</span>; <span class="co">// ok - implicit conversion</span></span>
 <span id="cb1-4"><a href="#cb1-4"></a><span class="dt">int</span> <span class="op">&amp;</span> r <span class="op">=</span> <span class="kw">false</span> <span class="op">?</span> i <span class="op">:</span> std<span class="op">::</span>ref<span class="op">(</span>j<span class="op">)</span>; <span class="co">// error!</span></span></code></pre></div>
-<p>The reason for the error is not because <code class="sourceCode default">i</code> and <code class="sourceCode default">ref(j)</code> (an <code class="sourceCode default">int&amp;</code> and a <code class="sourceCode default">reference_wrapper&lt;int&gt;</code>) are incompatible. It is because they are too compatible: Both types can be converted to one another, so the type of the ternary expression is ambiguous.</p>
+<p>The reason for the error is not because <code class="sourceCode default">i</code> and <code class="sourceCode default">ref(j)</code> (an <code class="sourceCode default">int&amp;</code> and a <code class="sourceCode default">reference_wrapper&lt;int&gt;</code>) are incompatible. It is because they are too compatible! Both types can be converted to one another, so the type of the ternary expression is ambiguous.</p>
+<p>Hence, per the current rules of <code class="sourceCode default">common_reference</code>, the evaluation falls back to <code class="sourceCode default">common_type&lt;T, reference_wrapper&lt;T&gt;&gt;</code>, whose <code class="sourceCode default">::type</code> is valid and equal to <code class="sourceCode default">T</code> (there is no ambiguity here with prvalue <code class="sourceCode default">T</code> and <code class="sourceCode default">reference_wrapper&lt;T&gt;</code>, since former is convertible to latter, but not vice versa).</p>
+<p>The authors believe the current determination logic for <code class="sourceCode default">common_reference</code> for an lvalue reference to a type <code class="sourceCode default">T</code> and its <code class="sourceCode default">reference_wrapper&lt;T&gt;</code> is merely an accident, and is incompatible with the canonical purpose of <code class="sourceCode default">reference_wrapper</code>. Therefore, this article proposes an update to the standard which would change the behavior of <code class="sourceCode default">common_reference</code> to evaluate as <code class="sourceCode default">T&amp;</code> given <code class="sourceCode default">T&amp;</code> and any reference or prvalue of type <code class="sourceCode default">reference_wrapper&lt;T&gt;</code>, commutatively. Furthermore, the authors propose to implement this change via a partial specialization of <code class="sourceCode default">basic_common_reference</code> trait.</p>
+<p>Below are some motivating examples:</p>
 <table>
 <thead>
 <tr class="header">
@@ -565,42 +563,33 @@ code.sourceCode > span { display: inline; }
 </tr>
 </tbody>
 </table>
-<p>The first example shows that currently the <code class="sourceCode default">common_reference_t</code> of <code class="sourceCode default">T&amp;</code> and <code class="sourceCode default">reference_wrapper&lt;T&gt;</code> yields a value type <code class="sourceCode default">T</code>, rather than a reference type.</p>
-<p>In the second and the third example, the user would like to use <code class="sourceCode default">views::join_with</code> and <code class="sourceCode default">views::concat</code> <span class="citation" data-cites="P2542R2">[<a href="#ref-P2542R2" role="doc-biblioref">P2542R2</a>]</span>, respectively, with a range of <code class="sourceCode default">Foo</code>s and a single <code class="sourceCode default">Foo</code> for which they use a <code class="sourceCode default">reference_wrapper</code> to avoid copies. Both range adaptors happen to rely on <code class="sourceCode default">common_reference_t</code> in their implementations. This is the reason why the counter-intuitive behavior manifests as shown, where the resultant range’s reference type is a prvalue <code class="sourceCode default">Foo</code>. There does not seem to be any way for the range adaptor implementations to account for such use cases.</p>
-<h1 data-number="4" id="design"><span class="header-section-number">4</span> Design<a href="#design" class="self-link"></a></h1>
-<h2 data-number="4.1" id="why-is-common_reference_tt-reference_wrappert-not-t"><span class="header-section-number">4.1</span> Why Is <code class="sourceCode default">common_reference_t&lt;T&amp;, reference_wrapper&lt;T&gt;&gt;</code> Not <code class="sourceCode default">T&amp;</code><a href="#why-is-common_reference_tt-reference_wrappert-not-t" class="self-link"></a></h2>
-<p>The definition of <code class="sourceCode default">common_reference</code> is complicated. See details in <span>21.3.8.7
- <a href="https://wg21.link/meta.trans.other">[meta.trans.other]</a></span>. Most part of the logic depends on the type of the ternary expression <code class="sourceCode default">b ? x : y</code> if it is well formed. However, in the case of <code class="sourceCode default">reference_wrapper</code>, the following code isn’t valid</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1"></a><span class="dt">int</span> i <span class="op">=</span> <span class="dv">5</span>;</span>
-<span id="cb8-2"><a href="#cb8-2"></a><span class="kw">using</span> t <span class="op">=</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">false</span> <span class="op">?</span> i <span class="op">:</span> reference_wrapper<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;(</span>i<span class="op">))</span>; <span class="co">// error</span></span></code></pre></div>
-<p>The problem is that <code class="sourceCode default">int&amp;</code> can be implicitly converted to <code class="sourceCode default">reference_wrapper&lt;int&gt;</code> and <code class="sourceCode default">reference_wrapper&lt;int&gt;</code> can also be implicitly converted to <code class="sourceCode default">int&amp;</code>. There is no way to tell which conversion is better so the ternary expression is not well formed.</p>
-<p>Next <code class="sourceCode default">common_reference</code> checks if <code class="sourceCode default">basic_common_reference</code> is specialised and the answer is no in this case.</p>
-<p>Then <code class="sourceCode default">common_reference</code> falls back to <code class="sourceCode default">common_type</code>. And <code class="sourceCode default">common_type</code> would <code class="sourceCode default">decay</code> the inputs so we will never have a reference type result.</p>
-<h2 data-number="4.2" id="the-fix"><span class="header-section-number">4.2</span> The Fix<a href="#the-fix" class="self-link"></a></h2>
-<p>As <code class="sourceCode default">common_reference</code> allows users to customise its behaviour by specialising the template <code class="sourceCode default">basic_­common_­reference</code>, it is straightforward to customise <code class="sourceCode default">reference_wrapper</code> through <code class="sourceCode default">basic_­common_­reference</code>.</p>
-<h1 data-number="5" id="wording"><span class="header-section-number">5</span> Wording<a href="#wording" class="self-link"></a></h1>
+<p>In the second and the third example, the user would like to use <code class="sourceCode default">views::join_with</code> and <code class="sourceCode default">views::concat</code> <span class="citation" data-cites="P2542R2">[<a href="#ref-P2542R2" role="doc-biblioref">P2542R2</a>]</span>, respectively, with a range of <code class="sourceCode default">Foo</code>s and a single <code class="sourceCode default">Foo</code> for which they use a <code class="sourceCode default">reference_wrapper</code> to avoid copies. Both of the range adaptors rely on <code class="sourceCode default">common_reference_t</code> in their respective implementations (and specifications). As a consequence, the counter-intuitive behavior manifests as shown, where the resultant views’ reference type is a prvalue <code class="sourceCode default">Foo</code>. There does not seem to be any way for the range adaptor implementations to account for such use cases in isolation.</p>
+<h1 data-number="4" id="wording"><span class="header-section-number">4</span> Wording<a href="#wording" class="self-link"></a></h1>
 <p>Modify <span>22.10.2
  <a href="https://wg21.link/functional.syn">[functional.syn]</a></span> to add to the end of <code class="sourceCode default">reference_wrapper</code> section:</p>
 <div class="add" style="color: #006e28">
 
 <blockquote>
-<div class="sourceCode" id="cb9"><pre class="sourceCode default default"><code class="sourceCode default"><span id="cb9-1"><a href="#cb9-1"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
-<span id="cb9-2"><a href="#cb9-2"></a>struct basic_common_reference&lt;T, reference_wrapper&lt;T&gt;, TQual, UQual&gt;;</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode default default"><code class="sourceCode default"><span id="cb8-1"><a href="#cb8-1"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
+<span id="cb8-2"><a href="#cb8-2"></a>struct basic_common_reference&lt;T, reference_wrapper&lt;T&gt;, TQual, UQual&gt;;</span>
+<span id="cb8-3"><a href="#cb8-3"></a></span>
+<span id="cb8-4"><a href="#cb8-4"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
+<span id="cb8-5"><a href="#cb8-5"></a>struct basic_common_reference&lt;reference_wrapper&lt;T&gt;, T, TQual, UQual&gt;;</span></code></pre></div>
 </blockquote>
 
 </div>
 <p>Add the following subclause to <span>22.10.6
  <a href="https://wg21.link/refwrap">[refwrap]</a></span>:</p>
 <h4 class="unnumbered" data-number id="common_reference-related-specialization-refwrap.common.ref">22.10.6.? <code class="sourceCode default">common_reference</code> related specialization [refwrap.common.ref]<a href="#common_reference-related-specialization-refwrap.common.ref" class="self-link"></a></h4>
-<div class="sourceCode" id="cb10"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb10-1"><a href="#cb10-1"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
-<span id="cb10-2"><a href="#cb10-2"></a>struct basic_common_reference&lt;T, reference_wrapper&lt;T&gt;, TQual, UQual&gt; {</span>
-<span id="cb10-3"><a href="#cb10-3"></a>    using type = std::common_reference_t&lt;TQual&lt;T&gt;, T&amp;&gt;;</span>
-<span id="cb10-4"><a href="#cb10-4"></a>};</span>
-<span id="cb10-5"><a href="#cb10-5"></a></span>
-<span id="cb10-6"><a href="#cb10-6"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
-<span id="cb10-7"><a href="#cb10-7"></a>struct basic_common_reference&lt;reference_wrapper&lt;T&gt;, T, TQual, UQual&gt; {</span>
-<span id="cb10-8"><a href="#cb10-8"></a>    using type = std::common_reference_t&lt;UQual&lt;T&gt;, T&amp;&gt;;</span>
-<span id="cb10-9"><a href="#cb10-9"></a>};</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb9-1"><a href="#cb9-1"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
+<span id="cb9-2"><a href="#cb9-2"></a>struct basic_common_reference&lt;T, reference_wrapper&lt;T&gt;, TQual, UQual&gt; {</span>
+<span id="cb9-3"><a href="#cb9-3"></a>    using type = std::common_reference_t&lt;TQual&lt;T&gt;, T&amp;&gt;;</span>
+<span id="cb9-4"><a href="#cb9-4"></a>};</span>
+<span id="cb9-5"><a href="#cb9-5"></a></span>
+<span id="cb9-6"><a href="#cb9-6"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
+<span id="cb9-7"><a href="#cb9-7"></a>struct basic_common_reference&lt;reference_wrapper&lt;T&gt;, T, TQual, UQual&gt; {</span>
+<span id="cb9-8"><a href="#cb9-8"></a>    using type = std::common_reference_t&lt;UQual&lt;T&gt;, T&amp;&gt;;</span>
+<span id="cb9-9"><a href="#cb9-9"></a>};</span></code></pre></div>
 <style>
 .bq{
     display: block;
@@ -610,7 +599,7 @@ code.sourceCode > span { display: inline; }
     margin-inline-end: 40px;
 }
 </style>
-<h1 data-number="6" id="bibliography"><span class="header-section-number">6</span> References<a href="#bibliography" class="self-link"></a></h1>
+<h1 data-number="5" id="bibliography"><span class="header-section-number">5</span> References<a href="#bibliography" class="self-link"></a></h1>
 <div id="refs" class="references hanging-indent" role="doc-bibliography">
 <div id="ref-P2542R2">
 <p>[P2542R2] Hui Xie, S. Levent Yilmaz. 2022-05-11. views::concat. <br />
