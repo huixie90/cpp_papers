@@ -206,7 +206,7 @@ for (auto&& foo : r) {
 If the result is `reference_wrapper<T>`, the assignment inside the for loop
 would simply rebinds the `reference_wrapper` to a different instance. On the
 other hand, if the result is `T&`, the assignment would call the copy assignment
-operator of the original `foo`s. The authors believe that the later is likely
+operator of the original `foo`s. The authors believe that the latter is likely
 the intent of code.
 
 ## Option 1: Support Exact Same Type with CV-Ref Variations
