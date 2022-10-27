@@ -37,7 +37,7 @@ The precise rules are rather convoluted, but roughly speaking, for given two
 non-reference types `X` and `Y`, `common_reference<X&, Y&>` is equivalent to the
 expression `decltype(false ? declval<X&>() : declval<Y&>())` provided it is
 valid. And if not, then user or a library is free to specialize the
-`basic_­common_­reference` trait for any given type(s). (Two such specializations
+`basic_common_reference` trait for any given type(s). (Two such specializations
 are provided by the standard library, namely, for `std::pair` and `std::tuple`
 which map `common_reference` to their respective elements.) And if no such
 specialization exists, then the result is `common_type<X,Y>`.
@@ -50,27 +50,35 @@ So it might be surprising to find out the following:
 int i = 1, j = 2;
 std::reference_wrapper<int> jr = j; // ok - implicit constructor
 int & ir = std::ref(i); // ok - implicit conversion
-int & r = false ? i : std::ref(j); // error!
+int & r = false ? i : std::ref(j); // error - conditional expression is ambiguous.
 ```
 
-The reason for the error is not because `i` and `ref(j)` (an `int&` and a
-`reference_wrapper<int>`) are incompatible. It is because they are too
+The reason for the error is not because `i` and `ref(j)`, an `int&` and a
+`reference_wrapper<int>`, are incompatible. It is because they are too
 compatible! Both types can be converted to one another, so the type of the
 ternary expression is ambiguous.
 
-Hence, per the current rules of `common_reference`, the evaluation falls back to
-`common_type<T, reference_wrapper<T>>`, whose `::type` is valid and equal to `T`
-(there is no ambiguity here with prvalue `T` and `reference_wrapper<T>`, since
-former is convertible to latter, but not vice versa).
+Hence, per the current rules of `common_reference`, given lack of a specialization,
+the evaluation falls back to `common_type<T, reference_wrapper<T>>`,
+whose `::type` is valid and equal to `T`. In other words, the `common_reference`
+type trait utility determines that the reference type to which both `T&` and
+a `reference_wrapper<T>` can bind is a prvalue `T`!
 
-The authors believe the current determination logic for `common_reference` for
+The authors believe this current determination logic for `common_reference` for
 an lvalue reference to a type `T` and its `reference_wrapper<T>` is merely an
-accident, and is incompatible with the canonical purpose of `reference_wrapper`.
-Therefore, this article proposes an update to the standard which would change
-the behavior of `common_reference` to evaluate as `T&` given `T&` and any
-reference or prvalue of type `reference_wrapper<T>`, commutatively. Furthermore,
-the authors propose to implement this change via a partial specialization of
+accident, and is incompatible with the canonical purpose of the `reference_wrapper`.
+The answer should have been `T&`.  (There is no ambiguity with the `common_reference`
+of a prvalue T and reference_wrapper<T>, since former is convertible to latter,
+but not vice versa).
+
+This article proposes an update to the standard which would change the behavior
+of `common_reference` to evaluate as `T&` given `T&` and an a `reference_wrapper<T>`,
+commutatively. Any evolution to implicit conversion semantics of `reference_wrapper`,
+or of the ternary operator for that matter, is out of the question. Therefore,
+the authors propose to implement this change via providing a partial specialization of
 `basic_common_reference` trait.
+
+
 
 Below are some motivating examples:
 
