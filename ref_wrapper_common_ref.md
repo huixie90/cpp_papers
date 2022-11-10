@@ -189,7 +189,7 @@ range adaptor implementations to account for such use cases in isolation.
 
 # Design
 
-## Should the Result be `T&` or `reference_wrapper<T>`?
+## Why Should the Result be `T&` and not `reference_wrapper<T>`
 
 As they can both be converted to each other, the result of `common_reference_t`
 can be either of them in theory. However, the authors believe that the users
@@ -204,153 +204,44 @@ for (auto&& foo : r) {
 ```
 
 If the result is `reference_wrapper<T>`, the assignment inside the for loop
-would simply rebinds the `reference_wrapper` to a different instance. On the
+would simply rebind the `reference_wrapper` to a different instance. On the
 other hand, if the result is `T&`, the assignment would call the copy assignment
-operator of the original `foo`s. The authors believe that the latter is likely
-the intent of code.
+operator of the original `foo`s. The authors believe that the latter design is 
+the intent of code and is the natural choice.
 
-## Option 1: Support Exact Same Type with CV-Ref Variations
+## Supporting All Compatible Conversions
 
-One option would be to provide customisations for only `reference_wrapper<T>`
-and cv-ref `T`. Note that this version is rather restrictive and this avoids the
-recursion problems that other options would run into.
+The above exposure can be extrapolated to any *cv*-qualified or other cross-type
+compatible conversions. That is, if `common_reference_t<U, V>` exists then
+`common_reference_t<reference_wrapper<U>, V>` and
+`common_reference_t<U, reference_wrapper<V>>` should also exist and be equal to
+it, *given* the only additional requirement that `reference_wrapper<U>` or
+`reference_wrapper<V>`, respectively, can be also implicitly converted to
+`common_reference_t<U,V>`. This statement only applies when the ternary
+conversion logic ambiguous.
 
-```cpp
-template <class T, class U, template <class> class TQual,
-          template <class> class UQual>
-    requires std::same_as<T, remove_cv_t<U>>
-struct basic_common_reference<T, reference_wrapper<U>, TQual, UQual> {
-    using type = common_reference_t<TQual<T>, U&>;
-};
+The authors propose to support such behavior by allowing
+`basic_common_reference` specialization to delegate the result to that of the
+`common_reference_t` of the wrapped type with the other non-wrapper argument.
+Furthermore, impose additional constraints on this specialization
+to make sure that the `reference_wrapper` is convertible to this result. 
 
-template <class T, class U, template <class> class TQual,
-          template <class> class UQual>
-    requires std::same_as<remove_cv_t<T>, U>
-struct basic_common_reference<reference_wrapper<T>, U, TQual, UQual> {
-    using type = common_reference_t<T&, UQual<U>>;
-};
-```
+In order to support commutativity, we need to introduce two separate
+specializations, and further constrain them to be mutually exclusive in order avoid
+ambiguity.
 
-This would cover majority of the use cases. However, this does not cover the
-derive-base conversions, i.e.
-`common_reference_t<reference_wrapper<Derived>, Base&>>`. This is a valid use
-case and the authors believe that it is important to support it.
+Finally, we have to explicitly disable the edge cases with nested
+`reference_wrapper`s since, while `reference_wrapper<reference_wrapper<T>>` is not `convertible_to<T&>` 
 
-## Option 2: Treat `reference_wrapper<T>` as `T&`
 
-This options completely treats `reference_wrapper<T>` as `T&` and delegates
-`common_reference<reference_wrapper<T>, U>` to the `common_reference<T&, U>`.
-Therefore, it would support any conversions (including derived-base conversion)
-that `T&` can do.
-
-```cpp
-template <class T, class U, template <class> class TQual, template <class> class UQual>
-    requires requires { typename common_reference<TQual<T>, U&>::type; }
-struct basic_common_reference<T, reference_wrapper<U>, TQual, UQual> {
-    using type = common_reference_t<TQual<T>, U&>;
-};
-
-template <class T, class U, template <class> class TQual, template <class> class UQual>
-    requires requires { typename common_reference<T&, UQual<U>>::type; }
-struct basic_common_reference<reference_wrapper<T>, U, TQual, UQual> {
-    using type = common_reference_t<T&, UQual<U>>;
-};
-```
-
-Immediately, it run into ambiguous specialisation problems for the following example
-
-```cpp
-common_reference_t<reference_wrapper<int>, reference_wrapper<int>>;
-```
-
-A quick fix is to add another specialisation
-
-```cpp
-template <class T, class U, template <class> class TQual, template <class> class UQual>
-    requires requires { typename common_reference<T&, U&>::type; }
-struct basic_common_reference<reference_wrapper<T>, reference_wrapper<U>, TQual, UQual> {
-    using type = common_reference_t<T&, U&>;
-};
-```
-
-However, this has some recursion problems.
-
-```cpp
-common_reference_t<reference_wrapper<reference_wrapper<int>>,
-                   reference_wrapper<int>&>;
-```
-
-The user would expect the above expression to yield `reference_wrapper<int>&>`.
-However it yields `int&` due to the recursion logic in the specialisation.
-
-And even worse,
-
-```cpp
-common_reference_t<reference_wrapper<reference_wrapper<int>>,
-                   int&>;
-```
-
-The above expression would also yield `int&` due to the recursion logic, even
-though the nested `reference_wrapper` is not `convertible_to<int&>`.
-
-The rational behind this option is that `reference_wrapper<T>` behaves exactly
-the same as `T&`. But does it?
-
-There is conversion from `reference_wrapper<T>` to `T&`, and if the result
-requires another conversion, the language does not allow `reference_wrapper<T>`
-to be converted to the result.
-
-<!-- TODO: This option is just a draft -->
-## Option 3: Constrain Option 2 with `convertible_to` Check
-
-```cpp
-template <class T>
-inline constexpr bool is_ref_wrapper = false;
-
-template <class T>
-inline constexpr bool is_ref_wrapper<reference_wrapper<T>> = true;
-
-template <class T>
-    requires(!std::same_as<std::remove_cvref_t<T>, T>)
-inline constexpr bool is_ref_wrapper<T> = is_ref_wrapper<std::remove_cvref_t<T>>;
-
-template <class T, class U>
-concept first_ref_wrapper_common_ref =
-    is_ref_wrapper<T> &&
-    requires { typename common_reference<typename std::remove_cvref_t<T>::type&, U>::type; } &&
-    is_convertible_v<T, common_reference_t<typename std::remove_cvref_t<T>::type&, U>> &&
-    is_convertible_v<U, common_reference_t<typename std::remove_cvref_t<T>::type&, U>>;
-
-template <class T, class U>
-concept second_ref_wrapper_common_ref = first_ref_wrapper_common_ref<U, T>;
-
-template <class T, class U, template <class> class TQual, template <class> class UQual>
-    requires(!first_ref_wrapper_common_ref<TQual<T>, UQual<reference_wrapper<U>>> &&
-             second_ref_wrapper_common_ref<TQual<T>, UQual<reference_wrapper<U>>>)
-struct basic_common_reference<T, reference_wrapper<U>, TQual, UQual> {
-    using type = common_reference_t<TQual<T>, U&>;
-};
-
-template <class T, class U, template <class> class TQual, template <class> class UQual>
-    requires(first_ref_wrapper_common_ref<TQual<reference_wrapper<T>>, UQual<U>> &&
-             !second_ref_wrapper_common_ref<TQual<reference_wrapper<T>>, UQual<U>>)
-struct basic_common_reference<reference_wrapper<T>, U, TQual, UQual> {
-    using type = common_reference_t<T&, UQual<U>>;
-};
-```
-
-First, there are additional constraints to make sure that both types can be
-`convertible_to` the result of the `common_reference_t`. In addition, extra
-constraints are added to make sure the two specialisations are mutually
-exclusive to avoid ambiguous specialisation problems.
 
 # Implementation Experience
 
-- The authors implemented the proposed wording below without any issue.
+- The authors implemented the proposed wording below without any issue[@ours].
 
 - The authors also applied the proposed wording in LLVM's libc++ and all libc++ tests passed.
 
-# Wording (TODO: update wording)
+# Wording
 
 Modify [functional.syn]{.sref} to add to the end of `reference_wrapper` section:
 
@@ -368,19 +259,69 @@ Modify [functional.syn]{.sref} to add to the end of `reference_wrapper` section:
 
 Add the following subclause to [refwrap]{.sref}:
 
-#### 22.10.6.? `common_reference` related specialization [refwrap.common.ref] {-}
+#### ?.?.?.? `common_reference` related specialization [refwrap.common.ref] {-}
 
 ```
-template<class T, template<class> class TQual, template<class> class UQual>
-struct basic_common_reference<T, reference_wrapper<T>, TQual, UQual> {
-    using type = common_reference_t<TQual<T>, T&>;
+template <class T>
+inline constexpr bool is-ref-wrapper = false; // exposition only
+
+template <class T>
+inline constexpr bool is-ref-wrapper<reference_wrapper<T>> = true;
+
+template <class T>
+    requires(!std::same_as<std::remove_cvref_t<T>, T>)
+inline constexpr bool is-ref-wrapper<T> = is-ref-wrapper<std::remove_cvref_t<T>>;
+
+template <class T, class U>
+concept first_ref_wrapper_common_ref =
+    is-ref-wrapper<T> &&
+    requires { typename common_reference<typename std::remove_cvref_t<T>::type&, U>::type; } &&
+    is_convertible_v<T, common_reference_t<typename std::remove_cvref_t<T>::type&, U>> &&
+    is_convertible_v<U, common_reference_t<typename std::remove_cvref_t<T>::type&, U>>;
+
+template <class T, class U>
+concept second_ref_wrapper_common_ref = first_ref_wrapper_common_ref<U, T>;
+
+template <class T, class U, template <class> class TQual, template <class> class UQual>
+    requires(first_ref_wrapper_common_ref<TQual<T>, UQual<reference_wrapper<U>>> &&
+             second_ref_wrapper_common_ref<TQual<T>, UQual<reference_wrapper<U>>>)
+struct basic_common_reference<T, reference_wrapper<U>, TQual, UQual> {
+    using type = common_reference_t<TQual<T>, U&>;
 };
 
-template<class T, template<class> class TQual, template<class> class UQual>
-struct basic_common_reference<reference_wrapper<T>, T, TQual, UQual> {
-    using type = common_reference_t<UQual<T>, T&>;
+template <class T, class U, template <class> class TQual, template <class> class UQual>
+    requires(first_ref_wrapper_common_ref<TQual<reference_wrapper<T>>, UQual<U>> &&
+             !second_ref_wrapper_common_ref<TQual<reference_wrapper<T>>, UQual<U>>)
+struct basic_common_reference<reference_wrapper<T>, U, TQual, UQual> {
+    using type = common_reference_t<T&, UQual<U>>;
 };
 ```
+
+
+## Feature Test Macro
+
+Add the following macro definition to [version.syn]{.sref}, header `<version>`
+synopsis, with the value selected by the editor to reflect the date of adoption
+of this paper:
+
+```cpp
+#define __cpp_lib_common_reference_reference_wrapper_specialized  20XXXXL // also in <functional>
+```
+
+---
+references:
+  - id: ours
+    citation-label: ours
+    title: "A proof-of-concept implementation of common_reference_t for reference_wrapper"
+    author:
+      - family: Xie
+        given: Hui
+      - family: Yilmaz
+        given: S. Levent
+    URL: https://github.com/huixie90/cpp_papers/tree/main/impl/ref_wrapper
+---
+
+
 
 <style>
 .bq{

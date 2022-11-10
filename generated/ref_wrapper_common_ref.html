@@ -456,13 +456,14 @@ code.sourceCode > span { display: inline; }
 <li><a href="#motivation-and-examples"><span class="toc-section-number">3</span> Motivation and Examples<span></span></a></li>
 <li><a href="#design"><span class="toc-section-number">4</span> Design<span></span></a>
 <ul>
-<li><a href="#should-the-result-be-t-or-reference_wrappert"><span class="toc-section-number">4.1</span> Should the Result be <code class="sourceCode default">T&amp;</code> or <code class="sourceCode default">reference_wrapper&lt;T&gt;</code>?<span></span></a></li>
-<li><a href="#option-1-support-exact-same-type-with-cv-ref-variations"><span class="toc-section-number">4.2</span> Option 1: Support Exact Same Type with CV-Ref Variations<span></span></a></li>
-<li><a href="#option-2-treat-reference_wrappert-as-t"><span class="toc-section-number">4.3</span> Option 2: Treat <code class="sourceCode default">reference_wrapper&lt;T&gt;</code> as <code class="sourceCode default">T&amp;</code><span></span></a></li>
-<li><a href="#option-3-constrain-option-2-with-convertible_to-check"><span class="toc-section-number">4.4</span> Option 3: Constrain Option 2 with <code class="sourceCode default">convertible_to</code> Check<span></span></a></li>
+<li><a href="#why-should-the-result-be-t-and-not-reference_wrappert"><span class="toc-section-number">4.1</span> Why Should the Result be <code class="sourceCode default">T&amp;</code> and not <code class="sourceCode default">reference_wrapper&lt;T&gt;</code><span></span></a></li>
+<li><a href="#supporting-all-compatible-conversions"><span class="toc-section-number">4.2</span> Supporting All Compatible Conversions<span></span></a></li>
 </ul></li>
 <li><a href="#implementation-experience"><span class="toc-section-number">5</span> Implementation Experience<span></span></a></li>
-<li><a href="#wording-todo-update-wording"><span class="toc-section-number">6</span> Wording (TODO: update wording)<span></span></a></li>
+<li><a href="#wording"><span class="toc-section-number">6</span> Wording<span></span></a>
+<ul>
+<li><a href="#feature-test-macro"><span class="toc-section-number">6.1</span> Feature Test Macro<span></span></a></li>
+</ul></li>
 <li><a href="#bibliography"><span class="toc-section-number">7</span> References<span></span></a></li>
 </ul>
 </div>
@@ -581,128 +582,78 @@ code.sourceCode > span { display: inline; }
 </table>
 <p>In the second and the third example, the user would like to use <code class="sourceCode default">views::join_with</code> and <code class="sourceCode default">views::concat</code> <span class="citation" data-cites="P2542R2">[<a href="#ref-P2542R2" role="doc-biblioref">P2542R2</a>]</span>, respectively, with a range of <code class="sourceCode default">Foo</code>s and a single <code class="sourceCode default">Foo</code> for which they use a <code class="sourceCode default">reference_wrapper</code> to avoid copies. Both of the range adaptors rely on <code class="sourceCode default">common_reference_t</code> in their respective implementations (and specifications). As a consequence, the counter-intuitive behavior manifests as shown, where the resultant views’ reference type is a prvalue <code class="sourceCode default">Foo</code>. There does not seem to be any way for the range adaptor implementations to account for such use cases in isolation.</p>
 <h1 data-number="4" id="design"><span class="header-section-number">4</span> Design<a href="#design" class="self-link"></a></h1>
-<h2 data-number="4.1" id="should-the-result-be-t-or-reference_wrappert"><span class="header-section-number">4.1</span> Should the Result be <code class="sourceCode default">T&amp;</code> or <code class="sourceCode default">reference_wrapper&lt;T&gt;</code>?<a href="#should-the-result-be-t-or-reference_wrappert" class="self-link"></a></h2>
+<h2 data-number="4.1" id="why-should-the-result-be-t-and-not-reference_wrappert"><span class="header-section-number">4.1</span> Why Should the Result be <code class="sourceCode default">T&amp;</code> and not <code class="sourceCode default">reference_wrapper&lt;T&gt;</code><a href="#why-should-the-result-be-t-and-not-reference_wrappert" class="self-link"></a></h2>
 <p>As they can both be converted to each other, the result of <code class="sourceCode default">common_reference_t</code> can be either of them in theory. However, the authors believe that the users would expect the result to be <code class="sourceCode default">T&amp;</code>. Given the following example,</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1"></a><span class="kw">auto</span> r <span class="op">=</span> views<span class="op">::</span>concat<span class="op">(</span>foos, </span>
 <span id="cb8-2"><a href="#cb8-2"></a>           views<span class="op">::</span>single<span class="op">(</span>std<span class="op">::</span>ref<span class="op">(</span>foo2_<span class="op">)))</span>;</span>
 <span id="cb8-3"><a href="#cb8-3"></a><span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span><span class="op">&amp;&amp;</span> foo <span class="op">:</span> r<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb8-4"><a href="#cb8-4"></a>  foo <span class="op">=</span> anotherFoo;</span>
 <span id="cb8-5"><a href="#cb8-5"></a><span class="op">}</span></span></code></pre></div>
-<p>If the result is <code class="sourceCode default">reference_wrapper&lt;T&gt;</code>, the assignment inside the for loop would simply rebinds the <code class="sourceCode default">reference_wrapper</code> to a different instance. On the other hand, if the result is <code class="sourceCode default">T&amp;</code>, the assignment would call the copy assignment operator of the original <code class="sourceCode default">foo</code>s. The authors believe that the latter is likely the intent of code.</p>
-<h2 data-number="4.2" id="option-1-support-exact-same-type-with-cv-ref-variations"><span class="header-section-number">4.2</span> Option 1: Support Exact Same Type with CV-Ref Variations<a href="#option-1-support-exact-same-type-with-cv-ref-variations" class="self-link"></a></h2>
-<p>One option would be to provide customisations for only <code class="sourceCode default">reference_wrapper&lt;T&gt;</code> and cv-ref <code class="sourceCode default">T</code>. Note that this version is rather restrictive and this avoids the recursion problems that other options would run into.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T, <span class="kw">class</span> U, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> TQual,</span>
-<span id="cb9-2"><a href="#cb9-2"></a>          <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> UQual<span class="op">&gt;</span></span>
-<span id="cb9-3"><a href="#cb9-3"></a>    <span class="kw">requires</span> std<span class="op">::</span>same_as<span class="op">&lt;</span>T, remove_cv_t<span class="op">&lt;</span>U<span class="op">&gt;&gt;</span></span>
-<span id="cb9-4"><a href="#cb9-4"></a><span class="kw">struct</span> basic_common_reference<span class="op">&lt;</span>T, reference_wrapper<span class="op">&lt;</span>U<span class="op">&gt;</span>, TQual, UQual<span class="op">&gt;</span> <span class="op">{</span></span>
-<span id="cb9-5"><a href="#cb9-5"></a>    <span class="kw">using</span> type <span class="op">=</span> common_reference_t<span class="op">&lt;</span>TQual<span class="op">&lt;</span>T<span class="op">&gt;</span>, U<span class="op">&amp;&gt;</span>;</span>
-<span id="cb9-6"><a href="#cb9-6"></a><span class="op">}</span>;</span>
-<span id="cb9-7"><a href="#cb9-7"></a></span>
-<span id="cb9-8"><a href="#cb9-8"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T, <span class="kw">class</span> U, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> TQual,</span>
-<span id="cb9-9"><a href="#cb9-9"></a>          <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> UQual<span class="op">&gt;</span></span>
-<span id="cb9-10"><a href="#cb9-10"></a>    <span class="kw">requires</span> std<span class="op">::</span>same_as<span class="op">&lt;</span>remove_cv_t<span class="op">&lt;</span>T<span class="op">&gt;</span>, U<span class="op">&gt;</span></span>
-<span id="cb9-11"><a href="#cb9-11"></a><span class="kw">struct</span> basic_common_reference<span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span>T<span class="op">&gt;</span>, U, TQual, UQual<span class="op">&gt;</span> <span class="op">{</span></span>
-<span id="cb9-12"><a href="#cb9-12"></a>    <span class="kw">using</span> type <span class="op">=</span> common_reference_t<span class="op">&lt;</span>T<span class="op">&amp;</span>, UQual<span class="op">&lt;</span>U<span class="op">&gt;&gt;</span>;</span>
-<span id="cb9-13"><a href="#cb9-13"></a><span class="op">}</span>;</span></code></pre></div>
-<p>This would cover majority of the use cases. However, this does not cover the derive-base conversions, i.e. <code class="sourceCode default">common_reference_t&lt;reference_wrapper&lt;Derived&gt;, Base&amp;&gt;&gt;</code>. This is a valid use case and the authors believe that it is important to support it.</p>
-<h2 data-number="4.3" id="option-2-treat-reference_wrappert-as-t"><span class="header-section-number">4.3</span> Option 2: Treat <code class="sourceCode default">reference_wrapper&lt;T&gt;</code> as <code class="sourceCode default">T&amp;</code><a href="#option-2-treat-reference_wrappert-as-t" class="self-link"></a></h2>
-<p>This options completely treats <code class="sourceCode default">reference_wrapper&lt;T&gt;</code> as <code class="sourceCode default">T&amp;</code> and delegates <code class="sourceCode default">common_reference&lt;reference_wrapper&lt;T&gt;, U&gt;</code> to the <code class="sourceCode default">common_reference&lt;T&amp;, U&gt;</code>. Therefore, it would support any conversions (including derived-base conversion) that <code class="sourceCode default">T&amp;</code> can do.</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T, <span class="kw">class</span> U, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> TQual, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> UQual<span class="op">&gt;</span></span>
-<span id="cb10-2"><a href="#cb10-2"></a>    <span class="kw">requires</span> <span class="kw">requires</span> <span class="op">{</span> <span class="kw">typename</span> common_reference<span class="op">&lt;</span>TQual<span class="op">&lt;</span>T<span class="op">&gt;</span>, U<span class="op">&amp;&gt;::</span>type; <span class="op">}</span></span>
-<span id="cb10-3"><a href="#cb10-3"></a><span class="kw">struct</span> basic_common_reference<span class="op">&lt;</span>T, reference_wrapper<span class="op">&lt;</span>U<span class="op">&gt;</span>, TQual, UQual<span class="op">&gt;</span> <span class="op">{</span></span>
-<span id="cb10-4"><a href="#cb10-4"></a>    <span class="kw">using</span> type <span class="op">=</span> common_reference_t<span class="op">&lt;</span>TQual<span class="op">&lt;</span>T<span class="op">&gt;</span>, U<span class="op">&amp;&gt;</span>;</span>
-<span id="cb10-5"><a href="#cb10-5"></a><span class="op">}</span>;</span>
-<span id="cb10-6"><a href="#cb10-6"></a></span>
-<span id="cb10-7"><a href="#cb10-7"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T, <span class="kw">class</span> U, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> TQual, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> UQual<span class="op">&gt;</span></span>
-<span id="cb10-8"><a href="#cb10-8"></a>    <span class="kw">requires</span> <span class="kw">requires</span> <span class="op">{</span> <span class="kw">typename</span> common_reference<span class="op">&lt;</span>T<span class="op">&amp;</span>, UQual<span class="op">&lt;</span>U<span class="op">&gt;&gt;::</span>type; <span class="op">}</span></span>
-<span id="cb10-9"><a href="#cb10-9"></a><span class="kw">struct</span> basic_common_reference<span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span>T<span class="op">&gt;</span>, U, TQual, UQual<span class="op">&gt;</span> <span class="op">{</span></span>
-<span id="cb10-10"><a href="#cb10-10"></a>    <span class="kw">using</span> type <span class="op">=</span> common_reference_t<span class="op">&lt;</span>T<span class="op">&amp;</span>, UQual<span class="op">&lt;</span>U<span class="op">&gt;&gt;</span>;</span>
-<span id="cb10-11"><a href="#cb10-11"></a><span class="op">}</span>;</span></code></pre></div>
-<p>Immediately, it run into ambiguous specialisation problems for the following example</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1"></a>common_reference_t<span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;</span>, reference_wrapper<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;&gt;</span>;</span></code></pre></div>
-<p>A quick fix is to add another specialisation</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T, <span class="kw">class</span> U, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> TQual, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> UQual<span class="op">&gt;</span></span>
-<span id="cb12-2"><a href="#cb12-2"></a>    <span class="kw">requires</span> <span class="kw">requires</span> <span class="op">{</span> <span class="kw">typename</span> common_reference<span class="op">&lt;</span>T<span class="op">&amp;</span>, U<span class="op">&amp;&gt;::</span>type; <span class="op">}</span></span>
-<span id="cb12-3"><a href="#cb12-3"></a><span class="kw">struct</span> basic_common_reference<span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span>T<span class="op">&gt;</span>, reference_wrapper<span class="op">&lt;</span>U<span class="op">&gt;</span>, TQual, UQual<span class="op">&gt;</span> <span class="op">{</span></span>
-<span id="cb12-4"><a href="#cb12-4"></a>    <span class="kw">using</span> type <span class="op">=</span> common_reference_t<span class="op">&lt;</span>T<span class="op">&amp;</span>, U<span class="op">&amp;&gt;</span>;</span>
-<span id="cb12-5"><a href="#cb12-5"></a><span class="op">}</span>;</span></code></pre></div>
-<p>However, this has some recursion problems.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1"></a>common_reference_t<span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;&gt;</span>,</span>
-<span id="cb13-2"><a href="#cb13-2"></a>                   reference_wrapper<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;&amp;&gt;</span>;</span></code></pre></div>
-<p>The user would expect the above expression to yield <code class="sourceCode default">reference_wrapper&lt;int&gt;&amp;&gt;</code>. However it yields <code class="sourceCode default">int&amp;</code> due to the recursion logic in the specialisation.</p>
-<p>And even worse,</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1"></a>common_reference_t<span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;&gt;</span>,</span>
-<span id="cb14-2"><a href="#cb14-2"></a>                   <span class="dt">int</span><span class="op">&amp;&gt;</span>;</span></code></pre></div>
-<p>The above expression would also yield <code class="sourceCode default">int&amp;</code> due to the recursion logic, even though the nested <code class="sourceCode default">reference_wrapper</code> is not <code class="sourceCode default">convertible_to&lt;int&amp;&gt;</code>.</p>
-<p>The rational behind this option is that <code class="sourceCode default">reference_wrapper&lt;T&gt;</code> behaves exactly the same as <code class="sourceCode default">T&amp;</code>. But does it?</p>
-<p>There is conversion from <code class="sourceCode default">reference_wrapper&lt;T&gt;</code> to <code class="sourceCode default">T&amp;</code>, and if the result requires another conversion, the language does not allow <code class="sourceCode default">reference_wrapper&lt;T&gt;</code> to be converted to the result.</p>
-<!-- TODO: This option is just a draft -->
-<h2 data-number="4.4" id="option-3-constrain-option-2-with-convertible_to-check"><span class="header-section-number">4.4</span> Option 3: Constrain Option 2 with <code class="sourceCode default">convertible_to</code> Check<a href="#option-3-constrain-option-2-with-convertible_to-check" class="self-link"></a></h2>
-<div class="sourceCode" id="cb15"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T<span class="op">&gt;</span></span>
-<span id="cb15-2"><a href="#cb15-2"></a><span class="kw">inline</span> <span class="kw">constexpr</span> <span class="dt">bool</span> is_ref_wrapper <span class="op">=</span> <span class="kw">false</span>;</span>
-<span id="cb15-3"><a href="#cb15-3"></a></span>
-<span id="cb15-4"><a href="#cb15-4"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T<span class="op">&gt;</span></span>
-<span id="cb15-5"><a href="#cb15-5"></a><span class="kw">inline</span> <span class="kw">constexpr</span> <span class="dt">bool</span> is_ref_wrapper<span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span>T<span class="op">&gt;&gt;</span> <span class="op">=</span> <span class="kw">true</span>;</span>
-<span id="cb15-6"><a href="#cb15-6"></a></span>
-<span id="cb15-7"><a href="#cb15-7"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T<span class="op">&gt;</span></span>
-<span id="cb15-8"><a href="#cb15-8"></a>    <span class="kw">requires</span><span class="op">(!</span>std<span class="op">::</span>same_as<span class="op">&lt;</span>std<span class="op">::</span>remove_cvref_t<span class="op">&lt;</span>T<span class="op">&gt;</span>, T<span class="op">&gt;)</span></span>
-<span id="cb15-9"><a href="#cb15-9"></a><span class="kw">inline</span> <span class="kw">constexpr</span> <span class="dt">bool</span> is_ref_wrapper<span class="op">&lt;</span>T<span class="op">&gt;</span> <span class="op">=</span> is_ref_wrapper<span class="op">&lt;</span>std<span class="op">::</span>remove_cvref_t<span class="op">&lt;</span>T<span class="op">&gt;&gt;</span>;</span>
-<span id="cb15-10"><a href="#cb15-10"></a></span>
-<span id="cb15-11"><a href="#cb15-11"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T, <span class="kw">class</span> U<span class="op">&gt;</span></span>
-<span id="cb15-12"><a href="#cb15-12"></a><span class="kw">concept</span> first_ref_wrapper_common_ref <span class="op">=</span></span>
-<span id="cb15-13"><a href="#cb15-13"></a>    is_ref_wrapper<span class="op">&lt;</span>T<span class="op">&gt;</span> <span class="op">&amp;&amp;</span></span>
-<span id="cb15-14"><a href="#cb15-14"></a>    <span class="kw">requires</span> <span class="op">{</span> <span class="kw">typename</span> common_reference<span class="op">&lt;</span><span class="kw">typename</span> std<span class="op">::</span>remove_cvref_t<span class="op">&lt;</span>T<span class="op">&gt;::</span>type<span class="op">&amp;</span>, U<span class="op">&gt;::</span>type; <span class="op">}</span> <span class="op">&amp;&amp;</span></span>
-<span id="cb15-15"><a href="#cb15-15"></a>    is_convertible_v<span class="op">&lt;</span>T, common_reference_t<span class="op">&lt;</span><span class="kw">typename</span> std<span class="op">::</span>remove_cvref_t<span class="op">&lt;</span>T<span class="op">&gt;::</span>type<span class="op">&amp;</span>, U<span class="op">&gt;&gt;</span> <span class="op">&amp;&amp;</span></span>
-<span id="cb15-16"><a href="#cb15-16"></a>    is_convertible_v<span class="op">&lt;</span>U, common_reference_t<span class="op">&lt;</span><span class="kw">typename</span> std<span class="op">::</span>remove_cvref_t<span class="op">&lt;</span>T<span class="op">&gt;::</span>type<span class="op">&amp;</span>, U<span class="op">&gt;&gt;</span>;</span>
-<span id="cb15-17"><a href="#cb15-17"></a></span>
-<span id="cb15-18"><a href="#cb15-18"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T, <span class="kw">class</span> U<span class="op">&gt;</span></span>
-<span id="cb15-19"><a href="#cb15-19"></a><span class="kw">concept</span> second_ref_wrapper_common_ref <span class="op">=</span> first_ref_wrapper_common_ref<span class="op">&lt;</span>U, T<span class="op">&gt;</span>;</span>
-<span id="cb15-20"><a href="#cb15-20"></a></span>
-<span id="cb15-21"><a href="#cb15-21"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T, <span class="kw">class</span> U, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> TQual, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> UQual<span class="op">&gt;</span></span>
-<span id="cb15-22"><a href="#cb15-22"></a>    <span class="kw">requires</span><span class="op">(!</span>first_ref_wrapper_common_ref<span class="op">&lt;</span>TQual<span class="op">&lt;</span>T<span class="op">&gt;</span>, UQual<span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span>U<span class="op">&gt;&gt;&gt;</span> <span class="op">&amp;&amp;</span></span>
-<span id="cb15-23"><a href="#cb15-23"></a>             second_ref_wrapper_common_ref<span class="op">&lt;</span>TQual<span class="op">&lt;</span>T<span class="op">&gt;</span>, UQual<span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span>U<span class="op">&gt;&gt;&gt;)</span></span>
-<span id="cb15-24"><a href="#cb15-24"></a><span class="kw">struct</span> basic_common_reference<span class="op">&lt;</span>T, reference_wrapper<span class="op">&lt;</span>U<span class="op">&gt;</span>, TQual, UQual<span class="op">&gt;</span> <span class="op">{</span></span>
-<span id="cb15-25"><a href="#cb15-25"></a>    <span class="kw">using</span> type <span class="op">=</span> common_reference_t<span class="op">&lt;</span>TQual<span class="op">&lt;</span>T<span class="op">&gt;</span>, U<span class="op">&amp;&gt;</span>;</span>
-<span id="cb15-26"><a href="#cb15-26"></a><span class="op">}</span>;</span>
-<span id="cb15-27"><a href="#cb15-27"></a></span>
-<span id="cb15-28"><a href="#cb15-28"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T, <span class="kw">class</span> U, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> TQual, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> UQual<span class="op">&gt;</span></span>
-<span id="cb15-29"><a href="#cb15-29"></a>    <span class="kw">requires</span><span class="op">(</span>first_ref_wrapper_common_ref<span class="op">&lt;</span>TQual<span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span>T<span class="op">&gt;&gt;</span>, UQual<span class="op">&lt;</span>U<span class="op">&gt;&gt;</span> <span class="op">&amp;&amp;</span></span>
-<span id="cb15-30"><a href="#cb15-30"></a>             <span class="op">!</span>second_ref_wrapper_common_ref<span class="op">&lt;</span>TQual<span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span>T<span class="op">&gt;&gt;</span>, UQual<span class="op">&lt;</span>U<span class="op">&gt;&gt;)</span></span>
-<span id="cb15-31"><a href="#cb15-31"></a><span class="kw">struct</span> basic_common_reference<span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span>T<span class="op">&gt;</span>, U, TQual, UQual<span class="op">&gt;</span> <span class="op">{</span></span>
-<span id="cb15-32"><a href="#cb15-32"></a>    <span class="kw">using</span> type <span class="op">=</span> common_reference_t<span class="op">&lt;</span>T<span class="op">&amp;</span>, UQual<span class="op">&lt;</span>U<span class="op">&gt;&gt;</span>;</span>
-<span id="cb15-33"><a href="#cb15-33"></a><span class="op">}</span>;</span></code></pre></div>
-<p>First, there are additional constraints to make sure that both types can be <code class="sourceCode default">convertible_to</code> the result of the <code class="sourceCode default">common_reference_t</code>. In addition, extra constraints are added to make sure the two specialisations are mutually exclusive to avoid ambiguous specialisation problems.</p>
+<p>If the result is <code class="sourceCode default">reference_wrapper&lt;T&gt;</code>, the assignment inside the for loop would simply rebind the <code class="sourceCode default">reference_wrapper</code> to a different instance. On the other hand, if the result is <code class="sourceCode default">T&amp;</code>, the assignment would call the copy assignment operator of the original <code class="sourceCode default">foo</code>s. The authors believe that the latter design is the intent of code and is the natural choice.</p>
+<h2 data-number="4.2" id="supporting-all-compatible-conversions"><span class="header-section-number">4.2</span> Supporting All Compatible Conversions<a href="#supporting-all-compatible-conversions" class="self-link"></a></h2>
+<p>The above exposure can be extrapolated to any <em>cv</em>-qualified or other cross-type compatible conversions. That is, if <code class="sourceCode default">common_reference_t&lt;U, V&gt;</code> exists then <code class="sourceCode default">common_reference_t&lt;reference_wrapper&lt;U&gt;, V&gt;</code> and <code class="sourceCode default">common_reference_t&lt;U, reference_wrapper&lt;V&gt;&gt;</code> should also exist and be equal to it, <em>given</em> the only additional requirement that <code class="sourceCode default">reference_wrapper&lt;U&gt;</code> or <code class="sourceCode default">reference_wrapper&lt;V&gt;</code>, respectively, can be also implicitly converted to <code class="sourceCode default">common_reference_t&lt;U,V&gt;</code>. This statement only applies when the ternary conversion logic ambiguous.</p>
+<p>The authors propose to support such behavior by allowing <code class="sourceCode default">basic_common_reference</code> specialization to delegate the result to that of the <code class="sourceCode default">common_reference_t</code> of the wrapped type with the other non-wrapper argument. Furthermore, impose additional constraints on this specialization to make sure that the <code class="sourceCode default">reference_wrapper</code> is convertible to this result.</p>
+<p>In order to support commutativity, we need to introduce two separate specializations, and further constrain them to be mutually exclusive in order avoid ambiguity.</p>
+<p>Finally, we have to explicitly disable the edge cases with nested <code class="sourceCode default">reference_wrapper</code>s since, while <code class="sourceCode default">reference_wrapper&lt;reference_wrapper&lt;T&gt;&gt;</code> is not <code class="sourceCode default">convertible_to&lt;T&amp;&gt;</code></p>
 <h1 data-number="5" id="implementation-experience"><span class="header-section-number">5</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
 <ul>
-<li><p>The authors implemented the proposed wording below without any issue.</p></li>
+<li><p>The authors implemented the proposed wording below without any issue<span class="citation" data-cites="ours">[<a href="#ref-ours" role="doc-biblioref">ours</a>]</span>.</p></li>
 <li><p>The authors also applied the proposed wording in LLVM’s libc++ and all libc++ tests passed.</p></li>
 </ul>
-<h1 data-number="6" id="wording-todo-update-wording"><span class="header-section-number">6</span> Wording (TODO: update wording)<a href="#wording-todo-update-wording" class="self-link"></a></h1>
+<h1 data-number="6" id="wording"><span class="header-section-number">6</span> Wording<a href="#wording" class="self-link"></a></h1>
 <p>Modify <span>22.10.2
  <a href="https://wg21.link/functional.syn">[functional.syn]</a></span> to add to the end of <code class="sourceCode default">reference_wrapper</code> section:</p>
 <div class="add" style="color: #006e28">
 
 <blockquote>
-<div class="sourceCode" id="cb16"><pre class="sourceCode default default"><code class="sourceCode default"><span id="cb16-1"><a href="#cb16-1"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
-<span id="cb16-2"><a href="#cb16-2"></a>struct basic_common_reference&lt;T, reference_wrapper&lt;T&gt;, TQual, UQual&gt;;</span>
-<span id="cb16-3"><a href="#cb16-3"></a></span>
-<span id="cb16-4"><a href="#cb16-4"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
-<span id="cb16-5"><a href="#cb16-5"></a>struct basic_common_reference&lt;reference_wrapper&lt;T&gt;, T, TQual, UQual&gt;;</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode default default"><code class="sourceCode default"><span id="cb9-1"><a href="#cb9-1"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
+<span id="cb9-2"><a href="#cb9-2"></a>struct basic_common_reference&lt;T, reference_wrapper&lt;T&gt;, TQual, UQual&gt;;</span>
+<span id="cb9-3"><a href="#cb9-3"></a></span>
+<span id="cb9-4"><a href="#cb9-4"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
+<span id="cb9-5"><a href="#cb9-5"></a>struct basic_common_reference&lt;reference_wrapper&lt;T&gt;, T, TQual, UQual&gt;;</span></code></pre></div>
 </blockquote>
 
 </div>
 <p>Add the following subclause to <span>22.10.6
  <a href="https://wg21.link/refwrap">[refwrap]</a></span>:</p>
-<h4 class="unnumbered" data-number id="common_reference-related-specialization-refwrap.common.ref">22.10.6.? <code class="sourceCode default">common_reference</code> related specialization [refwrap.common.ref]<a href="#common_reference-related-specialization-refwrap.common.ref" class="self-link"></a></h4>
-<div class="sourceCode" id="cb17"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb17-1"><a href="#cb17-1"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
-<span id="cb17-2"><a href="#cb17-2"></a>struct basic_common_reference&lt;T, reference_wrapper&lt;T&gt;, TQual, UQual&gt; {</span>
-<span id="cb17-3"><a href="#cb17-3"></a>    using type = common_reference_t&lt;TQual&lt;T&gt;, T&amp;&gt;;</span>
-<span id="cb17-4"><a href="#cb17-4"></a>};</span>
-<span id="cb17-5"><a href="#cb17-5"></a></span>
-<span id="cb17-6"><a href="#cb17-6"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
-<span id="cb17-7"><a href="#cb17-7"></a>struct basic_common_reference&lt;reference_wrapper&lt;T&gt;, T, TQual, UQual&gt; {</span>
-<span id="cb17-8"><a href="#cb17-8"></a>    using type = common_reference_t&lt;UQual&lt;T&gt;, T&amp;&gt;;</span>
-<span id="cb17-9"><a href="#cb17-9"></a>};</span></code></pre></div>
+<h4 class="unnumbered" data-number id="common_reference-related-specialization-refwrap.common.ref">?.?.?.? <code class="sourceCode default">common_reference</code> related specialization [refwrap.common.ref]<a href="#common_reference-related-specialization-refwrap.common.ref" class="self-link"></a></h4>
+<div class="sourceCode" id="cb10"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb10-1"><a href="#cb10-1"></a>template &lt;class T&gt;</span>
+<span id="cb10-2"><a href="#cb10-2"></a>inline constexpr bool is-ref-wrapper = false; // exposition only</span>
+<span id="cb10-3"><a href="#cb10-3"></a></span>
+<span id="cb10-4"><a href="#cb10-4"></a>template &lt;class T&gt;</span>
+<span id="cb10-5"><a href="#cb10-5"></a>inline constexpr bool is-ref-wrapper&lt;reference_wrapper&lt;T&gt;&gt; = true;</span>
+<span id="cb10-6"><a href="#cb10-6"></a></span>
+<span id="cb10-7"><a href="#cb10-7"></a>template &lt;class T&gt;</span>
+<span id="cb10-8"><a href="#cb10-8"></a>    requires(!std::same_as&lt;std::remove_cvref_t&lt;T&gt;, T&gt;)</span>
+<span id="cb10-9"><a href="#cb10-9"></a>inline constexpr bool is-ref-wrapper&lt;T&gt; = is-ref-wrapper&lt;std::remove_cvref_t&lt;T&gt;&gt;;</span>
+<span id="cb10-10"><a href="#cb10-10"></a></span>
+<span id="cb10-11"><a href="#cb10-11"></a>template &lt;class T, class U&gt;</span>
+<span id="cb10-12"><a href="#cb10-12"></a>concept first_ref_wrapper_common_ref =</span>
+<span id="cb10-13"><a href="#cb10-13"></a>    is-ref-wrapper&lt;T&gt; &amp;&amp;</span>
+<span id="cb10-14"><a href="#cb10-14"></a>    requires { typename common_reference&lt;typename std::remove_cvref_t&lt;T&gt;::type&amp;, U&gt;::type; } &amp;&amp;</span>
+<span id="cb10-15"><a href="#cb10-15"></a>    is_convertible_v&lt;T, common_reference_t&lt;typename std::remove_cvref_t&lt;T&gt;::type&amp;, U&gt;&gt; &amp;&amp;</span>
+<span id="cb10-16"><a href="#cb10-16"></a>    is_convertible_v&lt;U, common_reference_t&lt;typename std::remove_cvref_t&lt;T&gt;::type&amp;, U&gt;&gt;;</span>
+<span id="cb10-17"><a href="#cb10-17"></a></span>
+<span id="cb10-18"><a href="#cb10-18"></a>template &lt;class T, class U&gt;</span>
+<span id="cb10-19"><a href="#cb10-19"></a>concept second_ref_wrapper_common_ref = first_ref_wrapper_common_ref&lt;U, T&gt;;</span>
+<span id="cb10-20"><a href="#cb10-20"></a></span>
+<span id="cb10-21"><a href="#cb10-21"></a>template &lt;class T, class U, template &lt;class&gt; class TQual, template &lt;class&gt; class UQual&gt;</span>
+<span id="cb10-22"><a href="#cb10-22"></a>    requires(first_ref_wrapper_common_ref&lt;TQual&lt;T&gt;, UQual&lt;reference_wrapper&lt;U&gt;&gt;&gt; &amp;&amp;</span>
+<span id="cb10-23"><a href="#cb10-23"></a>             second_ref_wrapper_common_ref&lt;TQual&lt;T&gt;, UQual&lt;reference_wrapper&lt;U&gt;&gt;&gt;)</span>
+<span id="cb10-24"><a href="#cb10-24"></a>struct basic_common_reference&lt;T, reference_wrapper&lt;U&gt;, TQual, UQual&gt; {</span>
+<span id="cb10-25"><a href="#cb10-25"></a>    using type = common_reference_t&lt;TQual&lt;T&gt;, U&amp;&gt;;</span>
+<span id="cb10-26"><a href="#cb10-26"></a>};</span>
+<span id="cb10-27"><a href="#cb10-27"></a></span>
+<span id="cb10-28"><a href="#cb10-28"></a>template &lt;class T, class U, template &lt;class&gt; class TQual, template &lt;class&gt; class UQual&gt;</span>
+<span id="cb10-29"><a href="#cb10-29"></a>    requires(first_ref_wrapper_common_ref&lt;TQual&lt;reference_wrapper&lt;T&gt;&gt;, UQual&lt;U&gt;&gt; &amp;&amp;</span>
+<span id="cb10-30"><a href="#cb10-30"></a>             !second_ref_wrapper_common_ref&lt;TQual&lt;reference_wrapper&lt;T&gt;&gt;, UQual&lt;U&gt;&gt;)</span>
+<span id="cb10-31"><a href="#cb10-31"></a>struct basic_common_reference&lt;reference_wrapper&lt;T&gt;, U, TQual, UQual&gt; {</span>
+<span id="cb10-32"><a href="#cb10-32"></a>    using type = common_reference_t&lt;T&amp;, UQual&lt;U&gt;&gt;;</span>
+<span id="cb10-33"><a href="#cb10-33"></a>};</span></code></pre></div>
+<h2 data-number="6.1" id="feature-test-macro"><span class="header-section-number">6.1</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
+<p>Add the following macro definition to <span>17.3.2
+ <a href="https://wg21.link/version.syn">[version.syn]</a></span>, header <code class="sourceCode default">&lt;version&gt;</code> synopsis, with the value selected by the editor to reflect the date of adoption of this paper:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1"></a><span class="pp">#define __cpp_lib_common_reference_reference_wrapper_specialized  </span><span class="dv">20</span><span class="er">XXXXL</span><span class="pp"> </span><span class="co">// also in &lt;functional&gt;</span></span></code></pre></div>
 <style>
 .bq{
     display: block;
@@ -714,6 +665,10 @@ code.sourceCode > span { display: inline; }
 </style>
 <h1 data-number="7" id="bibliography"><span class="header-section-number">7</span> References<a href="#bibliography" class="self-link"></a></h1>
 <div id="refs" class="references hanging-indent" role="doc-bibliography">
+<div id="ref-ours">
+<p>[ours] Hui Xie and S. Levent Yilmaz. A proof-of-concept implementation of common_reference_t for reference_wrapper. <br />
+<a href="https://github.com/huixie90/cpp_papers/tree/main/impl/ref_wrapper">https://github.com/huixie90/cpp_papers/tree/main/impl/ref_wrapper</a></p>
+</div>
 <div id="ref-P2542R2">
 <p>[P2542R2] Hui Xie, S. Levent Yilmaz. 2022-05-11. views::concat. <br />
 <a href="https://wg21.link/p2542r2">https://wg21.link/p2542r2</a></p>
