@@ -605,51 +605,49 @@ code.sourceCode > span { display: inline; }
  <a href="https://wg21.link/functional.syn">[functional.syn]</a></span> to add to the end of <code class="sourceCode default">reference_wrapper</code> section:</p>
 <div class="add" style="color: #006e28">
 
-<blockquote>
-<div class="sourceCode" id="cb9"><pre class="sourceCode default default"><code class="sourceCode default"><span id="cb9-1"><a href="#cb9-1"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
+<div class="sourceCode" id="cb9"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb9-1"><a href="#cb9-1"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
 <span id="cb9-2"><a href="#cb9-2"></a>struct basic_common_reference&lt;T, reference_wrapper&lt;T&gt;, TQual, UQual&gt;;</span>
 <span id="cb9-3"><a href="#cb9-3"></a></span>
 <span id="cb9-4"><a href="#cb9-4"></a>template&lt;class T, template&lt;class&gt; class TQual, template&lt;class&gt; class UQual&gt;</span>
 <span id="cb9-5"><a href="#cb9-5"></a>struct basic_common_reference&lt;reference_wrapper&lt;T&gt;, T, TQual, UQual&gt;;</span></code></pre></div>
-</blockquote>
 
 </div>
 <p>Add the following subclause to <span>22.10.6
  <a href="https://wg21.link/refwrap">[refwrap]</a></span>:</p>
 <h4 class="unnumbered" data-number id="common_reference-related-specialization-refwrap.common.ref">?.?.?.? <code class="sourceCode default">common_reference</code> related specialization [refwrap.common.ref]<a href="#common_reference-related-specialization-refwrap.common.ref" class="self-link"></a></h4>
-<div class="sourceCode" id="cb10"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb10-1"><a href="#cb10-1"></a>template &lt;class T&gt;</span>
-<span id="cb10-2"><a href="#cb10-2"></a>inline constexpr bool is-ref-wrapper = false; // exposition only</span>
+<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T<span class="op">&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a><span class="kw">inline</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <em>is-ref-wrapper</em> <span class="op">=</span> <span class="kw">false</span>; <span class="co">// exposition only</span></span>
 <span id="cb10-3"><a href="#cb10-3"></a></span>
-<span id="cb10-4"><a href="#cb10-4"></a>template &lt;class T&gt;</span>
-<span id="cb10-5"><a href="#cb10-5"></a>inline constexpr bool is-ref-wrapper&lt;reference_wrapper&lt;T&gt;&gt; = true;</span>
+<span id="cb10-4"><a href="#cb10-4"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T<span class="op">&gt;</span></span>
+<span id="cb10-5"><a href="#cb10-5"></a><span class="kw">inline</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <em>is-ref-wrapper</em><span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span>T<span class="op">&gt;&gt;</span> <span class="op">=</span> <span class="kw">true</span>;</span>
 <span id="cb10-6"><a href="#cb10-6"></a></span>
-<span id="cb10-7"><a href="#cb10-7"></a>template &lt;class T&gt;</span>
-<span id="cb10-8"><a href="#cb10-8"></a>    requires(!std::same_as&lt;std::remove_cvref_t&lt;T&gt;, T&gt;)</span>
-<span id="cb10-9"><a href="#cb10-9"></a>inline constexpr bool is-ref-wrapper&lt;T&gt; = is-ref-wrapper&lt;std::remove_cvref_t&lt;T&gt;&gt;;</span>
+<span id="cb10-7"><a href="#cb10-7"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T<span class="op">&gt;</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a>    <span class="kw">requires</span><span class="op">(!</span>same_as<span class="op">&lt;</span>remove_cvref_t<span class="op">&lt;</span>T<span class="op">&gt;</span>, T<span class="op">&gt;)</span></span>
+<span id="cb10-9"><a href="#cb10-9"></a><span class="kw">inline</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <em>is-ref-wrapper</em><span class="op">&lt;</span>T<span class="op">&gt;</span> <span class="op">=</span> <em>is-ref-wrapper</em><span class="op">&lt;</span>remove_cvref_t<span class="op">&lt;</span>T<span class="op">&gt;&gt;</span>;</span>
 <span id="cb10-10"><a href="#cb10-10"></a></span>
-<span id="cb10-11"><a href="#cb10-11"></a>template &lt;class T, class U&gt;</span>
-<span id="cb10-12"><a href="#cb10-12"></a>concept first_ref_wrapper_common_ref =</span>
-<span id="cb10-13"><a href="#cb10-13"></a>    is-ref-wrapper&lt;T&gt; &amp;&amp;</span>
-<span id="cb10-14"><a href="#cb10-14"></a>    requires { typename common_reference&lt;typename std::remove_cvref_t&lt;T&gt;::type&amp;, U&gt;::type; } &amp;&amp;</span>
-<span id="cb10-15"><a href="#cb10-15"></a>    is_convertible_v&lt;T, common_reference_t&lt;typename std::remove_cvref_t&lt;T&gt;::type&amp;, U&gt;&gt; &amp;&amp;</span>
-<span id="cb10-16"><a href="#cb10-16"></a>    is_convertible_v&lt;U, common_reference_t&lt;typename std::remove_cvref_t&lt;T&gt;::type&amp;, U&gt;&gt;;</span>
+<span id="cb10-11"><a href="#cb10-11"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T, <span class="kw">class</span> U<span class="op">&gt;</span></span>
+<span id="cb10-12"><a href="#cb10-12"></a><span class="kw">concept</span> <em>first-ref-wrapper-common-ref</em> <span class="op">=</span>        <span class="co">// exposition only</span></span>
+<span id="cb10-13"><a href="#cb10-13"></a>    <em>is-ref-wrapper</em><span class="op">&lt;</span>T<span class="op">&gt;</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb10-14"><a href="#cb10-14"></a>    <span class="kw">requires</span> <span class="op">{</span> <span class="kw">typename</span> common_reference<span class="op">&lt;</span><span class="kw">typename</span> remove_cvref_t<span class="op">&lt;</span>T<span class="op">&gt;::</span>type<span class="op">&amp;</span>, U<span class="op">&gt;::</span>type; <span class="op">}</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb10-15"><a href="#cb10-15"></a>    is_convertible_v<span class="op">&lt;</span>T, common_reference_t<span class="op">&lt;</span><span class="kw">typename</span> remove_cvref_t<span class="op">&lt;</span>T<span class="op">&gt;::</span>type<span class="op">&amp;</span>, U<span class="op">&gt;&gt;</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb10-16"><a href="#cb10-16"></a>    is_convertible_v<span class="op">&lt;</span>U, common_reference_t<span class="op">&lt;</span><span class="kw">typename</span> remove_cvref_t<span class="op">&lt;</span>T<span class="op">&gt;::</span>type<span class="op">&amp;</span>, U<span class="op">&gt;&gt;</span>;</span>
 <span id="cb10-17"><a href="#cb10-17"></a></span>
-<span id="cb10-18"><a href="#cb10-18"></a>template &lt;class T, class U&gt;</span>
-<span id="cb10-19"><a href="#cb10-19"></a>concept second_ref_wrapper_common_ref = first_ref_wrapper_common_ref&lt;U, T&gt;;</span>
+<span id="cb10-18"><a href="#cb10-18"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T, <span class="kw">class</span> U<span class="op">&gt;</span></span>
+<span id="cb10-19"><a href="#cb10-19"></a><span class="kw">concept</span> <em>second-ref-wrapper-common-ref</em> <span class="op">=</span> <em>first-ref-wrapper-common-ref</em><span class="op">&lt;</span>U, T<span class="op">&gt;</span>; <span class="co">// exposition only</span></span>
 <span id="cb10-20"><a href="#cb10-20"></a></span>
-<span id="cb10-21"><a href="#cb10-21"></a>template &lt;class T, class U, template &lt;class&gt; class TQual, template &lt;class&gt; class UQual&gt;</span>
-<span id="cb10-22"><a href="#cb10-22"></a>    requires(first_ref_wrapper_common_ref&lt;TQual&lt;T&gt;, UQual&lt;reference_wrapper&lt;U&gt;&gt;&gt; &amp;&amp;</span>
-<span id="cb10-23"><a href="#cb10-23"></a>             second_ref_wrapper_common_ref&lt;TQual&lt;T&gt;, UQual&lt;reference_wrapper&lt;U&gt;&gt;&gt;)</span>
-<span id="cb10-24"><a href="#cb10-24"></a>struct basic_common_reference&lt;T, reference_wrapper&lt;U&gt;, TQual, UQual&gt; {</span>
-<span id="cb10-25"><a href="#cb10-25"></a>    using type = common_reference_t&lt;TQual&lt;T&gt;, U&amp;&gt;;</span>
-<span id="cb10-26"><a href="#cb10-26"></a>};</span>
+<span id="cb10-21"><a href="#cb10-21"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T, <span class="kw">class</span> U, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> TQual, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> UQual<span class="op">&gt;</span></span>
+<span id="cb10-22"><a href="#cb10-22"></a>    <span class="kw">requires</span><span class="op">(</span><em>first-ref-wrapper-common-ref</em><span class="op">&lt;</span>TQual<span class="op">&lt;</span>T<span class="op">&gt;</span>, UQual<span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span>U<span class="op">&gt;&gt;&gt;</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb10-23"><a href="#cb10-23"></a>             <em>second-ref-wrapper-common-ref</em><span class="op">&lt;</span>TQual<span class="op">&lt;</span>T<span class="op">&gt;</span>, UQual<span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span>U<span class="op">&gt;&gt;&gt;)</span></span>
+<span id="cb10-24"><a href="#cb10-24"></a><span class="kw">struct</span> basic_common_reference<span class="op">&lt;</span>T, reference_wrapper<span class="op">&lt;</span>U<span class="op">&gt;</span>, TQual, UQual<span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb10-25"><a href="#cb10-25"></a>    <span class="kw">using</span> type <span class="op">=</span> common_reference_t<span class="op">&lt;</span>TQual<span class="op">&lt;</span>T<span class="op">&gt;</span>, U<span class="op">&amp;&gt;</span>;</span>
+<span id="cb10-26"><a href="#cb10-26"></a><span class="op">}</span>;</span>
 <span id="cb10-27"><a href="#cb10-27"></a></span>
-<span id="cb10-28"><a href="#cb10-28"></a>template &lt;class T, class U, template &lt;class&gt; class TQual, template &lt;class&gt; class UQual&gt;</span>
-<span id="cb10-29"><a href="#cb10-29"></a>    requires(first_ref_wrapper_common_ref&lt;TQual&lt;reference_wrapper&lt;T&gt;&gt;, UQual&lt;U&gt;&gt; &amp;&amp;</span>
-<span id="cb10-30"><a href="#cb10-30"></a>             !second_ref_wrapper_common_ref&lt;TQual&lt;reference_wrapper&lt;T&gt;&gt;, UQual&lt;U&gt;&gt;)</span>
-<span id="cb10-31"><a href="#cb10-31"></a>struct basic_common_reference&lt;reference_wrapper&lt;T&gt;, U, TQual, UQual&gt; {</span>
-<span id="cb10-32"><a href="#cb10-32"></a>    using type = common_reference_t&lt;T&amp;, UQual&lt;U&gt;&gt;;</span>
-<span id="cb10-33"><a href="#cb10-33"></a>};</span></code></pre></div>
+<span id="cb10-28"><a href="#cb10-28"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T, <span class="kw">class</span> U, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> TQual, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> UQual<span class="op">&gt;</span></span>
+<span id="cb10-29"><a href="#cb10-29"></a>    <span class="kw">requires</span><span class="op">(</span><em>first-ref-wrapper-common-ref</em><span class="op">&lt;</span>TQual<span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span>T<span class="op">&gt;&gt;</span>, UQual<span class="op">&lt;</span>U<span class="op">&gt;&gt;</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb10-30"><a href="#cb10-30"></a>             <span class="op">!</span><em>second-ref-wrapper-common-ref</em><span class="op">&lt;</span>TQual<span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span>T<span class="op">&gt;&gt;</span>, UQual<span class="op">&lt;</span>U<span class="op">&gt;&gt;)</span></span>
+<span id="cb10-31"><a href="#cb10-31"></a><span class="kw">struct</span> basic_common_reference<span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span>T<span class="op">&gt;</span>, U, TQual, UQual<span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb10-32"><a href="#cb10-32"></a>    <span class="kw">using</span> type <span class="op">=</span> common_reference_t<span class="op">&lt;</span>T<span class="op">&amp;</span>, UQual<span class="op">&lt;</span>U<span class="op">&gt;&gt;</span>;</span>
+<span id="cb10-33"><a href="#cb10-33"></a><span class="op">}</span>;</span></code></pre></div>
 <h2 data-number="6.1" id="feature-test-macro"><span class="header-section-number">6.1</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
 <p>Add the following macro definition to <span>17.3.2
  <a href="https://wg21.link/version.syn">[version.syn]</a></span>, header <code class="sourceCode default">&lt;version&gt;</code> synopsis, with the value selected by the editor to reflect the date of adoption of this paper:</p>
