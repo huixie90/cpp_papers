@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <type_traits>
+#include <concepts>
 
 namespace std {
 
@@ -12,32 +13,33 @@ inline constexpr bool is_ref_wrapper = false;
 template <class T>
 inline constexpr bool is_ref_wrapper<reference_wrapper<T>> = true;
 
-template <class T>
-    requires(!std::same_as<std::remove_cvref_t<T>, T>)
-inline constexpr bool is_ref_wrapper<T> = is_ref_wrapper<std::remove_cvref_t<T>>;
 
-template <class T, class U>
-concept first_ref_wrapper_common_ref =
-    is_ref_wrapper<T> &&
-    requires { typename common_reference<typename std::remove_cvref_t<T>::type&, U>::type; } &&
-    is_convertible_v<T, common_reference_t<typename std::remove_cvref_t<T>::type&, U>> &&
-    is_convertible_v<U, common_reference_t<typename std::remove_cvref_t<T>::type&, U>>;
+template<class R, class T, class RQ, class TQ>
+concept specialization_constraint = // CRW macro
+    // C1. first type is a reference_wrapper.
+    is_ref_wrapper<R> //  && R is cv-unqualified omitted for simplicit. it already is.
+    // C2. T is cv-unqualified. omit same.
+    // C3.common_reference with the underlying type exists
+    && requires {    
+        typename common_reference_t<typename R::type&, TQ>;
+    }
+    // C4. reference_wrapper as specified is convertible to the above
+    && convertible_to<RQ, common_reference_t<typename R::type&, TQ>>
+    ;
 
-template <class T, class U>
-concept second_ref_wrapper_common_ref = first_ref_wrapper_common_ref<U, T>;
-
-template <class T, class U, template <class> class TQual, template <class> class UQual>
-    requires(!first_ref_wrapper_common_ref<TQual<T>, UQual<reference_wrapper<U>>> &&
-             second_ref_wrapper_common_ref<TQual<T>, UQual<reference_wrapper<U>>>)
-struct basic_common_reference<T, reference_wrapper<U>, TQual, UQual> {
-    using type = common_reference_t<TQual<T>, U&>;
+template <class R, class T, template <class> class RQual,  template <class> class TQual>
+    requires(  specialization_constraint<R, T, RQual<R>, TQual<T>> 
+           && !specialization_constraint<T, R, TQual<T>, RQual<R>>  )
+struct basic_common_reference<R, T, RQual, TQual> {
+    using type = common_reference_t<typename R::type&, TQual<T>>;
 };
 
-template <class T, class U, template <class> class TQual, template <class> class UQual>
-    requires(first_ref_wrapper_common_ref<TQual<reference_wrapper<T>>, UQual<U>> &&
-             !second_ref_wrapper_common_ref<TQual<reference_wrapper<T>>, UQual<U>>)
-struct basic_common_reference<reference_wrapper<T>, U, TQual, UQual> {
-    using type = common_reference_t<T&, UQual<U>>;
+
+template <class T, class R, template <class> class TQual,  template <class> class RQual>
+    requires(  specialization_constraint<R, T, RQual<R>, TQual<T>> 
+           && !specialization_constraint<T, R, TQual<T>, RQual<R>>  )
+struct basic_common_reference<T, R, TQual, RQual> {
+    using type = common_reference_t<typename R::type&, TQual<T>>;
 };
 
 } // namespace std

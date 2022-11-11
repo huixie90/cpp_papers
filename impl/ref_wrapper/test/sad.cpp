@@ -3,7 +3,7 @@
 
 #include <concepts>
 
-#define TEST_POINT(x) TEST_CASE(x, "[levent]")
+#define TEST_POINT(x) TEST_CASE(x, "[sad]")
 
 using namespace std;
 
