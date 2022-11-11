@@ -275,13 +275,14 @@ struct basic_common_reference<T, R, TQual, RQual> {
 ```
 
 [1]{.pnum} The following are the *constraints*, and apply to both specializations verbatim:
+
 - [1.1]{.pnum} `R` is a cv-unqualified `reference_wrapper<U>` of some type `U`.
 - [1.2]{.pnum} `T` is any cv-unqualified type (possibly a `reference_wrapper` instance).
 - [1.3]{.pnum} `common_reference_t<U&, TQual<T>>` denotes a type.  Let this type be `Result`.
 - [1.4]{.pnum} `RQual<R>` models `convertible_to<Result>`.
 - [1.5]{.pnum} Let the above constraints be expressed in the form `@*CRW*@(R, T, RQual<R>, TQual<T>>)`
       Then, `@*CRW*@(T, R, TQual<T>, RQual<R>>)` should be *false*. [*Note*: This final requirement
-      provides mutual exclusion of the two specializations -*end note*]{.addu};
+      provides mutual exclusion of the two specializations -*end note*];
 
 The member typedef-name `type` denotes the type `Result`.
 
