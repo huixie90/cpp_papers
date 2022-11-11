@@ -248,55 +248,42 @@ Modify [functional.syn]{.sref} to add to the end of `reference_wrapper` section:
 :::add
 
 ```cpp
-template<class T, template<class> class TQual, template<class> class UQual>
-struct basic_common_reference<T, reference_wrapper<T>, TQual, UQual>;
+// @*[refwrap.common.ref] `common_­reference` related specializations*@
+template <class R, class T, template <class> class RQual, template <class> class TQual>
+struct basic_common_reference<R, T, RQual, TQual>;
 
-template<class T, template<class> class TQual, template<class> class UQual>
-struct basic_common_reference<reference_wrapper<T>, T, TQual, UQual>;
+template <class T, class R, template <class> class TQual, template <class> class RQual>
+struct basic_common_reference<T, R, TQual, RQual>;
 ```
 
 :::
 
 Add the following subclause to [refwrap]{.sref}:
 
-#### ?.?.?.? `common_reference` related specialization [refwrap.common.ref] {-}
+#### ?.?.?.? `common_reference` related specializations [refwrap.common.ref] {-}
+
 
 ```cpp
-template <class T>
-inline constexpr bool @*is-ref-wrapper*@ = false; // exposition only
-
-template <class T>
-inline constexpr bool @*is-ref-wrapper*@<reference_wrapper<T>> = true;
-
-template <class T>
-    requires(!same_as<remove_cvref_t<T>, T>)
-inline constexpr bool @*is-ref-wrapper*@<T> = @*is-ref-wrapper*@<remove_cvref_t<T>>;
-
-template <class T, class U>
-concept @*first-ref-wrapper-common-ref*@ =        // exposition only
-    @*is-ref-wrapper*@<T> &&
-    requires { typename common_reference<typename remove_cvref_t<T>::type&, U>::type; } &&
-    is_convertible_v<T, common_reference_t<typename remove_cvref_t<T>::type&, U>> &&
-    is_convertible_v<U, common_reference_t<typename remove_cvref_t<T>::type&, U>>;
-
-template <class T, class U>
-concept @*second-ref-wrapper-common-ref*@ = @*first-ref-wrapper-common-ref*@<U, T>; // exposition only
-
-template <class T, class U, template <class> class TQual, template <class> class UQual>
-    requires(@*first-ref-wrapper-common-ref*@<TQual<T>, UQual<reference_wrapper<U>>> &&
-             @*second-ref-wrapper-common-ref*@<TQual<T>, UQual<reference_wrapper<U>>>)
-struct basic_common_reference<T, reference_wrapper<U>, TQual, UQual> {
-    using type = common_reference_t<TQual<T>, U&>;
+template <class R, class T, template <class> class RQual, template <class> class TQual>
+struct basic_common_reference<R, T, RQual, TQual> {
+    using type = @*see below*@;
 };
-
-template <class T, class U, template <class> class TQual, template <class> class UQual>
-    requires(@*first-ref-wrapper-common-ref*@<TQual<reference_wrapper<T>>, UQual<U>> &&
-             !@*second-ref-wrapper-common-ref*@<TQual<reference_wrapper<T>>, UQual<U>>)
-struct basic_common_reference<reference_wrapper<T>, U, TQual, UQual> {
-    using type = common_reference_t<T&, UQual<U>>;
+template <class T, class R, template <class> class TQual, template <class> class RQual>
+struct basic_common_reference<T, R, TQual, RQual> {
+    using type = @*see below*@;
 };
 ```
 
+[1]{.pnum} The following are the *constraints*, and apply to both specializations verbatim:
+- [1.1]{.pnum} `R` is a cv-unqualified `reference_wrapper<U>` of some type `U`.
+- [1.2]{.pnum} `T` is any cv-unqualified type (possibly a `reference_wrapper` instance).
+- [1.3]{.pnum} `common_reference_t<U&, TQual<T>>` denotes a type.  Let this type be `Result`.
+- [1.4]{.pnum} `RQual<R>` models `convertible_to<Result>`.
+- [1.5]{.pnum} Let the above constraints be expressed in the form `@*CRW*@(R, T, RQual<R>, TQual<T>>)`
+      Then, `@*CRW*@(T, R, TQual<T>, RQual<R>>)` should be *false*. [*Note*: This final requirement
+      provides mutual exclusion of the two specializations -*end note*]{.addu};
+
+The member typedef-name `type` denotes the type `Result`.
 
 ## Feature Test Macro
 
