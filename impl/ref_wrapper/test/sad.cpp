@@ -1,11 +1,25 @@
 #include "ref_wrapper.hpp"
 #include <catch2/catch_test_macros.hpp>
+#include "testutil.hpp"
 
-#include <concepts>
 
 #define TEST_POINT(x) TEST_CASE(x, "[sad]")
 
 using namespace std;
+
+
+
+static_assert(!HasType<Ternary<Ref<int> const&, int&>>); // ok, ternary is still ambiguous
+static_assert(
+    std::convertible_to<Ref<int> const&, int&>);         // Ref<int> const& CAN be converted to int&
+static_assert(check<int const&, Ref<int> const&, int&>); // BUT we compute common ref as const int &
+#ifndef _MSC_VER
+static_assert(
+    std::same_as<int const&, CommonRef<Ref<int> const&, int&>>); // BECAUSE of this first rule of
+                                                                 // common_reference
+#endif
+
+
 
 // T& and reference_wrapper<T> are substitutable with identical common_reference
 template <typename T>

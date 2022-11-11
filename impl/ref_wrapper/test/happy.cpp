@@ -1,4 +1,5 @@
 #include "ref_wrapper.hpp"
+#include "testutil.hpp"
 #include <catch2/catch_test_macros.hpp>
 
 #define TEST_POINT(x) TEST_CASE(x, "[happy]")
@@ -16,58 +17,41 @@ static_assert(check<int const&, Ref<int const>, int &      >);
 static_assert(check<int const&, Ref<int const>, int const& >);         
 static_assert(check<const volatile int&, Ref<const volatile int>, const volatile int&>);         
 
-static_assert(!HasType< Ternary<Ref<int> const &, int&> >);  // ok, ternary is still ambiguous
-static_assert(std::convertible_to<Ref<int> const &, int &>); // Ref<int> const& CAN be converted to int&
-static_assert(check<int const&, Ref<int> const &, int &  >); // BUT we compute common ref as const int &
-static_assert(std::same_as<int const &, CommonRef<Ref<int> const &, int &>> ); // BECAUSE of this first rule of common_reference
-
-
-// derived-base
+// derived-base and implicit convertibles
 struct B {};
 struct D : B {};
 struct C {
     operator B&() const;
 };
 
-// works out-of-the-box cause ?: is unambiguous
-static_assert(check<B&      , Ref<D>,       B&      >);
+static_assert(check<B&      , Ref<B>,       D &     >);
+static_assert(check<B const&, Ref<B>,       D const&>);
+static_assert(check<B const&, Ref<B const>, D const&>);
+
+
+static_assert(check<B&      , Ref<D>,       B &     >);
 static_assert(check<B const&, Ref<D>,       B const&>);
 static_assert(check<B const&, Ref<D const>, B const&>);
+// Interesting note: This last set works on VC++ thanks to our specialization.
+// But on GCC, it works naturally since ternary operator is no longer ambiguous.
+// Here:
+#ifndef _MSC_VER
+static_assert(std::same_as<B&, CondRes<Ref<D>, B&>>);
+static_assert(std::same_as<B const&, CondRes<Ref<D>, B const &>>);
+static_assert(std::same_as<B const&, CondRes<Ref<D const>, B const&>>);
+#else
+// but for some reason ternary operator on VC++ yields a base prvalue!
+static_assert(std::same_as<B, CondRes<Ref<D>, B&>>);
+static_assert(std::same_as<B const, CondRes<Ref<D>, B const &>>);
+static_assert(std::same_as<B const, CondRes<Ref<D const>, B const&>>);
+// fortunately, since this is not a reference type, common_reference rules fallthru
+// basic_common_reference specialization, and we compute B& here.
+#endif
 
 
-// Do implicit convertable
-struct Y {
-    operator B& () const;
-};
-struct X {
-    operator B& () const;
-};
-
-static_assert( std::same_as< B&, CondRes<X,B&> > );
-static_assert( std::same_as< B&, CondRes<Y,B&> > );
-static_assert( std::same_as< B&, CondRes<X const &,B&> > );
-static_assert( std::same_as< B&, CondRes<Y const &,B&> > );
-
-
-// static_assert( check<Ref<B>      ,   Ref<B> ,      D&      >);
-// static_assert( check<Ref<B>      ,   Ref<B>&,      D&      >); 
-// static_assert( check<Ref<B const>,   Ref<B const>, D&      >);
-// static_assert( check<B&          ,   Ref<D>,       B&      >); // ?: is not ambiguous
-// static_assert( check<B           ,   Ref<D const>, B&      >); // ?: proper fails, so common_type is used
-// static_assert(!check<B const&    ,   Ref<B>      , D const&>); // not even common_type, just fail. 
-// 
-// static_assert( check<Ref<B>      , Ref<B>      , C&      >);
-// static_assert( check<Ref<B const>, Ref<B const>, C&      >);
-// static_assert(!check<B           , Ref<C const>, B&      >); // fail common_type
-// static_assert(!check<B const&    , Ref<B>      , C const&>); // fail common_type 
-
-
-
-static_assert( check<B&      , Ref<B>      , D&      >);
-static_assert( check<B&      , Ref<B>&     , D&      >); 
-static_assert( check<B const&, Ref<B const>, D&      >);
-static_assert( check<B const&, Ref<D const>, B&      >);
-static_assert( check<B const&, Ref<B>      , D const&>);
+// implicit conversions are two hops so shouldn't work:
+static_assert( check_none<Ref<C>, B& >);
+static_assert( !std::convertible_to<Ref<C>, B&>);
 
 
 static_assert( check<B&        , Ref<B>      , C&      >);
@@ -96,6 +80,8 @@ TEST_POINT("recursive") {
     static_assert(check_none<Ri, RRRi>);
 }
 
+
+#ifdef CATCH2_DEFINE_MAIN
 #include <catch2/catch_session.hpp>
 
 int main(int argc, char* argv[]) {
@@ -107,3 +93,5 @@ int main(int argc, char* argv[]) {
 
     return result;
 }
+#endif
+
