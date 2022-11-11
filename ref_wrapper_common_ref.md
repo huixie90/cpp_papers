@@ -314,8 +314,9 @@ compatible conversions. That is, if `common_reference_t<U, V>` exists then
 `common_reference_t<U, reference_wrapper<V>>` should also exist and be equal to
 it, *given* the only additional requirement that `reference_wrapper<U>` or
 `reference_wrapper<V>`, respectively, can be also implicitly converted to
-`common_reference_t<U,V>`. This statement only applies when the ternary
-conversion logic ambiguous.
+`common_reference_t<U,V>`. This statement only applies when the evaluation of
+`common_reference_t` falls through to `basic_common_reference`, in other words
+when *COMMON-REF* is ill-formed [meta.trans.other]{.sref}/2.
 
 The authors propose to support such behavior by allowing
 `basic_common_reference` specialization to delegate the result to that of the
