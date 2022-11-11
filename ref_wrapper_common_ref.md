@@ -209,7 +209,103 @@ other hand, if the result is `T&`, the assignment would call the copy assignment
 operator of the original `foo`s. The authors believe that the latter design is 
 the intent of code and is the natural choice.
 
-## Supporting All Compatible Conversions
+## Alternatives Considered
+
+The following are some of the alternatives that considered originally. But later
+dropped in favor of the one discussed in the next section. 
+### Option 1: Support Exact Same Type with CV-Ref Variations
+
+One option would be to provide customisations for only `reference_wrapper<T>`
+and cv-ref `T`. Note that this version is rather restrictive:
+
+```cpp
+template <class T, class U, template <class> class TQual,
+          template <class> class UQual>
+    requires std::same_as<T, remove_cv_t<U>>
+struct basic_common_reference<T, reference_wrapper<U>, TQual, UQual> {
+    using type = common_reference_t<TQual<T>, U&>;
+};
+
+template <class T, class U, template <class> class TQual,
+          template <class> class UQual>
+    requires std::same_as<remove_cv_t<T>, U>
+struct basic_common_reference<reference_wrapper<T>, U, TQual, UQual> {
+    using type = common_reference_t<T&, UQual<U>>;
+};
+```
+
+### Option 2: Treat `reference_wrapper<T>` as `T&`
+
+This options completely treats `reference_wrapper<T>` as `T&` and delegates
+`common_reference<reference_wrapper<T>, U>` to the `common_reference<T&, U>`.
+Therefore, it would support any conversions (including derived-base conversion)
+that `T&` can do.
+
+```cpp
+template <class T, class U, template <class> class TQual, template <class> class UQual>
+    requires requires { typename common_reference<TQual<T>, U&>::type; }
+struct basic_common_reference<T, reference_wrapper<U>, TQual, UQual> {
+    using type = common_reference_t<TQual<T>, U&>;
+};
+
+template <class T, class U, template <class> class TQual, template <class> class UQual>
+    requires requires { typename common_reference<T&, UQual<U>>::type; }
+struct basic_common_reference<reference_wrapper<T>, U, TQual, UQual> {
+    using type = common_reference_t<T&, UQual<U>>;
+};
+```
+
+Immediately, it run into ambiguous specialisation problems for the following example
+
+```cpp
+common_reference_t<reference_wrapper<int>, reference_wrapper<int>>;
+```
+
+A quick fix is to add another specialisation
+
+```cpp
+template <class T, class U, template <class> class TQual, template <class> class UQual>
+    requires requires { typename common_reference<T&, U&>::type; }
+struct basic_common_reference<reference_wrapper<T>, reference_wrapper<U>, TQual, UQual> {
+    using type = common_reference_t<T&, U&>;
+};
+```
+
+However, this has some recursion problems.
+
+```cpp
+common_reference_t<reference_wrapper<reference_wrapper<int>>,
+                   reference_wrapper<int>&>;
+```
+
+The user would expect the above expression to yield `reference_wrapper<int>&>`.
+However it yields `int&` due to the recursion logic in the specialisation.
+
+And even worse,
+
+```cpp
+common_reference_t<reference_wrapper<reference_wrapper<int>>,
+                   int&>;
+```
+
+The above expression would also yield `int&` due to the recursion logic, even
+though the nested `reference_wrapper` is not `convertible_to<int&>`.
+
+The rational behind this option is that `reference_wrapper<T>` behaves exactly
+the same as `T&`. But does it?
+
+There is conversion from `reference_wrapper<T>` to `T&`, and if the result
+requires another conversion, the language does not allow `reference_wrapper<T>`
+to be converted to the result.
+
+
+
+This would cover majority of the use cases. However, this does not cover the
+derive-base conversions, i.e.
+`common_reference_t<reference_wrapper<Derived>, Base&>>`. This is a valid use
+case and the authors believe that it is important to support it.
+
+## Supporting All Compatible Conversions (Option 3)
 
 The above exposure can be extrapolated to any *cv*-qualified or other cross-type
 compatible conversions. That is, if `common_reference_t<U, V>` exists then
@@ -280,9 +376,11 @@ struct basic_common_reference<T, R, TQual, RQual> {
 - [1.2]{.pnum} `T` is any cv-unqualified type (possibly a `reference_wrapper` instance).
 - [1.3]{.pnum} `common_reference_t<U&, TQual<T>>` denotes a type.  Let this type be `Result`.
 - [1.4]{.pnum} `RQual<R>` models `convertible_to<Result>`.
-- [1.5]{.pnum} Let the above constraints be expressed in the form `@*CRW*@(R, T, RQual<R>, TQual<T>>)`
-      Then, `@*CRW*@(T, R, TQual<T>, RQual<R>>)` should be *false*. [*Note*: This final requirement
-      provides mutual exclusion of the two specializations -*end note*];
+- [1.5]{.pnum} Let the above constraints be expressed in the form
+       `@*CRW*@(R, T, RQual<R>, TQual<T>>)` which evaluates to *true* when the
+       conditions are satisfied. Then, `@*CRW*@(T, R, TQual<T>, RQual<R>>)` should
+       evaluate to *false*. [*Note*: This final requirement provides mutual exclusion
+       of the two specializations -*end note*];
 
 The member typedef-name `type` denotes the type `Result`.
 
