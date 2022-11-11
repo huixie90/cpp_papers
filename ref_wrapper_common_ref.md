@@ -212,7 +212,8 @@ the intent of code and is the natural choice.
 ## Alternatives Considered
 
 The following are some of the alternatives that considered originally. But later
-dropped in favor of the one discussed in the next section. 
+dropped in favor of the one discussed in the next section.
+
 ### Option 1: Support Exact Same Type with CV-Ref Variations
 
 One option would be to provide customisations for only `reference_wrapper<T>`
