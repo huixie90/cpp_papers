@@ -17,13 +17,24 @@ static_assert(std::convertible_to<Ref<int> const &, int &>);
 // SAD: But we still end up with `int const&` as the common_reference:
 static_assert(check<int const&, Ref<int> const &, int &  >);
 
-// This is because of the first rule of common_reference, *before* it even instantiates the basic_common_reference:
+// This is because of the first rule of common_reference,
+// *before* it even instantiates the basic_common_reference:
 static_assert(std::same_as<int const &, CommonRef<Ref<int> const &, int &>> ); // CommonRef is from the standard, std::__common_ref in libc++
 
+// The reason CommonRef is no longer ill-formed is because of
+// COPYCV https://eel.is/c++draft/meta.trans#other-2.3
+// which ends up copying the const from Ref<int> const & to int,
+// checking for  const int & instead of int &
+// This satisfies https://eel.is/c++draft/meta.trans#other-2.5
+static_assert(std::same_as<int const &, Ternary_t<Ref<int> const&, int const&>>);
 
 
 
-// --- gunk: 
+
+
+
+
+// --- gunk:
 
 static_assert(!HasType<Ternary<Ref<int> const&, int&>>); // ok, ternary is still ambiguous
 static_assert(
