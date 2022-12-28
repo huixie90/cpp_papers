@@ -315,8 +315,8 @@ compatible conversions. That is, if `common_reference_t<U, V>` exists then
 it, *given* the only additional requirement that `reference_wrapper<U>` or
 `reference_wrapper<V>`, respectively, can be also implicitly converted to
 `common_reference_t<U,V>`. This statement only applies when the evaluation of
-`common_reference_t` falls through to `basic_common_reference`, in other words
-when *COMMON-REF* is ill-formed [meta.trans.other]{.sref}/2.
+`common_reference_t` falls through to `basic_common_reference` (see next section).
+
 
 The authors propose to support such behavior by allowing
 `basic_common_reference` specialization to delegate the result to that of the
@@ -331,7 +331,14 @@ ambiguity.
 Finally, we have to explicitly disable the edge cases with nested
 `reference_wrapper`s since, while `reference_wrapper<reference_wrapper<T>>` is not `convertible_to<T&>` 
 
+## Unsupported Edge Cases via `basic_common_reference`
 
+As implied in the previous sections, the rules of the `common_reference` trait
+are such that a ternary expression of the pair of arguments should be ill-formed
+for the `basic_common_reference` of those arguments to take effect.
+
+More precisely, according to [meta.trans.other]{.sref}/5.3.1 the expression
+`*COMMON-REF*(T1, T2)` should be ill-formed, where `T1` and `T2` are the two arguments, and `*COMMON-REF*`
 
 # Implementation Experience
 
