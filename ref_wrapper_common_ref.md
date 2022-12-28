@@ -12,6 +12,9 @@ toc: true
 ---
 
 # Revision History
+## R2
+
+- Clarified unsupported cases for cv-qualified `reference_wrapper` references.
 
 ## R1
 
@@ -315,8 +318,8 @@ compatible conversions. That is, if `common_reference_t<U, V>` exists then
 it, *given* the only additional requirement that `reference_wrapper<U>` or
 `reference_wrapper<V>`, respectively, can be also implicitly converted to
 `common_reference_t<U,V>`. This statement only applies when the evaluation of
-`common_reference_t` falls through to `basic_common_reference`, in other words
-when *COMMON-REF* is ill-formed [meta.trans.other]{.sref}/2.
+`common_reference_t` falls through to `basic_common_reference` (see next section).
+
 
 The authors propose to support such behavior by allowing
 `basic_common_reference` specialization to delegate the result to that of the
@@ -329,8 +332,72 @@ specializations, and further constrain them to be mutually exclusive in order av
 ambiguity.
 
 Finally, we have to explicitly disable the edge cases with nested
-`reference_wrapper`s since, while `reference_wrapper<reference_wrapper<T>>` is not `convertible_to<T&>` 
+`reference_wrapper`s since, while `reference_wrapper<reference_wrapper<T>>` is
+not `convertible_to<T&>`
 
+## Unsupported Edge Cases via `basic_common_reference`
+
+As implied in the previous sections, the rules of the `common_reference` trait
+are such that any `basic_common_reference` specialization is consulted only if
+some ternary expression of the pair of arguments is ill-formed (see
+[meta.trans.other]{.sref}/5.3.1).
+
+More precisely, that ternary expression is denoted by `@*COMMON-REF*@(T1, T2)`,
+where `T1` and `T2` are the two arguments of the trait, and `@*COMMON-REF*@` is
+a complex macro defined in [meta.trans.other]{.sref}/2. For the cases where both
+`T1` and `T2` are l-value references, their `@*COMMON-REF*@` is the union of
+their cv-qualifiers applied to both. For example, given `T1` is `const X&` and
+`T2` is `Y&` (where `X` and `Y` are non-reference types), the evaluated
+expression is `decltype(false ? xc : yc)` where `xc` and `yc` are `const X&` and
+`const Y&`, respectively. Note that, the union of cv-qualifiers is `const` and
+it is applied to *both arguments* even though originally `T2` is a non-`const`
+reference.
+
+The origin and rationale for these contrived rules are rather obscure. But one
+consequence in the context of this paper is that there are interesting edge
+cases where the `basic_common_reference` treatment do not apply. Take,
+
+```
+int i = 3;
+const std::reference_wrapper<int> r = i;
+int& j = r; // ok.
+```
+
+That is, the `const`-ness of `reference_wrapper<int>` itself does not change its
+semantics, since it is just a proxy to an `int&`. So, it would be natural to
+expect that `int&` should be the common reference of `int&` and `const
+reference_wrapper<int>&`, since objects of both types can be assigned to an
+`int&`.
+
+However, because of the way `@*COMMON-REF*@` is defined, the evaluated ternary
+expression is `decltype(false ? r : jc)`, where `jc` is `@**const**@ int&`. Lo
+and behold, this expression is no longer ill-formed and evaluates to `const
+int&` (the conversion direction is no longer ambiguous, since
+`reference_wrapper<int>` can not be constructed from an `int const&`), and we
+get:
+
+```
+// in the current standard, as well as with this proposal:
+static_assert(std::same_as<
+    std::common_reference_t<
+       const std::reference_wrapper<int>&,
+       int&
+       >,
+    const int&  // not int& !!
+>);
+```
+
+Consequently, without a fundamental redesign of `common_reference` to take into
+account proxy types like `reference_wrapper`, this situation does not seem to be
+avoidable.
+
+The authors believe that the proposed `basic_common_reference` fix is still
+required and important despite this exception. This is because, (1) the silent
+wrong behavior as described in the Motivation section is too severe to leave
+untreated, (2) the unsupported cases only manifest with the reference types for
+which this motivation inherently does not apply (i.e. they are not as urgent to
+fix), (3) there is no change in behavior with regards to these cases, so any
+future generalized treatment will not be affected.
 
 
 # Implementation Experience
