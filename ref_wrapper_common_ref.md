@@ -346,10 +346,10 @@ More precisely, that ternary expression is denoted by `@*COMMON-REF*@(T1, T2)`,
 where `T1` and `T2` are the two arguments of the trait, and `@*COMMON-REF*@` is
 a complex macro defined in [meta.trans.other]{.sref}/2. For the cases where both
 `T1` and `T2` are l-value references, their `@*COMMON-REF*@` is the union of
-their cv-qualifiers applied to both. For example, given `T1` is `X const &` and
+their cv-qualifiers applied to both. For example, given `T1` is `const X&` and
 `T2` is `Y&` (where `X` and `Y` are non-reference types), the evaluated
-expression is `decltype(false? xc : yc)` where `xc` and `yc` are `X const &` and
-`Y const &`, respectively. Note that, the union of cv-qualifiers is `const` and
+expression is `decltype(false ? xc : yc)` where `xc` and `yc` are `const X&` and
+`const Y&`, respectively. Note that, the union of cv-qualifiers is `const` and
 it is applied to *both arguments* even though originally `T2` is a non-`const`
 reference.
 
@@ -359,31 +359,31 @@ cases where the `basic_common_reference` treatment do not apply. Take,
 
 ```
 int i = 3;
-std::reference_wrapper<int> const r = i;
+const std::reference_wrapper<int> r = i;
 int& j = r; // ok.
 ```
 
-That is, the `const`-ness of the `reference_wrapper` itself does not change its
+That is, the `const`-ness of `reference_wrapper<int>` itself does not change its
 semantics, since it is just a proxy to an `int&`. So, it would be natural to
-assume that `int&` would be the common reference of `int&` and
-`reference_wrapper<int> const &`, since objects of both types can be assigned to
-an `int&`.
+expect that `int&` should be the common reference of `int&` and `const
+reference_wrapper<int>&`, since objects of both types can be assigned to an
+`int&`.
 
 However, because of the way `@*COMMON-REF*@` is defined, the evaluated ternary
-expression is `decltype(false ? r : jc)`, where `jc` is `int @**const**@ &`. Lo
-and behold, this ternary expression is no longer ill-formed and evaluates to
-`int const &` (the conversion direction is no longer ambiguous, since
+expression is `decltype(false ? r : jc)`, where `jc` is `@**const**@ int&`. Lo
+and behold, this expression is no longer ill-formed and evaluates to `const
+int&` (the conversion direction is no longer ambiguous, since
 `reference_wrapper<int>` can not be constructed from an `int const&`), and we
 get:
 
 ```
-// in C++20 and with this proposal:
+// in the current standard, as well as with this proposal:
 static_assert(std::same_as<
     std::common_reference_t<
-       std::reference_wrapper<int> const &,
+       const std::reference_wrapper<int>&,
        int&
        >,
-    int const &  // not int& !!
+    const int&  // not int& !!
 >);
 ```
 
@@ -391,13 +391,13 @@ Consequently, without a fundamental redesign of `common_reference` to take into
 account proxy types like `reference_wrapper`, this situation does not seem to be
 avoidable.
 
-The authors believe this state of affairs is not reason enough to discard the
-`basic_common_reference` fix. This is because, (1) the silent wrong behavior as
-described in the Motivation section is too severe to leave untreated, (2) the
-unsupported cases only manifest with the reference types for which this
-motivation inherently does not apply (i.e. they are not as urgent to fix), (3)
-there is no change in behavior with regards to these cases, so any future
-generalized treatment will not be affected by the proposed resolution.
+The authors believe that the proposed `basic_common_reference` fix is still
+required and important despite this exception. This is because, (1) the silent
+wrong behavior as described in the Motivation section is too severe to leave
+untreated, (2) the unsupported cases only manifest with the reference types for
+which this motivation inherently does not apply (i.e. they are not as urgent to
+fix), (3) there is no change in behavior with regards to these cases, so any
+future generalized treatment will not be affected.
 
 
 # Implementation Experience
