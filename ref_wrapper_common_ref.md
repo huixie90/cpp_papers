@@ -334,11 +334,44 @@ Finally, we have to explicitly disable the edge cases with nested
 ## Unsupported Edge Cases via `basic_common_reference`
 
 As implied in the previous sections, the rules of the `common_reference` trait
-are such that a ternary expression of the pair of arguments should be ill-formed
-for the `basic_common_reference` of those arguments to take effect.
+are such that any `basic_common_reference` specialization is consulted only if
+some ternary expression of the pair of arguments is ill-formed (see
+[meta.trans.other]{.sref}/5.3.1).
 
-More precisely, according to [meta.trans.other]{.sref}/5.3.1 the expression
-`*COMMON-REF*(T1, T2)` should be ill-formed, where `T1` and `T2` are the two arguments, and `*COMMON-REF*`
+More precisely, that ternary expression is denoted by `*COMMON-REF*(T1, T2)`,
+where `T1` and `T2` are the two arguments of the trait, and `@*COMMON-REF*@` is
+the complex macro defined in [meta.trans.other]{.sref}/2. For the cases where
+both `T1` and `T2` are l-value references, the `@*COMMON-REF*@` 
+is the union of the cv-qualifiers of both sides applied to the underlying
+types. For example, given `T1` is `X const &` and `T2` is `Y&` (where `X` and
+`Y` are non-reference types) the evaluated expression is
+`decltype(false? xc : yc)` where `xc` and `yc` are `X const &` and `Y const &`,
+respectively. Note that, the union of cv-qualifiers is `const` and it is applied
+to *both arguments* even though originally `T2` is a non-const reference.
+
+The origin and rationale for these contrived rules are rather obscure. But one
+consequence in the context of this paper is that there are interesting edge
+cases where the `basic_common_reference` treatment do not apply. Take,
+
+```
+int i = 3;
+std::reference_wrapper<int> const r = i;
+int& j = r; // valid
+```
+
+In other words, the `const`-ness of the `reference_wrapper` itself does not
+change the semantics. The wrapper is just a proxy. But, because of the 
+
+```
+static_assert( std::same_as< int const &, // not int& !!
+    std::common_reference_t<
+       std::reference_wrapper<int> const &,
+       int&
+       >> );
+```
+
+
+
 
 # Implementation Experience
 

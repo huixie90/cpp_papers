@@ -651,9 +651,20 @@ code.sourceCode > span { display: inline; }
 <p>In order to support commutativity, we need to introduce two separate specializations, and further constrain them to be mutually exclusive in order avoid ambiguity.</p>
 <p>Finally, we have to explicitly disable the edge cases with nested <code class="sourceCode default">reference_wrapper</code>s since, while <code class="sourceCode default">reference_wrapper&lt;reference_wrapper&lt;T&gt;&gt;</code> is not <code class="sourceCode default">convertible_to&lt;T&amp;&gt;</code></p>
 <h2 data-number="4.4" id="unsupported-edge-cases-via-basic_common_reference"><span class="header-section-number">4.4</span> Unsupported Edge Cases via <code class="sourceCode default">basic_common_reference</code><a href="#unsupported-edge-cases-via-basic_common_reference" class="self-link"></a></h2>
-<p>As implied in the previous sections, the rules of the <code class="sourceCode default">common_reference</code> trait are such that a ternary expression of the pair of arguments should be ill-formed for the <code class="sourceCode default">basic_common_reference</code> of those arguments to take effect.</p>
-<p>More precisely, according to <span>21.3.8.7
- <a href="https://wg21.link/meta.trans.other">[meta.trans.other]</a></span>/5.3.1 the expression <code class="sourceCode default">*COMMON-REF*(T1, T2)</code> should be ill-formed, where <code class="sourceCode default">T1</code> and <code class="sourceCode default">T2</code> are the two arguments, and <code class="sourceCode default">*COMMON-REF*</code></p>
+<p>As implied in the previous sections, the rules of the <code class="sourceCode default">common_reference</code> trait are such that any <code class="sourceCode default">basic_common_reference</code> specialization is consulted only if some ternary expression of the pair of arguments is ill-formed (see <span>21.3.8.7
+ <a href="https://wg21.link/meta.trans.other">[meta.trans.other]</a></span>/5.3.1).</p>
+<p>More precisely, that ternary expression is denoted by <code class="sourceCode default">*COMMON-REF*(T1, T2)</code>, where <code class="sourceCode default">T1</code> and <code class="sourceCode default">T2</code> are the two arguments of the trait, and <code class="sourceCode default"><em>COMMON-REF</em></code> is the complex macro defined in <span>21.3.8.7
+ <a href="https://wg21.link/meta.trans.other">[meta.trans.other]</a></span>/2. For the cases where both <code class="sourceCode default">T1</code> and <code class="sourceCode default">T2</code> are l-value references, the <code class="sourceCode default"><em>COMMON-REF</em></code> is the union of the cv-qualifiers of both sides applied to the underlying types. For example, given <code class="sourceCode default">T1</code> is <code class="sourceCode default">X const &amp;</code> and <code class="sourceCode default">T2</code> is <code class="sourceCode default">Y&amp;</code> (where <code class="sourceCode default">X</code> and <code class="sourceCode default">Y</code> are non-reference types) the evaluated expression is <code class="sourceCode default">decltype(false? xc : yc)</code> where <code class="sourceCode default">xc</code> and <code class="sourceCode default">yc</code> are <code class="sourceCode default">X const &amp;</code> and <code class="sourceCode default">Y const &amp;</code>, respectively. Note that, the union of cv-qualifiers is <code class="sourceCode default">const</code> and it is applied to <em>both arguments</em> even though originally <code class="sourceCode default">T2</code> is a non-const reference.</p>
+<p>The origin and rationale for these contrived rules are rather obscure. But one consequence in the context of this paper is that there are interesting edge cases where the <code class="sourceCode default">basic_common_reference</code> treatment do not apply. Take,</p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb15-1"><a href="#cb15-1"></a>int i = 3;</span>
+<span id="cb15-2"><a href="#cb15-2"></a>std::reference_wrapper&lt;int&gt; const r = i;</span>
+<span id="cb15-3"><a href="#cb15-3"></a>int&amp; j = r; // valid</span></code></pre></div>
+<p>In other words, the <code class="sourceCode default">const</code>-ness of the <code class="sourceCode default">reference_wrapper</code> itself does not change the semantics. The wrapper is just a proxy. But, because of the</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb16-1"><a href="#cb16-1"></a>static_assert( std::same_as&lt; int const &amp;, // not int&amp; !!</span>
+<span id="cb16-2"><a href="#cb16-2"></a>    std::common_reference_t&lt;</span>
+<span id="cb16-3"><a href="#cb16-3"></a>       std::reference_wrapper&lt;int&gt; const &amp;,</span>
+<span id="cb16-4"><a href="#cb16-4"></a>       int&amp;</span>
+<span id="cb16-5"><a href="#cb16-5"></a>       &gt;&gt; );</span></code></pre></div>
 <h1 data-number="5" id="implementation-experience"><span class="header-section-number">5</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
 <ul>
 <li><p>The authors implemented the proposed wording below without any issue<span class="citation" data-cites="ours">[<a href="#ref-ours" role="doc-biblioref">ours</a>]</span>.</p></li>
@@ -664,25 +675,25 @@ code.sourceCode > span { display: inline; }
  <a href="https://wg21.link/functional.syn">[functional.syn]</a></span> to add to the end of <code class="sourceCode default">reference_wrapper</code> section:</p>
 <div class="add" style="color: #006e28">
 
-<div class="sourceCode" id="cb15"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb15-1"><a href="#cb15-1"></a>// <em>[refwrap.common.ref] <code class="sourceCode default">common_­reference</code> related specializations</em></span>
-<span id="cb15-2"><a href="#cb15-2"></a>template &lt;class R, class T, template &lt;class&gt; class RQual, template &lt;class&gt; class TQual&gt;</span>
-<span id="cb15-3"><a href="#cb15-3"></a>struct basic_common_reference&lt;R, T, RQual, TQual&gt;;</span>
-<span id="cb15-4"><a href="#cb15-4"></a></span>
-<span id="cb15-5"><a href="#cb15-5"></a>template &lt;class T, class R, template &lt;class&gt; class TQual, template &lt;class&gt; class RQual&gt;</span>
-<span id="cb15-6"><a href="#cb15-6"></a>struct basic_common_reference&lt;T, R, TQual, RQual&gt;;</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb17-1"><a href="#cb17-1"></a>// <em>[refwrap.common.ref] <code class="sourceCode default">common_­reference</code> related specializations</em></span>
+<span id="cb17-2"><a href="#cb17-2"></a>template &lt;class R, class T, template &lt;class&gt; class RQual, template &lt;class&gt; class TQual&gt;</span>
+<span id="cb17-3"><a href="#cb17-3"></a>struct basic_common_reference&lt;R, T, RQual, TQual&gt;;</span>
+<span id="cb17-4"><a href="#cb17-4"></a></span>
+<span id="cb17-5"><a href="#cb17-5"></a>template &lt;class T, class R, template &lt;class&gt; class TQual, template &lt;class&gt; class RQual&gt;</span>
+<span id="cb17-6"><a href="#cb17-6"></a>struct basic_common_reference&lt;T, R, TQual, RQual&gt;;</span></code></pre></div>
 
 </div>
 <p>Add the following subclause to <span>22.10.6
  <a href="https://wg21.link/refwrap">[refwrap]</a></span>:</p>
 <h4 class="unnumbered" data-number id="common_reference-related-specializations-refwrap.common.ref">?.?.?.? <code class="sourceCode default">common_reference</code> related specializations [refwrap.common.ref]<a href="#common_reference-related-specializations-refwrap.common.ref" class="self-link"></a></h4>
-<div class="sourceCode" id="cb16"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> R, <span class="kw">class</span> T, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> RQual, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> TQual<span class="op">&gt;</span></span>
-<span id="cb16-2"><a href="#cb16-2"></a><span class="kw">struct</span> basic_common_reference<span class="op">&lt;</span>R, T, RQual, TQual<span class="op">&gt;</span> <span class="op">{</span></span>
-<span id="cb16-3"><a href="#cb16-3"></a>    <span class="kw">using</span> type <span class="op">=</span> <em>see below</em>;</span>
-<span id="cb16-4"><a href="#cb16-4"></a><span class="op">}</span>;</span>
-<span id="cb16-5"><a href="#cb16-5"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T, <span class="kw">class</span> R, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> TQual, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> RQual<span class="op">&gt;</span></span>
-<span id="cb16-6"><a href="#cb16-6"></a><span class="kw">struct</span> basic_common_reference<span class="op">&lt;</span>T, R, TQual, RQual<span class="op">&gt;</span> <span class="op">{</span></span>
-<span id="cb16-7"><a href="#cb16-7"></a>    <span class="kw">using</span> type <span class="op">=</span> <em>see below</em>;</span>
-<span id="cb16-8"><a href="#cb16-8"></a><span class="op">}</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#cb18-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> R, <span class="kw">class</span> T, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> RQual, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> TQual<span class="op">&gt;</span></span>
+<span id="cb18-2"><a href="#cb18-2"></a><span class="kw">struct</span> basic_common_reference<span class="op">&lt;</span>R, T, RQual, TQual<span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb18-3"><a href="#cb18-3"></a>    <span class="kw">using</span> type <span class="op">=</span> <em>see below</em>;</span>
+<span id="cb18-4"><a href="#cb18-4"></a><span class="op">}</span>;</span>
+<span id="cb18-5"><a href="#cb18-5"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T, <span class="kw">class</span> R, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> TQual, <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">&gt;</span> <span class="kw">class</span> RQual<span class="op">&gt;</span></span>
+<span id="cb18-6"><a href="#cb18-6"></a><span class="kw">struct</span> basic_common_reference<span class="op">&lt;</span>T, R, TQual, RQual<span class="op">&gt;</span> <span class="op">{</span></span>
+<span id="cb18-7"><a href="#cb18-7"></a>    <span class="kw">using</span> type <span class="op">=</span> <em>see below</em>;</span>
+<span id="cb18-8"><a href="#cb18-8"></a><span class="op">}</span>;</span></code></pre></div>
 <p><span class="marginalizedparent"><a class="marginalized">1</a></span> The following are the <em>constraints</em>, and apply to both specializations verbatim:</p>
 <ul>
 <li><span class="marginalizedparent"><a class="marginalized">(1.1)</a></span> <code class="sourceCode default">R</code> is a cv-unqualified <code class="sourceCode default">reference_wrapper&lt;U&gt;</code> of some type <code class="sourceCode default">U</code>. [<em>Note</em>: <code class="sourceCode default">T</code> is any cv-unqualified type, possibly a <code class="sourceCode default">reference_wrapper</code> instance. -<em>end note</em>];</li>
@@ -694,7 +705,7 @@ code.sourceCode > span { display: inline; }
 <h2 data-number="6.1" id="feature-test-macro"><span class="header-section-number">6.1</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
 <p>Add the following macro definition to <span>17.3.2
  <a href="https://wg21.link/version.syn">[version.syn]</a></span>, header <code class="sourceCode default">&lt;version&gt;</code> synopsis, with the value selected by the editor to reflect the date of adoption of this paper:</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb17-1"><a href="#cb17-1"></a><span class="pp">#define __cpp_lib_common_reference_reference_wrapper_specialized  </span><span class="dv">20</span><span class="er">XXXXL</span><span class="pp"> </span><span class="co">// also in &lt;functional&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="#cb19-1"></a><span class="pp">#define __cpp_lib_common_reference_reference_wrapper_specialized  </span><span class="dv">20</span><span class="er">XXXXL</span><span class="pp"> </span><span class="co">// also in &lt;functional&gt;</span></span></code></pre></div>
 <style>
 .bq{
     display: block;
