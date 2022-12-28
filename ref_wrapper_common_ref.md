@@ -12,7 +12,9 @@ toc: true
 ---
 
 # Revision History
+## R2
 
+- Clarified unsupported cases for cv-qualified `reference_wrapper` references.
 ## R1
 
 - Added reasons why the result should be `T&`
