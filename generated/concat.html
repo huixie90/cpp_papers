@@ -712,7 +712,7 @@ Note that the last underlying range does not have to satisfy this constraint bec
 <h3 class="unnumbered" data-number id="concat-view-range.concat">24.7.? Concat view [range.concat]<a href="#concat-view-range.concat" class="self-link"></a></h3>
 <h4 class="unnumbered" data-number id="overview-range.concat.overview">24.7.?.1 Overview [range.concat.overview]<a href="#overview-range.concat.overview" class="self-link"></a></h4>
 <p><span class="marginalizedparent"><a class="marginalized">1</a></span> <code class="sourceCode default">concat_view</code> presents a <code class="sourceCode default">view</code> that concatenates all the underlying ranges.</p>
-<p><span class="marginalizedparent"><a class="marginalized">2</a></span> The name <code class="sourceCode default">views::concat</code> denotes a customization point object (<span>16.3.3.3.6
+<p><span class="marginalizedparent"><a class="marginalized">2</a></span> The name <code class="sourceCode default">views::concat</code> denotes a customization point object (<span>16.3.3.3.5
  <a href="https://wg21.link/customization.point.object">[customization.point.object]</a></span>). Given a pack of subexpressions <code class="sourceCode default">Es...</code>, the expression <code class="sourceCode default">views::concat(Es...)</code> is expression-equivalent to</p>
 <ul>
 <li><span class="marginalizedparent"><a class="marginalized">(2.1)</a></span> <code class="sourceCode default">views::all(Es...)</code> if <code class="sourceCode default">Es</code> is a pack with only one element and <code class="sourceCode default">views::all(Es...)</code> is a well formed expression,</li>
