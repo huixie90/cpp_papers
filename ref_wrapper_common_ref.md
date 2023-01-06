@@ -15,6 +15,7 @@ toc: true
 ## R2
 
 - Clarified unsupported cases for cv-qualified `reference_wrapper` references.
+- Replaced Wording paragraphs with code.
 
 ## R1
 
