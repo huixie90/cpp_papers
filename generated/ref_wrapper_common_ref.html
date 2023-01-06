@@ -417,7 +417,7 @@ code.sourceCode > span { display: inline; }
 <table style="border:none;float:right">
   <tr>
     <td>Document #:</td>
-    <td>P2655R1</td>
+    <td>D2655R2</td>
   </tr>
   <tr>
     <td>Date:</td>
@@ -700,13 +700,13 @@ code.sourceCode > span { display: inline; }
 <h4 class="unnumbered" data-number id="common_reference-related-specializations-refwrap.common.ref">?.?.?.? <code class="sourceCode default">common_reference</code> related specializations [refwrap.common.ref]<a href="#common_reference-related-specializations-refwrap.common.ref" class="self-link"></a></h4>
 <p>The <code class="sourceCode default">basic_common_reference</code> specializations should be constrained and defined as follows:</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#cb18-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T<span class="op">&gt;</span></span>
-<span id="cb18-2"><a href="#cb18-2"></a><span class="kw">inline</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <em>is-ref-wrapper</em> <span class="op">=</span> <span class="kw">false</span>;</span>
+<span id="cb18-2"><a href="#cb18-2"></a><span class="kw">inline</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <em>is-ref-wrapper</em> <span class="op">=</span> <span class="kw">false</span>; <span class="co">// exposition only</span></span>
 <span id="cb18-3"><a href="#cb18-3"></a></span>
 <span id="cb18-4"><a href="#cb18-4"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T<span class="op">&gt;</span></span>
 <span id="cb18-5"><a href="#cb18-5"></a><span class="kw">inline</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <em>is-ref-wrapper</em><span class="op">&lt;</span>reference_wrapper<span class="op">&lt;</span>T<span class="op">&gt;&gt;</span> <span class="op">=</span> <span class="kw">true</span>;</span>
 <span id="cb18-6"><a href="#cb18-6"></a></span>
 <span id="cb18-7"><a href="#cb18-7"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> R, <span class="kw">class</span> T, <span class="kw">class</span> RQ, <span class="kw">class</span> TQ<span class="op">&gt;</span></span>
-<span id="cb18-8"><a href="#cb18-8"></a><span class="kw">concept</span> <em>ref-wrap-common-reference-exists-with</em> <span class="op">=</span></span>
+<span id="cb18-8"><a href="#cb18-8"></a><span class="kw">concept</span> <em>ref-wrap-common-reference-exists-with</em> <span class="op">=</span> <span class="co">// exposition only</span></span>
 <span id="cb18-9"><a href="#cb18-9"></a>    <em>is-ref-wrapper</em><span class="op">&lt;</span>R<span class="op">&gt;</span></span>
 <span id="cb18-10"><a href="#cb18-10"></a>    <span class="op">&amp;&amp;</span> <span class="kw">requires</span> <span class="op">{</span></span>
 <span id="cb18-11"><a href="#cb18-11"></a>        <span class="kw">typename</span> common_reference_t<span class="op">&lt;</span><span class="kw">typename</span> R<span class="op">::</span>type<span class="op">&amp;</span>, TQ<span class="op">&gt;</span>;</span>

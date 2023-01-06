@@ -1,6 +1,6 @@
 ---
 title: "`common_reference_t` of `reference_wrapper` Should Be a Reference Type"
-document: P2655R1
+document: D2655R2
 date: 2022-10-17
 audience: SG9, LEWG
 author:
@@ -432,13 +432,13 @@ The `basic_common_reference` specializations should be constrained and defined a
 
 ```cpp
 template <class T>
-inline constexpr bool @*is-ref-wrapper*@ = false;
+inline constexpr bool @*is-ref-wrapper*@ = false; // exposition only
 
 template <class T>
 inline constexpr bool @*is-ref-wrapper*@<reference_wrapper<T>> = true;
 
 template<class R, class T, class RQ, class TQ>
-concept @*ref-wrap-common-reference-exists-with*@ =
+concept @*ref-wrap-common-reference-exists-with*@ = // exposition only
     @*is-ref-wrapper*@<R>
     && requires {
         typename common_reference_t<typename R::type&, TQ>;
