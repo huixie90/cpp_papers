@@ -454,7 +454,6 @@ struct basic_common_reference<R, T, RQual, TQual> {
 
 template <class T, class R, template <class> class TQual,  template <class> class RQual>
     requires(  @*ref-wrap-common-reference-exists-with*@<R, T, RQual<R>, TQual<T>> 
-           // [1.4] commuted constraint should not match:
            && !@*ref-wrap-common-reference-exists-with*@<T, R, TQual<T>, RQual<R>>  )
 struct basic_common_reference<T, R, TQual, RQual> {
     using type = common_reference_t<typename R::type&, TQual<T>>;
