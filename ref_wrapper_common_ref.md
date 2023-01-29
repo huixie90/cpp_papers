@@ -1,7 +1,7 @@
 ---
 title: "`common_reference_t` of `reference_wrapper` Should Be a Reference Type"
 document: D2655R2
-date: 2022-10-17
+date: 2023-01-29
 audience: SG9, LEWG
 author:
   - name: Hui Xie
@@ -14,7 +14,7 @@ toc: true
 # Revision History
 ## R2
 
-- Clarified unsupported cases for cv-qualified `reference_wrapper` references.
+- Address issues with `common_reference` of any cv-qualified proxy types.
 - Replaced Wording paragraphs with code.
 
 ## R1
@@ -336,7 +336,7 @@ Finally, we have to explicitly disable the edge cases with nested
 `reference_wrapper`s since, while `reference_wrapper<reference_wrapper<T>>` is
 not `convertible_to<T&>`
 
-## Unsupported Edge Cases via `basic_common_reference`
+## Edge Cases via `basic_common_reference`
 
 As implied in the previous sections, the rules of the `common_reference` trait
 are such that any `basic_common_reference` specialization is consulted only if
@@ -358,7 +358,7 @@ The origin and rationale for these contrived rules are rather obscure. But one
 consequence in the context of this paper is that there are interesting edge
 cases where the `basic_common_reference` treatment do not apply. Take,
 
-```
+```cpp
 int i = 3;
 const std::reference_wrapper<int> r = i;
 int& j = r; // ok.
@@ -377,7 +377,7 @@ int&` (the conversion direction is no longer ambiguous, since
 `reference_wrapper<int>` can not be constructed from an `int const&`), and we
 get:
 
-```
+```cpp
 // in the current standard, as well as with this proposal:
 static_assert(std::same_as<
     std::common_reference_t<
@@ -388,33 +388,157 @@ static_assert(std::same_as<
 >);
 ```
 
-Consequently, without a fundamental redesign of `common_reference` to take into
-account proxy types like `reference_wrapper`, this situation does not seem to be
-avoidable.
+This issue exists not only in `reference_wrapper`, but any proxy-like types with
+conversion operators. For example
 
-The authors believe that the proposed `basic_common_reference` fix is still
-required and important despite this exception. This is because, (1) the silent
-wrong behavior as described in the Motivation section is too severe to leave
-untreated, (2) the unsupported cases only manifest with the reference types for
-which this motivation inherently does not apply (i.e. they are not as urgent to
-fix), (3) there is no change in behavior with regards to these cases, so any
-future generalized treatment will not be affected.
+```cpp
+struct A {};
+
+struct B {
+    operator A& () const;
+};
+
+static_assert(std::same_as<
+    std::common_reference_t<A&, const B&>,
+    const A&  // not A& !!
+>);
+```
+
+As per SG9's direction, we'd like to fix this second issue in the same paper.
+
+## Fix `common_reference`'s cv Qualifier Issue for All Proxy Types
+
+Going back to the example above
+
+```cpp
+struct A {};
+
+struct B {
+    operator A& () const;
+};
+```
+
+The builtin ternary operator `?:` does return the expected type `A&`
+
+```cpp
+A a;
+const B b;
+
+static_assert(std::same_as<
+    decltype(false? a : b),
+    A&
+>);
+```
+
+But why does `common_reference` returns `const A&`? Currently, the result of
+`common_reference` of two types is decided in the following order:
+
+- (1). `@*COMMON-REF*@`
+- (2). `basic_common_reference`
+- (3). Builtin ternary operator `?:`
+- (4). `common_type_t`
+
+Note that the origal problem this paper tries to solve is that
+`common_reference_t<int&, reference_wrapper<int>>` is prvalue `int`. This is
+because (1) and (3) are ill-formed because of the ambiguity and it falls back to
+(4) which reproduces prvalue. The solution was to add (2) to make
+`reference_wrapper<int>` behaves more like an `int&`
+
+However, the second `const` issue, which is described in this section, is
+because (1) is too greedy to pick it up, even though (2) or (3) would have produced
+the desired results.
+
+Before going to the details of `@*COMMON-REF*@`, let's see Tim Song's comments on `@*COMMON-REF*@`
+
+> It's important that `common_reference<tuple<int>&, tuple<int>&>` remains
+> `tuple<int>&` and not `tuple<int&>`, even though the obvious way of writing
+> the `basic_common_reference` specialization for `tuple`s (which is also the
+> one in the standard) would yield the latter. Having a layer for the
+> trivial/obvious cases before we use the user-specializable component makes it
+> more convenient for users, and more importantly, harder to get wrong. So I
+> think `@*COMMON-REF*@` was probably not meant to deal with proxy references
+> and user-defined conversions at all. It is used only when the types involved
+> are reference types, but that doesn't make any sense if it were meant to
+> handle things that are convertible to reference types.
+
+The purpose of `@*COMMON-REF*@` is to deal with some trivial/obvious cases for
+users who would like to write `basic_common_reference` for their types. This is
+why `@*COMMON-REF*@` comes before `basic_common_reference`. These obvious cases
+include `common_reference<T&, T&>` produces `T&` and
+`common_reference<T&, const T&>` produces `const T&`. However, the way it is
+defined also includes user defined conversions and these conversions are never
+"trivial/obvious" cases and sometimes produces unexpected results.
+
+One possible solution is to disable `@*COMMON-REF*@` for all user defined
+conversions and only allow "trivial" conversions like cv qualification and
+derived-to-base conversions. Once `@*COMMON-REF*@` is disabled for user defined
+conversions, for `common_reference_t<const reference_wrapper<int>&, int&>`, (2)
+`basic_common_reference` would pick it up and produces the expected result
+`int&`. For `common_reference_t<A&, const B&>`, (3) builtin ternary operator
+`?:` would pick it up and produces the expected result `A&`.
+
+Currently, the `@*COMMON-REF*@` is defined as:
+
+> Given types `A` and `B`, let `X` be `remove_reference_t<A>`, let `Y` be
+> `remove_reference_t<B>`, and let `@*COMMON-REF*@(A, B)` be:
+>
+> - (2.5) If `A` and `B` are both lvalue reference types, `@*COMMON-REF*@(A, B)`
+> is `@*COND-RES*@(@*COPYCV*@(X, Y) &, @*COPYCV*@(Y, X) &)` if that type exists
+> and is a reference type.
+> - (2.6) Otherwise, let `C` be `remove_reference_t<@*COMMON-REF*@(X&, Y&)>&&`.
+> If `A` and `B` are both rvalue reference types, `C` is well-formed, and
+> `is_convertible_v<A, C> && is_convertible_v<B, C>` is true, then
+> `@*COMMON-REF*@(A, B)` is `C`.
+> - (2.7) Otherwise, let `D` be `@*COMMON-REF*@(const X&, Y&)`. If `A` is an
+> rvalue reference and `B` is an lvalue reference and `D` is well-formed and
+> `is_convertible_v<A, D>` is true, then `@*COMMON-REF*@(A, B)` is `D`.
+> - (2.8) Otherwise, if `A` is an lvalue reference and B is an rvalue reference,
+> then `@*COMMON-REF*@(A, B)` is `@*COMMON-REF*@(B, A)`.
+> - (2.9) Otherwise, `@*COMMON-REF*@(A, B)` is ill-formed.
+
+To reject user defined conversions, change (2.5) to additionally require
+`is_convertible_v<X*, add_pointer_t<R>>` and
+`is_convertible_v<Y*, add_pointer_t<R>>`, where `R` is the result
+`@*COND-RES*@(@*COPYCV*@(X, Y) &, @*COPYCV*@(Y, X) &)`. This is enough to fix
+the two example issues in this paper. But for consistency, it is better to add
+the pointer converions requirements for (2.6) and (2.7) for rvalue reference
+cases.
 
 
 # Implementation Experience
 
 - The authors implemented the proposed wording below without any issue[@ours].
 
-- The authors also applied the proposed wording in LLVM's libc++ and all libc++ tests passed.
+- The authors also applied the proposed wording in LLVM's libc++ and all libc++ tests passed.[@libcxx]
 
 # Wording
+
+Modify [meta.trans.other]{.sref} section (2.5) to (2.9)
+
+Given types `A` and `B`, let `X` be `remove_reference_t<A>`, let `Y` be
+`remove_reference_t<B>`, and let `@*COMMON-REF*@(A, B)` be:
+
+- (2.5) [let `R` be `@*COND-RES*@(@*COPYCV*@(X, Y) &, @*COPYCV*@(Y, X) &)`.]{.add}If `A` and `B` are both lvalue reference types, [`@*COMMON-REF*@(A, B)`
+is `@*COND-RES*@(@*COPYCV*@(X, Y) &, @*COPYCV*@(Y, X) &)` if that type exists
+and is a reference type.]{.rm}[, `R` is well-formed, `R` is a reference type and `is_convertible_v<X*, add_pointer_t<R>> && is_convertible_v<Y*, add_pointer_t<R>>` is `true`, then `@*COMMON-REF*@(A, B)` is `R`.]{.add}
+- (2.6) Otherwise, let `C` be `remove_reference_t<@*COMMON-REF*@(X&, Y&)>&&`.
+If `A` and `B` are both rvalue reference types, `C` is well-formed, and
+`is_convertible_v<A, C> && is_convertible_v<B, C>` [` && is_convertible_v<X*, add_pointer_t<C>> && is_convertible_v<Y*, add_pointer_t<C>>`]{.add} is true, then
+`@*COMMON-REF*@(A, B)` is `C`.
+- (2.7) Otherwise, let `D` be `@*COMMON-REF*@(const X&, Y&)`. If `A` is an
+rvalue reference and `B` is an lvalue reference and `D` is well-formed and
+`is_convertible_v<A, D>` [` && is_convertible_v<X*, add_pointer_t<D>> && is_convertible_v<Y*, add_pointer_t<D>>`]{.add} is true, then `@*COMMON-REF*@(A, B)` is `D`.
+- (2.8) Otherwise, if `A` is an lvalue reference and B is an rvalue reference,
+then `@*COMMON-REF*@(A, B)` is `@*COMMON-REF*@(B, A)`.
+- (2.9) Otherwise, `@*COMMON-REF*@(A, B)` is ill-formed.
+
 
 Modify [functional.syn]{.sref} to add to the end of `reference_wrapper` section:
 
 :::add
 
 ```cpp
-// @*[refwrap.common.ref] `common_­reference` related specializations*@
+// @*[refwrap.common.ref] `common_reference` related specializations*@
 template <class R, class T, template <class> class RQual, template <class> class TQual>
 struct basic_common_reference<R, T, RQual, TQual>;
 
@@ -482,9 +606,16 @@ references:
       - family: Yilmaz
         given: S. Levent
     URL: https://github.com/huixie90/cpp_papers/tree/main/impl/ref_wrapper
+  - id: libcxx
+    citation-label: libcxx
+    title: "Implementation of common_reference in libc++"
+    author:
+      - family: Xie
+        given: Hui
+      - family: Yilmaz
+        given: S. Levent
+    URL: https://reviews.llvm.org/D141200
 ---
-
-
 
 <style>
 .bq{
