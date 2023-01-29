@@ -336,7 +336,9 @@ Finally, we have to explicitly disable the edge cases with nested
 `reference_wrapper`s since, while `reference_wrapper<reference_wrapper<T>>` is
 not `convertible_to<T&>`
 
-## Edge Cases via `basic_common_reference`
+## Supporting *cv*-qualified `reference_wrapper` and Other Proxy types
+
+### The Issue with *cv*-qualified Proxy Types
 
 As implied in the previous sections, the rules of the `common_reference` trait
 are such that any `basic_common_reference` specialization is consulted only if
@@ -389,7 +391,7 @@ static_assert(std::same_as<
 ```
 
 This issue exists not only in `reference_wrapper`, but any proxy-like types with
-conversion operators. For example
+reference cast operators. For example
 
 ```cpp
 struct A {};
@@ -404,33 +406,28 @@ static_assert(std::same_as<
 >);
 ```
 
-As per SG9's direction, we'd like to fix this second issue in the same paper.
+### The Fix
+  
+As per SG9's direction, we'd like to fix this issue along with the
+`basic_common_referece` treatment in this paper.
 
-## Fix `common_reference`'s cv Qualifier Issue for All Proxy Types
-
-Going back to the example above
-
-```cpp
-struct A {};
-
-struct B {
-    operator A& () const;
-};
-```
-
-The builtin ternary operator `?:` does return the expected type `A&`
+Going back to the example above, the builtin ternary operator `?:`
+is of type `A&` as expected:
 
 ```cpp
 A a;
 const B b;
 
 static_assert(std::same_as<
-    decltype(false? a : b),
+    decltype(false ? a : b),
     A&
 >);
 ```
 
-But why does `common_reference` returns `const A&`? Currently, the result of
+ And, as also explained above, becuase of @*COMMON-REF*@, `commono_reference`
+ 
+  
+ why does `common_reference` evaluate to `const A&`? Currently, the result of
 `common_reference` of two types is decided in the following order:
 
 - (1). `@*COMMON-REF*@`
