@@ -4,6 +4,7 @@
 *.out
 *.exe
 *.i
+*.DS_Store
 # -ftrace-time output
 *.cpp.json
 cxx-bucket-vs*/
