@@ -459,9 +459,10 @@ implementation can be found in the Wording section.
 Modify [meta.trans.other]{.sref} section (5.3.1) as
 
 - (5.3.1) If `T1` and `T2` are reference types and `@*COMMON-REF*@(T1, T2)` is
-  well-formed[, and if `is_convertible_v<add_pointer_t<T1>,
-  add_pointer_t<C>> && is_convertible_v<add_pointer_t<T2>, add_pointer_t<C>>` is `true`
-  where `C` is `@*COMMON-REF*@(T1, T2)`]{.add}, then the member typedef type denotes that type.
+  well-formed[, and if `is_convertible_v<add_pointer_t<T1>, add_pointer_t<C>> &&
+  is_convertible_v<add_pointer_t<T2>, add_pointer_t<C>>` is `true` where `C` is
+  `@*COMMON-REF*@(T1, T2)`]{.add}, then the member typedef `type` denotes that
+  type.
 
 
 Modify [functional.syn]{.sref} to add to the end of `reference_wrapper` section:
