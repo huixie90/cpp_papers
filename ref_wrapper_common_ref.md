@@ -403,12 +403,27 @@ struct A {};
 struct B {
     operator A& () const;
 };
+```
 
+Even though the builtin ternary operator `?:` does return the expected type `A&`,
+
+ ```cpp
+ A a;
+ const B b;
+ static_assert(std::same_as<
+     decltype(false? a : b),
+     A&
+ >);
+ ```
+
+`common_reference_t` surprisingly results in `const A&`
+
+```cpp
 static_assert(std::same_as<
     std::common_reference_t<A&, const B&>,
     const A&  // not A& !!
 >);
-```
+ ```
 
 ### The Fix
   
@@ -423,9 +438,19 @@ rules of `common_reference` trait [meta.trans.other]{.sref}/5.3.1. Its member
 4. Otherwise, `common_type`.
 5. Otherwise, does not exist.
 
+The reason why `common_reference_t<const reference_wrapper<int>&, int&>` does
+not use the `basic_common_reference` specialization and why
+`common_reference_t<A&, const B&>` does not use the ternary operator `?:` is
+that Step-1 `@*COMMON-REF*@` is well formed. But it produces unexpected result.
+
 About Step-1, and why it precedes the rest, Song [@timscomment] explains that:
 
-> ... Having \[the `@*COMMON-REF*@` layer\] for the trivial/obvious
+> It's important that `common_reference<tuple<int>&, tuple<int>&>` remains
+> `tuple<int>&` and not `tuple<int&>`, even though the obvious way of writing
+> the `basic_common_reference` specialization for `tuple`s (which is also the
+> one in the standard) would yield the latter.
+>
+> Having \[the `@*COMMON-REF*@` layer\] for the trivial/obvious
 > \[reference\] cases before we use the user-specializable component makes
 > \[the `common_reference` trait\] more convenient for users, and more
 > importantly, harder to get wrong. I think `@*COMMON-REF*@` was probably not
@@ -433,7 +458,7 @@ About Step-1, and why it precedes the rest, Song [@timscomment] explains that:
 > used only when the types involved are reference types, but that doesn't make
 > any sense if it were meant to handle things that are convertible to reference
 > types.
-
+>
 > So I think `@*COMMON-REF*@` was probably not meant to deal with proxy
 > references and user-defined conversions at all.
 
@@ -458,12 +483,10 @@ implementation can be found in the Wording section.
 
 Modify [meta.trans.other]{.sref} section (5.3.1) as
 
-- (5.3.1) If `T1` and `T2` are reference types and `@*COMMON-REF*@(T1, T2)` is
-  well-formed[, and if `is_convertible_v<add_pointer_t<T1>, add_pointer_t<C>> &&
-  is_convertible_v<add_pointer_t<T2>, add_pointer_t<C>>` is `true` where `C` is
-  `@*COMMON-REF*@(T1, T2)`]{.add}, then the member typedef `type` denotes that
-  type.
-
+- (5.3.1) [Let `R` be `@*COMMON-REF*@(T1, T2)`.]{.add} If `T1` and `T2` are
+  reference types[,]{.add} [and `@*COMMON-REF*@(T1, T2)`]{.rm} [`R`]{.add} is
+  well-formed[, and `is_convertible_v<add_pointer_t<T1>, add_pointer_t<R>> && is_convertible_v<add_pointer_t<T2>, add_pointer_t<R>>` is `true`]{.add},
+  then the member typedef `type` denotes [that type]{.rm} [`R`]{.add}.
 
 Modify [functional.syn]{.sref} to add to the end of `reference_wrapper` section:
 
