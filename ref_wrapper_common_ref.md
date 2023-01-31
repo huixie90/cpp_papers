@@ -35,20 +35,24 @@ This paper proposes a fix that makes the `common_reference_t<T&, reference_wrapp
 
 C++20 introduced the meta-programming utility `common_reference`
 [meta.trans.other]{.sref} in order to programmatically determine a common
-reference type to which one or more types can be converted or bounded.
+reference type to which one or more types can be converted or bound.
 
 The precise rules are rather convoluted, but roughly speaking, for given two
-non-reference types `X` and `Y`, `common_reference<X&, Y&>` is equivalent to the
-expression `decltype(false ? declval<X&>() : declval<Y&>())` provided it is
-valid. And if not, then user or a library is free to specialize the
-`basic_common_reference` trait for any given type(s). (Two such specializations
+non-reference non-*cv* qualified types `X` and `Y`, `common_reference<X&, Y&>`
+is equivalent to the expression `decltype(false ? x : y)` where `x` and `y` are
+qualified `X&` and `Y&`, respectively, provided the ternary expression is valid.
+(*cv*-qualified references are treated differently, and is explained below in
+[Section 4.4](#section4_4).) Otherwise, `basic_common_reference` trait is
+consulted, which is a customization point that allows users to influence the
+result of `common_reference` for user-defined types. (Two such specializations
 are provided by the standard library, namely, for `std::pair` and `std::tuple`
 which map `common_reference` to their respective elements.) And if no such
 specialization exists, then the result is `common_type<X,Y>`.
 
 
 The canonical use of `reference_wrapper<T>` is its being a surrogate for `T&`.
-So it might be surprising to find out the following:
+One might expect that the ternary operator would yield a `T&`, but due to
+language rules, that is not quite the case:
 
 ```cpp
 int i = 1, j = 2;
@@ -62,25 +66,25 @@ The reason for the error is not because `i` and `ref(j)`, an `int&` and a
 compatible! Both types can be converted to one another, so the type of the
 ternary expression is ambiguous.
 
-Hence, per the current rules of `common_reference`, given lack of a specialization,
-the evaluation falls back to `common_type<T, reference_wrapper<T>>`,
-whose `::type` is valid and equal to `T`. In other words, the `common_reference`
-type trait utility determines that the reference type to which both `T&` and
-a `reference_wrapper<T>` can bind is a prvalue `T`!
+Hence, per the current rules of `common_reference` as summarized above, and with
+the lack of any `basic_common_reference` specialization, the evaluation falls
+back to `common_type<T, reference_wrapper<T>>`, whose `::type` is valid and
+equal to `T`. In other words, `common_reference` determines that the reference
+type to which both `T&` and a `reference_wrapper<T>` can bind is a prvalue `T`!
 
 The authors believe this current determination logic for `common_reference` for
 an lvalue reference to a type `T` and its `reference_wrapper<T>` is merely an
-accident, and is incompatible with the canonical purpose of the `reference_wrapper`.
-The answer should have been `T&`.  (There is no ambiguity with the `common_reference`
-of a prvalue T and reference_wrapper<T>, since former is convertible to latter,
-but not vice versa).
+accident, and is incompatible with the canonical purpose of the
+`reference_wrapper`. The answer should have been `T&`. (Note that, there is no
+ambiguity with a `reference_wrapper<T>` and rvalue of `T`, since former is
+convertible to latter, but not vice versa.)
 
 This article proposes an update to the standard which would change the behavior
-of `common_reference` to evaluate as `T&` given `T&` and an a `reference_wrapper<T>`,
-commutatively. Any evolution to implicit conversion semantics of `reference_wrapper`,
-or of the ternary operator for that matter, is out of the question. Therefore,
-the authors propose to implement this change via providing a partial specialization of
-`basic_common_reference` trait.
+of `common_reference` to evaluate as `T&` given `T&` and an a
+`reference_wrapper<T>`, commutatively. Any evolution to implicit conversion
+semantics of `reference_wrapper`, or of the ternary operator for that matter, is
+out of the question. Therefore, the authors propose to implement this change via
+providing a partial specialization of `basic_common_reference` trait.
 
 
 
