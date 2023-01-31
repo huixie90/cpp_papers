@@ -678,14 +678,15 @@ code.sourceCode > span { display: inline; }
 <span id="cb15-3"><a href="#cb15-3"></a><span class="dt">int</span><span class="op">&amp;</span> j <span class="op">=</span> r; <span class="co">// ok.</span></span></code></pre></div>
 <p>That is, any <em>cv</em> qualification of <code class="sourceCode default">reference_wrapper&lt;int&gt;</code> itself does not change its semantics, since it is just a proxy to an <code class="sourceCode default">int&amp;</code>. So, it would be natural to expect that <code class="sourceCode default">int&amp;</code> should be the common reference of <code class="sourceCode default">int&amp;</code> and <code class="sourceCode default">const reference_wrapper&lt;int&gt;&amp;</code>, since objects of both types can be assigned to an <code class="sourceCode default">int&amp;</code>.</p>
 <p>However, because of the way <code class="sourceCode default"><em>COMMON-REF</em></code> is defined, the evaluated ternary expression is <code class="sourceCode default">decltype(false ? r : jc)</code>, where <code class="sourceCode default">jc</code> is <code class="sourceCode default"><strong>const</strong> int&amp;</code>. Lo and behold, this expression is no longer ill-formed and evaluates to <code class="sourceCode default">const int&amp;</code> (the conversion direction is no longer ambiguous, since <code class="sourceCode default">reference_wrapper&lt;int&gt;</code> can not be constructed from an <code class="sourceCode default">int const&amp;</code>), and we get:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1"></a><span class="co">// in the current standard, as well as with this proposal:</span></span>
-<span id="cb16-2"><a href="#cb16-2"></a><span class="kw">static_assert</span><span class="op">(</span>std<span class="op">::</span>same_as<span class="op">&lt;</span></span>
-<span id="cb16-3"><a href="#cb16-3"></a>    std<span class="op">::</span>common_reference_t<span class="op">&lt;</span></span>
-<span id="cb16-4"><a href="#cb16-4"></a>       <span class="kw">const</span> std<span class="op">::</span>reference_wrapper<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;&amp;</span>,</span>
-<span id="cb16-5"><a href="#cb16-5"></a>       <span class="dt">int</span><span class="op">&amp;</span></span>
-<span id="cb16-6"><a href="#cb16-6"></a>       <span class="op">&gt;</span>,</span>
-<span id="cb16-7"><a href="#cb16-7"></a>    <span class="kw">const</span> <span class="dt">int</span><span class="op">&amp;</span>  <span class="co">// not int&amp; !!</span></span>
-<span id="cb16-8"><a href="#cb16-8"></a><span class="op">&gt;)</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1"></a><span class="co">// in the current standard, with or without the basic_common_reference</span></span>
+<span id="cb16-2"><a href="#cb16-2"></a><span class="co">// specialization of this proposal:</span></span>
+<span id="cb16-3"><a href="#cb16-3"></a><span class="kw">static_assert</span><span class="op">(</span>std<span class="op">::</span>same_as<span class="op">&lt;</span></span>
+<span id="cb16-4"><a href="#cb16-4"></a>    std<span class="op">::</span>common_reference_t<span class="op">&lt;</span></span>
+<span id="cb16-5"><a href="#cb16-5"></a>       <span class="kw">const</span> std<span class="op">::</span>reference_wrapper<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;&amp;</span>,</span>
+<span id="cb16-6"><a href="#cb16-6"></a>       <span class="dt">int</span><span class="op">&amp;</span></span>
+<span id="cb16-7"><a href="#cb16-7"></a>       <span class="op">&gt;</span>,</span>
+<span id="cb16-8"><a href="#cb16-8"></a>    <span class="kw">const</span> <span class="dt">int</span><span class="op">&amp;</span>  <span class="co">// not int&amp; !!</span></span>
+<span id="cb16-9"><a href="#cb16-9"></a><span class="op">&gt;)</span>;</span></code></pre></div>
 <p>This issue exists not only in <code class="sourceCode default">reference_wrapper</code>, but any proxy-like types with reference cast operators. For example,</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb17-1"><a href="#cb17-1"></a><span class="kw">struct</span> A <span class="op">{}</span>;</span>
 <span id="cb17-2"><a href="#cb17-2"></a></span>

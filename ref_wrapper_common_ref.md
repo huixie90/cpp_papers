@@ -384,7 +384,8 @@ int&` (the conversion direction is no longer ambiguous, since
 get:
 
 ```cpp
-// in the current standard, as well as with this proposal:
+// in the current standard, with or without the basic_common_reference
+// specialization of this proposal:
 static_assert(std::same_as<
     std::common_reference_t<
        const std::reference_wrapper<int>&,
