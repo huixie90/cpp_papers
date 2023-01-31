@@ -77,9 +77,7 @@ an lvalue reference to a type `T` and its `reference_wrapper<T>` is merely an
 accident, and is incompatible with the canonical purpose of the
 `reference_wrapper`. The answer should have been `T&`. (Note that, there is no
 ambiguity with a `reference_wrapper<T>` and rvalue of `T`, since former is
-convertible to latter, but not vice versa; hence
-`common_reference<reference_wrapper<T>, T>` or
-`common_reference<reference_wrapper<T>, T&&>` )
+convertible to latter, but not vice versa.)
 
 This article proposes an update to the standard which would change the behavior
 of `common_reference` to evaluate as `T&` given `T&` and an a
