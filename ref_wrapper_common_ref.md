@@ -441,9 +441,10 @@ rules of `common_reference` trait [meta.trans.other]{.sref}/5.3.1. Its member
 The reason why `common_reference_t<const reference_wrapper<int>&, int&>` does
 not use the `basic_common_reference` specialization and why
 `common_reference_t<A&, const B&>` does not use the ternary operator `?:` is
-that Step-1 `@*COMMON-REF*@` is well formed. But it produces unexpected result.
+that Step-1 `@*COMMON-REF*@` is well formed. But it yields an undesired result.
 
-About Step-1, and why it precedes the rest, Song [@timscomment] explains that:
+About Step-1, why it preempts the customization Step-2, Song [@timscomment]
+explains that:
 
 > It's important that `common_reference<tuple<int>&, tuple<int>&>` remains
 > `tuple<int>&` and not `tuple<int&>`, even though the obvious way of writing
