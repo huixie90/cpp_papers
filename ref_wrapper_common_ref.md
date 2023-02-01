@@ -8,6 +8,8 @@ author:
     email: <hui.xie1990@gmail.com>
   - name: S. Levent Yilmaz
     email: <levent.yilmaz@gmail.com>
+  - name: Tim Song
+    email: <t.canens.cpp@gmail.com>
 toc: true
 ---
 
@@ -444,35 +446,31 @@ not use the `basic_common_reference` specialization and why
 `common_reference_t<A&, const B&>` does not use the ternary operator `?:` is
 that Step-1 `@*COMMON-REF*@` is well formed. But it yields an undesired result.
 
-About Step-1, why it preempts the customization Step-2, Song [@timscomment]
-explains that:
+Step-1 is important to have before the customization Step-2, because the
+`@*COMMON-REF*@` layer provides a generalized mechanism to handle reference
+cases before the user-specializable component. This makes the `common_reference`
+trait more convenient for users, and more importantly, harder to get wrong. For
+example, `common_reference<tuple<int>&, tuple<int>&>` should remain
+`tuple<int>&` and not `tuple<int&>` as would a straightforward
+`basic_common_reference` specialization for `tuple`s yield (which is the current
+one in the standard [tuple.common.ref]). It would be unreasonable to expect each
+specialization to handle every reference combination correctly, exhaustively,
+and consistently.
 
-> It's important that `common_reference<tuple<int>&, tuple<int>&>` remains
-> `tuple<int>&` and not `tuple<int&>`, even though the obvious way of writing
-> the `basic_common_reference` specialization for `tuple`s (which is also the
-> one in the standard) would yield the latter.
->
-> Having \[the `@*COMMON-REF*@` layer\] for the trivial/obvious
-> \[reference\] cases before we use the user-specializable component makes
-> \[the `common_reference` trait\] more convenient for users, and more
-> importantly, harder to get wrong. I think `@*COMMON-REF*@` was probably not
-> meant to deal with proxy references and user-defined conversions at all. It is
-> used only when the types involved are reference types, but that doesn't make
-> any sense if it were meant to handle things that are convertible to reference
-> types.
->
-> So I think `@*COMMON-REF*@` was probably not meant to deal with proxy
-> references and user-defined conversions at all.
+Yet, `@*COMMON-REF*@` was probably not meant to deal with proxy references and
+user-defined conversions at all. It is used only when the types involved are
+reference types, and does not make any sense if it were meant to handle things
+that are convertible to reference types.
 
-To rectify this situation, Song further recommends to reject user-defined
+To rectify this situation, the authors propose to reject user-defined
 conversions entirely from Step-1. This would then allow Step-2 to provide the
-required semantics for underlying reference types where desired, and Step-3 to
-recover the ternary-operator based fallback.
+required custom semantics for any underlying reference types where desired, and
+Step-3 to recover the ternary-operator based fallback.
 
-This suggestion can be realized by requiring an additional constraint on Step-1:
-Require a valid conversion to exist between each respective pointer types of the
-pair of arguments to the evaluated `@*COMMON-REF*@` result. Precise
-implementation can be found in the Wording section.
+This suggestion can be realized by an additional constraint on Step-1: Require a
+valid conversion to exist between each respective pointer types of the pair of
+arguments to the evaluated `@*COMMON-REF*@` result. Precise implementation can
+be found in the Wording section.
 
 
 # Implementation Experience
@@ -497,9 +495,11 @@ Modify [functional.syn]{.sref} to add to the end of `reference_wrapper` section:
 ```cpp
 // @*[refwrap.common.ref] `common_reference` related specializations*@
 template <class R, class T, template <class> class RQual, template <class> class TQual>
+requires @*see below*@
 struct basic_common_reference<R, T, RQual, TQual>;
 
 template <class T, class R, template <class> class TQual, template <class> class RQual>
+requires @*see below*@
 struct basic_common_reference<T, R, TQual, RQual>;
 ```
 
@@ -508,8 +508,6 @@ struct basic_common_reference<T, R, TQual, RQual>;
 Add the following subclause to [refwrap]{.sref}:
 
 #### ?.?.?.? `common_reference` related specializations [refwrap.common.ref] {-}
-
-The `basic_common_reference` specializations should be constrained and defined as follows:
 
 ```cpp
 template <class T>
@@ -572,14 +570,6 @@ references:
       - family: Yilmaz
         given: S. Levent
     URL: https://reviews.llvm.org/D141200
-  - id: timscomment
-    citation-label: TSong-SG9-Jan23
-    title: "Communication in the SG9 mailing list, 'Re: COMMON-REF and proxy references'"
-    author:
-      - family: Song
-        given: Tim
-    URL: https://lists.isocpp.org/mailman/listinfo.cgi/sg9
-    date: Jan 2, 2023
 ---
 
 <style>
