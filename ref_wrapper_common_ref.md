@@ -1,6 +1,6 @@
 ---
 title: "`common_reference_t` of `reference_wrapper` Should Be a Reference Type"
-document: D2655R2
+document: P2655R2
 date: 2023-01-29
 audience: SG9, LEWG
 author:
