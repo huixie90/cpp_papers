@@ -430,9 +430,9 @@ static_assert(std::same_as<
 
 ### The Fix
   
-As per SG9's direction, we'd like to fix this issue along with the
+Per SG9's direction, we'd like to fix this issue along with the
 `basic_common_reference` treatment in this paper. Let's revisit the precise
-rules of `common_reference` trait [meta.trans.other]{.sref}/5.3.1. Its member
+rules of `common_reference` trait [meta.trans.other#5.3]{.sref}. Its member
 `::type` is,
 
 1. `@*COMMON-REF*@` if not ill-formed.
@@ -453,9 +453,9 @@ trait more convenient for users, and more importantly, harder to get wrong. For
 example, `common_reference<tuple<int>&, tuple<int>&>` should remain
 `tuple<int>&` and not `tuple<int&>` as would a straightforward
 `basic_common_reference` specialization for `tuple`s yield (which is the current
-one in the standard [tuple.common.ref]). It would be unreasonable to expect each
-specialization to handle every reference combination correctly, exhaustively,
-and consistently.
+one in the standard [tuple.common.ref]{.sref}). It would be unreasonable to
+expect each specialization to handle every reference combination correctly,
+exhaustively, and consistently.
 
 Yet, `@*COMMON-REF*@` was probably not meant to deal with proxy references and
 user-defined conversions at all. It is used only when the types involved are
@@ -464,8 +464,8 @@ that are convertible to reference types.
 
 To rectify this situation, the authors propose to reject user-defined
 conversions entirely from Step-1. This would then allow Step-2 to provide the
-required custom semantics for any underlying reference types where desired, and
-Step-3 to recover the ternary-operator based fallback.
+required custom semantics for any underlying proxy reference types where
+desired, and Step-3 to recover the ternary-operator based fallback.
 
 This suggestion can be realized by an additional constraint on Step-1: Require a
 valid conversion to exist between each respective pointer types of the pair of
