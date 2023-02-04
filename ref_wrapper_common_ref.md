@@ -453,7 +453,7 @@ trait more convenient for users, and more importantly, harder to get wrong. For
 example, `common_reference<tuple<int>&, tuple<int>&>` should remain
 `tuple<int>&` and not `tuple<int&>` as would a straightforward
 `basic_common_reference` specialization for `tuple`s yield (which is the current
-one in the standard [tuple.common.ref]{.sref}). It would be unreasonable to
+one in the standard [tuple#common.ref]{.sref}). It would be unreasonable to
 expect each specialization to handle every reference combination correctly,
 exhaustively, and consistently.
 
