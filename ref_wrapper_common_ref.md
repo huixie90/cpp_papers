@@ -104,6 +104,10 @@ static_assert(same_as<
 static_assert(same_as<
                 common_reference_t<int&, reference_wrapper<int>&>,
                 int>);
+
+static_assert(same_as<
+                common_reference_t<int&, const reference_wrapper<int>&>,
+                const int&>);
 ```
 
 ## Proposed
@@ -115,6 +119,10 @@ static_assert(same_as<
 
 static_assert(same_as<
                 common_reference_t<int&, reference_wrapper<int>&>,
+                int&>);
+
+static_assert(same_as<
+                common_reference_t<int&, const reference_wrapper<int>&>,
                 int&>);
 ```
 
