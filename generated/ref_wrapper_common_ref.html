@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="mpark/wg21" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="dcterms.date" content="2023-01-29" />
+  <meta name="dcterms.date" content="2023-02-07" />
   <title>`common_reference_t` of `reference_wrapper` Should Be a
 Reference Type</title>
   <style>
@@ -426,11 +426,11 @@ Reference Type</h1>
 <table style="border:none;float:right">
   <tr>
     <td>Document #:</td>
-    <td>P2655R2</td>
+    <td>P2655R3</td>
   </tr>
   <tr>
     <td>Date:</td>
-    <td>2023-01-29</td>
+    <td>2023-02-07</td>
   </tr>
   <tr>
     <td style="vertical-align:top">Project:</td>
@@ -458,9 +458,10 @@ Reference Type</h1>
 <ul>
 <li><a href="#revision-history" id="toc-revision-history"><span class="toc-section-number">1</span> Revision History<span></span></a>
 <ul>
-<li><a href="#r2" id="toc-r2"><span class="toc-section-number">1.1</span> R2<span></span></a></li>
-<li><a href="#r1" id="toc-r1"><span class="toc-section-number">1.2</span> R1<span></span></a></li>
-<li><a href="#r0" id="toc-r0"><span class="toc-section-number">1.3</span> R0<span></span></a></li>
+<li><a href="#r3" id="toc-r3"><span class="toc-section-number">1.1</span> R3<span></span></a></li>
+<li><a href="#r2" id="toc-r2"><span class="toc-section-number">1.2</span> R2<span></span></a></li>
+<li><a href="#r1" id="toc-r1"><span class="toc-section-number">1.3</span> R1<span></span></a></li>
+<li><a href="#r0" id="toc-r0"><span class="toc-section-number">1.4</span> R0<span></span></a></li>
 </ul></li>
 <li><a href="#abstract" id="toc-abstract"><span class="toc-section-number">2</span> Abstract<span></span></a></li>
 <li><a href="#motivation-and-examples" id="toc-motivation-and-examples"><span class="toc-section-number">3</span> Motivation and
@@ -501,14 +502,18 @@ Macro<span></span></a></li>
 </ul>
 </div>
 <h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
-<h2 data-number="1.1" id="r2"><span class="header-section-number">1.1</span> R2<a href="#r2" class="self-link"></a></h2>
+<h2 data-number="1.1" id="r3"><span class="header-section-number">1.1</span> R3<a href="#r3" class="self-link"></a></h2>
+<ul>
+<li>Added new feature test macro and renamed the old one</li>
+</ul>
+<h2 data-number="1.2" id="r2"><span class="header-section-number">1.2</span> R2<a href="#r2" class="self-link"></a></h2>
 <ul>
 <li>Address issues with
 <code class="sourceCode default">common_reference</code> of any
 cv-qualified proxy types.</li>
 <li>Replaced Wording paragraphs with code.</li>
 </ul>
-<h2 data-number="1.2" id="r1"><span class="header-section-number">1.2</span> R1<a href="#r1" class="self-link"></a></h2>
+<h2 data-number="1.3" id="r1"><span class="header-section-number">1.3</span> R1<a href="#r1" class="self-link"></a></h2>
 <ul>
 <li>Added reasons why the result should be
 <code class="sourceCode default">T&amp;</code></li>
@@ -516,7 +521,7 @@ cv-qualified proxy types.</li>
 <code class="sourceCode default">volatile</code></li>
 <li>Support derive-base conversions</li>
 </ul>
-<h2 data-number="1.3" id="r0"><span class="header-section-number">1.3</span> R0<a href="#r0" class="self-link"></a></h2>
+<h2 data-number="1.4" id="r0"><span class="header-section-number">1.4</span> R0<a href="#r0" class="self-link"></a></h2>
 <ul>
 <li>Initial revision.</li>
 </ul>
@@ -1117,7 +1122,8 @@ specializations [refwrap.common.ref]<a href="#common_reference-related-specializ
 <code class="sourceCode default">&lt;version&gt;</code> synopsis, with
 the value selected by the editor to reflect the date of adoption of this
 paper:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define __cpp_lib_common_reference_reference_wrapper_specialized  </span><span class="dv">20</span><span class="er">XXXXL</span><span class="pp"> </span><span class="co">// also in &lt;functional&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define __cpp_lib_common_reference  </span><span class="dv">20</span><span class="er">XXXXL</span><span class="pp">         </span><span class="co">// also in &lt;type_traits&gt;</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="pp">#define __cpp_lib_common_reference_wrapper  </span><span class="dv">20</span><span class="er">XXXXL</span><span class="pp"> </span><span class="co">// also in &lt;functional&gt;</span></span></code></pre></div>
 <style>
 .bq{
     display: block;

@@ -1,7 +1,7 @@
 ---
 title: "`common_reference_t` of `reference_wrapper` Should Be a Reference Type"
-document: P2655R2
-date: 2023-01-29
+document: P2655R3
+date: 2023-02-07
 audience: SG9, LEWG
 author:
   - name: Hui Xie
@@ -14,6 +14,11 @@ toc: true
 ---
 
 # Revision History
+
+## R3
+
+- Added new feature test macro and renamed the old one
+
 ## R2
 
 - Address issues with `common_reference` of any cv-qualified proxy types.
@@ -555,7 +560,8 @@ synopsis, with the value selected by the editor to reflect the date of adoption
 of this paper:
 
 ```cpp
-#define __cpp_lib_common_reference_reference_wrapper_specialized  20XXXXL // also in <functional>
+#define __cpp_lib_common_reference  20XXXXL         // also in <type_traits>
+#define __cpp_lib_common_reference_wrapper  20XXXXL // also in <functional>
 ```
 
 ---
