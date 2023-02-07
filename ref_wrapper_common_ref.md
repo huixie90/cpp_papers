@@ -98,32 +98,32 @@ Below are some motivating examples:
 
 ```cpp
 static_assert(same_as<
-                common_reference_t<int&, reference_wrapper<int>>,
-                int>);
+   common_reference_t<int&, reference_wrapper<int>>,
+   int>);
 
 static_assert(same_as<
-                common_reference_t<int&, reference_wrapper<int>&>,
-                int>);
+   common_reference_t<int&, reference_wrapper<int>&>,
+   int>);
 
 static_assert(same_as<
-                common_reference_t<int&, const reference_wrapper<int>&>,
-                const int&>);
+   common_reference_t<int&, const reference_wrapper<int>&>,
+   const int&>);
 ```
 
 ## Proposed
 
 ```cpp
 static_assert(same_as<
-                common_reference_t<int&, reference_wrapper<int>>,
-                int&>);
+   common_reference_t<int&, reference_wrapper<int>>,
+   int&>);
 
 static_assert(same_as<
-                common_reference_t<int&, reference_wrapper<int>&>,
-                int&>);
+   common_reference_t<int&, reference_wrapper<int>&>,
+   int&>);
 
 static_assert(same_as<
-                common_reference_t<int&, const reference_wrapper<int>&>,
-                int&>);
+   common_reference_t<int&, const reference_wrapper<int>&>,
+   int&>);
 ```
 
 ---
