@@ -1,6 +1,6 @@
 ---
 title: "`views::concat`"
-document: P2542R2
+document: P2542R3
 date: 2021-04-21
 audience: SG9, LEWG
 author:
@@ -12,6 +12,11 @@ toc: true
 ---
 
 # Revision History
+
+## R3
+
+- Fixed conversions of `difference` types
+- Various wording fixes
 
 ## R2
 
@@ -641,7 +646,7 @@ namespace std::ranges{
       variant<iterator_t<@_maybe-const_@<Const, Views>>...>;
     
     @_maybe-const_@<Const, concat_view>* @*parent_*@ = nullptr;   // exposition only
-    @*base-iter*@ @*it_*@;                                    // exposition only
+    @*base-iter*@ @*it_*@;                                        // exposition only
 
     template <std::size_t N>
     constexpr void @_satisfy_@();                             // exposition only
@@ -656,9 +661,7 @@ namespace std::ranges{
     constexpr void @_advance-bwd_@(difference_type offset, difference_type steps); // exposition only
 
     template <class... Args>
-    explicit constexpr @_iterator_@(
-                @_maybe-const_@<Const, concat_view>* parent,
-                Args&&... args) 
+    explicit constexpr @_iterator_@(@_maybe-const_@<Const, concat_view>* parent, Args&&... args) 
         requires constructible_from<@*base-iter*@, Args&&...>;  // exposition only
 
   public:
@@ -666,8 +669,7 @@ namespace std::ranges{
     @_iterator_@() = default;
 
     constexpr @_iterator_@(@_iterator_@<!Const> i) 
-        requires Const &&
-        (convertible_to<iterator_t<Views>, iterator_t<const Views>> && ...);
+        requires Const && (convertible_to<iterator_t<Views>, iterator_t<const Views>> && ...);
 
     constexpr decltype(auto) operator*() const;
 
