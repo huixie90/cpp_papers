@@ -186,7 +186,7 @@ concept has_tag = derived_from<tag, typename iterator_traits<iterator_t<View>>::
 template <bool Const, class... Views>
 consteval auto iter_cat_test() {
     using reference = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
-    if constexpr (!is_lvalue_reference_v<reference>) {
+    if constexpr (!is_reference_v<reference>) {
         return input_iterator_tag{};
     } else if constexpr ((has_tag<random_access_iterator_tag, __maybe_const<Const, Views>> &&
                           ...) &&
@@ -255,7 +255,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
 
         template <std::size_t N>
         constexpr void satisfy() {
-            if constexpr (N != (sizeof...(Views) - 1)) {
+            if constexpr (N < (sizeof...(Views) - 1)) {
                 if (get<N>(it_) == ranges::end(get<N>(parent_->views_))) {
                     it_.template emplace<N + 1>(ranges::begin(get<N + 1>(parent_->views_)));
                     satisfy<N + 1>();
@@ -338,7 +338,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
             , it_{std::move(i.it_)} {}
 
         constexpr decltype(auto) operator*() const {
-            using reference = common_reference_t<range_reference_t<__maybe_const<Const, Views>>...>;
+            using reference = xo::concat_reference_t<__maybe_const<Const, Views>...>;
             return visit([](auto&& it) -> reference { return *it; }, it_);
         }
 
