@@ -831,15 +831,16 @@ constexpr void @_advance-fwd_@(difference_type offset, difference_type steps); /
 [5]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
+using underlying_diff_type = iter_difference_t<variant_alternative_t<N, @*base-iter*@>>;
 if constexpr (N == sizeof...(Views) - 1) {
-    get<N>(@*it_*@) += steps;
+    get<N>(@*it_*@) += static_cast<underlying_diff_type>(steps);
 } else {
-    auto n_size = ranges::size(get<N>(@*parent_*@->@*views_*@));
+    auto n_size = ranges::distance(get<N>(@*parent_*@->@*views_*@));
     if (offset + steps < static_cast<difference_type>(n_size)) {
-        get<N>(@*it_*@) += steps;
+        get<N>(@*it_*@) += static_cast<underlying_diff_type>(steps);
     } else {
         @*it_*@.template emplace<N + 1>(ranges::begin(get<N + 1>(@*parent_*@->@*views_*@)));
-        @*advance-fwd*@<N + 1>(0, offset + steps - n_size);
+        @*advance-fwd*@<N + 1>(0, offset + steps - static_cast<difference_type>(n_size));
     }
 }
 ```
@@ -856,16 +857,17 @@ constexpr void @_advance-bwd_@(difference_type offset, difference_type steps); /
 [6]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
+using underlying_diff_type = iter_difference_t<variant_alternative_t<N, @*base-iter*@>>;
 if constexpr (N == 0) {
-    get<N>(@*it_*@) -= steps;
+    get<N>(@*it_*@) -= static_cast<underlying_diff_type>(steps);
 } else {
     if (offset >= steps) {
-        get<N>(@*it_*@) -= steps;
+        get<N>(@*it_*@) -= static_cast<underlying_diff_type>(steps);
     } else {
-        @*it_*@.template emplace<N - 1>(ranges::begin(get<N - 1>(@*parent_*@->@*views_*@)) +
-                                    ranges::size(get<N - 1>(@*parent_*@->@*views_*@)));
+        auto prev_size = ranges::distance(get<N - 1>(@*parent_*@->@*views_*@));
+        @*it_*@.template emplace<N - 1>(ranges::begin(get<N - 1>(@*parent_*@->@*views_*@)) + prev_size);
         @*advance-bwd*@<N - 1>(
-            static_cast<difference_type>(ranges::size(get<N - 1>(@*parent_*@->@*views_*@))),
+            static_cast<difference_type>(prev_size),
             steps - offset);
     }
 }
@@ -1022,9 +1024,9 @@ constexpr @_iterator_@& operator+=(difference_type n)
 
 ```cpp
 if(n > 0) {
-  @*advance-fwd*@<@*i*@>(get<@*i*@>(@*it_*@) - ranges::begin(get<@*i*@>(@*parent_*@->@*views_*@)), n);
+  @*advance-fwd*@<@*i*@>(static_cast<difference_type(get<@*i*@>(@*it_*@) - ranges::begin(get<@*i*@>(@*parent_*@->@*views_*@))), n);
 } else if (n < 0) {
-  @*advance-bwd*@<@*i*@>(get<@*i*@>(@*it_*@) - ranges::begin(get<@*i*@>(@*parent_*@->@*views_*@)), -n);
+  @*advance-bwd*@<@*i*@>(static_cast<difference_type(get<@*i*@>(@*it_*@) - ranges::begin(get<@*i*@>(@*parent_*@->@*views_*@))), -n);
 }
 return *this;
 ```
@@ -1267,7 +1269,7 @@ denote `y.@*it_*@.index()`
   equivalent to
 
   ```cpp
-  return @*d~y~*@ + s + @*d~x~*@;
+  return static_cast<difference_type>(@*d~y~*@) + s + static_cast<difference_type>(@*d~x~*@);
   ```
 
 - [48.2]{.pnum} otherwise, if `@*i~x~*@ < @*i~y~*@`, equivalent to:
@@ -1279,7 +1281,7 @@ denote `y.@*it_*@.index()`
 - [48.3]{.pnum} otherwise, equivalent to:
 
   ```cpp
-  return get<@*i~x~*@>(x.@*it_*@) - get<@*i~y~*@>(y.@*it_*@);
+  return static_cast<difference_type>(get<@*i~x~*@>(x.@*it_*@) - get<@*i~y~*@>(y.@*it_*@));
   ```
 
 :::
@@ -1301,7 +1303,7 @@ all the ranges `get<@*i*@>(x.@*parent_*@.@*views_*@)` if there is any, and `0`
 otherwise, equivalent to
 
 ```cpp
-return -(@*d~x~*@ + s);
+return -(static_cast<difference_type>(@*d~x~*@) + static_cast<difference_type>(s));
 ```
 
 :::
