@@ -667,7 +667,7 @@ namespace std::ranges{
 
     constexpr @_iterator_@(@_iterator_@<!Const> i) 
         requires Const &&
-        (convertible_to<iterator_t<Views>, iterator_t<@_maybe-const_@<Const, Views>>>&&...);
+        (convertible_to<iterator_t<Views>, iterator_t<const Views>> && ...);
 
     constexpr decltype(auto) operator*() const;
 
