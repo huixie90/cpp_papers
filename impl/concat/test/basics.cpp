@@ -713,3 +713,13 @@ TEST_POINT("cpp20 input range") {
     auto x = std::views::concat(r1, r2);
     [[maybe_unused]] auto it = x.begin();
 }
+
+
+TEST_POINT("size") {
+    std::vector v1 = {1,2};
+    auto cv1 = std::ranges::concat_view(std::views::all(v1));
+    CHECK(cv1.size() == 2);
+
+    auto cv2 = std::ranges::concat_view(std::views::all(v1), std::views::all(v1));
+    CHECK(cv2.size() == 4);
+}
