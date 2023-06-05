@@ -332,7 +332,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
 
 
         constexpr iterator(iterator<!Const> i) requires Const &&
-            (convertible_to<iterator_t<Views>, iterator_t<__maybe_const<Const, Views>>>&&...)
+            (convertible_to<iterator_t<Views>, iterator_t<const Views>> && ...)
             // [TODO] noexcept specs?
             : parent_{i.parent_}
             , it_{std::move(i.it_)} {}

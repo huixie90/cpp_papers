@@ -21,6 +21,7 @@
 [Done] instead of ranges::size this should be ranges::distance and we don't need the static_cast.
 [Done] all the steps need to cast to that iterator's difference_type
 [Done] al the steps need to be cast to range::diffence_type
+[Done] the use of maybe-const on the requirement of the constructor: I think we removed them elsewhere as we Const is true
 
 # Todos
 
@@ -36,7 +37,6 @@
 [TODO] OK, we can keep it as is but I prefer <
 [TODO] do we want to avoid emplacing ranges we don't need to use?
 [TODO] explain why this is over-constrained
-[TODO] the use of maybe-const on the requirement of the constructor: I think we removed them elsewhere as we Const is true
 [TODO] for op*() p10 can use concat_reference_t
 [TODO] we don't need the preconditions: they come from the "Equivalent to:" => strike p13 and p15
 [TODO] you need p17 but you can rid of p19
