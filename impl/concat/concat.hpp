@@ -287,31 +287,33 @@ class concat_view : public view_interface<concat_view<Views...>> {
 
         template <std::size_t N>
         constexpr void advance_fwd(difference_type current_offset, difference_type steps) {
+            using underlying_diff_type = std::iter_difference_t<std::variant_alternative_t<N, BaseIt>>;
             if constexpr (N == sizeof...(Views) - 1) {
-                get<N>(it_) += steps;
+                get<N>(it_) += static_cast<underlying_diff_type>(steps);
             } else {
-                auto n_size = ranges::size(get<N>(parent_->views_));
+                auto n_size = ranges::distance(get<N>(parent_->views_));
                 if (current_offset + steps < static_cast<difference_type>(n_size)) {
-                    get<N>(it_) += steps;
+                    get<N>(it_) += static_cast<underlying_diff_type>(steps);
                 } else {
                     it_.template emplace<N + 1>(ranges::begin(get<N + 1>(parent_->views_)));
-                    advance_fwd<N + 1>(0, current_offset + steps - n_size);
+                    advance_fwd<N + 1>(0, current_offset + steps - static_cast<difference_type>(n_size));
                 }
             }
         }
 
         template <std::size_t N>
         constexpr void advance_bwd(difference_type current_offset, difference_type steps) {
+            using underlying_diff_type = std::iter_difference_t<std::variant_alternative_t<N, BaseIt>>;
             if constexpr (N == 0) {
-                get<N>(it_) -= steps;
+                get<N>(it_) -= static_cast<underlying_diff_type>(steps);
             } else {
                 if (current_offset >= steps) {
-                    get<N>(it_) -= steps;
+                    get<N>(it_) -= static_cast<underlying_diff_type>(steps);
                 } else {
-                    it_.template emplace<N - 1>(ranges::begin(get<N - 1>(parent_->views_)) +
-                                                ranges::size(get<N - 1>(parent_->views_)));
+                    auto prev_size = ranges::distance(get<N - 1>(parent_->views_));
+                    it_.template emplace<N - 1>(ranges::begin(get<N - 1>(parent_->views_)) + prev_size);
                     advance_bwd<N - 1>(
-                        static_cast<difference_type>(ranges::size(get<N - 1>(parent_->views_))),
+                        static_cast<difference_type>(prev_size),
                         steps - current_offset);
                 }
             }
@@ -389,11 +391,11 @@ class concat_view : public view_interface<concat_view<Views...>> {
             requires xo::concat_random_access<__maybe_const<Const, Views>...> {
             if (n > 0) {
                 xo::visit_i(it_, [this, n](auto I, auto&& it) {
-                    this->advance_fwd<I>(it - ranges::begin(get<I>(parent_->views_)), n);
+                    this->advance_fwd<I>(static_cast<difference_type>(it - ranges::begin(get<I>(parent_->views_))), n);
                 });
             } else if (n < 0) {
                 xo::visit_i(it_, [this, n](auto I, auto&& it) {
-                    this->advance_bwd<I>(it - ranges::begin(get<I>(parent_->views_)), -n);
+                    this->advance_bwd<I>(static_cast<difference_type>(it - ranges::begin(get<I>(parent_->views_))), -n);
                 });
             }
             return *this;
@@ -477,11 +479,11 @@ class concat_view : public view_interface<concat_view<Views...>> {
                                                   difference_type(0));
 
                 auto y_to_end = xo::visit_i(y.it_, [&](auto I, auto&& it) {
-                    return all_sizes[I] - (it - ranges::begin(get<I>(y.get_parent_views())));
+                    return all_sizes[I] - (static_cast<difference_type>(it - ranges::begin(get<I>(y.get_parent_views()))));
                 });
 
                 auto begin_to_x = xo::visit_i(x.it_, [&](auto I, auto&& it) {
-                    return it - ranges::begin(get<I>(x.get_parent_views()));
+                    return static_cast<difference_type>(it - ranges::begin(get<I>(x.get_parent_views())));
                 });
 
                 return y_to_end + in_between + begin_to_x;
@@ -490,7 +492,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
                 return -(y - x);
             } else {
                 return xo::visit_i(x.it_,
-                                   [&](auto I, auto&&) { return get<I>(x.it_) - get<I>(y.it_); });
+                                   [&](auto I, auto&&) { return static_cast<difference_type>(get<I>(x.it_) - get<I>(y.it_)); });
             }
         }
 
@@ -507,7 +509,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
                 std::accumulate(all_sizes.begin() + idx + 1, all_sizes.end(), difference_type(0));
 
             auto i_to_idx_end = xo::visit_i(it.it_, [&](auto I, auto&& i) {
-                return all_sizes[I] - (i - ranges::begin(get<I>(it.get_parent_views())));
+                return all_sizes[I] - static_cast<difference_type>(i - ranges::begin(get<I>(it.get_parent_views())));
             });
             return -(i_to_idx_end + to_the_end);
         }

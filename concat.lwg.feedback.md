@@ -17,6 +17,10 @@
 [Done] there is iterator const& which should be const iterator& (this is editorial)
 [Done] 2.1 should say is_reference_v
 [Done] all the other bullets need to start with "otherwise"
+[Done] you should use ranges::distance and then you don't need them
+[Done] instead of ranges::size this should be ranges::distance and we don't need the static_cast.
+[Done] all the steps need to cast to that iterator's difference_type
+[Done] al the steps need to be cast to range::diffence_type
 
 # Todos
 
@@ -30,11 +34,7 @@
 [TODO] the things which use the general concepts are replaced: op++, op<, etc.
 [TODO] (1.3) use all_forward
 [TODO] OK, we can keep it as is but I prefer <
-[TODO] instead of ranges::size this should be ranges::distance and we don't need the static_cast
-[TODO] all the steps need to cast to that iterator's difference_type
 [TODO] do we want to avoid emplacing ranges we don't need to use?
-[TODO] you should use ranges::distance and then you don't need them
-[TODO] al the steps need to be cast to range::diffence_type
 [TODO] explain why this is over-constrained
 [TODO] the use of maybe-const on the requirement of the constructor: I think we removed them elsewhere as we Const is true
 [TODO] for op*() p10 can use concat_reference_t
