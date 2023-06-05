@@ -30,8 +30,8 @@ using concat_value_t = common_type_t<range_value_t<Rs>...>;
 // clang-format off
 template <class Ref, class RRef, class It>
 concept concat_indirectly_readable_impl = requires (const It it){
-    static_cast<Ref>(*it);
-    static_cast<RRef>(ranges::iter_move(it));
+    { *it } -> convertible_to<Ref>;
+    { ranges::iter_move(it) } -> convertible_to<RRef>;
 };
 
 template <class... Rs>
@@ -234,12 +234,12 @@ template <input_range... Views>
     requires (view<Views>&&...) && (sizeof...(Views) > 0) && xo::concatable<Views...>  
 class concat_view : public view_interface<concat_view<Views...>> {
     // clang-format on
-    tuple<Views...> views_ = tuple<Views...>(); // exposition only
+    tuple<Views...> views_; // exposition only
 
     template <bool Const>
     class iterator : public xo::iter_cat_base_t<Const, Views...> {
       public:
-        using value_type = common_type_t<range_value_t<__maybe_const<Const, Views>>...>;
+        using value_type = xo::concat_value_t<__maybe_const<Const, Views>...>;
         using difference_type = common_type_t<range_difference_t<__maybe_const<Const, Views>>...>;
         using iterator_concept = decltype(xo::iterator_concept_test<Const, Views...>());
 
@@ -248,7 +248,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
         using BaseIt = variant<iterator_t<__maybe_const<Const, Views>>...>;
 
         ParentView* parent_ = nullptr;
-        BaseIt it_ = BaseIt();
+        BaseIt it_;
 
         friend class iterator<!Const>;
         friend class concat_view;
@@ -326,8 +326,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
 
 
       public:
-        iterator() requires(default_initializable<iterator_t<__maybe_const<Const, Views>>>&&...) =
-            default;
+        iterator() = default;
 
 
         constexpr iterator(iterator<!Const> i) requires Const &&
@@ -542,7 +541,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
 
 
   public:
-    constexpr concat_view() requires(default_initializable<Views>&&...) = default;
+    constexpr concat_view() = default;
 
     constexpr explicit concat_view(Views... views)
         : views_{static_cast<Views&&>(views)...} {}
@@ -586,7 +585,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
         return apply(
             [](auto... sizes) {
                 using CT = make_unsigned_t<common_type_t<decltype(sizes)...>>;
-                return (CT{0} + ... + CT{sizes});
+                return (CT(sizes) + ...);
             },
             concat_detail::tuple_transform(ranges::size, views_));
     }
