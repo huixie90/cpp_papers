@@ -27,49 +27,75 @@
 - [Done] we don't need the preconditions: they come from the "Equivalent to:" => strike p13 and p15
 - [Done] you need p17 but you can rid of p19
 - [Done] we should spell out what reference is in 2.1
+- [Done] mattermost: CC: we should ask the aurthors to remove the section numbers  (replaced "27.4" with "?.?")
+- [Done] (EXTRA TODO) Use std::print instead of std::cout in the example.
 
 # Todos
 
-- [TODO] mattermost: CC: we should ask the aurthors to remove the section numbers
-  - Hui: Do you know what section numbers Casey refers to?
 
 - [TODO] mattermost: TZ/CC: wording the concat-bidirectional
   - Hui: From the chat history they don't seem to be happy about our wording and had some alternative wordings in the chat
+  - Levent: Leave this to next round?
 
 - [TODO] when doing zip_view and cartesian_product we added maybe_const so we don't need to do that everywhere and we should do that here, too
   - Hui: ?
+  - Levent: I think they're talking about the original local util (e.g.
+    https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1035r3.html#zip_viewrs-iterator-exposition-only)
+    becoming a standard exposition symbol (https://eel.is/c++draft/ranges in
+    synopsis) after zip and cartesian_product was in. Wants to make sure we
+    don't define it again. (But we don't. So...)
+
 
 - [TODO] that "expect" needs to be "except"
   - Hui: could not find any expect
+  - Levent: I checked earliest revisions. No "expect" indeed. Not sure what this was.
 
 - [TODO] for the op++ and the others we should use the random-access from zip_view
   - Hui: zip_view's op++ requires all-random-access but we need random_access + sized
+  - Levent: Right. Also, do they mean "op+"?
 
 - [TODO] the concepts from zip_view [rang.zip.iterator] need to move to a different section: move to [range.utility.helper]
   - Hui: I think they refer to all-random-access, all-bidirectional and all-forward. In practice, we can only use all-forward. Not sure if it is worth
+  - Levent: Agree. Also Casey says "this is a change which can be done outside this paper", anyway.
 
 - [TODO] the things which use the general concepts are replaced: op++, op<, etc.
   - Hui: Not sure if I understand this. I guess they could either mean
     - 1. we could replace `random_access_range<maybe-const<Const, Views>>&&...` with `all-random-access`, or
     - 2. some of our ops requires `concat-random-access` but others requires `random_access_range<maybe-const<Const, Views>>&&...`. We should be consistent?
+  - Levent: For 2, our use isn't accidental: operator< etc can be implemented
+    without size. So, for those, we can use `all-random-access`. Which is also
+    what TK was saying (only the "relational operators"). I think we can also
+    update `concat-random-access`'s def'n to use `all-random-access` for bonus.
 
 - [TODO] (1.3) use all_forward
   - Hui: We could. but it seems to be more effort to reuse this simple concepts than it saves. what do you think?
+  - Levent: I am mildly for it: It is good for a standard-wide glue. I suggest we walk the extra (micro-)mile.
 
 - [TODO] do we want to avoid emplacing ranges we don't need to use?
   - Hui: Good point. I think this refers to `advance_fwd` and `advance_bwd`. Maybe we can do something smarter.
+  - Levent: Oof. Sure, empty subranges. Let the compiler authors do the optim?
+    (not sure how refined these "equivalent to:" snippets should be)
 
 - [TODO] explain why this is over-constrained
   - Hui: Not sure what this refers to
+  - Levent: Discussion was that only the first N-1 random access ranges also
+    need to be sized. Last one does not. And that is our current
+    over-constraint. If this is true, then we can use a macro similar to
+    `concat-bidirectional`. But I think we thought about this and decided that
+    we need the last one sized also. I didn't remember then, and for sure don't
+    remember now :P
 
 - [TODO] put the front matter after the iterator_category
   - Hui: I think this refers to all the preconditions about variant's valueless state. It is good idea but I don't know how to do it. I mean, how to specify what operations are allowed and what are not. Need prio examples.
+  - Levent: We don't have any operations that are allowed. (no?)
 
 - [TODO] we should use a single definition for the relational operators similar to basic_const_iterator [const.iterator.ops] p19
   - Hui: I just learned we can specify that way. Not sure if you like it?
+  - Levent: Love it. (https://eel.is/c++draft/const.iterators.ops#17 right?)
 
 - [TODO] I think the authors need to think about iter_swap and provide rational
   - Hui: sg9?
+  - Levent: Let's just remove it.
 
 # Full transcript
 
@@ -78,7 +104,7 @@
 - TK: do we still use tie?
 - TS: this paper doesn't actually use tuple or pair
 - TS: 5.2 is already done
-- JG: this came in with zip or so.
+- JG: this came in with zip or so.preview
 - TS: [action] 5.2 needs to go
 - TK: what about concat of no views?
 - JG: don't do that

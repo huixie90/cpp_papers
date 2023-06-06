@@ -51,9 +51,9 @@ argument ranges.
 std::vector<int> v1{1,2,3}, v2{4,5}, v3{};
 std::array  a{6,7,8};
 int s = 9;
-std::cout << std::format("[{:n}, {:n}, {:n}, {:n}, {}]\n", 
-                v1, v2, v3, a, s); 
-// output:  [1, 2, 3, 4, 5, , 6, 7, 8, 9]
+std::print("[{:n}, {:n}, {:n}, {:n}, {}]\n", 
+            v1, v2, v3, a, s); 
+// output:  [1, 2, 3, 4, 5, @**,**@ 6, 7, 8, 9]
 ```
 
 ## After
@@ -62,8 +62,8 @@ std::cout << std::format("[{:n}, {:n}, {:n}, {:n}, {}]\n",
 std::vector<int> v1{1,2,3}, v2{4,5}, v3{};
 std::array  a{6,7,8};
 auto s = std::views::single(9);
-std::cout << std::format("{}\n", 
-                std::views::concat(v1, v2, v3, a, s)); 
+std::print("{}\n", 
+            std::views::concat(v1, v2, v3, a, s)); 
 // output:  [1, 2, 3, 4, 5, 6, 7, 8, 9]
 ```
 
@@ -391,9 +391,9 @@ namespace std::ranges {
 
 Add the following subclause to [range.adaptors]{.sref}.
 
-### 24.7.? Concat view [range.concat] {-}
+### ?.?.? Concat view [range.concat] {-}
 
-#### 24.7.?.1 Overview [range.concat.overview] {-}
+#### ?.?.?.1 Overview [range.concat.overview] {-}
 
 [1]{.pnum} `concat_view` presents a `view` that concatenates all the underlying
 ranges.
@@ -418,7 +418,7 @@ for(auto&& i : std::views::concat(v1, v2, v3, a, s)){
 ```
 - *end example*]
 
-#### 24.7.?.2 Class template `concat_view` [range.concat.view] {-}
+#### ?.?.?.2 Class template `concat_view` [range.concat.view] {-}
 
 ```cpp
 namespace std::ranges {
@@ -624,7 +624,7 @@ return apply(
 
 :::
 
-#### 24.7.?.3 Class concat_view::iterator [range.concat.iterator] {-}
+#### ?.?.?.3 Class concat_view::iterator [range.concat.iterator] {-}
 
 ```cpp
 namespace std::ranges{
@@ -636,10 +636,10 @@ namespace std::ranges{
   class concat_view<Views...>::@_iterator_@ {
   
   public:
+    using iterator_category = @*see below*@;                  // not always present.
+    using iterator_concept = @*see below*@;
     using value_type = @*concat-value-t*@<@_maybe-const_@<Const, Views>...>;
     using difference_type = common_type_t<range_difference_t<@_maybe-const_@<Const, Views>>...>;
-    using iterator_concept = @*see below*@;
-    using iterator_category = @*see below*@;                  // not always present.
 
   private:
     using @*base-iter*@ =                                     // exposition only

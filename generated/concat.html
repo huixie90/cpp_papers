@@ -502,7 +502,7 @@ experience<span></span></a></li>
 <li><a href="#concat" id="toc-concat"><span class="toc-section-number">5.2</span>
 <code class="sourceCode default">concat</code><span></span></a>
 <ul>
-<li><a href="#concat-view-range.concat" id="toc-concat-view-range.concat">24.7.? Concat view
+<li><a href="#concat-view-range.concat" id="toc-concat-view-range.concat">?.?.? Concat view
 [range.concat]<span></span></a></li>
 </ul></li>
 <li><a href="#feature-test-macro" id="toc-feature-test-macro"><span class="toc-section-number">5.3</span> Feature Test
@@ -561,9 +561,9 @@ concatenating, or chaining together the argument ranges.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>vector<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;</span> v1<span class="op">{</span><span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span><span class="op">}</span>, v2<span class="op">{</span><span class="dv">4</span>,<span class="dv">5</span><span class="op">}</span>, v3<span class="op">{}</span>;</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>array  a<span class="op">{</span><span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">8</span><span class="op">}</span>;</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> s <span class="op">=</span> <span class="dv">9</span>;</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>cout <span class="op">&lt;&lt;</span> std<span class="op">::</span>format<span class="op">(</span><span class="st">&quot;[{:n}, {:n}, {:n}, {:n}, {}]</span><span class="sc">\n</span><span class="st">&quot;</span>, </span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>                v1, v2, v3, a, s<span class="op">)</span>; </span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">// output:  [1, 2, 3, 4, 5, , 6, 7, 8, 9]</span></span></code></pre></div>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>print<span class="op">(</span><span class="st">&quot;[{:n}, {:n}, {:n}, {:n}, {}]</span><span class="sc">\n</span><span class="st">&quot;</span>, </span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>            v1, v2, v3, a, s<span class="op">)</span>; </span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">// output:  [1, 2, 3, 4, 5, <strong>,</strong> 6, 7, 8, 9]</span></span></code></pre></div>
 
 </div></td>
 <td><div>
@@ -571,8 +571,8 @@ concatenating, or chaining together the argument ranges.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>vector<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;</span> v1<span class="op">{</span><span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span><span class="op">}</span>, v2<span class="op">{</span><span class="dv">4</span>,<span class="dv">5</span><span class="op">}</span>, v3<span class="op">{}</span>;</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>array  a<span class="op">{</span><span class="dv">6</span>,<span class="dv">7</span>,<span class="dv">8</span><span class="op">}</span>;</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> s <span class="op">=</span> std<span class="op">::</span>views<span class="op">::</span>single<span class="op">(</span><span class="dv">9</span><span class="op">)</span>;</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>cout <span class="op">&lt;&lt;</span> std<span class="op">::</span>format<span class="op">(</span><span class="st">&quot;{}</span><span class="sc">\n</span><span class="st">&quot;</span>, </span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>                std<span class="op">::</span>views<span class="op">::</span>concat<span class="op">(</span>v1, v2, v3, a, s<span class="op">))</span>; </span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>print<span class="op">(</span><span class="st">&quot;{}</span><span class="sc">\n</span><span class="st">&quot;</span>, </span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>            std<span class="op">::</span>views<span class="op">::</span>concat<span class="op">(</span>v1, v2, v3, a, s<span class="op">))</span>; </span>
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co">// output:  [1, 2, 3, 4, 5, 6, 7, 8, 9]</span></span></code></pre></div>
 
 </div></td>
@@ -976,9 +976,9 @@ issue <span class="citation" data-cites="ours">[<a href="#ref-ours" role="doc-bi
 <code class="sourceCode default">concat</code><a href="#concat" class="self-link"></a></h2>
 <p>Add the following subclause to <span>26.7
 <a href="https://wg21.link/range.adaptors">[range.adaptors]</a></span>.</p>
-<h3 class="unnumbered" id="concat-view-range.concat">24.7.? Concat view
+<h3 class="unnumbered" id="concat-view-range.concat">?.?.? Concat view
 [range.concat]<a href="#concat-view-range.concat" class="self-link"></a></h3>
-<h4 class="unnumbered" id="overview-range.concat.overview">24.7.?.1
+<h4 class="unnumbered" id="overview-range.concat.overview">?.?.?.1
 Overview [range.concat.overview]<a href="#overview-range.concat.overview" class="self-link"></a></h4>
 <p><span class="marginalizedparent"><a class="marginalized">1</a></span>
 <code class="sourceCode default">concat_view</code> presents a
@@ -1003,8 +1003,8 @@ otherwise,
 <code class="sourceCode default">concat_view(Es...)</code></li>
 </ul>
 <p>[<em>Example:</em>]</p>
-<h4 class="unnumbered" id="class-template-concat_view-range.concat.view">24.7.?.2 Class
-template <code class="sourceCode default">concat_view</code>
+<h4 class="unnumbered" id="class-template-concat_view-range.concat.view">?.?.?.2 Class template
+<code class="sourceCode default">concat_view</code>
 [range.concat.view]<a href="#class-template-concat_view-range.concat.view" class="self-link"></a></h4>
 <div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> std<span class="op">::</span>ranges <span class="op">{</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -1179,7 +1179,7 @@ to:</p>
 <span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span>,</span>
 <span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <em>tuple-transform</em><span class="op">(</span>ranges<span class="op">::</span>size, <em>views_</em><span class="op">))</span>;</span></code></pre></div>
 </div>
-<h4 class="unnumbered" id="class-concat_viewiterator-range.concat.iterator">24.7.?.3 Class
+<h4 class="unnumbered" id="class-concat_viewiterator-range.concat.iterator">?.?.?.3 Class
 concat_view::iterator [range.concat.iterator]<a href="#class-concat_viewiterator-range.concat.iterator" class="self-link"></a></h4>
 <div class="sourceCode" id="cb21"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> std<span class="op">::</span>ranges<span class="op">{</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -1190,10 +1190,10 @@ concat_view::iterator [range.concat.iterator]<a href="#class-concat_viewiterator
 <span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">class</span> concat_view<span class="op">&lt;</span>Views<span class="op">...&gt;::</span><em>iterator</em> <span class="op">{</span></span>
 <span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  </span>
 <span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span><span class="op">:</span></span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> value_type <span class="op">=</span> <em>concat-value-t</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> difference_type <span class="op">=</span> common_type_t<span class="op">&lt;</span>range_difference_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;...&gt;</span>;</span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> iterator_concept <span class="op">=</span> <em>see below</em>;</span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> iterator_category <span class="op">=</span> <em>see below</em>;                  <span class="co">// not always present.</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> iterator_category <span class="op">=</span> <em>see below</em>;                  <span class="co">// not always present.</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> iterator_concept <span class="op">=</span> <em>see below</em>;</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> value_type <span class="op">=</span> <em>concat-value-t</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> difference_type <span class="op">=</span> common_type_t<span class="op">&lt;</span>range_difference_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;...&gt;</span>;</span>
 <span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span><span class="op">:</span></span>
 <span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> <em>base-iter</em> <span class="op">=</span>                                     <span class="co">// exposition only</span></span>
