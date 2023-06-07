@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="mpark/wg21" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="dcterms.date" content="2021-04-21" />
+  <meta name="dcterms.date" content="2023-06-07" />
   <title>`views::concat`</title>
   <style>
       code{white-space: pre-wrap;}
@@ -427,7 +427,7 @@ code.sourceCode > span { display: inline; }
   </tr>
   <tr>
     <td>Date:</td>
-    <td>2021-04-21</td>
+    <td>2023-06-07</td>
   </tr>
   <tr>
     <td style="vertical-align:top">Project:</td>
@@ -530,6 +530,7 @@ Macro<span></span></a></li>
 <ul>
 <li>Fixed conversions of
 <code class="sourceCode default">difference</code> types</li>
+<li>Redesign <code class="sourceCode default">iter_swap</code></li>
 <li>Various wording fixes</li>
 </ul>
 <h2 data-number="1.2" id="r2"><span class="header-section-number">1.2</span> R2<a href="#r2" class="self-link"></a></h2>
@@ -1006,7 +1007,10 @@ Customizations<a href="#option-2-do-not-provide-customizations" class="self-link
 ill-formed.</p>
 <p>However, all the user
 <code class="sourceCode default">iter_swap</code> customizations will be
-ignored.</p>
+ignored, even if the user tries to
+<code class="sourceCode default">concat</code> the same type of ranges
+with <code class="sourceCode default">iter_swap</code>
+customizations.</p>
 <h3 data-number="4.9.3" id="option-3-tomaszs-suggestion"><span class="header-section-number">4.9.3</span> Option 3: Tomasz’s
 suggestion<a href="#option-3-tomaszs-suggestion" class="self-link"></a></h3>
 <h2 data-number="4.10" id="implementation-experience"><span class="header-section-number">4.10</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h2>
