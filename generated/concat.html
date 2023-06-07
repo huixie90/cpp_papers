@@ -1078,7 +1078,7 @@ otherwise,
 <span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  <span class="kw">concept</span> <em>concatable</em> <span class="op">=</span> <em>see below</em>;             <span class="co">// exposition only</span></span>
 <span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  <span class="kw">concept</span> <em>concat-random-access</em> <span class="op">=</span>              <span class="co">// exposition only</span></span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>  <span class="kw">concept</span> <em>concat-is-random-access</em> <span class="op">=</span>              <span class="co">// exposition only</span></span>
 <span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    <span class="op">((</span>random_access_range<span class="op">&lt;</span>Rs<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> sized_range<span class="op">&lt;</span>Rs<span class="op">&gt;)&amp;&amp;...)</span>;</span>
 <span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> R<span class="op">&gt;</span></span>
@@ -1087,7 +1087,7 @@ otherwise,
 <span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    <span class="op">(</span>sized_range<span class="op">&lt;</span>R<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> random_access_range<span class="op">&lt;</span>R<span class="op">&gt;)</span>;</span>
 <span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
-<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>  <span class="kw">concept</span> <em>concat-bidirectional</em> <span class="op">=</span> <em>see below</em>;   <span class="co">// exposition only</span></span>
+<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>  <span class="kw">concept</span> <em>concat-is-bidirectional</em> <span class="op">=</span> <em>see below</em>;   <span class="co">// exposition only</span></span>
 <span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span> <span class="op">&lt;</span>input_range<span class="op">...</span> Views<span class="op">&gt;</span></span>
 <span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <span class="op">(</span>view<span class="op">&lt;</span>Views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span><span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">)</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span>
@@ -1162,11 +1162,11 @@ equivalent to:</p>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="op">&amp;&amp;</span> <em>concat-indirectly-readable</em><span class="op">&lt;</span>Rs<span class="op">...&gt;</span>;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb16"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">concept</span> <em>concat-bidirectional</em> <span class="op">=</span> <em>see below</em>; <span class="co">// exposition only</span></span></code></pre></div>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">concept</span> <em>concat-is-bidirectional</em> <span class="op">=</span> <em>see below</em>; <span class="co">// exposition only</span></span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">3</a></span>
-<code class="sourceCode default"><em>concat-bidirectional</em></code> is
-modeled by <code class="sourceCode default">Rs...</code>, if and only
+<code class="sourceCode default"><em>concat-is-bidirectional</em></code>
+is modeled by <code class="sourceCode default">Rs...</code>, if and only
 if,</p>
 <ul>
 <li><span class="marginalizedparent"><a class="marginalized">(3.1)</a></span> The
@@ -1289,19 +1289,19 @@ concat_view::iterator [range.concat.iterator]<a href="#class-concat_viewiterator
 <span id="cb24-52"><a href="#cb24-52" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>all-forward</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
 <span id="cb24-53"><a href="#cb24-53" aria-hidden="true" tabindex="-1"></a>    </span>
 <span id="cb24-54"><a href="#cb24-54" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">--()</span> </span>
-<span id="cb24-55"><a href="#cb24-55" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-bidirectional</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
+<span id="cb24-55"><a href="#cb24-55" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-bidirectional</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb24-56"><a href="#cb24-56" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-57"><a href="#cb24-57" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">--(</span><span class="dt">int</span><span class="op">)</span> </span>
-<span id="cb24-58"><a href="#cb24-58" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-bidirectional</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
+<span id="cb24-58"><a href="#cb24-58" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-bidirectional</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb24-59"><a href="#cb24-59" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-60"><a href="#cb24-60" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">+=(</span>difference_type n<span class="op">)</span> </span>
-<span id="cb24-61"><a href="#cb24-61" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
+<span id="cb24-61"><a href="#cb24-61" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb24-62"><a href="#cb24-62" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-63"><a href="#cb24-63" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">-=(</span>difference_type n<span class="op">)</span> </span>
-<span id="cb24-64"><a href="#cb24-64" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
+<span id="cb24-64"><a href="#cb24-64" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb24-65"><a href="#cb24-65" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-66"><a href="#cb24-66" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">auto</span><span class="op">)</span> <span class="kw">operator</span><span class="op">[](</span>difference_type n<span class="op">)</span> <span class="kw">const</span></span>
-<span id="cb24-67"><a href="#cb24-67" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
+<span id="cb24-67"><a href="#cb24-67" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb24-68"><a href="#cb24-68" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-69"><a href="#cb24-69" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">==(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
 <span id="cb24-70"><a href="#cb24-70" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span><span class="op">(</span>equality_comparable<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&gt;&amp;&amp;...)</span>;</span>
@@ -1325,22 +1325,22 @@ concat_view::iterator [range.concat.iterator]<a href="#class-concat_viewiterator
 <span id="cb24-88"><a href="#cb24-88" aria-hidden="true" tabindex="-1"></a>         <span class="op">(</span>three_way_comparable<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;</span> <span class="op">&amp;&amp;...))</span>;</span>
 <span id="cb24-89"><a href="#cb24-89" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-90"><a href="#cb24-90" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">+(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it, difference_type n<span class="op">)</span></span>
-<span id="cb24-91"><a href="#cb24-91" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
+<span id="cb24-91"><a href="#cb24-91" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb24-92"><a href="#cb24-92" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-93"><a href="#cb24-93" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">+(</span>difference_type n, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it<span class="op">)</span></span>
-<span id="cb24-94"><a href="#cb24-94" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
+<span id="cb24-94"><a href="#cb24-94" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb24-95"><a href="#cb24-95" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-96"><a href="#cb24-96" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it, difference_type n<span class="op">)</span></span>
-<span id="cb24-97"><a href="#cb24-97" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
+<span id="cb24-97"><a href="#cb24-97" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb24-98"><a href="#cb24-98" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-99"><a href="#cb24-99" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span> </span>
-<span id="cb24-100"><a href="#cb24-100" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
+<span id="cb24-100"><a href="#cb24-100" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb24-101"><a href="#cb24-101" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-102"><a href="#cb24-102" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, default_sentinel_t<span class="op">)</span> </span>
-<span id="cb24-103"><a href="#cb24-103" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
+<span id="cb24-103"><a href="#cb24-103" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb24-104"><a href="#cb24-104" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-105"><a href="#cb24-105" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span>default_sentinel_t, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x<span class="op">)</span> </span>
-<span id="cb24-106"><a href="#cb24-106" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
+<span id="cb24-106"><a href="#cb24-106" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
 <span id="cb24-107"><a href="#cb24-107" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-108"><a href="#cb24-108" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">auto</span><span class="op">)</span> iter_move<span class="op">(</span><span class="kw">const</span> iterator<span class="op">&amp;</span> it<span class="op">)</span> <span class="kw">noexcept</span><span class="op">(</span><em>see below</em><span class="op">)</span>;</span>
 <span id="cb24-109"><a href="#cb24-109" aria-hidden="true" tabindex="-1"></a></span>
@@ -1354,12 +1354,12 @@ concat_view::iterator [range.concat.iterator]<a href="#class-concat_viewiterator
 is defined as follows:</p>
 <ul>
 <li><span class="marginalizedparent"><a class="marginalized">(1.1)</a></span> If
-<code class="sourceCode default"><em>concat-random-access</em>&lt;<em>maybe-const</em>&lt;Const, Views&gt;...&gt;</code>
+<code class="sourceCode default"><em>concat-is-random-access</em>&lt;<em>maybe-const</em>&lt;Const, Views&gt;...&gt;</code>
 is modeled, then
 <code class="sourceCode default">iterator_concept</code> denotes
 <code class="sourceCode default">random_access_iterator_tag</code>.</li>
 <li><span class="marginalizedparent"><a class="marginalized">(1.2)</a></span>
-Otherwise, if <code class="sourceCode default"><em>concat-bidirectional</em>&lt;<em>maybe-const</em>&lt;Const, Views&gt;...&gt;</code>
+Otherwise, if <code class="sourceCode default"><em>concat-is-bidirectional</em>&lt;<em>maybe-const</em>&lt;Const, Views&gt;...&gt;</code>
 is modeled, then
 <code class="sourceCode default">iterator_concept</code> denotes
 <code class="sourceCode default">bidirectional_iterator_tag</code>.</li>
@@ -1390,12 +1390,12 @@ Otherwise, let <code class="sourceCode default">Cs</code> denote the
 pack of types <code class="sourceCode default">iterator_traits&lt;iterator_t&lt;<em>maybe-const</em>&lt;Const, Views&gt;&gt;&gt;::iterator_category...</code>.
 <ul>
 <li><span class="marginalizedparent"><a class="marginalized">(2.2.1)</a></span> If
-<code class="sourceCode default">(derived_from&lt;Cs, random_access_iterator_tag&gt; &amp;&amp; ...) &amp;&amp; <em>concat-random-access</em>&lt;<em>maybe-const</em>&lt;Const, Views&gt;...&gt;</code>
+<code class="sourceCode default">(derived_from&lt;Cs, random_access_iterator_tag&gt; &amp;&amp; ...) &amp;&amp; <em>concat-is-random-access</em>&lt;<em>maybe-const</em>&lt;Const, Views&gt;...&gt;</code>
 is true, <code class="sourceCode default">iterator_category</code>
 denotes
 <code class="sourceCode default">random_access_iterator_tag</code>.</li>
 <li><span class="marginalizedparent"><a class="marginalized">(2.2.2)</a></span>
-Otherwise, if <code class="sourceCode default">(derived_from&lt;Cs, bidirectional_iterator_tag&gt; &amp;&amp; ...) &amp;&amp; <em>concat-bidirectional</em>&lt;<em>maybe-const</em>&lt;Const, Views&gt;...&gt;</code>
+Otherwise, if <code class="sourceCode default">(derived_from&lt;Cs, bidirectional_iterator_tag&gt; &amp;&amp; ...) &amp;&amp; <em>concat-is-bidirectional</em>&lt;<em>maybe-const</em>&lt;Const, Views&gt;...&gt;</code>
 is true, <code class="sourceCode default">iterator_category</code>
 denotes
 <code class="sourceCode default">bidirectional_iterator_tag</code>.</li>
@@ -1547,7 +1547,7 @@ Equivalent to:</p>
 <span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> tmp;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb43"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">--()</span> </span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-bidirectional</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-bidirectional</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">15</a></span>
 <em>Preconditions</em>:
@@ -1561,7 +1561,7 @@ Equivalent to:</p>
 <span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">*</span><span class="kw">this</span>;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb45"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">--(</span><span class="dt">int</span><span class="op">)</span> </span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-bidirectional</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-bidirectional</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">17</a></span>
 <em>Effects</em>: Equivalent to:</p>
@@ -1570,7 +1570,7 @@ Equivalent to:</p>
 <span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> tmp;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb47"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">+=(</span>difference_type n<span class="op">)</span> </span>
-<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">18</a></span>
 <em>Preconditions</em>:
@@ -1588,7 +1588,7 @@ Equivalent to:</p>
 <span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">*</span><span class="kw">this</span>;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb49"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">-=(</span>difference_type n<span class="op">)</span> </span>
-<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">20</a></span>
 <em>Preconditions</em>:
@@ -1600,7 +1600,7 @@ is <code class="sourceCode default">false</code>.</p>
 <span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">*</span><span class="kw">this</span>;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb51"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">auto</span><span class="op">)</span> <span class="kw">operator</span><span class="op">[](</span>difference_type n<span class="op">)</span> <span class="kw">const</span></span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">22</a></span>
 <em>Preconditions</em>:
@@ -1655,7 +1655,7 @@ are each <code class="sourceCode default">false</code>.</p>
 <div class="sourceCode" id="cb58"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> x<span class="op">.</span><em>it_</em> <em>op</em> y<span class="op">.</span><em>it_</em>;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb59"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">+(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it, difference_type n<span class="op">)</span></span>
-<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">31</a></span>
 <em>Preconditions</em>: <code class="sourceCode default">it.<em>it_</em>.valueless_by_exception()</code>
@@ -1665,7 +1665,7 @@ is <code class="sourceCode default">false</code>.</p>
 <div class="sourceCode" id="cb60"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <em>iterator</em><span class="op">{</span>it<span class="op">}</span> <span class="op">+=</span> n;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb61"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">+(</span>difference_type n, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it<span class="op">)</span></span>
-<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">33</a></span>
 <em>Preconditions</em>: <code class="sourceCode default">it.<em>it_</em>.valueless_by_exception()</code>
@@ -1675,7 +1675,7 @@ is <code class="sourceCode default">false</code>.</p>
 <div class="sourceCode" id="cb62"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> it <span class="op">+</span> n;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb63"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it, difference_type n<span class="op">)</span></span>
-<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">35</a></span>
 <em>Preconditions</em>: <code class="sourceCode default">it.<em>it_</em>.valueless_by_exception()</code>
@@ -1685,7 +1685,7 @@ is <code class="sourceCode default">false</code>.</p>
 <div class="sourceCode" id="cb64"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <em>iterator</em><span class="op">{</span>it<span class="op">}</span> <span class="op">-=</span> n;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb65"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span> </span>
-<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
+<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">37</a></span>
 <em>Preconditions</em>: <code class="sourceCode default">x.<em>it_</em>.valueless_by_exception()</code>
@@ -1725,7 +1725,7 @@ otherwise, equivalent to:</p>
 </ul>
 </div>
 <div class="sourceCode" id="cb69"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, default_sentinel_t<span class="op">)</span> </span>
-<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">39</a></span>
 <em>Preconditions</em>: <code class="sourceCode default">x.<em>it_</em>.valueless_by_exception()</code>
@@ -1746,7 +1746,7 @@ otherwise, equivalent to</p>
 <div class="sourceCode" id="cb70"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">-(</span><span class="kw">static_cast</span><span class="op">&lt;</span>difference_type<span class="op">&gt;(</span><em>d<sub>x</sub></em><span class="op">)</span> <span class="op">+</span> <span class="kw">static_cast</span><span class="op">&lt;</span>difference_type<span class="op">&gt;(</span>s<span class="op">))</span>;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb71"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span>default_sentinel_t, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x<span class="op">)</span> </span>
-<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">41</a></span>
 <em>Preconditions</em>: <code class="sourceCode default">x.<em>it_</em>.valueless_by_exception()</code>
