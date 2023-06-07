@@ -990,14 +990,14 @@ to <span>26.7.5
 <div class="sourceCode" id="cb8"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>namespace std::ranges {</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>// [...]</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="va">+ template&lt;bool Const, class... Views&gt;</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="va">+   concept all-random-access =                 // exposition only</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="va">+     (random_access_range&lt;maybe-const&lt;Const, Views&gt;&gt; &amp;&amp; ...);</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="va">+   concept <em>all-random-access</em> =                 // exposition only</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="va">+     (random_access_range&lt;<em>maybe-const</em>&lt;Const, Views&gt;&gt; &amp;&amp; ...);</span></span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="va">+ template&lt;bool Const, class... Views&gt;</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="va">+   concept all-bidirectional =                 // exposition only</span></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="va">+     (bidirectional_range&lt;maybe-const&lt;Const, Views&gt;&gt; &amp;&amp; ...);</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="va">+   concept <em>all-bidirectional</em> =                 // exposition only</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="va">+     (bidirectional_range&lt;<em>maybe-const</em>&lt;Const, Views&gt;&gt; &amp;&amp; ...);</span></span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="va">+ template&lt;bool Const, class... Views&gt;</span></span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="va">+   concept all-forward =                       // exposition only</span></span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="va">+     (forward_range&lt;maybe-const&lt;Const, Views&gt;&gt; &amp;&amp; ...);</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="va">+   concept <em>all-forward</em> =                       // exposition only</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="va">+     (forward_range&lt;<em>maybe-const</em>&lt;Const, Views&gt;&gt; &amp;&amp; ...);</span></span>
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>// [...]</span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 </div>
@@ -1006,14 +1006,14 @@ to <span>26.7.5
 <div>
 <div class="sourceCode" id="cb9"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>namespace std::ranges {</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="st">- template&lt;bool Const, class... Views&gt;</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="st">-   concept all-random-access =                 // exposition only</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="st">-     (random_access_range&lt;maybe-const&lt;Const, Views&gt;&gt; &amp;&amp; ...);</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="st">-   concept <em>all-random-access</em> =                 // exposition only</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="st">-     (random_access_range&lt;<em>maybe-const</em>&lt;Const, Views&gt;&gt; &amp;&amp; ...);</span></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="st">- template&lt;bool Const, class... Views&gt;</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="st">-   concept all-bidirectional =                 // exposition only</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="st">-     (bidirectional_range&lt;maybe-const&lt;Const, Views&gt;&gt; &amp;&amp; ...);</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="st">-   concept <em>all-bidirectional</em> =                 // exposition only</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="st">-     (bidirectional_range&lt;<em>maybe-const</em>&lt;Const, Views&gt;&gt; &amp;&amp; ...);</span></span>
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="st">- template&lt;bool Const, class... Views&gt;</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="st">-   concept all-forward =                       // exposition only</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="st">-     (forward_range&lt;maybe-const&lt;Const, Views&gt;&gt; &amp;&amp; ...);</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="st">-   concept <em>all-forward</em> =                       // exposition only</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="st">-     (forward_range&lt;<em>maybe-const</em>&lt;Const, Views&gt;&gt; &amp;&amp; ...);</span></span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>// [...]</span>
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 </div>
@@ -1763,7 +1763,7 @@ is <code class="sourceCode default">false</code>.</p>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb75"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> std<span class="op">::</span>visit<span class="op">(</span></span>
 <span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">[](</span><span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> i<span class="op">)</span> <span class="op">-&gt;</span></span>
-<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>        common_reference_t<span class="op">&lt;</span>range_rvalue_reference_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;...&gt;</span> <span class="op">{</span> </span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>        <em>concat-rvalue-reference-t</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span> <span class="op">{</span> </span>
 <span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ranges<span class="op">::</span>iter_move<span class="op">(</span>i<span class="op">)</span>;</span>
 <span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span>,</span>
 <span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a>    it<span class="op">.</span><em>it_</em><span class="op">)</span>;</span></code></pre></div>

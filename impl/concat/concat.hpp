@@ -69,8 +69,9 @@ consteval bool all_but_last(std::index_sequence<I...>) {
 
 } // namespace not_to_spec
 
-template <class... Rs>
-concept concat_random_access = ((random_access_range<Rs> && sized_range<Rs>)&&...);
+template <bool Const, class... Views>
+concept concat_is_random_access = ((random_access_range<__maybe_const<Const, Views>> && 
+    sized_range<__maybe_const<Const, Views>>) && ...);
 
 template <class R>
 concept constant_time_reversible = (bidirectional_range<R> && common_range<R>) ||
@@ -147,7 +148,7 @@ inline namespace not_to_spec {
 
 template <bool Const, class... Ts>
 consteval auto iterator_concept_test() {
-    if constexpr (concat_random_access<__maybe_const<Const, Ts>...>) {
+    if constexpr (concat_is_random_access<Const, Ts...>) {
         return random_access_iterator_tag{};
     } else if constexpr (concat_bidirectional<__maybe_const<Const, Ts>...>) {
         return bidirectional_iterator_tag{};
@@ -190,7 +191,7 @@ consteval auto iter_cat_test() {
         return input_iterator_tag{};
     } else if constexpr ((has_tag<random_access_iterator_tag, __maybe_const<Const, Views>> &&
                           ...) &&
-                         concat_random_access<__maybe_const<Const, Views>...>) {
+                         concat_is_random_access<Const, Views...>) {
         return random_access_iterator_tag{};
     } else if constexpr ((has_tag<bidirectional_iterator_tag, __maybe_const<Const, Views>> &&
                           ...) &&
@@ -388,7 +389,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
         }
 
         constexpr iterator& operator+=(difference_type n) //
-            requires xo::concat_random_access<__maybe_const<Const, Views>...> {
+            requires xo::concat_is_random_access<Const, Views...> {
             if (n > 0) {
                 xo::visit_i(it_, [this, n](auto I, auto&& it) {
                     this->advance_fwd<I>(static_cast<difference_type>(it - ranges::begin(get<I>(parent_->views_))), n);
@@ -402,13 +403,13 @@ class concat_view : public view_interface<concat_view<Views...>> {
         }
 
         constexpr iterator& operator-=(difference_type n) //
-            requires xo::concat_random_access<__maybe_const<Const, Views>...> {
+            requires xo::concat_is_random_access<Const, Views...> {
             *this += -n;
             return *this;
         }
 
         constexpr decltype(auto) operator[](difference_type n) const //
-            requires xo::concat_random_access<__maybe_const<Const, Views>...> {
+            requires xo::concat_is_random_access<Const, Views...> {
             return *((*this) + n);
         }
 
@@ -450,22 +451,22 @@ class concat_view : public view_interface<concat_view<Views...>> {
         }
 
         friend constexpr iterator operator+(const iterator& it, difference_type n) requires
-            xo::concat_random_access<__maybe_const<Const, Views>...> {
+            xo::concat_is_random_access<Const, Views...> {
             return iterator{it} += n;
         }
 
         friend constexpr iterator operator+(difference_type n, const iterator& it) requires
-            xo::concat_random_access<__maybe_const<Const, Views>...> {
+            xo::concat_is_random_access<Const, Views...> {
             return it + n;
         }
 
         friend constexpr iterator operator-(const iterator& it, difference_type n) requires
-            xo::concat_random_access<__maybe_const<Const, Views>...> {
+            xo::concat_is_random_access<Const, Views...> {
             return iterator{it} -= n;
         }
 
         friend constexpr difference_type operator-(const iterator& x, const iterator& y) requires
-            xo::concat_random_access<__maybe_const<Const, Views>...> {
+            xo::concat_is_random_access<Const, Views...> {
             auto ix = x.it_.index();
             auto iy = y.it_.index();
             if (ix > iy) {
@@ -497,7 +498,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
         }
 
         friend constexpr difference_type operator-(const iterator& it, default_sentinel_t) requires
-            xo::concat_random_access<__maybe_const<Const, Views>...> {
+            xo::concat_is_random_access<Const, Views...> {
 
             const auto idx = it.it_.index();
             const auto all_sizes = std::apply(
@@ -515,7 +516,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
         }
 
         friend constexpr difference_type operator-(default_sentinel_t, const iterator& it) requires
-            xo::concat_random_access<__maybe_const<Const, Views>...> {
+            xo::concat_is_random_access<Const, Views...> {
             return -(it - default_sentinel);
         }
 
