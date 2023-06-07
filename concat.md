@@ -582,10 +582,10 @@ concept @_concat-bidirectional_@ = @*see below*@; // exposition only
 
 :::bq
 
-[3]{.pnum} `@_concat-bidirectional_@` is satisfied and modeled for `Rs...`, if and only if,
+[3]{.pnum} `@_concat-bidirectional_@` is modeled by `Rs...`, if and only if,
 
-- [3.1]{.pnum} The last element of `Rs...` models and satisfies `bidirectional_range`,
-- [3.2]{.pnum} And, all except the last element of `Rs...` model and satisfy `@_constant-time-reversible_@`.
+- [3.1]{.pnum} The last element of `Rs...` models `bidirectional_range`,
+- [3.2]{.pnum} And, all except the last element of `Rs...` model `@_constant-time-reversible_@`.
 
 :::
 
