@@ -1,7 +1,7 @@
 ---
 title: "`views::concat`"
 document: P2542R3
-date: 2021-04-21
+date: 2023-06-07
 audience: SG9, LEWG
 author:
   - name: Hui Xie
@@ -16,6 +16,7 @@ toc: true
 ## R3
 
 - Fixed conversions of `difference` types
+- Redesign `iter_swap`
 - Various wording fixes
 
 ## R2
@@ -407,7 +408,7 @@ void iter_swap_impl(string_view* x, string* y)
 
 The above examples are no longer an issue because `ranges::iter_swap` would be ill-formed.
 
-However, all the user `iter_swap` customizations will be ignored.
+However, all the user `iter_swap` customizations will be ignored, even if the user tries to `concat` the same type of ranges with `iter_swap` customizations.
 
 ### Option 3: Tomasz's suggestion
 
