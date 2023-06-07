@@ -82,8 +82,10 @@
     synopsis) after zip and cartesian_product was in. Wants to make sure we
     don't define it again. (But we don't. So...)
   - Hui: Maybe they meant that we should add `Const` as template parameter for concepts like `concat-random-access` and `concat-bidirectional`, like what they did for `all-random-access` etc. So that we don't repeat the `maybe_const` in the every usage of `concat-random-access`? What do you think?
-  - Levent: Sounds right! Also the naming can be more consistent with https://eel.is/c++draft/range.cartesian#view, 
+  - Levent: Makes sense. Agree Also the naming can be more consistent with https://eel.is/c++draft/range.cartesian#view, 
   `concat-is-random-access` instead of `concat-random-access` etc.
+  - Levent: Also, instead of `Rs` as the name of the pack, we should use `Views`. But careful if we really mean View and not Range
+    in all these.
 
 - [TODO] do we want to avoid emplacing ranges we don't need to use?
   - Hui: Good point. I think this refers to `advance_fwd` and `advance_bwd`. Maybe we can do something smarter.
@@ -105,6 +107,8 @@
   - Hui: I think this refers to all the preconditions about variant's valueless state. It is good idea but I don't know how to do it. I mean, how to specify what operations are allowed and what are not. Need prio examples.
   - Levent: We don't have any operations that are allowed. (no?)
   - Hui: Well the generated operations like the destructor and the assignment operators should be allowed. (no?)
+  - Right. And for the friend members it gets tricky to rely only on front matter. I actually attempted a version, but
+    it looked uglier in the end. Not sure about this one.
 
 
 - [TODO] I think the authors need to think about iter_swap and provide rational
@@ -112,7 +116,8 @@
   - Levent: Let's just remove it.
   - Hui: I thought Tim brought another issue that even the default behaviour (without our specialisation) of `iter_swap` is still problematic for `concat(strings, string_views)`.
   https://godbolt.org/z/49esvec96
-
+  - Slightly modified example: https://godbolt.org/z/na8haa3Ex
+  
 # Full transcript
 
 - JG: this is for C++26
