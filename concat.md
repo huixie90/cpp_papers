@@ -397,14 +397,14 @@ Add the following to [range.adaptor.helpers]{.sref}
 namespace std::ranges {
 // [...]
 + template<bool Const, class... Views>
-+   concept all-random-access =                 // exposition only
-+     (random_access_range<maybe-const<Const, Views>> && ...);
++   concept @*all-random-access*@ =                 // exposition only
++     (random_access_range<@*maybe-const*@<Const, Views>> && ...);
 + template<bool Const, class... Views>
-+   concept all-bidirectional =                 // exposition only
-+     (bidirectional_range<maybe-const<Const, Views>> && ...);
++   concept @*all-bidirectional*@ =                 // exposition only
++     (bidirectional_range<@*maybe-const*@<Const, Views>> && ...);
 + template<bool Const, class... Views>
-+   concept all-forward =                       // exposition only
-+     (forward_range<maybe-const<Const, Views>> && ...);
++   concept @*all-forward*@ =                       // exposition only
++     (forward_range<@*maybe-const*@<Const, Views>> && ...);
 // [...]
 }
 ```
@@ -414,14 +414,14 @@ Remove the following from [range.zip.iterator]{.sref}
 ```diff
 namespace std::ranges {
 - template<bool Const, class... Views>
--   concept all-random-access =                 // exposition only
--     (random_access_range<maybe-const<Const, Views>> && ...);
+-   concept @*all-random-access*@ =                 // exposition only
+-     (random_access_range<@*maybe-const*@<Const, Views>> && ...);
 - template<bool Const, class... Views>
--   concept all-bidirectional =                 // exposition only
--     (bidirectional_range<maybe-const<Const, Views>> && ...);
+-   concept @*all-bidirectional*@ =                 // exposition only
+-     (bidirectional_range<@*maybe-const*@<Const, Views>> && ...);
 - template<bool Const, class... Views>
--   concept all-forward =                       // exposition only
--     (forward_range<maybe-const<Const, Views>> && ...);
+-   concept @*all-forward*@ =                       // exposition only
+-     (forward_range<@*maybe-const*@<Const, Views>> && ...);
 // [...]
 }
 ```
@@ -1313,7 +1313,7 @@ friend constexpr decltype(auto) iter_move(const iterator& it) noexcept(@*see bel
 ```cpp
 return std::visit(
     [](const auto& i) ->
-        common_reference_t<range_rvalue_reference_t<@_maybe-const_@<Const, Views>>...> { 
+        @*concat-rvalue-reference-t*@<@_maybe-const_@<Const, Views>...> { 
         return ranges::iter_move(i);
     },
     it.@*it_*@);
