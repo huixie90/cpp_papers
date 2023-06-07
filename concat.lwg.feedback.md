@@ -60,21 +60,7 @@
   - L: I am not sure where we pulled this from. I found this: https://github.com/cplusplus/draft/blob/1be4801ac1f90aca9a8f5804a48e8bcd082f5bb9/papers/n4821.md?plain=1#L564
     It seems if we simply say "models" that should suffice here.
 
-# Nothing to do
-
-- [Nothing to do] that "expect" needs to be "except"
-  - Hui: could not find any expect
-  - Levent: I checked earliest revisions. No "expect" indeed. Not sure what this was.
-
-
-# Random stuff
-- Hui: finally there is a compiler that can run our example (sadly only with std::cout)  https://godbolt.org/z/e43r5TbKq
-
-# Todos
-
-
-
-- [TODO] when doing zip_view and cartesian_product we added maybe_const so we don't need to do that everywhere and we should do that here, too
+- [Done] when doing zip_view and cartesian_product we added maybe_const so we don't need to do that everywhere and we should do that here, too
   - Hui: ?
   - Levent: I think they're talking about the original local util (e.g.
     https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1035r3.html#zip_viewrs-iterator-exposition-only)
@@ -86,6 +72,13 @@
   `concat-is-random-access` instead of `concat-random-access` etc.
   - Levent: Also, instead of `Rs` as the name of the pack, we should use `Views`. But careful if we really mean View and not Range
     in all these.
+
+- [Done] that "expect" needs to be "except"
+  - Hui: could not find any expect
+  - Levent: I checked earliest revisions. No "expect" indeed. Not sure what this was.
+  - Hui: I found that in the mattermost chat, Thomasz suggested wording for concat-bidi which has expect. It should refer to that. I also used his suggested wording now
+
+# Todos
 
 - [TODO] do we want to avoid emplacing ranges we don't need to use?
   - Hui: Good point. I think this refers to `advance_fwd` and `advance_bwd`. Maybe we can do something smarter.

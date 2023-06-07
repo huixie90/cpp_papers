@@ -476,16 +476,17 @@ namespace std::ranges {
   template <class... Rs>
   concept @_concatable_@ = @*see below*@;             // exposition only
 
-  template <class... Rs>
+  template <bool Const, class... Rs>
   concept @_concat-is-random-access_@ =              // exposition only
-    ((random_access_range<Rs> && sized_range<Rs>)&&...);
+    ((random_access_range<@*maybe-const*@<Const, Rs>> &&
+      sized_range<@*maybe-const*@<Const, Rs>>) && ...);
 
   template <class R>
   concept @_constant-time-reversible_@ =          // exposition only
     (bidirectional_range<R> && common_range<R>) ||
     (sized_range<R> && random_access_range<R>);
 
-  template <class... Rs>
+  template <bool Const, class... Rs>
   concept @_concat-is-bidirectional_@ = @*see below*@;   // exposition only
 
   template <input_range... Views>
@@ -576,16 +577,19 @@ concept @_concatable_@ = requires { // exposition only
 :::
 
 ```cpp
-template <class... Rs>
+template <bool Const, class... Rs>
 concept @_concat-is-bidirectional_@ = @*see below*@; // exposition only
 ```
 
 :::bq
 
-[3]{.pnum} `@_concat-is-bidirectional_@` is modeled by `Rs...`, if and only if,
+[3]{.pnum} Let `V` be the last element of `Rs`, and `Fs` be the pack that consists of all elements of `Rs` except `V`, then `@_concat-is-bidirectional_@` is equivalent to:
 
-- [3.1]{.pnum} The last element of `Rs...` models `bidirectional_range`,
-- [3.2]{.pnum} And, all except the last element of `Rs...` model `@_constant-time-reversible_@`.
+```cpp
+template <bool Const, class... Rs>
+concept @_concat-is-bidirectional_@ = // exposition only
+  (bidirectional_range<@*maybe_const*@<Const, V>> && ... && @*constant-time-reversible*@<@*maybe_const*@<Const, Fs>>);
+```
 
 :::
 
@@ -719,19 +723,19 @@ namespace std::ranges{
         requires @*all-forward*@<Const, Views...>;
     
     constexpr @_iterator_@& operator--() 
-        requires @_concat-is-bidirectional_@<@_maybe-const_@<Const, Views>...>;
+        requires @_concat-is-bidirectional_@<Const, Views...>;
 
     constexpr @_iterator_@ operator--(int) 
-        requires @_concat-is-bidirectional_@<@_maybe-const_@<Const, Views>...>;
+        requires @_concat-is-bidirectional_@<Const, Views...>;
 
     constexpr @_iterator_@& operator+=(difference_type n) 
-        requires @_concat-is-random-access_@<@_maybe-const_@<Const, Views>...>;
+        requires @_concat-is-random-access_@<Const, Views...>;
 
     constexpr @_iterator_@& operator-=(difference_type n) 
-        requires @_concat-is-random-access_@<@_maybe-const_@<Const, Views>...>;
+        requires @_concat-is-random-access_@<Const, Views...>;
 
     constexpr decltype(auto) operator[](difference_type n) const
-        requires @_concat-is-random-access_@<@_maybe-const_@<Const, Views>...>;
+        requires @_concat-is-random-access_@<Const, Views...>;
 
     friend constexpr bool operator==(const @_iterator_@& x, const @_iterator_@& y)
         requires(equality_comparable<iterator_t<@_maybe-const_@<Const, Views>>>&&...);
@@ -755,22 +759,22 @@ namespace std::ranges{
          (three_way_comparable<@_maybe-const_@<Const, Views>> &&...));
 
     friend constexpr @_iterator_@ operator+(const @_iterator_@& it, difference_type n)
-        requires @_concat-is-random-access_@<@_maybe-const_@<Const, Views>...>;
+        requires @_concat-is-random-access_@<Const, Views...>;
 
     friend constexpr @_iterator_@ operator+(difference_type n, const @_iterator_@& it)
-        requires @_concat-is-random-access_@<@_maybe-const_@<Const, Views>...>;
+        requires @_concat-is-random-access_@<Const, Views...>;
 
     friend constexpr @_iterator_@ operator-(const @_iterator_@& it, difference_type n)
-        requires @_concat-is-random-access_@<@_maybe-const_@<Const, Views>...>;
+        requires @_concat-is-random-access_@<Const, Views...>;
 
     friend constexpr difference_type operator-(const @_iterator_@& x, const @_iterator_@& y) 
-        requires @_concat-is-random-access_@<@_maybe-const_@<Const, Views>...>;
+        requires @_concat-is-random-access_@<Const, Views...>;
 
     friend constexpr difference_type operator-(const @_iterator_@& x, default_sentinel_t) 
-        requires @_concat-is-random-access_@<@_maybe-const_@<Const, Views>...>;
+        requires @_concat-is-random-access_@<Const, Views...>;
 
     friend constexpr difference_type operator-(default_sentinel_t, const @_iterator_@& x) 
-        requires @_concat-is-random-access_@<@_maybe-const_@<Const, Views>...>;
+        requires @_concat-is-random-access_@<Const, Views...>;
 
     friend constexpr decltype(auto) iter_move(const iterator& it) noexcept(@*see below*@);
 
@@ -783,10 +787,10 @@ namespace std::ranges{
 
 [1]{.pnum} `@_iterator_@::iterator_concept` is defined as follows:
 
-- [1.1]{.pnum} If `@_concat-is-random-access_@<@_maybe-const_@<Const, Views>...>`
+- [1.1]{.pnum} If `@_concat-is-random-access_@<Const, Views...>`
   is modeled, then `iterator_concept` denotes `random_access_iterator_tag`.
 - [1.2]{.pnum} Otherwise, if
-  `@_concat-is-bidirectional_@<@_maybe-const_@<Const, Views>...>` is modeled, then
+  `@_concat-is-bidirectional_@<Const, Views...>` is modeled, then
   `iterator_concept` denotes `bidirectional_iterator_tag`.
 - [1.3]{.pnum} Otherwise, if `@*all-forward*@<Const, Views...>` is modeled, then
   `iterator_concept` denotes `forward_iterator_tag`.
@@ -801,10 +805,10 @@ namespace std::ranges{
 - [2.2]{.pnum} Otherwise, let `Cs` denote the pack of types
   `iterator_traits<iterator_t<@*maybe-const*@<Const, Views>>>::iterator_category...`.
   - [2.2.1]{.pnum} If
-    `(derived_from<Cs, random_access_iterator_tag> && ...) && @_concat-is-random-access_@<@_maybe-const_@<Const, Views>...>`
+    `(derived_from<Cs, random_access_iterator_tag> && ...) && @_concat-is-random-access_@<Const, Views...>`
     is true, `iterator_category` denotes `random_access_iterator_tag`.
   - [2.2.2]{.pnum} Otherwise, if
-    `(derived_from<Cs, bidirectional_iterator_tag> && ...) && @_concat-is-bidirectional_@<@_maybe-const_@<Const, Views>...>`
+    `(derived_from<Cs, bidirectional_iterator_tag> && ...) && @_concat-is-bidirectional_@<Const, Views...>`
     is true, `iterator_category` denotes `bidirectional_iterator_tag`.
   - [2.2.3]{.pnum} Otherwise, If `(derived_from<Cs, forward_iterator_tag> && ...)` is true, `iterator_category` denotes `forward_iterator_tag`.
   - [2.2.4]{.pnum} Otherwise, `iterator_category` denotes `input_iterator_tag`.
@@ -1011,7 +1015,7 @@ return tmp;
 
 ```cpp
 constexpr @_iterator_@& operator--() 
-    requires @_concat-is-bidirectional_@<@_maybe-const_@<Const, Views>...>;
+    requires @_concat-is-bidirectional_@<Const, Views...>;
 ```
 
 :::bq
@@ -1029,7 +1033,7 @@ return *this;
 
 ```cpp
 constexpr @_iterator_@ operator--(int) 
-    requires @_concat-is-bidirectional_@<@_maybe-const_@<Const, Views>...>;
+    requires @_concat-is-bidirectional_@<Const, Views...>;
 ```
 
 :::bq
@@ -1046,7 +1050,7 @@ return tmp;
 
 ```cpp
 constexpr @_iterator_@& operator+=(difference_type n) 
-    requires @_concat-is-random-access_@<@_maybe-const_@<Const, Views>...>;
+    requires @_concat-is-random-access_@<Const, Views...>;
 ```
 
 :::bq
@@ -1068,7 +1072,7 @@ return *this;
 
 ```cpp
 constexpr @_iterator_@& operator-=(difference_type n) 
-    requires @_concat-is-random-access_@<@_maybe-const_@<Const, Views>...>;
+    requires @_concat-is-random-access_@<Const, Views...>;
 ```
 
 :::bq
@@ -1086,7 +1090,7 @@ return *this;
 
 ```cpp
 constexpr decltype(auto) operator[](difference_type n) const
-    requires @_concat-is-random-access_@<@_maybe-const_@<Const, Views>...>;
+    requires @_concat-is-random-access_@<Const, Views...>;
 ```
 
 :::bq
@@ -1168,7 +1172,7 @@ return x.@*it_*@ @*op*@ y.@*it_*@;
 
 ```cpp
 friend constexpr @_iterator_@ operator+(const @_iterator_@& it, difference_type n)
-    requires @_concat-is-random-access_@<@_maybe-const_@<Const, Views>...>;
+    requires @_concat-is-random-access_@<Const, Views...>;
 ```
 
 :::bq
@@ -1185,7 +1189,7 @@ return @_iterator_@{it} += n;
 
 ```cpp
 friend constexpr @_iterator_@ operator+(difference_type n, const @_iterator_@& it)
-    requires @_concat-is-random-access_@<@_maybe-const_@<Const, Views>...>;
+    requires @_concat-is-random-access_@<Const, Views...>;
 ```
 
 :::bq
@@ -1202,7 +1206,7 @@ return it + n;
 
 ```cpp
 friend constexpr @_iterator_@ operator-(const @_iterator_@& it, difference_type n)
-    requires @_concat-is-random-access_@<@_maybe-const_@<Const, Views>...>;
+    requires @_concat-is-random-access_@<Const, Views...>;
 ```
 
 :::bq
@@ -1219,7 +1223,7 @@ return @*iterator*@{it} -= n;
 
 ```cpp
 friend constexpr difference_type operator-(const @_iterator_@& x, const @_iterator_@& y) 
-    requires @_concat-is-random-access_@<@_maybe-const_@<Const, Views>...>;
+    requires @_concat-is-random-access_@<Const, Views...>;
 ```
 
 :::bq
@@ -1259,7 +1263,7 @@ denote `y.@*it_*@.index()`
 
 ```cpp
 friend constexpr difference_type operator-(const @_iterator_@& x, default_sentinel_t) 
-    requires @_concat-is-random-access_@<@_maybe-const_@<Const, Views>...>;
+    requires @_concat-is-random-access_@<Const, Views...>;
 ```
 
 :::bq
@@ -1281,7 +1285,7 @@ return -(static_cast<difference_type>(@*d~x~*@) + static_cast<difference_type>(s
 
 ```cpp
 friend constexpr difference_type operator-(default_sentinel_t, const @_iterator_@& x) 
-    requires @_concat-is-random-access_@<@_maybe-const_@<Const, Views>...>;
+    requires @_concat-is-random-access_@<Const, Views...>;
 ```
 
 :::bq
