@@ -445,8 +445,7 @@ the expression `views::concat(Es...)` is expression-equivalent to
         and `views::all(Es...)` is a well formed expression,
 - [2.2]{.pnum} otherwise, `concat_view(Es...)`
 
-[*Example:*
-
+\[*Example:*
 ```cpp
 std::vector<int> v1{1,2,3}, v2{4,5}, v3{};
 std::array  a{6,7,8};
@@ -455,7 +454,7 @@ for(auto&& i : std::views::concat(v1, v2, v3, a, s)){
   std::cout << i << ' '; // prints: 1 2 3 4 5 6 7 8 9 
 }
 ```
-- *end example*]
+- *end example*\]
 
 #### ?.?.?.2 Class template `concat_view` [range.concat.view] {-}
 
