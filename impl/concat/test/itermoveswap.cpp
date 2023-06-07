@@ -3,6 +3,7 @@
 #include <concepts>
 #include <type_traits>
 #include <iterator>
+#include <vector>
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers_vector.hpp>
@@ -103,10 +104,9 @@ struct throw_on_move {
 
 TEST_POINT("iter_move_throw_on_converting_to_rvalue_reference") {
     std::vector<throw_on_move> v;
-    auto tv =
-        std::views::iota(0) | std::views::transform([](auto) { return throw_on_move{}; });
-    
-    auto cv = std::views::concat(v,tv);
+    auto tv = std::views::iota(0) | std::views::transform([](auto) { return throw_on_move{}; });
+
+    auto cv = std::views::concat(v, tv);
 
     using vector_rvalue_ref = std::ranges::range_rvalue_reference_t<decltype(v)>;
     using common_rvalue_ref = std::ranges::range_rvalue_reference_t<decltype(cv)>;
@@ -116,7 +116,6 @@ TEST_POINT("iter_move_throw_on_converting_to_rvalue_reference") {
     static_assert(std::same_as<vector_rvalue_ref, throw_on_move&&>);
     static_assert(std::same_as<common_rvalue_ref, throw_on_move>);
     static_assert(!std::is_nothrow_convertible_v<throw_on_move&&, throw_on_move>);
-
 }
 
 TEST_POINT("iter_swap_concept") {
@@ -194,3 +193,114 @@ TEST_POINT("largesort") {
 }
 
 #endif
+
+TEST_POINT("iter_swap_non_swappable_check1") {
+    int v1[] = {1, 2};
+    long v2[] = {3, 4};
+    auto cv = std::views::concat(v1, v2);
+    auto it1 = cv.begin();
+    using iter = decltype(it1);
+    static_assert(!std::indirectly_swappable<iter>);
+}
+
+TEST_POINT("iter_swap_non_swappable_check2") {
+    std::string_view v1[] = {"aa"};
+    std::string v2[] = {"bbb"};
+    auto cv = std::views::concat(v1, v2);
+    auto it1 = cv.begin();
+    using iter = decltype(it1);
+    static_assert(!std::indirectly_swappable<iter>);
+}
+
+struct iter_swap_iter {
+    int* i = nullptr;
+    int& operator*() const { return *i; }
+
+    iter_swap_iter& operator++() {
+        ++i;
+        return *this;
+    }
+    iter_swap_iter operator++(int) { return {i + 1}; }
+
+    bool operator==(iter_swap_iter other) const { return i == other.i; }
+
+    using value_type = int;                 // to model indirectly_readable_traits
+    using difference_type = std::ptrdiff_t; // to model incrementable_traits
+
+    friend void iter_swap(iter_swap_iter x, iter_swap_iter y) {
+        std::swap(*(x.i), *(y.i));
+        *(x.i) += 10;
+        *(y.i) += 10;
+    }
+};
+
+struct iter_swap_iter_range {
+    std::vector<int> vec;
+    iter_swap_iter begin() { return iter_swap_iter{vec.data()}; }
+    iter_swap_iter end() { return iter_swap_iter{vec.data() + vec.size()}; }
+};
+
+TEST_POINT("iter_swap_customisation") {
+    iter_swap_iter_range r1;
+    r1.vec = {1, 2, 3};
+    std::vector<int> r2 = {4, 5, 6};
+    auto cv = std::views::concat(r1, r2);
+
+    // same range with customisation
+    auto it1 = cv.begin();
+    auto it2 = cv.begin();
+    ++it2;
+    std::ranges::iter_swap(it1, it2);
+    CHECK(r1.vec[0] == 12);
+    CHECK(r1.vec[1] == 11);
+
+    auto it3 = cv.begin();
+    ++it3;
+    ++it3;
+
+    auto it4 = it3;
+    ++it4;
+
+    std::ranges::iter_swap(it3, it4);
+    CHECK(r1.vec[2] == 4);
+    CHECK(r2[0] == 3);
+}
+
+
+TEST_POINT("tricky_tuple_case") {
+    std::vector<std::tuple<int, int, int>> r1{
+        {1, 2, 3},
+        {4, 5, 6},
+    };
+
+    std::vector<int> v1{
+        7,
+        8,
+    };
+
+    std::vector<int> v2{
+        9,
+        10,
+    };
+
+    std::vector<int> v3{
+        11,
+        12,
+    };
+
+    auto r2 = std::views::zip(v1, v2, v3);
+    //  {7, 9, 11}
+    //  {8, 10, 12}
+
+    auto cv = std::views::concat(r1, r2);
+
+    auto it1 = cv.begin();
+    auto it2 = cv.begin() + 2;
+    std::ranges::iter_swap(it1, it2);
+    // swap (1,2,3) with (7,9,11)
+
+    CHECK(r1[0] == std::tuple(7, 9, 11));
+    CHECK(v1[0] == 1);
+    CHECK(v2[0] == 2);
+    CHECK(v3[0] == 3);
+}
