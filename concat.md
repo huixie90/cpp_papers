@@ -358,7 +358,62 @@ went with the second constraint. In this paper, both are supported.
 `concat_view` can be `sized_range` if all the underlying ranges model
 `sized_range`
 
-## Implementation experience
+## `iter_swap` Customizations
+
+### Option 1: Delegate to the Underlying `iter_swap`
+
+This option was originally adopted in the paper. If all the combinations of the underlying iterators model `indirectly_swappable`, then `ranges::iter_swap(x, y)` could delegate to the underlying iterators
+
+```cpp
+std::visit(ranges::iter_swap, x.it_, y.it_);
+```
+
+However, `ranges::iter_swap` is too permissive. Consider the following example:
+
+```cpp
+int v1[] = {1, 2};
+long v2[] = {2147483649, 4};
+auto cv = std::views::concat(v1, v2);
+auto it1 = cv.begin();
+auto it2 = cv.begin() + 2;
+std::ranges::iter_swap(it1, it2);
+```
+
+Delegating `ranges::iter_swap(const concat_view::iterator&, const concat::iterator&)` to `ranges::iter_swap(int*, long*)` in this case would result in a tripple-move and leave `v1[0]` overflowed.
+
+Another example discussed in SG9 mailing is
+
+```cpp
+std::string_view v1[] = {"aa"};
+std::string v2[] = {"bbb"};
+auto cv = std::views::concat(v1, v2);
+auto it1 = cv.begin();
+auto it2 = cv.begin()+1;
+std::ranges::iter_swap(it1, it2);
+```
+
+`ranges::iter_swap(string_view*, string*)` in this case would result in dangling reference due to the tripple move, which is effectively
+
+```cpp
+void iter_swap_impl(string_view* x, string* y)
+{
+  std::string tmp(std::move(*y));
+  *y = std::move(*x);
+  *x = std::move(tmp); // *x points to local string tmp
+}
+```
+
+### Option 2: Do not Provide Customizations
+
+The above examples are no longer an issue because `ranges::iter_swap` would be ill-formed.
+
+However, all the user `iter_swap` customizations will be ignored.
+
+### Option 3: Tomasz's suggestion
+
+
+
+## Implementation Experience
 
 `views::concat` has been implemented in [@rangev3], with equivalent semantics as
 proposed here. The authors also implemented a version that directly follows the
