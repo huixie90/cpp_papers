@@ -53,6 +53,13 @@
   - Hui: I just learned we can specify that way. Not sure if you like it?
   - Levent: Love it. (https://eel.is/c++draft/const.iterators.ops#17 right?)
 
+- [Done] mattermost: TZ/CC: wording the concat-bidirectional
+  - Hui: From the chat history they don't seem to be happy about our wording and had some alternative wordings in the chat
+  - Levent: Leave this to next round?
+  - H: I am bit confused with "Model" vs "Model and Satisfy"...
+  - L: I am not sure where we pulled this from. I found this: https://github.com/cplusplus/draft/blob/1be4801ac1f90aca9a8f5804a48e8bcd082f5bb9/papers/n4821.md?plain=1#L564
+    It seems if we simply say "models" that should suffice here.
+
 # Nothing to do
 
 - [Nothing to do] that "expect" needs to be "except"
@@ -65,10 +72,7 @@
 
 # Todos
 
-- [TODO] mattermost: TZ/CC: wording the concat-bidirectional
-  - Hui: From the chat history they don't seem to be happy about our wording and had some alternative wordings in the chat
-  - Levent: Leave this to next round?
-  - I am bit confused with "Model" vs "Model and Satisfy"...
+
 
 - [TODO] when doing zip_view and cartesian_product we added maybe_const so we don't need to do that everywhere and we should do that here, too
   - Hui: ?
