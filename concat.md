@@ -1077,9 +1077,7 @@ constexpr @_iterator_@& operator-=(difference_type n)
 
 :::bq
 
-[20]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
-
-[21]{.pnum} *Effects*: Equivalent to:
+[20]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 *this += -n;
@@ -1095,9 +1093,7 @@ constexpr decltype(auto) operator[](difference_type n) const
 
 :::bq
 
-[22]{.pnum} *Preconditions*: `@*it_*@.valueless_by_exception()` is `false`.
-
-[23]{.pnum} *Effects*: Equivalent to:
+[21]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return *((*this) + n);
@@ -1112,10 +1108,10 @@ friend constexpr bool operator==(const @_iterator_@& x, const @_iterator_@& y)
 
 :::bq
 
-[24]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
+[22]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
 `y.@*it_*@.valueless_by_exception()` are each `false`.
 
-[25]{.pnum} *Effects*: Equivalent to:
+[23]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return x.@*it_*@ == y.@*it_*@;
@@ -1129,9 +1125,9 @@ friend constexpr bool operator==(const @_iterator_@& it, default_sentinel_t);
 
 :::bq
 
-[26]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
+[24]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
 
-[27]{.pnum} *Effects*: Equivalent to:
+[25]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 constexpr auto last_idx = sizeof...(Views) - 1;
@@ -1157,12 +1153,12 @@ friend constexpr auto operator<=>(const @_iterator_@& x, const @_iterator_@& y)
 
 :::bq
 
-[28]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
+[26]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
 `y.@*it_*@.valueless_by_exception()` are each `false`.
 
-[29]{.pnum} Let `@*op*@` be the operator.
+[27]{.pnum} Let `@*op*@` be the operator.
 
-[30]{.pnum} *Effects*: Equivalent to:
+[28]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return x.@*it_*@ @*op*@ y.@*it_*@;
@@ -1177,9 +1173,9 @@ friend constexpr @_iterator_@ operator+(const @_iterator_@& it, difference_type 
 
 :::bq
 
-[31]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
+[29]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
 
-[32]{.pnum} *Effects*: Equivalent to:
+[30]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return @_iterator_@{it} += n;
@@ -1194,9 +1190,7 @@ friend constexpr @_iterator_@ operator+(difference_type n, const @_iterator_@& i
 
 :::bq
 
-[33]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
-
-[34]{.pnum} *Effects*: Equivalent to:
+[31]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return it + n;
@@ -1211,9 +1205,7 @@ friend constexpr @_iterator_@ operator-(const @_iterator_@& it, difference_type 
 
 :::bq
 
-[35]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
-
-[36]{.pnum} *Effects*: Equivalent to:
+[32]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return @*iterator*@{it} -= n;
@@ -1228,13 +1220,13 @@ friend constexpr difference_type operator-(const @_iterator_@& x, const @_iterat
 
 :::bq
 
-[37]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
+[33]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
 `y.@*it_*@.valueless_by_exception()` are each `false`.
 
-[38]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()` and `@*i~y~*@`
+[34]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()` and `@*i~y~*@`
 denote `y.@*it_*@.index()`
 
-- [38.1]{.pnum} if `@*i~x~*@ > @*i~y~*@`, let `@*d~y~*@` denote the distance
+- [34.1]{.pnum} if `@*i~x~*@ > @*i~y~*@`, let `@*d~y~*@` denote the distance
   from `get<@*i~y~*@>(y.@*it_*@)` to the end of
   `get<@*i~y~*@>(y.@*parent_*@.@*views_*@)`, `@*d~x~*@` denote the distance from
   the begin of `get<@*i~x~*@>(x.@*parent_*@.@*views_*@)` to
@@ -1247,13 +1239,13 @@ denote `y.@*it_*@.index()`
   return static_cast<difference_type>(@*d~y~*@) + s + static_cast<difference_type>(@*d~x~*@);
   ```
 
-- [38.2]{.pnum} otherwise, if `@*i~x~*@ < @*i~y~*@`, equivalent to:
+- [34.2]{.pnum} otherwise, if `@*i~x~*@ < @*i~y~*@`, equivalent to:
 
   ```cpp
   return -(y - x);
   ```
 
-- [38.3]{.pnum} otherwise, equivalent to:
+- [34.3]{.pnum} otherwise, equivalent to:
 
   ```cpp
   return static_cast<difference_type>(get<@*i~x~*@>(x.@*it_*@) - get<@*i~y~*@>(y.@*it_*@));
@@ -1268,9 +1260,9 @@ friend constexpr difference_type operator-(const @_iterator_@& x, default_sentin
 
 :::bq
 
-[39]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` is `false`.
+[35]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` is `false`.
 
-[40]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()`, `@*d~x~*@`
+[36]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()`, `@*d~x~*@`
 denote the distance from `get<@*i~x~*@>(x.@*it_*@)` to the end of
 `get<@*i~x~*@>(x.@*parent_*@.@*views_*@)`. For every integer
 `@*i~x~*@ < @*i*@ < sizeof...(Views)`, let `s` denote the sum of the sizes of
@@ -1290,9 +1282,7 @@ friend constexpr difference_type operator-(default_sentinel_t, const @_iterator_
 
 :::bq
 
-[41]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` is `false`.
-
-[42]{.pnum} *Effects*: Equivalent to:
+[37]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return -(x - default_sentinel);
@@ -1306,9 +1296,9 @@ friend constexpr decltype(auto) iter_move(const iterator& it) noexcept(@*see bel
 
 :::bq
 
-[43]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
+[38]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
 
-[44]{.pnum} *Effects*: Equivalent to:
+[39]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return std::visit(
@@ -1319,7 +1309,7 @@ return std::visit(
     it.@*it_*@);
 ```
 
-[45]{.pnum} *Remarks*: The exception specification is equivalent to:
+[40]{.pnum} *Remarks*: The exception specification is equivalent to:
 
 ```cpp
 ((is_nothrow_invocable_v<decltype(ranges::iter_move), 
@@ -1338,21 +1328,21 @@ friend constexpr void iter_swap(const iterator& x, const iterator& y) noexcept(@
 
 :::bq
 
-[46]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
+[41]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
 `y.@*it_*@.valueless_by_exception()` are each `false`.
 
-[47]{.pnum} *Effects*: Equivalent to:
+[42]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 std::visit(ranges::iter_swap, x.@*it_*@, y.@*it_*@);
 ```
 
-[48]{.pnum} *Remarks*: The exception specification is `true` if and
+[43]{.pnum} *Remarks*: The exception specification is `true` if and
 only if: For every combination of two types `X` and `Y` in the set of all types
 in the parameter pack `iterator_t<@_maybe-const_@<Const, Views>>>...`,
 `is_nothrow_invocable_v<decltype(ranges::iter_swap), const X&, const Y&>` is true.
 
-[49]{.pnum} *Remarks*: The expression in the requires-clause is `true` if and
+[44]{.pnum} *Remarks*: The expression in the requires-clause is `true` if and
 only if: For every combination of two types `X` and `Y` in the set of all types
 in the parameter pack `iterator_t<@_maybe-const_@<Const, Views>>>...`,
 `indirectly_swappable<X, Y>` is modelled.
