@@ -84,6 +84,8 @@
   - Hui: Maybe they meant that we should add `Const` as template parameter for concepts like `concat-random-access` and `concat-bidirectional`, like what they did for `all-random-access` etc. So that we don't repeat the `maybe_const` in the every usage of `concat-random-access`? What do you think?
   - Levent: Makes sense. Agree Also the naming can be more consistent with https://eel.is/c++draft/range.cartesian#view, 
   `concat-is-random-access` instead of `concat-random-access` etc.
+  - Levent: Also, instead of `Rs` as the name of the pack, we should use `Views`. But careful if we really mean View and not Range
+    in all these.
 
 - [TODO] do we want to avoid emplacing ranges we don't need to use?
   - Hui: Good point. I think this refers to `advance_fwd` and `advance_bwd`. Maybe we can do something smarter.
