@@ -1236,8 +1236,8 @@ last, then
 is equivalent to:</p>
 <div class="sourceCode" id="cb21"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="dt">bool</span> Const, <span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="kw">concept</span> <em>concat-is-random-access</em> <span class="op">=</span> <span class="co">// exposition only</span></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>   <span class="op">(...</span> <span class="op">&amp;&amp;</span> <em>all-random-access</em><span class="op">&lt;</span>Const, Rs<span class="op">&gt;)</span> <span class="op">&amp;&amp;</span></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>   <span class="op">(...</span> <span class="op">&amp;&amp;</span> sized_range<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Fs<span class="op">&gt;&gt;)</span></span></code></pre></div>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>   <span class="op">(</span><em>all-random-access</em><span class="op">&lt;</span>Const, Rs<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>   <span class="op">(</span>sized_range<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Fs<span class="op">&gt;&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span></span></code></pre></div>
 <p><span class="marginalizedparent"><a class="marginalized">4</a></span>
 Let <code class="sourceCode default">V</code> be the last element of
 <code class="sourceCode default">Rs</code>, and

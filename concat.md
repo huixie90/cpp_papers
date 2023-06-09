@@ -642,8 +642,8 @@ concept @_concat-is-bidirectional_@ = @*see below*@; // exposition only
 ```cpp
 template <bool Const, class... Rs>
 concept @_concat-is-random-access_@ = // exposition only
-   (... && @*all-random-access*@<Const, Rs>) &&
-   (... && sized_range<@*maybe-const*@<Const, Fs>>)
+   (@*all-random-access*@<Const, Rs> && ...) &&
+   (sized_range<@*maybe-const*@<Const, Fs>> && ...)
 ```
 
 [4]{.pnum} Let `V` be the last element of `Rs`, and `Fs` be the pack that consists of all elements of `Rs` except `V`, then `@_concat-is-bidirectional_@` is equivalent to:
