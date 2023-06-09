@@ -1815,8 +1815,8 @@ otherwise, equivalent to</p>
 <div class="sourceCode" id="cb77"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">-(</span><span class="kw">static_cast</span><span class="op">&lt;</span>difference_type<span class="op">&gt;(</span><em>d<sub>x</sub></em><span class="op">)</span> <span class="op">+</span> <span class="kw">static_cast</span><span class="op">&lt;</span>difference_type<span class="op">&gt;(</span>s<span class="op">))</span>;</span></code></pre></div>
 <p><span class="marginalizedparent"><a class="marginalized">37</a></span>
 <em>Remarks</em>: Let <code class="sourceCode default">V</code> be the
-last element of Pack <code class="sourceCode default">Views</code>, the
-expression in the requires-clause is equivalent to:</p>
+last element of the pack <code class="sourceCode default">Views</code>,
+the expression in the requires-clause is equivalent to:</p>
 <div class="sourceCode" id="cb78"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="op">(</span><em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span> <span class="op">&amp;&amp;</span> sized_range<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, V<span class="op">&gt;&gt;)</span></span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb79"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span>default_sentinel_t, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x<span class="op">)</span> </span>
@@ -1827,8 +1827,8 @@ expression in the requires-clause is equivalent to:</p>
 <div class="sourceCode" id="cb80"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">-(</span>x <span class="op">-</span> default_sentinel<span class="op">)</span>;</span></code></pre></div>
 <p><span class="marginalizedparent"><a class="marginalized">39</a></span>
 <em>Remarks</em>: Let <code class="sourceCode default">V</code> be the
-last element of Pack <code class="sourceCode default">Views</code>, the
-expression in the requires-clause is equivalent to:</p>
+last element of the pack <code class="sourceCode default">Views</code>,
+the expression in the requires-clause is equivalent to:</p>
 <div class="sourceCode" id="cb81"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="op">(</span><em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span> <span class="op">&amp;&amp;</span> sized_range<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, V<span class="op">&gt;&gt;)</span></span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb82"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">auto</span><span class="op">)</span> iter_move<span class="op">(</span><span class="kw">const</span> iterator<span class="op">&amp;</span> it<span class="op">)</span> <span class="kw">noexcept</span><span class="op">(</span><em>see below</em><span class="op">)</span>;</span></code></pre></div>
@@ -1875,9 +1875,10 @@ are each <code class="sourceCode default">false</code>.</p>
 logcial <code class="sourceCode default">AND</code> of the following
 expressions:</p>
 <div class="sourceCode" id="cb87"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="kw">noexcept</span><span class="op">(</span>ranges<span class="op">::</span>iter_swap<span class="op">(</span>std<span class="op">::</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span>x<span class="op">.</span><em>it_</em><span class="op">)</span>, std<span class="op">::</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span>y<span class="op">.</span><em>it_</em><span class="op">)))</span></span></code></pre></div>
-<p>for every integer 0 &lt;= <span class="citation" data-cites="*i">[<a href="#ref-*i" role="doc-biblioref"><strong>*i?</strong></a>]</span>*@
-&lt; <code class="sourceCode default">sizeof...(Views)</code>, the
-exception specification is equavalent to</p>
+<p>for every integer 0 &lt;=
+<code class="sourceCode default"><em>i</em></code> &lt;
+<code class="sourceCode default">sizeof...(Views)</code>, the exception
+specification is equavalent to</p>
 <div class="sourceCode" id="cb88"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="kw">noexcept</span><span class="op">(</span>ranges<span class="op">::</span>swap<span class="op">(*</span>x, <span class="op">*</span>y<span class="op">))</span> <span class="op">&amp;&amp;</span> N</span></code></pre></div>
 <p><span class="marginalizedparent"><a class="marginalized">46</a></span>
 <em>Remarks</em>: The expression in the requires-clause is equivalent
