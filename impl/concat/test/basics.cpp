@@ -14,9 +14,7 @@
 namespace {
 
 template <typename... R>
-concept concat_viewable = requires(R&&... r) {
-    std::ranges::views::concat((R &&) r...);
-};
+concept concat_viewable = requires(R&&... r) { std::ranges::views::concat((R&&)r...); };
 
 
 template <typename R>
@@ -163,14 +161,36 @@ TEST_POINT("end_last_range_non_common_but_random_sized") {
 
 TEST_POINT("end_last_range_non_common_but_random_and_not_sized") {
     std::vector<int> v1{1};
-    auto io = std::views::iota(0);
+    std::vector<int> v2{2, 3};
+    auto io = std::views::iota(4);
     static_assert(!std::ranges::sized_range<decltype(io)>);
-    std::ranges::concat_view cv1{v1, io};
-    std::ranges::concat_view cv2{io, v1};
+    std::ranges::concat_view cv1{v1, v2, io};
+    std::ranges::concat_view cv2{io, v1, v2};
     static_assert(std::ranges::random_access_range<decltype(cv1)>);
     static_assert(!std::ranges::random_access_range<decltype(cv2)>);
-    static_assert(std::ranges::sized_range<decltype(cv1)>);
+    static_assert(
+        !std::ranges::sized_range<decltype(cv1)>); // should not be sized! (fixed after constrained
+                                                   // the operator- (default_sentinel) properly)
     static_assert(!std::ranges::sized_range<decltype(cv2)>);
+
+    auto it1 = cv1.begin();
+    auto it2 = it1 + 1;
+    CHECK(*it2 == 2);
+
+    auto it3 = it1 + 5;
+    CHECK(*it3 == 6);
+
+    auto it4 = it3 - 1;
+    CHECK(*it4 == 5);
+
+    auto it5 = it3 - 3;
+    CHECK(*it5 == 3);
+
+    auto it6 = it3 - 5;
+    CHECK(*it6 == 1);
+
+    CHECK(it3 -it1 == 5);
+    CHECK(it3 -it2 == 4);
 }
 
 
@@ -336,13 +356,13 @@ TEST_POINT("bidirectional_noncommon_random_access_sized") {
 }
 
 
-struct NonCommonRandomSized : std::ranges::view_base{
+struct NonCommonRandomSized : std::ranges::view_base {
     const int* begin() const;
     std::nullptr_t end() const;
     std::size_t size() const;
 };
 
-TEST_POINT("random_but_not_bidi_impossible"){
+TEST_POINT("random_but_not_bidi_impossible") {
     using namespace std::ranges;
     static_assert(!common_range<NonCommonRandomSized>);
     static_assert(random_access_range<NonCommonRandomSized>);
@@ -729,7 +749,7 @@ TEST_POINT("cpp20 input range") {
 
 
 TEST_POINT("size") {
-    std::vector v1 = {1,2};
+    std::vector v1 = {1, 2};
     auto cv1 = std::ranges::concat_view(std::views::all(v1));
     CHECK(cv1.size() == 2);
 
