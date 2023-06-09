@@ -1349,7 +1349,7 @@ otherwise, equivalent to
 return -(static_cast<difference_type>(@*d~x~*@) + static_cast<difference_type>(s));
 ```
 
-[37]{.pnum} *Remarks*: Let `V` be the last element of Pack `Views`, the expression in the requires-clause is equivalent to:
+[37]{.pnum} *Remarks*: Let `V` be the last element of the pack `Views`, the expression in the requires-clause is equivalent to:
 
 ```cpp
 (@_concat-is-random-access_@<Const, Views...> && sized_range<@*maybe-const*@<Const, V>>)
@@ -1370,7 +1370,7 @@ friend constexpr difference_type operator-(default_sentinel_t, const @_iterator_
 return -(x - default_sentinel);
 ```
 
-[39]{.pnum} *Remarks*: Let `V` be the last element of Pack `Views`, the expression in the requires-clause is equivalent to:
+[39]{.pnum} *Remarks*: Let `V` be the last element of the pack `Views`, the expression in the requires-clause is equivalent to:
 
 ```cpp
 (@_concat-is-random-access_@<Const, Views...> && sized_range<@*maybe-const*@<Const, V>>)
@@ -1439,7 +1439,7 @@ std::visit(
 noexcept(ranges::iter_swap(std::get<@*i*@>(x.@*it_*@), std::get<@*i*@>(y.@*it_*@)))
 ```
 
-for every integer 0 <= @*i*@ < `sizeof...(Views)`, the exception specification is equavalent to
+for every integer 0 <= `@*i*@` < `sizeof...(Views)`, the exception specification is equavalent to
 
 ```cpp
 noexcept(ranges::swap(*x, *y)) && N
