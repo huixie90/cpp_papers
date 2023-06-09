@@ -17,6 +17,7 @@ toc: true
 
 - Fixed conversions of `difference` types
 - Redesign `iter_swap`
+- Relax `random_access_range` constraints
 - Various wording fixes
 
 ## R2
@@ -351,8 +352,11 @@ went with the second constraint. In this paper, both are supported.
 
 ## Random Access Range
 
-`concat_view` can be `random_access_range` if all the underlying ranges model
-`random_access_range` and `sized_range`.
+`concat_view` can model `random_access_range` if the underlying ranges satisfy
+the following conditions:
+
+- Every underlying range models `random_access_range`  
+- All except the last range model `sized_range`
 
 ## Sized Range
 
@@ -632,7 +636,7 @@ concept @_concatable_@ = requires { // exposition only
 
 ```cpp
 template <bool Const, class... Rs>
-concept @_concat-is-bidirectional_@ = @*see below*@; // exposition only
+concept @_concat-is-random-access_@ = @*see below*@; // exposition only
 ```
 
 :::bq
@@ -643,8 +647,17 @@ concept @_concat-is-bidirectional_@ = @*see below*@; // exposition only
 template <bool Const, class... Rs>
 concept @_concat-is-random-access_@ = // exposition only
    (@*all-random-access*@<Const, Rs> && ...) &&
-   (sized_range<@*maybe-const*@<Const, Fs>> && ...)
+   (sized_range<@*maybe-const*@<Const, Fs>> && ...);
 ```
+
+:::
+
+```cpp
+template <bool Const, class... Rs>
+concept @_concat-is-bidirectional_@ = @*see below*@; // exposition only
+```
+
+:::bq
 
 [4]{.pnum} Let `V` be the last element of `Rs`, and `Fs` be the pack that consists of all elements of `Rs` except `V`, then `@_concat-is-bidirectional_@` is equivalent to:
 
@@ -834,10 +847,10 @@ namespace std::ranges{
         requires @_concat-is-random-access_@<Const, Views...>;
 
     friend constexpr difference_type operator-(const @_iterator_@& x, default_sentinel_t) 
-        requires @_concat-is-random-access_@<Const, Views...>;
+        requires @*see below*@;
 
     friend constexpr difference_type operator-(default_sentinel_t, const @_iterator_@& x) 
-        requires @_concat-is-random-access_@<Const, Views...>;
+        requires @*see below*@;
 
     friend constexpr decltype(auto) iter_move(const iterator& it) noexcept(@*see below*@);
 
@@ -1318,7 +1331,7 @@ denote `y.@*it_*@.index()`
 
 ```cpp
 friend constexpr difference_type operator-(const @_iterator_@& x, default_sentinel_t) 
-    requires @_concat-is-random-access_@<Const, Views...>;
+    requires @*see below*@;
 ```
 
 :::bq
@@ -1336,19 +1349,31 @@ otherwise, equivalent to
 return -(static_cast<difference_type>(@*d~x~*@) + static_cast<difference_type>(s));
 ```
 
+[37]{.pnum} *Remarks*: Let `V` be the last element of Pack `Views`, the expression in the requires-clause is equivalent to:
+
+```cpp
+(@_concat-is-random-access_@<Const, Views...> && sized_range<@*maybe-const*@<Const, V>>)
+```
+
 :::
 
 ```cpp
 friend constexpr difference_type operator-(default_sentinel_t, const @_iterator_@& x) 
-    requires @_concat-is-random-access_@<Const, Views...>;
+    requires @*see below*@;
 ```
 
 :::bq
 
-[37]{.pnum} *Effects*: Equivalent to:
+[38]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return -(x - default_sentinel);
+```
+
+[39]{.pnum} *Remarks*: Let `V` be the last element of Pack `Views`, the expression in the requires-clause is equivalent to:
+
+```cpp
+(@_concat-is-random-access_@<Const, Views...> && sized_range<@*maybe-const*@<Const, V>>)
 ```
 
 :::
@@ -1359,9 +1384,9 @@ friend constexpr decltype(auto) iter_move(const iterator& it) noexcept(@*see bel
 
 :::bq
 
-[38]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
+[40]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
 
-[39]{.pnum} *Effects*: Equivalent to:
+[41]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return std::visit(
@@ -1372,7 +1397,7 @@ return std::visit(
     it.@*it_*@);
 ```
 
-[40]{.pnum} *Remarks*: The exception specification is equivalent to:
+[42]{.pnum} *Remarks*: The exception specification is equivalent to:
 
 ```cpp
 ((is_nothrow_invocable_v<decltype(ranges::iter_move), 
@@ -1391,29 +1416,42 @@ friend constexpr void iter_swap(const iterator& x, const iterator& y) noexcept(@
 
 :::bq
 
-[41]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
+[43]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
 `y.@*it_*@.valueless_by_exception()` are each `false`.
 
-[42]{.pnum} *Effects*: Equivalent to:
+[44]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-std::visit(ranges::iter_swap, x.@*it_*@, y.@*it_*@);
+std::visit(
+    [&](const auto& it1, const auto& it2) {
+        if constexpr (is_same_v<decltype(it1), decltype(it2)>) {
+            ranges::iter_swap(it1, it2);
+        } else {
+            ranges::swap(*x, *y);
+        }
+    },
+    x.@*it_*@, y.@*it_*@);
 ```
 
-[43]{.pnum} *Remarks*: The exception specification is `true` if and
-only if: For every combination of two types `X` and `Y` in the set of all types
-in the parameter pack `iterator_t<@_maybe-const_@<Const, Views>>>...`,
-`is_nothrow_invocable_v<decltype(ranges::iter_swap), const X&, const Y&>` is true.
+[45]{.pnum} *Remarks*: Let `N` be the logcial `AND` of the following expressions:
 
-[44]{.pnum} *Remarks*: The expression in the requires-clause is `true` if and
-only if: For every combination of two types `X` and `Y` in the set of all types
-in the parameter pack `iterator_t<@_maybe-const_@<Const, Views>>>...`,
-`indirectly_swappable<X, Y>` is modelled.
+```cpp
+noexcept(ranges::iter_swap(std::get<@*i*@>(x.@*it_*@), std::get<@*i*@>(y.@*it_*@)))
+```
 
-requires(indirectly_swappable<iterator_t<__maybe_const<Const, Views>>> && ... &&
-                     swappable_with<xo::concat_reference_t<__maybe_const<Const, Views>...>,
-                                    xo::concat_reference_t<__maybe_const<Const, Views>...>>)
+for every integer 0 <= @*i*@ < `sizeof...(Views)`, the exception specification is equavalent to
 
+```cpp
+noexcept(ranges::swap(*x, *y)) && N
+```
+
+[46]{.pnum} *Remarks*: The expression in the requires-clause is equivalent to
+
+```cpp
+(indirectly_swappable<iterator_t<@*maybe-const*@<Const, Views>>> && ... &&
+ swappable_with<@*concat-reference-t*@<@*maybe-const*@<Const, Views>...>,
+                @*concat-reference-t*@<@*maybe-const*@<Const, Views>...>>)
+```
 
 :::
 

@@ -302,6 +302,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
             if constexpr (N == sizeof...(Views) - 1) {
                 get<N>(it_) += static_cast<underlying_diff_type>(steps);
             } else {
+                static_assert(std::ranges::sized_range<decltype(get<N>(parent_->views_))>);
                 auto n_size = ranges::distance(get<N>(parent_->views_));
                 if (current_offset + steps < static_cast<difference_type>(n_size)) {
                     get<N>(it_) += static_cast<underlying_diff_type>(steps);
@@ -323,6 +324,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
                 if (current_offset >= steps) {
                     get<N>(it_) -= static_cast<underlying_diff_type>(steps);
                 } else {
+                    static_assert(std::ranges::sized_range<decltype(get<N - 1>(parent_->views_))>);
                     auto prev_size = ranges::distance(get<N - 1>(parent_->views_));
                     it_.template emplace<N - 1>(ranges::begin(get<N - 1>(parent_->views_)) +
                                                 prev_size);
@@ -568,7 +570,8 @@ class concat_view : public view_interface<concat_view<Views...>> {
                                             common_reference_t<range_rvalue_reference_t<
                                                 __maybe_const<Const, Views>>...>>)&&...)) {
             return std::visit(
-                [](auto const& i) -> xo::concat_rvalue_reference_t<__maybe_const<Const, Views>...> { //
+                [](auto const& i)
+                    -> xo::concat_rvalue_reference_t<__maybe_const<Const, Views>...> { //
                     return ranges::iter_move(i);
                 },
                 ii.it_);
@@ -578,7 +581,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
             requires(indirectly_swappable<iterator_t<__maybe_const<Const, Views>>> && ... &&
                      swappable_with<xo::concat_reference_t<__maybe_const<Const, Views>...>,
                                     xo::concat_reference_t<__maybe_const<Const, Views>...>>)
-                    // todo: noexcept?
+        // todo: noexcept?
         {
             std::visit(
                 [&](const auto& it1, const auto& it2) {
