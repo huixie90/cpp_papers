@@ -499,10 +499,11 @@ Customizations<span></span></a>
 <li><a href="#option-1-delegate-to-the-underlying-iter_swap" id="toc-option-1-delegate-to-the-underlying-iter_swap"><span class="toc-section-number">4.9.1</span> Option 1: Delegate to the
 Underlying
 <code class="sourceCode default">iter_swap</code><span></span></a></li>
-<li><a href="#option-2-do-not-provide-customizations" id="toc-option-2-do-not-provide-customizations"><span class="toc-section-number">4.9.2</span> Option 2: Do not Provide
-Customizations<span></span></a></li>
-<li><a href="#option-3-tomaszs-suggestion" id="toc-option-3-tomaszs-suggestion"><span class="toc-section-number">4.9.3</span> Option 3: Tomasz’s
-suggestion<span></span></a></li>
+<li><a href="#option-2-do-not-provide-the-customization" id="toc-option-2-do-not-provide-the-customization"><span class="toc-section-number">4.9.2</span> Option 2: Do not Provide the
+Customization<span></span></a></li>
+<li><a href="#option-3-delegate-to-the-underlying-iter_swap-only-if-they-have-the-same-type" id="toc-option-3-delegate-to-the-underlying-iter_swap-only-if-they-have-the-same-type"><span class="toc-section-number">4.9.3</span> Option 3: Delegate to the
+Underlying <code class="sourceCode default">iter_swap</code> Only If
+They Have the Same Type<span></span></a></li>
 </ul></li>
 <li><a href="#implementation-experience" id="toc-implementation-experience"><span class="toc-section-number">4.10</span> Implementation
 Experience<span></span></a></li>
@@ -528,11 +529,11 @@ Macro<span></span></a></li>
 <h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
 <h2 data-number="1.1" id="r3"><span class="header-section-number">1.1</span> R3<a href="#r3" class="self-link"></a></h2>
 <ul>
+<li>Redesigned <code class="sourceCode default">iter_swap</code></li>
+<li>Relaxed <code class="sourceCode default">random_access_range</code>
+constraints</li>
 <li>Fixed conversions of
 <code class="sourceCode default">difference</code> types</li>
-<li>Redesign <code class="sourceCode default">iter_swap</code></li>
-<li>Relax <code class="sourceCode default">random_access_range</code>
-constraints</li>
 <li>Various wording fixes</li>
 </ul>
 <h2 data-number="1.2" id="r2"><span class="header-section-number">1.2</span> R2<a href="#r2" class="self-link"></a></h2>
@@ -978,20 +979,22 @@ combinations of the underlying iterators model
 <code class="sourceCode default">ranges::iter_swap(x, y)</code> could
 delegate to the underlying iterators</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>visit<span class="op">(</span>ranges<span class="op">::</span>iter_swap, x<span class="op">.</span>it_, y<span class="op">.</span>it_<span class="op">)</span>;</span></code></pre></div>
-<p>However, <code class="sourceCode default">ranges::iter_swap</code> is
-too permissive. Consider the following example:</p>
+<p>This would allow swapping elements across heterogeneous ranges, which
+is very powerful. However,
+<code class="sourceCode default">ranges::iter_swap</code> is too
+permissive. Consider the following example:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> v1<span class="op">[]</span> <span class="op">=</span> <span class="op">{</span><span class="dv">1</span>, <span class="dv">2</span><span class="op">}</span>;</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> v2<span class="op">[]</span> <span class="op">=</span> <span class="op">{</span><span class="dv">2147483649</span>, <span class="dv">4</span><span class="op">}</span>;</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> cv <span class="op">=</span> std<span class="op">::</span>views<span class="op">::</span>concat<span class="op">(</span>v1, v2<span class="op">)</span>;</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> it1 <span class="op">=</span> cv<span class="op">.</span>begin<span class="op">()</span>;</span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> it2 <span class="op">=</span> cv<span class="op">.</span>begin<span class="op">()</span> <span class="op">+</span> <span class="dv">2</span>;</span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>ranges<span class="op">::</span>iter_swap<span class="op">(</span>it1, it2<span class="op">)</span>;</span></code></pre></div>
-<p>Delegating <code class="sourceCode default">ranges::iter_swap(const concat_view::iterator&amp;, const concat::iterator&amp;)</code>
+<p>Delegating <code class="sourceCode default">ranges::iter_swap(const concat_view::iterator&amp;, const concat_view::iterator&amp;)</code>
 to
 <code class="sourceCode default">ranges::iter_swap(int*, long*)</code>
 in this case would result in a tripple-move and leave
 <code class="sourceCode default">v1[0]</code> overflowed.</p>
-<p>Another example discussed in SG9 mailing is</p>
+<p>Another example discussed in SG9 mailing list is</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>string_view v1<span class="op">[]</span> <span class="op">=</span> <span class="op">{</span><span class="st">&quot;aa&quot;</span><span class="op">}</span>;</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>string v2<span class="op">[]</span> <span class="op">=</span> <span class="op">{</span><span class="st">&quot;bbb&quot;</span><span class="op">}</span>;</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> cv <span class="op">=</span> std<span class="op">::</span>views<span class="op">::</span>concat<span class="op">(</span>v1, v2<span class="op">)</span>;</span>
@@ -1007,19 +1010,48 @@ which is effectively</p>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">*</span>y <span class="op">=</span> std<span class="op">::</span>move<span class="op">(*</span>x<span class="op">)</span>;</span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="op">*</span>x <span class="op">=</span> std<span class="op">::</span>move<span class="op">(</span>tmp<span class="op">)</span>; <span class="co">// *x points to local string tmp</span></span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<h3 data-number="4.9.2" id="option-2-do-not-provide-customizations"><span class="header-section-number">4.9.2</span> Option 2: Do not Provide
-Customizations<a href="#option-2-do-not-provide-customizations" class="self-link"></a></h3>
-<p>The above examples are no longer an issue because
-<code class="sourceCode default">ranges::iter_swap</code> would be
-ill-formed.</p>
+<p>It turned out that allowing swapping elements across heterogeneous
+ranges could result in lots of undesired behaviours.</p>
+<h3 data-number="4.9.2" id="option-2-do-not-provide-the-customization"><span class="header-section-number">4.9.2</span> Option 2: Do not Provide the
+Customization<a href="#option-2-do-not-provide-the-customization" class="self-link"></a></h3>
+<p>If the <code class="sourceCode default">iter_swap</code>
+customization is removed, the above examples are no longer an issue
+because <code class="sourceCode default">ranges::iter_swap</code> would
+be ill-formed. This is because <code class="sourceCode default">iter_reference_t&lt;concat_view::iterator&gt;</code>
+are prvalues in those cases.</p>
+<p>For the trivial cases where underlying ranges share the same
+<code class="sourceCode default">iter_reference_t</code>,
+<code class="sourceCode default">iter_value_t</code> and
+<code class="sourceCode default">iter_rvalue_reference_t</code>, the
+genereated tripple-move swap would just work.</p>
 <p>However, all the user
 <code class="sourceCode default">iter_swap</code> customizations will be
 ignored, even if the user tries to
 <code class="sourceCode default">concat</code> the same type of ranges
 with <code class="sourceCode default">iter_swap</code>
 customizations.</p>
-<h3 data-number="4.9.3" id="option-3-tomaszs-suggestion"><span class="header-section-number">4.9.3</span> Option 3: Tomasz’s
-suggestion<a href="#option-3-tomaszs-suggestion" class="self-link"></a></h3>
+<h3 data-number="4.9.3" id="option-3-delegate-to-the-underlying-iter_swap-only-if-they-have-the-same-type"><span class="header-section-number">4.9.3</span> Option 3: Delegate to the
+Underlying <code class="sourceCode default">iter_swap</code> Only If
+They Have the Same Type<a href="#option-3-delegate-to-the-underlying-iter_swap-only-if-they-have-the-same-type" class="self-link"></a></h3>
+<p>This option was suggested by Tomasz in the SG9 mailing list. The idea
+is to</p>
+<ul>
+<li><ol type="1">
+<li>use
+<code class="sourceCode default">ranges::iter_swap(x.it_, y.it_)</code>
+if they have the same underlying iterator type</li>
+</ol></li>
+<li><ol start="2" type="1">
+<li>otherwise,
+<code class="sourceCode default">ranges::swap(*x, *y)</code> if it is
+valid</li>
+</ol></li>
+</ul>
+<p>The issues decribed in Option 1 are avoided because we only delegate
+to underlying <code class="sourceCode default">iter_swap</code> if they
+have the same underlying iterators.</p>
+<p>The authors believe that this apporach is a good compromise thus it
+is adopted in this revision.</p>
 <h2 data-number="4.10" id="implementation-experience"><span class="header-section-number">4.10</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h2>
 <p><code class="sourceCode default">views::concat</code> has been
 implemented in <span class="citation" data-cites="rangev3">[<a href="#ref-rangev3" role="doc-biblioref">range-v3</a>]</span>, with

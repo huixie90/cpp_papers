@@ -15,9 +15,9 @@ toc: true
 
 ## R3
 
+- Redesigned `iter_swap`
+- Relaxed `random_access_range` constraints
 - Fixed conversions of `difference` types
-- Redesign `iter_swap`
-- Relax `random_access_range` constraints
 - Various wording fixes
 
 ## R2
@@ -367,13 +367,17 @@ the following conditions:
 
 ### Option 1: Delegate to the Underlying `iter_swap`
 
-This option was originally adopted in the paper. If all the combinations of the underlying iterators model `indirectly_swappable`, then `ranges::iter_swap(x, y)` could delegate to the underlying iterators
+This option was originally adopted in the paper. If all the combinations of the
+underlying iterators model `indirectly_swappable`, then
+`ranges::iter_swap(x, y)` could delegate to the underlying iterators
 
 ```cpp
 std::visit(ranges::iter_swap, x.it_, y.it_);
 ```
 
-However, `ranges::iter_swap` is too permissive. Consider the following example:
+This would allow swapping elements across heterogeneous ranges, which is very
+powerful. However, `ranges::iter_swap` is too permissive. Consider the following
+example:
 
 ```cpp
 int v1[] = {1, 2};
@@ -384,9 +388,12 @@ auto it2 = cv.begin() + 2;
 std::ranges::iter_swap(it1, it2);
 ```
 
-Delegating `ranges::iter_swap(const concat_view::iterator&, const concat::iterator&)` to `ranges::iter_swap(int*, long*)` in this case would result in a tripple-move and leave `v1[0]` overflowed.
+Delegating
+`ranges::iter_swap(const concat_view::iterator&, const concat_view::iterator&)` to
+`ranges::iter_swap(int*, long*)` in this case would result in a tripple-move and
+leave `v1[0]` overflowed.
 
-Another example discussed in SG9 mailing is
+Another example discussed in SG9 mailing list is
 
 ```cpp
 std::string_view v1[] = {"aa"};
@@ -397,7 +404,8 @@ auto it2 = cv.begin()+1;
 std::ranges::iter_swap(it1, it2);
 ```
 
-`ranges::iter_swap(string_view*, string*)` in this case would result in dangling reference due to the tripple move, which is effectively
+`ranges::iter_swap(string_view*, string*)` in this case would result in dangling
+reference due to the tripple move, which is effectively
 
 ```cpp
 void iter_swap_impl(string_view* x, string* y)
@@ -408,15 +416,34 @@ void iter_swap_impl(string_view* x, string* y)
 }
 ```
 
-### Option 2: Do not Provide Customizations
+It turned out that allowing swapping elements across heterogeneous ranges could
+result in lots of undesired behaviours.
 
-The above examples are no longer an issue because `ranges::iter_swap` would be ill-formed.
+### Option 2: Do not Provide the Customization
 
-However, all the user `iter_swap` customizations will be ignored, even if the user tries to `concat` the same type of ranges with `iter_swap` customizations.
+If the `iter_swap` customization is removed, the above examples are no longer an
+issue because `ranges::iter_swap` would be ill-formed. This is because
+`iter_reference_t<concat_view::iterator>` are prvalues in those cases.
 
-### Option 3: Tomasz's suggestion
+For the trivial cases where underlying ranges share the same `iter_reference_t`,
+`iter_value_t` and `iter_rvalue_reference_t`, the genereated tripple-move swap
+would just work.
 
+However, all the user `iter_swap` customizations will be ignored, even if the
+user tries to `concat` the same type of ranges with `iter_swap` customizations.
 
+### Option 3: Delegate to the Underlying `iter_swap` Only If They Have the Same Type
+
+This option was suggested by Tomasz in the SG9 mailing list. The idea is to
+
+- 1. use `ranges::iter_swap(x.it_, y.it_)` if they have the same underlying iterator type
+- 2. otherwise, `ranges::swap(*x, *y)` if it is valid
+
+The issues decribed in Option 1 are avoided because we only delegate to
+underlying `iter_swap` if they have the same underlying iterators.
+
+The authors believe that this apporach is a good compromise thus it is adopted
+in this revision.
 
 ## Implementation Experience
 
