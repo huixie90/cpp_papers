@@ -533,9 +533,7 @@ namespace std::ranges {
   concept @_concatable_@ = @*see below*@;             // exposition only
 
   template <bool Const, class... Rs>
-  concept @_concat-is-random-access_@ =              // exposition only
-    ((random_access_range<@*maybe-const*@<Const, Rs>> &&
-      sized_range<@*maybe-const*@<Const, Rs>>) && ...);
+  concept @_concat-is-random-access_@ = @*see below*@;   // exposition only
 
   template <class R>
   concept @_constant-time-reversible_@ =          // exposition only
@@ -639,7 +637,16 @@ concept @_concat-is-bidirectional_@ = @*see below*@; // exposition only
 
 :::bq
 
-[3]{.pnum} Let `V` be the last element of `Rs`, and `Fs` be the pack that consists of all elements of `Rs` except `V`, then `@_concat-is-bidirectional_@` is equivalent to:
+[3]{.pnum} Let `Fs` be the pack that consists of all elements of `Rs` except the last, then `@_concat-is-random-access_@` is equivalent to:
+
+```cpp
+template <bool Const, class... Rs>
+concept @_concat-is-random-access_@ = // exposition only
+   (@*all-random-access*@<Const, Rs> && ...) &&
+   (sized_range<@*maybe-const*@<Const, Fs>> && ...)
+```
+
+[4]{.pnum} Let `V` be the last element of `Rs`, and `Fs` be the pack that consists of all elements of `Rs` except `V`, then `@_concat-is-bidirectional_@` is equivalent to:
 
 ```cpp
 template <bool Const, class... Rs>
@@ -655,7 +662,7 @@ constexpr explicit concat_view(Views... views);
 
 :::bq
 
-[4]{.pnum} *Effects*: Initializes `@*views_*@` with `std::move(views)...`.
+[5]{.pnum} *Effects*: Initializes `@*views_*@` with `std::move(views)...`.
 
 :::
 
@@ -667,7 +674,7 @@ constexpr @_iterator_@<true> begin() const
 
 :::bq
 
-[5]{.pnum} *Effects*: Let `@*is-const*@` be `true` for the const-qualified overload,
+[6]{.pnum} *Effects*: Let `@*is-const*@` be `true` for the const-qualified overload,
 and `false` otherwise. Equivalent to:
 
 ```cpp
@@ -685,7 +692,7 @@ constexpr auto end() const requires(range<const Views>&&...);
 
 :::bq
 
-[6]{.pnum} *Effects*: Let `@*is-const*@` be `true` for the const-qualified overload,
+[7]{.pnum} *Effects*: Let `@*is-const*@` be `true` for the const-qualified overload,
 and `false` otherwise, and let `@_last-view_@` be the last element of the pack
 `const Views...` for the const-qualified overload, and the last element of the pack
 `Views...` otherwise. Equivalent to:
@@ -709,7 +716,7 @@ constexpr auto size() const requires(sized_range<const Views>&&...);
 
 :::bq
 
-[7]{.pnum} *Effects*: Equivalent to:
+[8]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return apply(
@@ -1402,6 +1409,11 @@ in the parameter pack `iterator_t<@_maybe-const_@<Const, Views>>>...`,
 only if: For every combination of two types `X` and `Y` in the set of all types
 in the parameter pack `iterator_t<@_maybe-const_@<Const, Views>>>...`,
 `indirectly_swappable<X, Y>` is modelled.
+
+requires(indirectly_swappable<iterator_t<__maybe_const<Const, Views>>> && ... &&
+                     swappable_with<xo::concat_reference_t<__maybe_const<Const, Views>...>,
+                                    xo::concat_reference_t<__maybe_const<Const, Views>...>>)
+
 
 :::
 

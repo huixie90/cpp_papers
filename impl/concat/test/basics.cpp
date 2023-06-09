@@ -161,6 +161,19 @@ TEST_POINT("end_last_range_non_common_but_random_sized") {
     REQUIRE(it2 == st2);
 }
 
+TEST_POINT("end_last_range_non_common_but_random_and_not_sized") {
+    std::vector<int> v1{1};
+    auto io = std::views::iota(0);
+    static_assert(!std::ranges::sized_range<decltype(io)>);
+    std::ranges::concat_view cv1{v1, io};
+    std::ranges::concat_view cv2{io, v1};
+    static_assert(std::ranges::random_access_range<decltype(cv1)>);
+    static_assert(!std::ranges::random_access_range<decltype(cv2)>);
+    static_assert(std::ranges::sized_range<decltype(cv1)>);
+    static_assert(!std::ranges::sized_range<decltype(cv2)>);
+}
+
+
 TEST_POINT("operator++") {
     using V = std::vector<int>;
     V v1{}, v2{4, 5}, v3{}, v4{6};

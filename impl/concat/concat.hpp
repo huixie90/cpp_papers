@@ -16,6 +16,13 @@ namespace std::ranges {
 
 namespace xo { // exposition only things (and persevering face)
 
+template <bool Const, class... Views>
+concept all_random_access = (random_access_range<__maybe_const<Const, Views>> && ...);
+template <bool Const, class... Views>
+concept all_bidirectional = (bidirectional_range<__maybe_const<Const, Views>> && ...);
+template <bool Const, class... Views>
+concept all_forward = (forward_range<__maybe_const<Const, Views>> && ...);
+
 inline namespace not_to_spec {
 
 template <class... Rs>
@@ -63,24 +70,27 @@ template <class... T>
 using back = tuple_element_t<sizeof...(T) - 1, tuple<T...>>;
 
 template <bool... b, size_t... I>
-consteval bool all_but_last(std::index_sequence<I...>) {
+consteval bool all_but_last_impl(std::index_sequence<I...>) {
     return ((I == sizeof...(I) - 1 || b) && ...);
 }
+
+
+template <bool... b>
+constexpr bool all_but_last = all_but_last_impl<b...>(make_index_sequence<sizeof...(b)>{});
 
 } // namespace not_to_spec
 
 template <bool Const, class... Views>
-concept concat_is_random_access = ((random_access_range<__maybe_const<Const, Views>> &&
-                                    sized_range<__maybe_const<Const, Views>>)&&...);
+concept concat_is_random_access = (all_random_access<Const, Views> && ...) &&
+                                  (all_but_last<sized_range<__maybe_const<Const, Views>>...>);
 
 template <class R>
-concept constant_time_reversible =
-    (bidirectional_range<R> && common_range<R>) || (sized_range<R> && random_access_range<R>);
+concept constant_time_reversible = (bidirectional_range<R> && common_range<R>) ||
+                                   (sized_range<R> && random_access_range<R>);
 
 template <class... Rs>
 concept concat_bidirectional =
-    all_but_last<constant_time_reversible<Rs>...>(index_sequence_for<Rs...>{}) &&
-    bidirectional_range<back<Rs...>>;
+    all_but_last<constant_time_reversible<Rs>...> && bidirectional_range<back<Rs...>>;
 
 
 static_assert(true); // clang-format badness

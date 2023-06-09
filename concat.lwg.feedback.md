@@ -76,7 +76,7 @@
 - [Done] that "expect" needs to be "except"
   - Hui: could not find any expect
   - Levent: I checked earliest revisions. No "expect" indeed. Not sure what this was.
-  - Hui: I found that in the mattermost chat, Thomasz suggested wording for concat-bidi which has expect. It should refer to that. I also used his suggested wording now
+  - Hui: I found that in the mattermost chat, Tomasz suggested wording for concat-bidi which has expect. It should refer to that. I also used his suggested wording now
 
 # Todos
 
