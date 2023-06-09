@@ -646,7 +646,7 @@ concept @_concat-is-random-access_@ = @*see below*@; // exposition only
 ```cpp
 template <bool Const, class... Rs>
 concept @_concat-is-random-access_@ = // exposition only
-   (@*all-random-access*@<Const, Rs> && ...) &&
+   @*all-random-access*@<Const, Rs...> &&
    (sized_range<@*maybe-const*@<Const, Fs>> && ...);
 ```
 
