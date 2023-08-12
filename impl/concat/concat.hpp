@@ -34,12 +34,17 @@ using concat_rvalue_reference_t = common_reference_t<range_rvalue_reference_t<Rs
 template <class... Rs>
 using concat_value_t = common_type_t<range_value_t<Rs>...>;
 
+template <class ConcatRef, class EachRef>
+concept concat_no_prref = is_reference_v<ConcatRef> || 
+   (is_reference_v<EachRef> &&
+      !same_as<std::remove_reference_t<EachRef>, ConcatRef>);
+
 // clang-format off
 template <class Ref, class RRef, class It>
 concept concat_indirectly_readable_impl = requires (const It it){
     { *it } -> convertible_to<Ref>;
     { ranges::iter_move(it) } -> convertible_to<RRef>;
-};
+} && concat_no_prref<Ref, iter_reference_t<It>>;
 
 template <class... Rs>
 concept concat_indirectly_readable =
