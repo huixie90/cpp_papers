@@ -112,28 +112,3 @@ BasedOnStyle: Google
 #    Standard:        Auto
 #    TabWidth:        8
 #    UseTab:          Never
-
-Standard: Latest
-ColumnLimit: 100
-IndentWidth: 4
-AccessModifierOffset: -2
-IndentCaseLabels: false
-MaxEmptyLinesToKeep: 3
-KeepEmptyLinesAtTheStartOfBlocks: true
-SpacesBeforeTrailingComments: 1
-AllowShortFunctionsOnASingleLine: All
-BreakBeforeBraces: Attach
-# BreakBeforeBraces: Custom
-# BraceWrapping:
-#   AfterEnum: true
-#   AfterStruct: false
-#   SplitEmptyFunction: false
-DerivePointerAlignment: false
-SortIncludes:           false
-AlwaysBreakTemplateDeclarations: true #  (google default)
-BinPackParameters: false
-AllowAllParametersOfDeclarationOnNextLine: false
-BreakConstructorInitializersBeforeComma: true
-ConstructorInitializerAllOnOneLineOrOnePerLine: false
-AllowShortIfStatementsOnASingleLine: false
-AllowShortLoopsOnASingleLine: false
