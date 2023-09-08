@@ -6,9 +6,13 @@ name: CI
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - concat_expert
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+      - concat_expert
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -26,6 +30,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: 'true'
+          ref: 'concat_expert'
 
       - name: Build pages
         run: |
