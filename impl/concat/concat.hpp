@@ -37,10 +37,10 @@ using concat_rvalue_reference_t =
 template <class... Rs>
 using concat_value_t = common_type_t<range_value_t<Rs>...>;
 
+// modelled only if concat reference_t is a prvalue T and at least one of the 
+// argument ranges' reference_t is a T reference
 template <class... Rs>
-concept concat_no_magic =  // modelled only if concat reference_t is a prvalue T
-                           // and at least one of the range's refernce_t is a T
-                           // reference
+concept concat_require_expert =
     is_reference_v<concat_reference_t<Rs...>> ||
     (is_reference_v<range_reference_t<Rs>>&&...) &&
     (!same_as<std::remove_reference_t<range_reference_t<Rs>>,
@@ -65,13 +65,13 @@ concept concat_indirectly_readable =
 }  // namespace not_to_spec
 
 // clang-format off
-template <bool allow_magic, class... Rs>
+template <bool expert_mode, class... Rs>
 concept concatable = requires {
     typename concat_reference_t<Rs...>;
     typename concat_value_t<Rs...>;
     typename concat_rvalue_reference_t<Rs...>;
 } && concat_indirectly_readable<Rs...>
-  && (allow_magic || concat_no_magic<Rs...>)
+  && (expert_mode || concat_require_expert<Rs...>)
 ;
 // clang-format on
 
@@ -258,9 +258,9 @@ using iter_cat_base_t = decltype(iter_cat_base_sel<Const, Views...>());
 
 // clang-format off
 // [TODO] constrain less and allow just a `view`? (i.e. including output_range in the mix - need an example)
-template <bool allow_magic, input_range... Views>
-    requires (view<Views>&&...) && (sizeof...(Views) > 0) && xo::concatable<allow_magic, Views...>  
-class concat_view : public view_interface<concat_view<allow_magic, Views...>> {
+template <bool expert_mode, input_range... Views>
+    requires (view<Views>&&...) && (sizeof...(Views) > 0) && xo::concatable<expert_mode, Views...>  
+class concat_view : public view_interface<concat_view<expert_mode, Views...>> {
   // clang-format on
   tuple<Views...> views_;  // exposition only
 
@@ -648,7 +648,7 @@ class concat_view : public view_interface<concat_view<allow_magic, Views...>> {
 
   constexpr iterator<true> begin() const
       requires((range<const Views> && ...) &&
-               xo::concatable<allow_magic, const Views...>)  //
+               xo::concatable<expert_mode, const Views...>)  //
   {
     iterator<true> it{this, in_place_index<0u>, ranges::begin(get<0>(views_))};
     it.template satisfy<0>();
@@ -723,7 +723,7 @@ class concat_fn {
   }
 };
 
-class concat_magic_fn : concat_fn {
+class concat_expert_fn : concat_fn {
  public:
   template <input_range... V>
   requires(sizeof...(V) > 1) && ranges::xo::concatable<true, all_t<V&&>...> &&
@@ -737,7 +737,7 @@ class concat_magic_fn : concat_fn {
 }  // namespace xo
 
 inline constexpr xo::concat_fn concat;
-inline constexpr xo::concat_magic_fn concat_magic;
+inline constexpr xo::concat_expert_fn concat_expert;
 }  // namespace views
 
 }  // namespace std::ranges

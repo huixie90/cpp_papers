@@ -14,10 +14,7 @@ toc: true
 # Revision History
 
 ## R4
- - Added additional constraint to `views::concat` to disable any combination of
-   range arguments that has a prvalue reference type, and another with a that of a
-   reference to that same type. Also added `views::concat_magic` to neglect this
-   additional constraint.
+ - Added `views::concat_expert`.
 
 ## R3
 
@@ -469,13 +466,13 @@ namespace std::ranges {
   // [...]
 
   // [range.concat], concat view
-  template <bool allow_magic, input_range... Views>
+  template <bool expert_mode, input_range... Views>
     requires @*see below*@
   class concat_view;
 
   namespace views {
     inline constexpr @_unspecified_@ concat = @_unspecified_@;
-    inline constexpr @_unspecified_@ concat_magic = @_unspecified_@;
+    inline constexpr @_unspecified_@ concat_expert = @_unspecified_@;
   }
 
 }
@@ -531,20 +528,21 @@ Add the following subclause to [range.adaptors]{.sref}.
 [1]{.pnum} `concat_view` presents a `view` that concatenates all the underlying
 ranges.
 
-[2]{.pnum} The names `views::concat` and `views::concat_magic` denote two customization point objects
-([customization.point.object]{.sref}). Given a pack of subexpressions `Es...`,
-the expression `views::concat(Es...)` is expression-equivalent to
+[2]{.pnum} The names `views::concat` and `views::concat_expert` denote two
+customization point objects ([customization.point.object]{.sref}). Given a pack
+of subexpressions `Es...`, the expression `views::concat(Es...)` is
+expression-equivalent to
 
 - [2.1]{.pnum} `views::all(Es...)` if `Es` is a pack with only one element
         and `views::all(Es...)` is a well formed expression,
 - [2.2]{.pnum} otherwise, `concat_view(Es...)`, which is deduced to be the type
-  `concat_view<false, views::all_t<Es>...>`.
+  `concat_view<false, views::all_t<decltype(Es)>...>`.
 
-And, the expression `views::concat_magic(Es...)` is expression-equivalent to
+And, the expression `views::concat_expert(Es...)` is expression-equivalent to
 
 - [2.3]{.pnum} `views::all(Es...)` if `Es` is a pack with only one element
         and `views::all(Es...)` is a well formed expression,
-- [2.4]{.pnum} otherwise, `concat_view<true, views::all_t<Es...>>(Es...)`.
+- [2.4]{.pnum} otherwise, `concat_view<true, views::all_t<decltype(Es)>...>(Es...)`.
 
 
 \[*Example:*
@@ -576,9 +574,9 @@ namespace std::ranges {
   concept @*concat-indirectly-readable*@ = @*see below*@; // exposition only
 
   template <class... Rs>
-  concept @*concat-no-magic*@ =  @*see below*@; // exposition only
+  concept @*concat-require-expert*@ =  @*see below*@; // exposition only
 
-  template <bool allow_magic, class... Rs>
+  template <bool expert_mode, class... Rs>
   concept @_concatable_@ = @*see below*@;             // exposition only
 
   template <bool Const, class... Rs>
@@ -592,10 +590,10 @@ namespace std::ranges {
   template <bool Const, class... Rs>
   concept @_concat-is-bidirectional_@ = @*see below*@;   // exposition only
 
-  template <bool allow_magic, input_range... Views>
+  template <bool expert_mode, input_range... Views>
     requires (view<Views> && ...) && (sizeof...(Views) > 0) &&
-              @_concatable_@<allow_magic, Views...>
-  class concat_view : public view_interface<concat_view<allow_magic, Views...>> {
+              @_concatable_@<expert_mode, Views...>
+  class concat_view : public view_interface<concat_view<expert_mode, Views...>> {
     tuple<Views...> @*views_*@;                   // exposition only
 
     template <bool Const>
@@ -661,26 +659,26 @@ concept @*concat-indirectly-readable*@ = // exposition only
 
 ```cpp
 template <class... Rs>
-concept @*concat-no-magic*@ =  @*see below*@; // exposition only
+concept @*concat-require-expert*@ =  @*see below*@; // exposition only
 ```
 
 :::bq
 
-[2]{.pnum} The exposition-only `@*concat-no-magic*@` concept is equivalent to:
+[2]{.pnum} The exposition-only `@*concat-require-expert*@` concept is equivalent to:
 
 ```cpp
 template <class... Rs>
-concept @*concat-no-magic*@ =  // exposition only
+concept @*concat-require-expert*@ =  // exposition only
     is_reference_v<@*concat-reference-t*@<Rs...>> ||
-    (is_reference_v<range_reference_t<Rs>> && ...) &&
-    (!same_as<remove_reference_t<range_reference_t<Rs>>,
-              @*concat-reference-t*@<Rs...>> && ...);
+    ((!is_reference_v<range_reference_t<Rs>> ||
+      !same_as<remove_reference_t<range_reference_t<Rs>>, @*concat-reference-t*@<Rs...>>)
+      && ...);
 ```
 
 :::
 
 ```cpp
-template <bool allow_magic, class... Rs>
+template <bool expert_mode, class... Rs>
 concept @_concatable_@ = @*see below*@; // exposition only
 ```
 
@@ -690,13 +688,13 @@ concept @_concatable_@ = @*see below*@; // exposition only
 concept is equivalent to:
 
 ```cpp
-template <bool allow_magic, class... Rs>
+template <bool expert_mode, class... Rs>
 concept @_concatable_@ = requires { // exposition only
   typename @*concat-reference-t*@<Rs...>;
   typename @*concat-value-t*@<Rs...>;
   typename @*concat-rvalue-reference-t*@<Rs...>;
 } && @*concat-indirectly-readable*@<Rs...>
-  && (allow_magic || @*concat-no-magic*@<Rs...>);
+  && (expert_mode || @*concat-require-expert*@<Rs...>);
 ```
 
 :::
@@ -749,7 +747,7 @@ constexpr explicit concat_view(Views... views);
 ```cpp
 constexpr @_iterator_@<false> begin() requires(!(@_simple-view_@<Views> && ...));
 constexpr @_iterator_@<true> begin() const
-  requires((range<const Views> && ...) && @_concatable_@<allow_magic, const Views...>);
+  requires((range<const Views> && ...) && @_concatable_@<expert_mode, const Views...>);
 ```
 
 :::bq
@@ -814,11 +812,11 @@ return apply(
 ```cpp
 namespace std::ranges{
 
-  template <bool allow_magic, input_range... Views>
+  template <bool expert_mode, input_range... Views>
     requires (view<Views> && ...) && (sizeof...(Views) > 0) &&
-              @_concatable_@<allow_magic, Views...>
+              @_concatable_@<expert_mode, Views...>
   template <bool Const>
-  class concat_view<allow_magic, Views...>::@_iterator_@ {
+  class concat_view<expert_mode, Views...>::@_iterator_@ {
   
   public:
     using iterator_category = @*see below*@;                  // not always present.
