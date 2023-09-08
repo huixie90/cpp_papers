@@ -13,6 +13,9 @@ toc: true
 
 # Revision History
 
+## R4
+ - Added `views::concat_expert`.
+
 ## R3
 
 - Redesigned `iter_swap`
@@ -539,6 +542,7 @@ namespace std::ranges {
 
   namespace views {
     inline constexpr @_unspecified_@ concat = @_unspecified_@;
+    inline constexpr @_unspecified_@ concat_expert = @_unspecified_@;
   }
 
 }
@@ -594,13 +598,22 @@ Add the following subclause to [range.adaptors]{.sref}.
 [1]{.pnum} `concat_view` presents a `view` that concatenates all the underlying
 ranges.
 
-[2]{.pnum} The name `views::concat` denotes a customization point object
-([customization.point.object]{.sref}). Given a pack of subexpressions `Es...`,
-the expression `views::concat(Es...)` is expression-equivalent to
+[2]{.pnum} The names `views::concat` and `views::concat_expert` denote two
+customization point objects ([customization.point.object]{.sref}). Given a pack
+of subexpressions `Es...`, the expression `views::concat_expert(Es...)` is
+expression-equivalent to
 
 - [2.1]{.pnum} `views::all(Es...)` if `Es` is a pack with only one element
         and `views::all(Es...)` is a well formed expression,
-- [2.2]{.pnum} otherwise, `concat_view(Es...)`
+- [2.2]{.pnum} otherwise, `concat_view(Es...)`.
+
+And, the expression `views::concat(Es...)` is expression-equivalent to 
+
+- [2.3]{.pnum} `views::concat_expert(Es...)` if the additional constraint
+  `!@*concat-require-expert*@<decltype(all(Es))...>` is modeled with the
+  exposition only concept `@*concat-require-expert*@`.
+- [2.4]{.pnum} otherwise, ill-formed.
+
 
 \[*Example:*
 ```cpp
@@ -674,6 +687,9 @@ namespace std::ranges {
 
   template <class... R>
     concat_view(R&&...) -> concat_view<views::all_t<R>...>;
+
+  template <class... Rs>
+  concept @*concat-require-expert*@ = @*see below*@; // exposition only
 }
 ```
 
@@ -839,6 +855,25 @@ return apply(
 
 :::
 
+```cpp
+template <class... Rs>
+concept @*concat-require-expert*@ =  @*see below*@; // exposition only
+```
+
+:::bq
+
+[9]{.pnum} The exposition-only `@*concat-require-expert*@` concept is equivalent to:
+
+```cpp
+template <class... Rs>
+concept @*concat-require-expert*@ =  // exposition only
+    !is_reference_v<@*concat-reference-t*@<Rs...>> &&
+    (same_as<range_reference_t<Rs>, @*concat-reference-t*@<Rs...>&&> || ...);
+```
+:::
+
+
+
 #### ?.?.?.3 Class concat_view::iterator [range.concat.iterator] {-}
 
 ```cpp
@@ -954,7 +989,6 @@ namespace std::ranges{
     friend constexpr void iter_swap(const @_iterator_@& x, const @_iterator_@& y) noexcept(@*see below*@)
         requires @*see below*@;
   };
-
 }
 ```
 
