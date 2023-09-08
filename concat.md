@@ -879,9 +879,9 @@ namespace std::ranges{
     friend constexpr difference_type operator-(default_sentinel_t, const @_iterator_@& x) 
         requires @*see below*@;
 
-    friend constexpr decltype(auto) iter_move(const iterator& it) noexcept(@*see below*@);
+    friend constexpr decltype(auto) iter_move(const @_iterator_@& it) noexcept(@*see below*@);
 
-    friend constexpr void iter_swap(const iterator& x, const iterator& y) noexcept(@*see below*@)
+    friend constexpr void iter_swap(const @_iterator_@& x, const @_iterator_@& y) noexcept(@*see below*@)
         requires @*see below*@;
   };
 
@@ -1406,7 +1406,7 @@ return -(x - default_sentinel);
 :::
 
 ```cpp
-friend constexpr decltype(auto) iter_move(const iterator& it) noexcept(@*see below*@);
+friend constexpr decltype(auto) iter_move(const @_iterator_@& it) noexcept(@*see below*@);
 ```
 
 :::bq
@@ -1437,7 +1437,7 @@ return std::visit(
 :::
 
 ```cpp
-friend constexpr void iter_swap(const iterator& x, const iterator& y) noexcept(@*see below*@)
+friend constexpr void iter_swap(const @_iterator_@& x, const @_iterator_@& y) noexcept(@*see below*@)
     requires @*see below*@;
 ```
 
@@ -1460,13 +1460,13 @@ std::visit(
     x.@*it_*@, y.@*it_*@);
 ```
 
-[45]{.pnum} *Remarks*: Let `N` be the logcial `AND` of the following expressions:
+[45]{.pnum} *Remarks*: Let `N` be the logical `AND` of the following expressions:
 
 ```cpp
 noexcept(ranges::iter_swap(std::get<@*i*@>(x.@*it_*@), std::get<@*i*@>(y.@*it_*@)))
 ```
 
-for every integer 0 <= `@*i*@` < `sizeof...(Views)`, the exception specification is equavalent to
+for every integer 0 <= `@*i*@` < `sizeof...(Views)`, the exception specification is equivalent to
 
 ```cpp
 noexcept(ranges::swap(*x, *y)) && N
@@ -1475,9 +1475,8 @@ noexcept(ranges::swap(*x, *y)) && N
 [46]{.pnum} *Remarks*: The expression in the requires-clause is equivalent to
 
 ```cpp
-(indirectly_swappable<iterator_t<@*maybe-const*@<Const, Views>>> && ... &&
- swappable_with<@*concat-reference-t*@<@*maybe-const*@<Const, Views>...>,
-                @*concat-reference-t*@<@*maybe-const*@<Const, Views>...>>)
+(swappable_with<iterator_t<@*iterator*@>, iterator_t<@*iterator*@>> && ... &&
+ indirectly_swappable<iterator_t<@*maybe-const*@<Const, Views>>>)
 ```
 
 :::
