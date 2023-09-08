@@ -718,7 +718,7 @@ constexpr @_iterator_@<true> begin() const
 and `false` otherwise. Equivalent to:
 
 ```cpp
-@_iterator_@<@_is-const_@> it{this, in_place_index<0>, ranges::begin(get<0>(@*views_*@))};
+@_iterator_@<@_is-const_@> it(this, in_place_index<0>, ranges::begin(get<0>(@*views_*@)));
 it.template @_satisfy_@<0>();
 return it;
 ```
@@ -740,8 +740,8 @@ and `false` otherwise, and let `@_last-view_@` be the last element of the pack
 ```cpp
 if constexpr (common_range<@_last-view_@>) {
     constexpr auto N = sizeof...(Views);
-    return @_iterator_@<@_is-const_@>{this, in_place_index<N - 1>, 
-                      ranges::end(get<N - 1>(@*views_*@))};
+    return @_iterator_@<@_is-const_@>(this, in_place_index<N - 1>, 
+                      ranges::end(get<N - 1>(@*views_*@)));
 } else {
     return default_sentinel;
 }
@@ -982,11 +982,11 @@ if constexpr (N == sizeof...(Views) - 1) {
     get<N>(@*it_*@) += static_cast<underlying_diff_type>(steps);
 } else {
     auto n_size = ranges::distance(get<N>(@*parent_*@->@*views_*@));
-    if (offset + steps < static_cast<difference_type>(n_size)) {
+    if (offset + steps < n_size) {
         get<N>(@*it_*@) += static_cast<underlying_diff_type>(steps);
     } else {
         @*it_*@.template emplace<N + 1>(ranges::begin(get<N + 1>(@*parent_*@->@*views_*@)));
-        @*advance-fwd*@<N + 1>(0, offset + steps - static_cast<difference_type>(n_size));
+        @*advance-fwd*@<N + 1>(0, offset + steps - n_size);
     }
 }
 ```
@@ -1012,9 +1012,7 @@ if constexpr (N == 0) {
     } else {
         auto prev_size = ranges::distance(get<N - 1>(@*parent_*@->@*views_*@));
         @*it_*@.template emplace<N - 1>(ranges::begin(get<N - 1>(@*parent_*@->@*views_*@)) + prev_size);
-        @*advance-bwd*@<N - 1>(
-            static_cast<difference_type>(prev_size),
-            steps - offset);
+        @*advance-bwd*@<N - 1>(prev_size, steps - offset);
     }
 }
 ```
@@ -1164,9 +1162,9 @@ constexpr @_iterator_@& operator+=(difference_type n)
 
 ```cpp
 if(n > 0) {
-  @*advance-fwd*@<@*i*@>(static_cast<difference_type(get<@*i*@>(@*it_*@) - ranges::begin(get<@*i*@>(@*parent_*@->@*views_*@))), n);
+  @*advance-fwd*@<@*i*@>(get<@*i*@>(@*it_*@) - ranges::begin(get<@*i*@>(@*parent_*@->@*views_*@)), n);
 } else if (n < 0) {
-  @*advance-bwd*@<@*i*@>(static_cast<difference_type(get<@*i*@>(@*it_*@) - ranges::begin(get<@*i*@>(@*parent_*@->@*views_*@))), -n);
+  @*advance-bwd*@<@*i*@>(get<@*i*@>(@*it_*@) - ranges::begin(get<@*i*@>(@*parent_*@->@*views_*@)), -n);
 }
 return *this;
 ```
@@ -1329,17 +1327,18 @@ friend constexpr difference_type operator-(const @_iterator_@& x, const @_iterat
 [34]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()` and `@*i~y~*@`
 denote `y.@*it_*@.index()`
 
-- [34.1]{.pnum} if `@*i~x~*@ > @*i~y~*@`, let `@*d~y~*@` denote the distance
-  from `get<@*i~y~*@>(y.@*it_*@)` to the end of
-  `get<@*i~y~*@>(y.@*parent_*@.@*views_*@)`, `@*d~x~*@` denote the distance from
-  the begin of `get<@*i~x~*@>(x.@*parent_*@.@*views_*@)` to
-  `get<@*i~x~*@>(x.@*it_*@)`. For every integer `@*i~y~*@ < @*i*@ < @*i~x~*@`,
+- [34.1]{.pnum} if `@*i~x~*@ > @*i~y~*@`, let `@*d~y~*@` be 
+  `ranges::distance(get<@*i~y~*@>(y.@*it_*@), ranges::end(get<@*i~y~*@>(y.@*parent_*@->@*views_*@)))`, 
+  `@*d~x~*@` be
+  `ranges::distance(ranges::begin(get<@*i~x~*@>(x.@*parent_*@->@*views_*@)), get<@*i~x~*@>(x.@*it_*@))`.
+  For every integer `@*i~y~*@ < @*i*@ < @*i~x~*@`,
   let `s` denote the sum of the sizes of all the ranges
-  `get<@*i*@>(x.@*parent_*@.@*views_*@)` if there is any, and `0` otherwise,
+  `get<@*i*@>(x.@*parent_*@->@*views_*@)` if there is any, and `0` otherwise, of type
+  `@*make-unsigned-like-t*@<common_type_t<range_size_t<@*maybe-const*@<Const, Views>>...>>`,
   equivalent to
 
   ```cpp
-  return static_cast<difference_type>(@*d~y~*@) + s + static_cast<difference_type>(@*d~x~*@);
+  return @*d~y~*@ + static_cast<difference_type>(s) + @*d~x~*@;
   ```
 
 - [34.2]{.pnum} otherwise, if `@*i~x~*@ < @*i~y~*@`, equivalent to:
@@ -1351,7 +1350,7 @@ denote `y.@*it_*@.index()`
 - [34.3]{.pnum} otherwise, equivalent to:
 
   ```cpp
-  return static_cast<difference_type>(get<@*i~x~*@>(x.@*it_*@) - get<@*i~y~*@>(y.@*it_*@));
+  return get<@*i~x~*@>(x.@*it_*@) - get<@*i~y~*@>(y.@*it_*@);
   ```
 
 :::
@@ -1366,14 +1365,14 @@ friend constexpr difference_type operator-(const @_iterator_@& x, default_sentin
 [35]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` is `false`.
 
 [36]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()`, `@*d~x~*@`
-denote the distance from `get<@*i~x~*@>(x.@*it_*@)` to the end of
-`get<@*i~x~*@>(x.@*parent_*@.@*views_*@)`. For every integer
-`@*i~x~*@ < @*i*@ < sizeof...(Views)`, let `s` denote the sum of the sizes of
-all the ranges `get<@*i*@>(x.@*parent_*@.@*views_*@)` if there is any, and `0`
-otherwise, equivalent to
+be `ranges::distance(get<@*i~x~*@>(x.@*it_*@), ranges::end(get<@*i~x~*@>(x.@*parent_*@->@*views_*@)))`.
+For every integer `@*i~x~*@ < @*i*@ < sizeof...(Views)`, let `s` denote the sum of the sizes of
+all the ranges `get<@*i*@>(x.@*parent_*@->@*views_*@)` if there is any, and `0`
+otherwise, of type `@*make-unsigned-like-t*@<common_type_t<range_size_t<@*maybe-const*@<Const, Views>>...>>`,
+equivalent to
 
 ```cpp
-return -(static_cast<difference_type>(@*d~x~*@) + static_cast<difference_type>(s));
+return -(@*d~x~*@ + static_cast<difference_type>(s));
 ```
 
 [37]{.pnum} *Remarks*: Let `V` be the last element of the pack `Views`, the expression in the requires-clause is equivalent to:
@@ -1460,17 +1459,13 @@ std::visit(
     x.@*it_*@, y.@*it_*@);
 ```
 
-[45]{.pnum} *Remarks*: Let `N` be the logical `AND` of the following expressions:
+[45]{.pnum} *Remarks*: The exception specification is equivalent to
 
 ```cpp
-noexcept(ranges::iter_swap(std::get<@*i*@>(x.@*it_*@), std::get<@*i*@>(y.@*it_*@)))
+(noexcept(ranges::swap(*x, *y)) && ... && noexcept(ranges::iter_swap(its, its)))
 ```
 
-for every integer 0 <= `@*i*@` < `sizeof...(Views)`, the exception specification is equivalent to
-
-```cpp
-noexcept(ranges::swap(*x, *y)) && N
-```
+where `its` is a pack of lvalues of type `iterator_t<@*maybe-const*@<Const, Views>> const` respectively.
 
 [46]{.pnum} *Remarks*: The expression in the requires-clause is equivalent to
 
