@@ -330,13 +330,13 @@ class concat_view : public view_interface<concat_view<expert_mode, Views...>> {
         static_assert(
             std::ranges::sized_range<decltype(get<N>(parent_->views_))>);
         auto n_size = ranges::distance(get<N>(parent_->views_));
-        if (current_offset + steps < static_cast<difference_type>(n_size)) {
+        if (current_offset + steps < n_size) {
           get<N>(it_) += static_cast<underlying_diff_type>(steps);
         } else {
           it_.template emplace<N + 1>(
               ranges::begin(get<N + 1>(parent_->views_)));
           advance_fwd<N + 1>(
-              0, current_offset + steps - static_cast<difference_type>(n_size));
+              0, current_offset + steps - n_size);
         }
       }
     }
@@ -357,8 +357,7 @@ class concat_view : public view_interface<concat_view<expert_mode, Views...>> {
           auto prev_size = ranges::distance(get<N - 1>(parent_->views_));
           it_.template emplace<N - 1>(
               ranges::begin(get<N - 1>(parent_->views_)) + prev_size);
-          advance_bwd<N - 1>(static_cast<difference_type>(prev_size),
-                             steps - current_offset);
+          advance_bwd<N - 1>(prev_size, steps - current_offset);
         }
       }
     }
@@ -433,15 +432,11 @@ class concat_view : public view_interface<concat_view<expert_mode, Views...>> {
         requires xo::concat_is_random_access<Const, Views...> {
       if (n > 0) {
         xo::visit_i(it_, [this, n](auto I, auto&& it) {
-          this->advance_fwd<I>(static_cast<difference_type>(
-                                   it - ranges::begin(get<I>(parent_->views_))),
-                               n);
+          this->advance_fwd<I>(it - ranges::begin(get<I>(parent_->views_)), n);
         });
       } else if (n < 0) {
         xo::visit_i(it_, [this, n](auto I, auto&& it) {
-          this->advance_bwd<I>(static_cast<difference_type>(
-                                   it - ranges::begin(get<I>(parent_->views_))),
-                               -n);
+          this->advance_bwd<I>(it - ranges::begin(get<I>(parent_->views_)), -n);
         });
       }
       return *this;
@@ -548,13 +543,11 @@ class concat_view : public view_interface<concat_view<expert_mode, Views...>> {
 
         auto y_to_end = xo::visit_i(y.it_, [&](auto I, auto&& it) {
           return all_sizes[I] -
-                 (static_cast<difference_type>(
-                     it - ranges::begin(get<I>(y.get_parent_views()))));
+                 (it - ranges::begin(get<I>(y.get_parent_views())));
         });
 
         auto begin_to_x = xo::visit_i(x.it_, [&](auto I, auto&& it) {
-          return static_cast<difference_type>(
-              it - ranges::begin(get<I>(x.get_parent_views())));
+          return it - ranges::begin(get<I>(x.get_parent_views()));
         });
 
         return y_to_end + in_between + begin_to_x;
@@ -563,7 +556,7 @@ class concat_view : public view_interface<concat_view<expert_mode, Views...>> {
         return -(y - x);
       } else {
         return xo::visit_i(x.it_, [&](auto I, auto&&) {
-          return static_cast<difference_type>(get<I>(x.it_) - get<I>(y.it_));
+          return get<I>(x.it_) - get<I>(y.it_);
         });
       }
     }
@@ -615,10 +608,8 @@ class concat_view : public view_interface<concat_view<expert_mode, Views...>> {
 
     friend constexpr void
     iter_swap(const iterator& x, const iterator& y) requires(
-        indirectly_swappable<iterator_t<__maybe_const<Const, Views>>>&&...&&
-            swappable_with<
-                xo::concat_reference_t<__maybe_const<Const, Views>...>,
-                xo::concat_reference_t<__maybe_const<Const, Views>...>>)
+        swappable_with<iter_reference_t<iterator>, iter_reference_t<iterator>> &&...&&
+        indirectly_swappable<iterator_t<__maybe_const<Const, Views>>>)
     // todo: noexcept?
     {
       std::visit(
@@ -641,7 +632,7 @@ class concat_view : public view_interface<concat_view<expert_mode, Views...>> {
 
   constexpr iterator<false> begin() requires(!(__simple_view<Views> && ...))  //
   {
-    iterator<false> it{this, in_place_index<0u>, ranges::begin(get<0>(views_))};
+    iterator<false> it(this, in_place_index<0u>, ranges::begin(get<0>(views_)));
     it.template satisfy<0>();
     return it;
   }
@@ -650,7 +641,7 @@ class concat_view : public view_interface<concat_view<expert_mode, Views...>> {
       requires((range<const Views> && ...) &&
                xo::concatable<expert_mode, const Views...>)  //
   {
-    iterator<true> it{this, in_place_index<0u>, ranges::begin(get<0>(views_))};
+    iterator<true> it(this, in_place_index<0u>, ranges::begin(get<0>(views_)));
     it.template satisfy<0>();
     return it;
   }
@@ -659,8 +650,8 @@ class concat_view : public view_interface<concat_view<expert_mode, Views...>> {
     using LastView = xo::back<Views...>;
     if constexpr (common_range<LastView>) {
       constexpr auto N = sizeof...(Views);
-      return iterator<false>{this, in_place_index<N - 1>,
-                             ranges::end(get<N - 1>(views_))};
+      return iterator<false>(this, in_place_index<N - 1>,
+                             ranges::end(get<N - 1>(views_)));
     } else {
       return default_sentinel;
     }
@@ -670,8 +661,8 @@ class concat_view : public view_interface<concat_view<expert_mode, Views...>> {
     using LastView = xo::back<const Views...>;
     if constexpr (common_range<LastView>) {
       constexpr auto N = sizeof...(Views);
-      return iterator<true>{this, in_place_index<N - 1>,
-                            ranges::end(get<N - 1>(views_))};
+      return iterator<true>(this, in_place_index<N - 1>,
+                            ranges::end(get<N - 1>(views_)));
     } else {
       return default_sentinel;
     }
