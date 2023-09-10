@@ -323,6 +323,76 @@ alternative. This paper proposes the same.
 
 `concat_view` can be `common_range` if the last underlying range models `common_range`
 
+### Discussion: Consolidate with `cartesian_product_view`
+
+In the R0 version, `concat_view` can be `common_range` if the last underlying
+range models `common_range || (random_access_range && sized_range)`
+
+The `end` function was defined as
+
+```cpp
+if constexpr (common_range<last-view>) {
+    constexpr auto N = sizeof...(Views);
+    return iterator<is-const>{this, in_place_index<N - 1>, 
+                      ranges::end(get<N - 1>(views_))};
+} else if constexpr (random_access_range<last-view> && sized_range<last-view>) {
+    constexpr auto N = sizeof...(Views);
+    return iterator<is-const>{
+        this, in_place_index<N - 1>,
+        ranges::begin(get<N - 1>(views_)) + ranges::size(get<N - 1>(views_))};
+} else {
+    return default_sentinel;
+}
+```
+
+Following SG9's direction, the `random_access_range && sized_range` was removed in R1 version for simplicity
+
+```cpp
+if constexpr (common_range<last-view>) {
+    constexpr auto N = sizeof...(Views);
+    return iterator<is-const>{this, in_place_index<N - 1>, 
+                      ranges::end(get<N - 1>(views_))};
+} else {
+    return default_sentinel;
+}
+```
+
+However, `cartesian_product_view` [range.cartesian.view]{.sref} defines
+its `end` function in a way that is very similar to `concat_view`'s R0 version.
+
+```cpp
+  template<class R>
+  concept cartesian-product-common-arg =                // exposition only
+    common_range<R> || (sized_range<R> && random_access_range<R>);
+
+  template<class First, class... Vs>
+  concept cartesian-product-is-common =                 // exposition only
+    cartesian-product-common-arg<First>;
+
+  template<cartesian-product-common-arg R>
+  constexpr auto cartesian-common-arg-end(R& r) {       // exposition only
+    if constexpr (common_range<R>) {
+      return ranges::end(r);
+    } else {
+      return ranges::begin(r) + ranges::distance(r);
+    }
+  }
+
+  constexpr iterator<false> end()
+      requires ((!simple-view<First> || ... || !simple-view<Vs>) &&
+        cartesian-product-is-common<First, Vs...>);
+  constexpr iterator<true> end() const
+      requires cartesian-product-is-common<const First, const Vs...>;
+
+  constexpr default_sentinel_t end() const noexcept;
+```
+
+For consistency between `cartesian_product_view` and `concat_view`, it would be
+good to add back the support of `random_access_range && size_range`. Those exposition
+only concepts and functions can be reused for both of the views, and their definitions
+of `end` function would be very similar, except that `cartesian_product_view` checks
+the first underlying range and `concat_view` checks the last underlying range.
+
 ## Bidirectional Range
 
 `concat_view` can model `bidirectional_range` if the underlying ranges satisfy
