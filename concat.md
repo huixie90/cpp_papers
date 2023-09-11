@@ -1,7 +1,7 @@
 ---
 title: "`views::concat`"
-document: P2542R3
-date: 2023-06-07
+document: P2542R4
+date: 2023-09-11
 audience: SG9, LEWG
 author:
   - name: Hui Xie
@@ -536,7 +536,7 @@ namespace std::ranges {
   // [...]
 
   // [range.concat], concat view
-  template <bool expert_mode, input_range... Views>
+  template <input_range... Views>
     requires @*see below*@
   class concat_view;
 
@@ -600,19 +600,19 @@ ranges.
 
 [2]{.pnum} The names `views::concat` and `views::concat_expert` denote two
 customization point objects ([customization.point.object]{.sref}). Given a pack
-of subexpressions `Es...`, the expression `views::concat(Es...)` is
+of subexpressions `Es...`, the expression `views::concat_expert(Es...)` is
 expression-equivalent to
 
 - [2.1]{.pnum} `views::all(Es...)` if `Es` is a pack with only one element
         and `views::all(Es...)` is a well formed expression,
-- [2.2]{.pnum} otherwise, `concat_view(Es...)`, which is deduced to be the type
-  `concat_view<false, views::all_t<decltype(Es)>...>`.
+- [2.2]{.pnum} otherwise, `concat_view(Es...)`.
 
-And, the expression `views::concat_expert(Es...)` is expression-equivalent to
+And, the expression `views::concat(Es...)` is expression-equivalent to 
 
-- [2.3]{.pnum} `views::all(Es...)` if `Es` is a pack with only one element
-        and `views::all(Es...)` is a well formed expression,
-- [2.4]{.pnum} otherwise, `concat_view<true, views::all_t<decltype(Es)>...>(Es...)`.
+- [2.3]{.pnum} `views::concat_expert(Es...)` if the additional constraint
+  `!@*concat-require-expert*@<decltype(all(Es))...>` is modeled with the
+  exposition only concept `@*concat-require-expert*@`.
+- [2.4]{.pnum} otherwise, ill-formed.
 
 
 \[*Example:*
@@ -644,9 +644,6 @@ namespace std::ranges {
   concept @*concat-indirectly-readable*@ = @*see below*@; // exposition only
 
   template <class... Rs>
-  concept @*concat-require-expert*@ =  @*see below*@; // exposition only
-
-  template <bool expert_mode, class... Rs>
   concept @_concatable_@ = @*see below*@;             // exposition only
 
   template <bool Const, class... Rs>
@@ -660,10 +657,10 @@ namespace std::ranges {
   template <bool Const, class... Rs>
   concept @_concat-is-bidirectional_@ = @*see below*@;   // exposition only
 
-  template <bool expert_mode, input_range... Views>
+  template <input_range... Views>
     requires (view<Views> && ...) && (sizeof...(Views) > 0) &&
-              @_concatable_@<expert_mode, Views...>
-  class concat_view : public view_interface<concat_view<expert_mode, Views...>> {
+              @_concatable_@<Views...>
+  class concat_view : public view_interface<concat_view<Views...>> {
     tuple<Views...> @*views_*@;                   // exposition only
 
     template <bool Const>
@@ -689,7 +686,10 @@ namespace std::ranges {
   };
 
   template <class... R>
-    concat_view(R&&...) -> concat_view<false, views::all_t<R>...>;
+    concat_view(R&&...) -> concat_view<views::all_t<R>...>;
+
+  template <class... Rs>
+  concept @*concat-require-expert*@ = @*see below*@; // exposition only
 }
 ```
 
@@ -726,29 +726,8 @@ concept @*concat-indirectly-readable*@ = // exposition only
 
 :::
 
-
 ```cpp
 template <class... Rs>
-concept @*concat-require-expert*@ =  @*see below*@; // exposition only
-```
-
-:::bq
-
-[2]{.pnum} The exposition-only `@*concat-require-expert*@` concept is equivalent to:
-
-```cpp
-template <class... Rs>
-concept @*concat-require-expert*@ =  // exposition only
-    is_reference_v<@*concat-reference-t*@<Rs...>> ||
-    ((!is_reference_v<range_reference_t<Rs>> ||
-      !same_as<remove_reference_t<range_reference_t<Rs>>, @*concat-reference-t*@<Rs...>>)
-      && ...);
-```
-
-:::
-
-```cpp
-template <bool expert_mode, class... Rs>
 concept @_concatable_@ = @*see below*@; // exposition only
 ```
 
@@ -758,13 +737,12 @@ concept @_concatable_@ = @*see below*@; // exposition only
 concept is equivalent to:
 
 ```cpp
-template <bool expert_mode, class... Rs>
+template <class... Rs>
 concept @_concatable_@ = requires { // exposition only
   typename @*concat-reference-t*@<Rs...>;
   typename @*concat-value-t*@<Rs...>;
   typename @*concat-rvalue-reference-t*@<Rs...>;
-} && @*concat-indirectly-readable*@<Rs...>
-  && (expert_mode || @*concat-require-expert*@<Rs...>);
+} && @*concat-indirectly-readable*@<Rs...>;
 ```
 
 :::
@@ -817,7 +795,7 @@ constexpr explicit concat_view(Views... views);
 ```cpp
 constexpr @_iterator_@<false> begin() requires(!(@_simple-view_@<Views> && ...));
 constexpr @_iterator_@<true> begin() const
-  requires((range<const Views> && ...) && @_concatable_@<expert_mode, const Views...>);
+  requires((range<const Views> && ...) && @_concatable_@<const Views...>);
 ```
 
 :::bq
@@ -877,16 +855,35 @@ return apply(
 
 :::
 
+```cpp
+template <class... Rs>
+concept @*concat-require-expert*@ =  @*see below*@; // exposition only
+```
+
+:::bq
+
+[9]{.pnum} The exposition-only `@*concat-require-expert*@` concept is equivalent to:
+
+```cpp
+template <class... Rs>
+concept @*concat-require-expert*@ =  // exposition only
+    !is_reference_v<@*concat-reference-t*@<Rs...>> &&
+    (same_as<range_reference_t<Rs>, @*concat-reference-t*@<Rs...>&&> || ...);
+```
+:::
+
+
+
 #### ?.?.?.3 Class concat_view::iterator [range.concat.iterator] {-}
 
 ```cpp
 namespace std::ranges{
 
-  template <bool expert_mode, input_range... Views>
+  template <input_range... Views>
     requires (view<Views> && ...) && (sizeof...(Views) > 0) &&
-              @_concatable_@<expert_mode, Views...>
+              @_concatable_@<Views...>
   template <bool Const>
-  class concat_view<expert_mode, Views...>::@_iterator_@ {
+  class concat_view<Views...>::@_iterator_@ {
   
   public:
     using iterator_category = @*see below*@;                  // not always present.
@@ -992,7 +989,6 @@ namespace std::ranges{
     friend constexpr void iter_swap(const @_iterator_@& x, const @_iterator_@& y) noexcept(@*see below*@)
         requires @*see below*@;
   };
-
 }
 ```
 
