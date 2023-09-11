@@ -1,7 +1,7 @@
 ---
 title: "`views::concat`"
-document: P2542R3
-date: 2023-06-07
+document: P2542R4
+date: 2023-09-11
 audience: SG9, LEWG
 author:
   - name: Hui Xie
