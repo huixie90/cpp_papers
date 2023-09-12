@@ -18,9 +18,11 @@ toc: true
 - Fix `static_cast<difference_type>`
 - Reuse utilities in `cartesian_product_view` to define `concat-is-bidirectional`
 - Various wording fixes
+
 ## R4
 
 - Add `concat_expert`
+
 ## R3
 
 - Redesigned `iter_swap`
