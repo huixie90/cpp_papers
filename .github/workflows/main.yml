@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: 'true'
-          ref: 'concat_expert_cpo_only'
+          ref: 'main'
 
       - name: Build pages
         run: |
