@@ -1,3 +1,4 @@
+```
 [Done] JW: “equavalent” -> “equivalent”
 [Done] ??: “logcial” -> “logical”
 [Done] TK: on p46: I wonder if we should swap the conditions
@@ -51,3 +52,4 @@
 [Done] JW: same on p36
        TS: that has the same issue with having just one s and it doesn’t actually say what the type is
 [Done] TS: I don’t see why we say “denotes the difference” instead of using the expression
+```
