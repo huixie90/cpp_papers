@@ -25,6 +25,10 @@ concept all_bidirectional = (bidirectional_range<__maybe_const<Const, Views>> &&
 template <bool Const, class... Views>
 concept all_forward = (forward_range<__maybe_const<Const, Views>> && ...);
 
+template<class R>
+concept common_arg =                // exposition only
+  common_range<R> || (sized_range<R> && random_access_range<R>);
+
 inline namespace not_to_spec {
 
 template <class... Rs>
@@ -86,14 +90,9 @@ concept concat_is_random_access =
     (all_random_access<Const, Views> && ...) &&
     (all_but_last<sized_range<__maybe_const<Const, Views>>...>);
 
-template <class R>
-concept constant_time_reversible = (bidirectional_range<R> &&
-                                    common_range<R>) ||
-                                   (sized_range<R> && random_access_range<R>);
-
-template <class... Rs>
-concept concat_bidirectional = all_but_last<constant_time_reversible<Rs>...> &&
-    bidirectional_range<back<Rs...>>;
+template <bool Const, class... Views>
+concept concat_bidirectional = all_but_last<common_arg<__maybe_const<Const, Views>>...> &&
+    all_bidirectional<Const, Views...>;
 
 static_assert(true);  // clang-format badness
 
@@ -161,7 +160,7 @@ template <bool Const, class... Ts>
 consteval auto iterator_concept_test() {
   if constexpr (concat_is_random_access<Const, Ts...>) {
     return random_access_iterator_tag{};
-  } else if constexpr (concat_bidirectional<__maybe_const<Const, Ts>...>) {
+  } else if constexpr (concat_bidirectional<Const, Ts...>) {
     return bidirectional_iterator_tag{};
   } else if constexpr ((forward_range<__maybe_const<Const, Ts>> && ...)) {
     return forward_iterator_tag{};
@@ -212,7 +211,7 @@ consteval auto iter_cat_test() {
   } else if constexpr ((has_tag<bidirectional_iterator_tag,
                                 __maybe_const<Const, Views>> &&
                         ...) &&
-                       concat_bidirectional<__maybe_const<Const, Views>...>) {
+                       concat_bidirectional<Const, Views...>) {
     return bidirectional_iterator_tag{};
   } else if constexpr ((has_tag<forward_iterator_tag,
                                 __maybe_const<Const, Views>> &&
@@ -404,13 +403,13 @@ class concat_view : public view_interface<concat_view<Views...>> {
     }
 
     constexpr iterator& operator--() requires
-        xo::concat_bidirectional<__maybe_const<Const, Views>...> {
+        xo::concat_bidirectional<Const, Views...> {
       xo::visit_i(it_, [this](auto I, auto&&) { this->prev<I>(); });
       return *this;
     }
 
     constexpr iterator operator--(
-        int) requires xo::concat_bidirectional<__maybe_const<Const, Views>...> {
+        int) requires xo::concat_bidirectional<Const, Views...> {
       auto tmp = *this;
       --*this;
       return tmp;

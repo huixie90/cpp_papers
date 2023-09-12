@@ -27,7 +27,7 @@
        “Exception specification is equivalent to:
        noexcept(ranges::swap(*x, *y)) && ... && noexcept(ranges::iter_swap(its, its))
        where its is a pack of lvalues of type iterator_t<maybe-const<Const, Views>> const respectively.”
-[TODO] TK: on concat-is-bidirectional: we check it twice
+[Done] TK: on concat-is-bidirectional: we check it twice
        TK: we have similar things in the cartesian_view: we could extract the logic for cartesian-is-common
        JW: that makes sense
 
