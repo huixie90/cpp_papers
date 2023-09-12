@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="mpark/wg21" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="dcterms.date" content="2023-09-11" />
+  <meta name="dcterms.date" content="2023-06-07" />
   <title>`views::concat`</title>
   <style>
       code{white-space: pre-wrap;}
@@ -423,11 +423,11 @@ code.sourceCode > span { display: inline; }
 <table style="border:none;float:right">
   <tr>
     <td>Document #:</td>
-    <td>P2542R4</td>
+    <td>P2542R3</td>
   </tr>
   <tr>
     <td>Date:</td>
-    <td>2023-09-11</td>
+    <td>2023-06-07</td>
   </tr>
   <tr>
     <td style="vertical-align:top">Project:</td>
@@ -454,10 +454,9 @@ code.sourceCode > span { display: inline; }
 <ul>
 <li><a href="#revision-history" id="toc-revision-history"><span class="toc-section-number">1</span> Revision History<span></span></a>
 <ul>
-<li><a href="#r4" id="toc-r4"><span class="toc-section-number">1.1</span> R4<span></span></a></li>
-<li><a href="#r3" id="toc-r3"><span class="toc-section-number">1.2</span> R3<span></span></a></li>
-<li><a href="#r2" id="toc-r2"><span class="toc-section-number">1.3</span> R2<span></span></a></li>
-<li><a href="#r1" id="toc-r1"><span class="toc-section-number">1.4</span> R1<span></span></a></li>
+<li><a href="#r3" id="toc-r3"><span class="toc-section-number">1.1</span> R3<span></span></a></li>
+<li><a href="#r2" id="toc-r2"><span class="toc-section-number">1.2</span> R2<span></span></a></li>
+<li><a href="#r1" id="toc-r1"><span class="toc-section-number">1.3</span> R1<span></span></a></li>
 </ul></li>
 <li><a href="#abstract" id="toc-abstract"><span class="toc-section-number">2</span> Abstract<span></span></a></li>
 <li><a href="#motivation-and-examples" id="toc-motivation-and-examples"><span class="toc-section-number">3</span> Motivation and
@@ -532,12 +531,7 @@ Macro<span></span></a></li>
 </ul>
 </div>
 <h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
-<h2 data-number="1.1" id="r4"><span class="header-section-number">1.1</span> R4<a href="#r4" class="self-link"></a></h2>
-<ul>
-<li>Added
-<code class="sourceCode default">views::concat_expert</code>.</li>
-</ul>
-<h2 data-number="1.2" id="r3"><span class="header-section-number">1.2</span> R3<a href="#r3" class="self-link"></a></h2>
+<h2 data-number="1.1" id="r3"><span class="header-section-number">1.1</span> R3<a href="#r3" class="self-link"></a></h2>
 <ul>
 <li>Redesigned <code class="sourceCode default">iter_swap</code></li>
 <li>Relaxed <code class="sourceCode default">random_access_range</code>
@@ -546,7 +540,7 @@ constraints</li>
 <code class="sourceCode default">difference</code> types</li>
 <li>Various wording fixes</li>
 </ul>
-<h2 data-number="1.3" id="r2"><span class="header-section-number">1.3</span> R2<a href="#r2" class="self-link"></a></h2>
+<h2 data-number="1.2" id="r2"><span class="header-section-number">1.2</span> R2<a href="#r2" class="self-link"></a></h2>
 <ul>
 <li>Adding extra semantic constraints in the concept
 <code class="sourceCode default">concat-indirectly-readable</code> to
@@ -554,7 +548,7 @@ prevent non-equality-preserving behaviour of
 <code class="sourceCode default">operator*</code> and
 <code class="sourceCode default">iter_move</code>.</li>
 </ul>
-<h2 data-number="1.4" id="r1"><span class="header-section-number">1.4</span> R1<a href="#r1" class="self-link"></a></h2>
+<h2 data-number="1.3" id="r1"><span class="header-section-number">1.3</span> R1<a href="#r1" class="self-link"></a></h2>
 <ul>
 <li><p>Removed the <code class="sourceCode default">common_range</code>
 support for underlying ranges that are <code class="sourceCode default">!common_range &amp;&amp; random_access_range &amp;&amp; sized_range</code>.</p></li>
@@ -1157,10 +1151,9 @@ issue <span class="citation" data-cites="ours">[<a href="#ref-ours" role="doc-bi
 <span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="kw">namespace</span> views <span class="op">{</span></span>
 <span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">inline</span> <span class="kw">constexpr</span> <em>unspecified</em> concat <span class="op">=</span> <em>unspecified</em>;</span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">inline</span> <span class="kw">constexpr</span> <em>unspecified</em> concat_expert <span class="op">=</span> <em>unspecified</em>;</span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <h2 data-number="5.2" id="move-exposition-only-utilities"><span class="header-section-number">5.2</span> Move exposition-only
 utilities<a href="#move-exposition-only-utilities" class="self-link"></a></h2>
 <p>Move
@@ -1217,13 +1210,12 @@ Overview [range.concat.overview]<a href="#overview-range.concat.overview" class=
 <code class="sourceCode default">view</code> that concatenates all the
 underlying ranges.</p>
 <p><span class="marginalizedparent"><a class="marginalized">2</a></span>
-The names <code class="sourceCode default">views::concat</code> and
-<code class="sourceCode default">views::concat_expert</code> denote two
-customization point objects (<span>16.3.3.3.5
+The name <code class="sourceCode default">views::concat</code> denotes a
+customization point object (<span>16.3.3.3.5
 <a href="https://wg21.link/customization.point.object">[customization.point.object]</a></span>).
 Given a pack of subexpressions
 <code class="sourceCode default">Es...</code>, the expression
-<code class="sourceCode default">views::concat_expert(Es...)</code> is
+<code class="sourceCode default">views::concat(Es...)</code> is
 expression-equivalent to</p>
 <ul>
 <li><span class="marginalizedparent"><a class="marginalized">(2.1)</a></span>
@@ -1233,19 +1225,7 @@ element and <code class="sourceCode default">views::all(Es...)</code> is
 a well formed expression,</li>
 <li><span class="marginalizedparent"><a class="marginalized">(2.2)</a></span>
 otherwise,
-<code class="sourceCode default">concat_view(Es...)</code>.</li>
-</ul>
-<p>And, the expression
-<code class="sourceCode default">views::concat(Es...)</code> is
-expression-equivalent to</p>
-<ul>
-<li><span class="marginalizedparent"><a class="marginalized">(2.3)</a></span>
-<code class="sourceCode default">views::concat_expert(Es...)</code> if
-the additional constraint <code class="sourceCode default">!<em>concat-require-expert</em>&lt;decltype(all(Es))...&gt;</code>
-is modeled with the exposition only concept
-<code class="sourceCode default"><em>concat-require-expert</em></code>.</li>
-<li><span class="marginalizedparent"><a class="marginalized">(2.4)</a></span>
-otherwise, ill-formed.</li>
+<code class="sourceCode default">concat_view(Es...)</code></li>
 </ul>
 <p>[<em>Example:</em></p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>vector<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;</span> v1<span class="op">{</span><span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span><span class="op">}</span>, v2<span class="op">{</span><span class="dv">4</span>,<span class="dv">5</span><span class="op">}</span>, v3<span class="op">{}</span>;</span>
@@ -1318,10 +1298,7 @@ otherwise, ill-formed.</li>
 <span id="cb18-56"><a href="#cb18-56" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb18-57"><a href="#cb18-57" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> R<span class="op">&gt;</span></span>
 <span id="cb18-58"><a href="#cb18-58" aria-hidden="true" tabindex="-1"></a>    concat_view<span class="op">(</span>R<span class="op">&amp;&amp;...)</span> <span class="op">-&gt;</span> concat_view<span class="op">&lt;</span>views<span class="op">::</span>all_t<span class="op">&lt;</span>R<span class="op">&gt;...&gt;</span>;</span>
-<span id="cb18-59"><a href="#cb18-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-60"><a href="#cb18-60" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
-<span id="cb18-61"><a href="#cb18-61" aria-hidden="true" tabindex="-1"></a>  <span class="kw">concept</span> <em>concat-require-expert</em> <span class="op">=</span> <em>see below</em>; <span class="co">// exposition only</span></span>
-<span id="cb18-62"><a href="#cb18-62" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb18-59"><a href="#cb18-59" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <div class="sourceCode" id="cb19"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">concept</span> <em>concat-indirectly-readable</em> <span class="op">=</span> <em>see below</em>; <span class="co">// exposition only</span></span></code></pre></div>
 <div class="bq">
@@ -1447,133 +1424,122 @@ to:</p>
 <span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span>,</span>
 <span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>    <em>tuple-transform</em><span class="op">(</span>ranges<span class="op">::</span>size, <em>views_</em><span class="op">))</span>;</span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb34"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="kw">concept</span> <em>concat-require-expert</em> <span class="op">=</span>  <em>see below</em>; <span class="co">// exposition only</span></span></code></pre></div>
-<div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">9</a></span>
-The exposition-only
-<code class="sourceCode default"><em>concat-require-expert</em></code>
-concept is equivalent to:</p>
-<div class="sourceCode" id="cb35"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="kw">concept</span> <em>concat-require-expert</em> <span class="op">=</span>  <span class="co">// exposition only</span></span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">!</span>is_reference_v<span class="op">&lt;</span><em>concat-reference-t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;&gt;</span> <span class="op">&amp;&amp;</span></span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    <span class="op">(</span>same_as<span class="op">&lt;</span>range_reference_t<span class="op">&lt;</span>Rs<span class="op">&gt;</span>, <em>concat-reference-t</em><span class="op">&lt;</span>Rs<span class="op">...&gt;&amp;&amp;&gt;</span> <span class="op">||</span> <span class="op">...)</span>;</span></code></pre></div>
-</div>
 <h4 class="unnumbered" id="class-concat_viewiterator-range.concat.iterator">?.?.?.3 Class
 concat_view::iterator [range.concat.iterator]<a href="#class-concat_viewiterator-range.concat.iterator" class="self-link"></a></h4>
-<div class="sourceCode" id="cb36"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> std<span class="op">::</span>ranges<span class="op">{</span></span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span> <span class="op">&lt;</span>input_range<span class="op">...</span> Views<span class="op">&gt;</span></span>
-<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <span class="op">(</span>view<span class="op">&lt;</span>Views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span><span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">)</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>              <em>concatable</em><span class="op">&lt;</span>Views<span class="op">...&gt;</span></span>
-<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="dt">bool</span> Const<span class="op">&gt;</span></span>
-<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">class</span> concat_view<span class="op">&lt;</span>Views<span class="op">...&gt;::</span><em>iterator</em> <span class="op">{</span></span>
-<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span><span class="op">:</span></span>
-<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> iterator_category <span class="op">=</span> <em>see below</em>;                  <span class="co">// not always present.</span></span>
-<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> iterator_concept <span class="op">=</span> <em>see below</em>;</span>
-<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> value_type <span class="op">=</span> <em>concat-value-t</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
-<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> difference_type <span class="op">=</span> common_type_t<span class="op">&lt;</span>range_difference_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;...&gt;</span>;</span>
-<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span><span class="op">:</span></span>
-<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> <em>base-iter</em> <span class="op">=</span>                                     <span class="co">// exposition only</span></span>
-<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>      variant<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;...&gt;</span>;</span>
-<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>    <em>maybe-const</em><span class="op">&lt;</span>Const, concat_view<span class="op">&gt;*</span> <em>parent_</em> <span class="op">=</span> <span class="kw">nullptr</span>;   <span class="co">// exposition only</span></span>
-<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a>    <em>base-iter</em> <em>it_</em>;                                        <span class="co">// exposition only</span></span>
-<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
-<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="dt">void</span> <em>satisfy</em><span class="op">()</span>;                             <span class="co">// exposition only</span></span>
-<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
-<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="dt">void</span> <em>prev</em><span class="op">()</span>;                                <span class="co">// exposition only</span></span>
-<span id="cb36-27"><a href="#cb36-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-28"><a href="#cb36-28" aria-hidden="true" tabindex="-1"></a>    <span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
-<span id="cb36-29"><a href="#cb36-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="dt">void</span> <em>advance-fwd</em><span class="op">(</span>difference_type offset, difference_type steps<span class="op">)</span>; <span class="co">// exposition only</span></span>
-<span id="cb36-30"><a href="#cb36-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-31"><a href="#cb36-31" aria-hidden="true" tabindex="-1"></a>    <span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
-<span id="cb36-32"><a href="#cb36-32" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="dt">void</span> <em>advance-bwd</em><span class="op">(</span>difference_type offset, difference_type steps<span class="op">)</span>; <span class="co">// exposition only</span></span>
-<span id="cb36-33"><a href="#cb36-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-34"><a href="#cb36-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Args<span class="op">&gt;</span></span>
-<span id="cb36-35"><a href="#cb36-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">explicit</span> <span class="kw">constexpr</span> <em>iterator</em><span class="op">(</span><em>maybe-const</em><span class="op">&lt;</span>Const, concat_view<span class="op">&gt;*</span> parent, Args<span class="op">&amp;&amp;...</span> args<span class="op">)</span> </span>
-<span id="cb36-36"><a href="#cb36-36" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> constructible_from<span class="op">&lt;</span><em>base-iter</em>, Args<span class="op">&amp;&amp;...&gt;</span>;  <span class="co">// exposition only</span></span>
-<span id="cb36-37"><a href="#cb36-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-38"><a href="#cb36-38" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span><span class="op">:</span></span>
-<span id="cb36-39"><a href="#cb36-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-40"><a href="#cb36-40" aria-hidden="true" tabindex="-1"></a>    <em>iterator</em><span class="op">()</span> <span class="op">=</span> <span class="cf">default</span>;</span>
-<span id="cb36-41"><a href="#cb36-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-42"><a href="#cb36-42" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">(</span><em>iterator</em><span class="op">&lt;!</span>Const<span class="op">&gt;</span> i<span class="op">)</span> </span>
-<span id="cb36-43"><a href="#cb36-43" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> Const <span class="op">&amp;&amp;</span> <span class="op">(</span>convertible_to<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span>Views<span class="op">&gt;</span>, iterator_t<span class="op">&lt;</span><span class="kw">const</span> Views<span class="op">&gt;&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span>;</span>
-<span id="cb36-44"><a href="#cb36-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-45"><a href="#cb36-45" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">auto</span><span class="op">)</span> <span class="kw">operator</span><span class="op">*()</span> <span class="kw">const</span>;</span>
-<span id="cb36-46"><a href="#cb36-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-47"><a href="#cb36-47" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">++()</span>;</span>
-<span id="cb36-48"><a href="#cb36-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-49"><a href="#cb36-49" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="dt">void</span> <span class="kw">operator</span><span class="op">++(</span><span class="dt">int</span><span class="op">)</span>;</span>
-<span id="cb36-50"><a href="#cb36-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-51"><a href="#cb36-51" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">++(</span><span class="dt">int</span><span class="op">)</span> </span>
-<span id="cb36-52"><a href="#cb36-52" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>all-forward</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
-<span id="cb36-53"><a href="#cb36-53" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb36-54"><a href="#cb36-54" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">--()</span> </span>
-<span id="cb36-55"><a href="#cb36-55" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-bidirectional</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
-<span id="cb36-56"><a href="#cb36-56" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-57"><a href="#cb36-57" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">--(</span><span class="dt">int</span><span class="op">)</span> </span>
-<span id="cb36-58"><a href="#cb36-58" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-bidirectional</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
-<span id="cb36-59"><a href="#cb36-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-60"><a href="#cb36-60" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">+=(</span>difference_type n<span class="op">)</span> </span>
-<span id="cb36-61"><a href="#cb36-61" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
-<span id="cb36-62"><a href="#cb36-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-63"><a href="#cb36-63" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">-=(</span>difference_type n<span class="op">)</span> </span>
-<span id="cb36-64"><a href="#cb36-64" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
-<span id="cb36-65"><a href="#cb36-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-66"><a href="#cb36-66" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">auto</span><span class="op">)</span> <span class="kw">operator</span><span class="op">[](</span>difference_type n<span class="op">)</span> <span class="kw">const</span></span>
-<span id="cb36-67"><a href="#cb36-67" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
-<span id="cb36-68"><a href="#cb36-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-69"><a href="#cb36-69" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">==(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
-<span id="cb36-70"><a href="#cb36-70" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span><span class="op">(</span>equality_comparable<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&gt;&amp;&amp;...)</span>;</span>
-<span id="cb36-71"><a href="#cb36-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-72"><a href="#cb36-72" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">==(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it, default_sentinel_t<span class="op">)</span>;</span>
-<span id="cb36-73"><a href="#cb36-73" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-74"><a href="#cb36-74" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&lt;(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
-<span id="cb36-75"><a href="#cb36-75" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>all-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
-<span id="cb36-76"><a href="#cb36-76" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-77"><a href="#cb36-77" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&gt;(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
-<span id="cb36-78"><a href="#cb36-78" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>all-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
-<span id="cb36-79"><a href="#cb36-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-80"><a href="#cb36-80" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&lt;=(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
-<span id="cb36-81"><a href="#cb36-81" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>all-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
-<span id="cb36-82"><a href="#cb36-82" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-83"><a href="#cb36-83" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&gt;=(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
-<span id="cb36-84"><a href="#cb36-84" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>all-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
-<span id="cb36-85"><a href="#cb36-85" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-86"><a href="#cb36-86" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="kw">auto</span> <span class="kw">operator</span><span class="op">&lt;=&gt;(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
-<span id="cb36-87"><a href="#cb36-87" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <span class="op">(</span><em>all-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span> <span class="op">&amp;&amp;</span></span>
-<span id="cb36-88"><a href="#cb36-88" aria-hidden="true" tabindex="-1"></a>         <span class="op">(</span>three_way_comparable<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;</span> <span class="op">&amp;&amp;...))</span>;</span>
-<span id="cb36-89"><a href="#cb36-89" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-90"><a href="#cb36-90" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">+(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it, difference_type n<span class="op">)</span></span>
-<span id="cb36-91"><a href="#cb36-91" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
-<span id="cb36-92"><a href="#cb36-92" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-93"><a href="#cb36-93" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">+(</span>difference_type n, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it<span class="op">)</span></span>
-<span id="cb36-94"><a href="#cb36-94" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
-<span id="cb36-95"><a href="#cb36-95" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-96"><a href="#cb36-96" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it, difference_type n<span class="op">)</span></span>
-<span id="cb36-97"><a href="#cb36-97" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
-<span id="cb36-98"><a href="#cb36-98" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-99"><a href="#cb36-99" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span> </span>
-<span id="cb36-100"><a href="#cb36-100" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
-<span id="cb36-101"><a href="#cb36-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-102"><a href="#cb36-102" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, default_sentinel_t<span class="op">)</span> </span>
-<span id="cb36-103"><a href="#cb36-103" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>see below</em>;</span>
-<span id="cb36-104"><a href="#cb36-104" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-105"><a href="#cb36-105" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span>default_sentinel_t, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x<span class="op">)</span> </span>
-<span id="cb36-106"><a href="#cb36-106" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>see below</em>;</span>
-<span id="cb36-107"><a href="#cb36-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-108"><a href="#cb36-108" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">auto</span><span class="op">)</span> iter_move<span class="op">(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it<span class="op">)</span> <span class="kw">noexcept</span><span class="op">(</span><em>see below</em><span class="op">)</span>;</span>
-<span id="cb36-109"><a href="#cb36-109" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-110"><a href="#cb36-110" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">void</span> iter_swap<span class="op">(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span> <span class="kw">noexcept</span><span class="op">(</span><em>see below</em><span class="op">)</span></span>
-<span id="cb36-111"><a href="#cb36-111" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>see below</em>;</span>
-<span id="cb36-112"><a href="#cb36-112" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span>;</span>
-<span id="cb36-113"><a href="#cb36-113" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb34"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> std<span class="op">::</span>ranges<span class="op">{</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span> <span class="op">&lt;</span>input_range<span class="op">...</span> Views<span class="op">&gt;</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <span class="op">(</span>view<span class="op">&lt;</span>Views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span><span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">)</span> <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>              <em>concatable</em><span class="op">&lt;</span>Views<span class="op">...&gt;</span></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="dt">bool</span> Const<span class="op">&gt;</span></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">class</span> concat_view<span class="op">&lt;</span>Views<span class="op">...&gt;::</span><em>iterator</em> <span class="op">{</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span><span class="op">:</span></span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> iterator_category <span class="op">=</span> <em>see below</em>;                  <span class="co">// not always present.</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> iterator_concept <span class="op">=</span> <em>see below</em>;</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> value_type <span class="op">=</span> <em>concat-value-t</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> difference_type <span class="op">=</span> common_type_t<span class="op">&lt;</span>range_difference_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;...&gt;</span>;</span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>  <span class="kw">private</span><span class="op">:</span></span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> <em>base-iter</em> <span class="op">=</span>                                     <span class="co">// exposition only</span></span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>      variant<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;...&gt;</span>;</span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>    <em>maybe-const</em><span class="op">&lt;</span>Const, concat_view<span class="op">&gt;*</span> <em>parent_</em> <span class="op">=</span> <span class="kw">nullptr</span>;   <span class="co">// exposition only</span></span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>    <em>base-iter</em> <em>it_</em>;                                        <span class="co">// exposition only</span></span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>    <span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="dt">void</span> <em>satisfy</em><span class="op">()</span>;                             <span class="co">// exposition only</span></span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="dt">void</span> <em>prev</em><span class="op">()</span>;                                <span class="co">// exposition only</span></span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a>    <span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="dt">void</span> <em>advance-fwd</em><span class="op">(</span>difference_type offset, difference_type steps<span class="op">)</span>; <span class="co">// exposition only</span></span>
+<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a>    <span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
+<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="dt">void</span> <em>advance-bwd</em><span class="op">(</span>difference_type offset, difference_type steps<span class="op">)</span>; <span class="co">// exposition only</span></span>
+<span id="cb34-33"><a href="#cb34-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-34"><a href="#cb34-34" aria-hidden="true" tabindex="-1"></a>    <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Args<span class="op">&gt;</span></span>
+<span id="cb34-35"><a href="#cb34-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">explicit</span> <span class="kw">constexpr</span> <em>iterator</em><span class="op">(</span><em>maybe-const</em><span class="op">&lt;</span>Const, concat_view<span class="op">&gt;*</span> parent, Args<span class="op">&amp;&amp;...</span> args<span class="op">)</span> </span>
+<span id="cb34-36"><a href="#cb34-36" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> constructible_from<span class="op">&lt;</span><em>base-iter</em>, Args<span class="op">&amp;&amp;...&gt;</span>;  <span class="co">// exposition only</span></span>
+<span id="cb34-37"><a href="#cb34-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-38"><a href="#cb34-38" aria-hidden="true" tabindex="-1"></a>  <span class="kw">public</span><span class="op">:</span></span>
+<span id="cb34-39"><a href="#cb34-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-40"><a href="#cb34-40" aria-hidden="true" tabindex="-1"></a>    <em>iterator</em><span class="op">()</span> <span class="op">=</span> <span class="cf">default</span>;</span>
+<span id="cb34-41"><a href="#cb34-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-42"><a href="#cb34-42" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">(</span><em>iterator</em><span class="op">&lt;!</span>Const<span class="op">&gt;</span> i<span class="op">)</span> </span>
+<span id="cb34-43"><a href="#cb34-43" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> Const <span class="op">&amp;&amp;</span> <span class="op">(</span>convertible_to<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span>Views<span class="op">&gt;</span>, iterator_t<span class="op">&lt;</span><span class="kw">const</span> Views<span class="op">&gt;&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span>;</span>
+<span id="cb34-44"><a href="#cb34-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-45"><a href="#cb34-45" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">auto</span><span class="op">)</span> <span class="kw">operator</span><span class="op">*()</span> <span class="kw">const</span>;</span>
+<span id="cb34-46"><a href="#cb34-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-47"><a href="#cb34-47" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">++()</span>;</span>
+<span id="cb34-48"><a href="#cb34-48" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-49"><a href="#cb34-49" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="dt">void</span> <span class="kw">operator</span><span class="op">++(</span><span class="dt">int</span><span class="op">)</span>;</span>
+<span id="cb34-50"><a href="#cb34-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-51"><a href="#cb34-51" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">++(</span><span class="dt">int</span><span class="op">)</span> </span>
+<span id="cb34-52"><a href="#cb34-52" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>all-forward</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb34-53"><a href="#cb34-53" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb34-54"><a href="#cb34-54" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">--()</span> </span>
+<span id="cb34-55"><a href="#cb34-55" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-bidirectional</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb34-56"><a href="#cb34-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-57"><a href="#cb34-57" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">--(</span><span class="dt">int</span><span class="op">)</span> </span>
+<span id="cb34-58"><a href="#cb34-58" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-bidirectional</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb34-59"><a href="#cb34-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-60"><a href="#cb34-60" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">+=(</span>difference_type n<span class="op">)</span> </span>
+<span id="cb34-61"><a href="#cb34-61" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb34-62"><a href="#cb34-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-63"><a href="#cb34-63" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">-=(</span>difference_type n<span class="op">)</span> </span>
+<span id="cb34-64"><a href="#cb34-64" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb34-65"><a href="#cb34-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-66"><a href="#cb34-66" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">auto</span><span class="op">)</span> <span class="kw">operator</span><span class="op">[](</span>difference_type n<span class="op">)</span> <span class="kw">const</span></span>
+<span id="cb34-67"><a href="#cb34-67" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb34-68"><a href="#cb34-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-69"><a href="#cb34-69" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">==(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
+<span id="cb34-70"><a href="#cb34-70" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span><span class="op">(</span>equality_comparable<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&gt;&amp;&amp;...)</span>;</span>
+<span id="cb34-71"><a href="#cb34-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-72"><a href="#cb34-72" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">==(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it, default_sentinel_t<span class="op">)</span>;</span>
+<span id="cb34-73"><a href="#cb34-73" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-74"><a href="#cb34-74" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&lt;(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
+<span id="cb34-75"><a href="#cb34-75" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>all-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb34-76"><a href="#cb34-76" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-77"><a href="#cb34-77" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&gt;(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
+<span id="cb34-78"><a href="#cb34-78" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>all-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb34-79"><a href="#cb34-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-80"><a href="#cb34-80" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&lt;=(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
+<span id="cb34-81"><a href="#cb34-81" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>all-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb34-82"><a href="#cb34-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-83"><a href="#cb34-83" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&gt;=(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
+<span id="cb34-84"><a href="#cb34-84" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>all-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb34-85"><a href="#cb34-85" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-86"><a href="#cb34-86" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="kw">auto</span> <span class="kw">operator</span><span class="op">&lt;=&gt;(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
+<span id="cb34-87"><a href="#cb34-87" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <span class="op">(</span><em>all-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb34-88"><a href="#cb34-88" aria-hidden="true" tabindex="-1"></a>         <span class="op">(</span>three_way_comparable<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;</span> <span class="op">&amp;&amp;...))</span>;</span>
+<span id="cb34-89"><a href="#cb34-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-90"><a href="#cb34-90" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">+(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it, difference_type n<span class="op">)</span></span>
+<span id="cb34-91"><a href="#cb34-91" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb34-92"><a href="#cb34-92" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-93"><a href="#cb34-93" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">+(</span>difference_type n, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it<span class="op">)</span></span>
+<span id="cb34-94"><a href="#cb34-94" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb34-95"><a href="#cb34-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-96"><a href="#cb34-96" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it, difference_type n<span class="op">)</span></span>
+<span id="cb34-97"><a href="#cb34-97" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb34-98"><a href="#cb34-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-99"><a href="#cb34-99" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span> </span>
+<span id="cb34-100"><a href="#cb34-100" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb34-101"><a href="#cb34-101" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-102"><a href="#cb34-102" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, default_sentinel_t<span class="op">)</span> </span>
+<span id="cb34-103"><a href="#cb34-103" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>see below</em>;</span>
+<span id="cb34-104"><a href="#cb34-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-105"><a href="#cb34-105" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span>default_sentinel_t, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x<span class="op">)</span> </span>
+<span id="cb34-106"><a href="#cb34-106" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>see below</em>;</span>
+<span id="cb34-107"><a href="#cb34-107" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-108"><a href="#cb34-108" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">auto</span><span class="op">)</span> iter_move<span class="op">(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it<span class="op">)</span> <span class="kw">noexcept</span><span class="op">(</span><em>see below</em><span class="op">)</span>;</span>
+<span id="cb34-109"><a href="#cb34-109" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-110"><a href="#cb34-110" aria-hidden="true" tabindex="-1"></a>    <span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">void</span> iter_swap<span class="op">(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span> <span class="kw">noexcept</span><span class="op">(</span><em>see below</em><span class="op">)</span></span>
+<span id="cb34-111"><a href="#cb34-111" aria-hidden="true" tabindex="-1"></a>        <span class="kw">requires</span> <em>see below</em>;</span>
+<span id="cb34-112"><a href="#cb34-112" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span>;</span>
+<span id="cb34-113"><a href="#cb34-113" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-114"><a href="#cb34-114" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p><span class="marginalizedparent"><a class="marginalized">1</a></span>
 <code class="sourceCode default"><em>iterator</em>::iterator_concept</code>
 is defined as follows:</p>
@@ -1634,82 +1600,82 @@ Otherwise, <code class="sourceCode default">iterator_category</code>
 denotes <code class="sourceCode default">input_iterator_tag</code>.</li>
 </ul></li>
 </ul>
-<div class="sourceCode" id="cb37"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
-<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">void</span> <em>satisfy</em><span class="op">()</span>;                             <span class="co">// exposition only</span></span></code></pre></div>
+<div class="sourceCode" id="cb35"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">void</span> <em>satisfy</em><span class="op">()</span>;                             <span class="co">// exposition only</span></span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">3</a></span>
 <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">constexpr</span> <span class="op">(</span>N <span class="op">&lt;</span> <span class="op">(</span><span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">)</span> <span class="op">-</span> <span class="dv">1</span><span class="op">))</span> <span class="op">{</span></span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">==</span> ranges<span class="op">::</span>end<span class="op">(</span>get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">)))</span> <span class="op">{</span></span>
-<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>        <em>it_</em><span class="op">.</span><span class="kw">template</span> emplace<span class="op">&lt;</span>N <span class="op">+</span> <span class="dv">1</span><span class="op">&gt;(</span>ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span>N <span class="op">+</span> <span class="dv">1</span><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">)))</span>;</span>
-<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>        <em>satisfy</em><span class="op">&lt;</span>N <span class="op">+</span> <span class="dv">1</span><span class="op">&gt;()</span>;</span>
-<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">constexpr</span> <span class="op">(</span>N <span class="op">&lt;</span> <span class="op">(</span><span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">)</span> <span class="op">-</span> <span class="dv">1</span><span class="op">))</span> <span class="op">{</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">==</span> ranges<span class="op">::</span>end<span class="op">(</span>get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">)))</span> <span class="op">{</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>        <em>it_</em><span class="op">.</span><span class="kw">template</span> emplace<span class="op">&lt;</span>N <span class="op">+</span> <span class="dv">1</span><span class="op">&gt;(</span>ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span>N <span class="op">+</span> <span class="dv">1</span><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">)))</span>;</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>        <em>satisfy</em><span class="op">&lt;</span>N <span class="op">+</span> <span class="dv">1</span><span class="op">&gt;()</span>;</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb39"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">void</span> <em>prev</em><span class="op">()</span>;                                <span class="co">// exposition only</span></span></code></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">void</span> <em>prev</em><span class="op">()</span>;                                <span class="co">// exposition only</span></span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">4</a></span>
 <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">constexpr</span> <span class="op">(</span>N <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">--</span>get<span class="op">&lt;</span><span class="dv">0</span><span class="op">&gt;(</span><em>it_</em><span class="op">)</span>;</span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">==</span> ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">)))</span> <span class="op">{</span></span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>        <span class="kw">using</span> prev_view <span class="op">=</span> <em>maybe-const</em><span class="op">&lt;</span>Const, tuple_element_t<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span>, tuple<span class="op">&lt;</span>Views<span class="op">...&gt;&gt;&gt;</span>;</span>
-<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">constexpr</span> <span class="op">(</span>common_range<span class="op">&lt;</span>prev_view<span class="op">&gt;)</span> <span class="op">{</span></span>
-<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>            <em>it_</em><span class="op">.</span><span class="kw">template</span> emplace<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span>ranges<span class="op">::</span>end<span class="op">(</span>get<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">)))</span>;</span>
-<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>            <em>it_</em><span class="op">.</span><span class="kw">template</span> emplace<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span></span>
-<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>                ranges<span class="op">::</span>next<span class="op">(</span>ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))</span>,</span>
-<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>                             ranges<span class="op">::</span>size<span class="op">(</span>get<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))))</span>;</span>
-<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
-<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>        <em>prev</em><span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;()</span>;</span>
-<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>        <span class="op">--</span>get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>it_</em><span class="op">)</span>;</span>
-<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">constexpr</span> <span class="op">(</span>N <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">--</span>get<span class="op">&lt;</span><span class="dv">0</span><span class="op">&gt;(</span><em>it_</em><span class="op">)</span>;</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">==</span> ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">)))</span> <span class="op">{</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>        <span class="kw">using</span> prev_view <span class="op">=</span> <em>maybe-const</em><span class="op">&lt;</span>Const, tuple_element_t<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span>, tuple<span class="op">&lt;</span>Views<span class="op">...&gt;&gt;&gt;</span>;</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">constexpr</span> <span class="op">(</span>common_range<span class="op">&lt;</span>prev_view<span class="op">&gt;)</span> <span class="op">{</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>            <em>it_</em><span class="op">.</span><span class="kw">template</span> emplace<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span>ranges<span class="op">::</span>end<span class="op">(</span>get<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">)))</span>;</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>            <em>it_</em><span class="op">.</span><span class="kw">template</span> emplace<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span></span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>                ranges<span class="op">::</span>next<span class="op">(</span>ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))</span>,</span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a>                             ranges<span class="op">::</span>size<span class="op">(</span>get<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))))</span>;</span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb38-13"><a href="#cb38-13" aria-hidden="true" tabindex="-1"></a>        <em>prev</em><span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;()</span>;</span>
+<span id="cb38-14"><a href="#cb38-14" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb38-15"><a href="#cb38-15" aria-hidden="true" tabindex="-1"></a>        <span class="op">--</span>get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>it_</em><span class="op">)</span>;</span>
+<span id="cb38-16"><a href="#cb38-16" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb38-17"><a href="#cb38-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb41"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">void</span> <em>advance-fwd</em><span class="op">(</span>difference_type offset, difference_type steps<span class="op">)</span>; <span class="co">// exposition only</span></span></code></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">void</span> <em>advance-fwd</em><span class="op">(</span>difference_type offset, difference_type steps<span class="op">)</span>; <span class="co">// exposition only</span></span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">5</a></span>
 <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> underlying_diff_type <span class="op">=</span> iter_difference_t<span class="op">&lt;</span>variant_alternative_t<span class="op">&lt;</span>N, <em>base-iter</em><span class="op">&gt;&gt;</span>;</span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">constexpr</span> <span class="op">(</span>N <span class="op">==</span> <span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">)</span> <span class="op">-</span> <span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>    get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">+=</span> <span class="kw">static_cast</span><span class="op">&lt;</span>underlying_diff_type<span class="op">&gt;(</span>steps<span class="op">)</span>;</span>
-<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> n_size <span class="op">=</span> ranges<span class="op">::</span>distance<span class="op">(</span>get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))</span>;</span>
-<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>offset <span class="op">+</span> steps <span class="op">&lt;</span> n_size<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>        get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">+=</span> <span class="kw">static_cast</span><span class="op">&lt;</span>underlying_diff_type<span class="op">&gt;(</span>steps<span class="op">)</span>;</span>
-<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>        <em>it_</em><span class="op">.</span><span class="kw">template</span> emplace<span class="op">&lt;</span>N <span class="op">+</span> <span class="dv">1</span><span class="op">&gt;(</span>ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span>N <span class="op">+</span> <span class="dv">1</span><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">)))</span>;</span>
-<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>        <em>advance-fwd</em><span class="op">&lt;</span>N <span class="op">+</span> <span class="dv">1</span><span class="op">&gt;(</span><span class="dv">0</span>, offset <span class="op">+</span> steps <span class="op">-</span> n_size<span class="op">)</span>;</span>
-<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> underlying_diff_type <span class="op">=</span> iter_difference_t<span class="op">&lt;</span>variant_alternative_t<span class="op">&lt;</span>N, <em>base-iter</em><span class="op">&gt;&gt;</span>;</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">constexpr</span> <span class="op">(</span>N <span class="op">==</span> <span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">)</span> <span class="op">-</span> <span class="dv">1</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>    get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">+=</span> <span class="kw">static_cast</span><span class="op">&lt;</span>underlying_diff_type<span class="op">&gt;(</span>steps<span class="op">)</span>;</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">auto</span> n_size <span class="op">=</span> ranges<span class="op">::</span>distance<span class="op">(</span>get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))</span>;</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>offset <span class="op">+</span> steps <span class="op">&lt;</span> n_size<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>        get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">+=</span> <span class="kw">static_cast</span><span class="op">&lt;</span>underlying_diff_type<span class="op">&gt;(</span>steps<span class="op">)</span>;</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>        <em>it_</em><span class="op">.</span><span class="kw">template</span> emplace<span class="op">&lt;</span>N <span class="op">+</span> <span class="dv">1</span><span class="op">&gt;(</span>ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span>N <span class="op">+</span> <span class="dv">1</span><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">)))</span>;</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>        <em>advance-fwd</em><span class="op">&lt;</span>N <span class="op">+</span> <span class="dv">1</span><span class="op">&gt;(</span><span class="dv">0</span>, offset <span class="op">+</span> steps <span class="op">-</span> n_size<span class="op">)</span>;</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb43"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">void</span> <em>advance-bwd</em><span class="op">(</span>difference_type offset, difference_type steps<span class="op">)</span>; <span class="co">// exposition only</span></span></code></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">void</span> <em>advance-bwd</em><span class="op">(</span>difference_type offset, difference_type steps<span class="op">)</span>; <span class="co">// exposition only</span></span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">6</a></span>
 <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb44"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> underlying_diff_type <span class="op">=</span> iter_difference_t<span class="op">&lt;</span>variant_alternative_t<span class="op">&lt;</span>N, <em>base-iter</em><span class="op">&gt;&gt;</span>;</span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">constexpr</span> <span class="op">(</span>N <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>    get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">-=</span> <span class="kw">static_cast</span><span class="op">&lt;</span>underlying_diff_type<span class="op">&gt;(</span>steps<span class="op">)</span>;</span>
-<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>offset <span class="op">&gt;=</span> steps<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>        get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">-=</span> <span class="kw">static_cast</span><span class="op">&lt;</span>underlying_diff_type<span class="op">&gt;(</span>steps<span class="op">)</span>;</span>
-<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">auto</span> prev_size <span class="op">=</span> ranges<span class="op">::</span>distance<span class="op">(</span>get<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))</span>;</span>
-<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>        <em>it_</em><span class="op">.</span><span class="kw">template</span> emplace<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span>ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))</span> <span class="op">+</span> prev_size<span class="op">)</span>;</span>
-<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>        <em>advance-bwd</em><span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span>prev_size, steps <span class="op">-</span> offset<span class="op">)</span>;</span>
-<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> underlying_diff_type <span class="op">=</span> iter_difference_t<span class="op">&lt;</span>variant_alternative_t<span class="op">&lt;</span>N, <em>base-iter</em><span class="op">&gt;&gt;</span>;</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">constexpr</span> <span class="op">(</span>N <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>    get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">-=</span> <span class="kw">static_cast</span><span class="op">&lt;</span>underlying_diff_type<span class="op">&gt;(</span>steps<span class="op">)</span>;</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>offset <span class="op">&gt;=</span> steps<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>        get<span class="op">&lt;</span>N<span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">-=</span> <span class="kw">static_cast</span><span class="op">&lt;</span>underlying_diff_type<span class="op">&gt;(</span>steps<span class="op">)</span>;</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>        <span class="kw">auto</span> prev_size <span class="op">=</span> ranges<span class="op">::</span>distance<span class="op">(</span>get<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))</span>;</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>        <em>it_</em><span class="op">.</span><span class="kw">template</span> emplace<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span>ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))</span> <span class="op">+</span> prev_size<span class="op">)</span>;</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>        <em>advance-bwd</em><span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;(</span>prev_size, steps <span class="op">-</span> offset<span class="op">)</span>;</span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb45"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Args<span class="op">&gt;</span></span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="kw">explicit</span> <span class="kw">constexpr</span> <em>iterator</em><span class="op">(</span></span>
-<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>            <em>maybe-const</em><span class="op">&lt;</span>Const, concat_view<span class="op">&gt;*</span> parent,</span>
-<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a>            Args<span class="op">&amp;&amp;...</span> args<span class="op">)</span> </span>
-<span id="cb45-5"><a href="#cb45-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> constructible_from<span class="op">&lt;</span><em>base-iter</em>, Args<span class="op">&amp;&amp;...&gt;</span>; <span class="co">// exposition only</span></span></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Args<span class="op">&gt;</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="kw">explicit</span> <span class="kw">constexpr</span> <em>iterator</em><span class="op">(</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>            <em>maybe-const</em><span class="op">&lt;</span>Const, concat_view<span class="op">&gt;*</span> parent,</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>            Args<span class="op">&amp;&amp;...</span> args<span class="op">)</span> </span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> constructible_from<span class="op">&lt;</span><em>base-iter</em>, Args<span class="op">&amp;&amp;...&gt;</span>; <span class="co">// exposition only</span></span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">7</a></span>
 <em>Effects</em>: Initializes
@@ -1717,9 +1683,9 @@ denotes <code class="sourceCode default">input_iterator_tag</code>.</li>
 <code class="sourceCode default">parent</code>, and initializes
 <code class="sourceCode default"><em>it_</em></code> with <code class="sourceCode default">std::forward&lt;Args&gt;(args)...</code>.</p>
 </div>
-<div class="sourceCode" id="cb46"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">(</span><em>iterator</em><span class="op">&lt;!</span>Const<span class="op">&gt;</span> i<span class="op">)</span> </span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> Const <span class="op">&amp;&amp;</span></span>
-<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">(</span>convertible_to<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span>Views<span class="op">&gt;</span>, iterator_t<span class="op">&lt;</span><span class="kw">const</span> Views<span class="op">&gt;&gt;&amp;&amp;...)</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">(</span><em>iterator</em><span class="op">&lt;!</span>Const<span class="op">&gt;</span> i<span class="op">)</span> </span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> Const <span class="op">&amp;&amp;</span></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">(</span>convertible_to<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span>Views<span class="op">&gt;</span>, iterator_t<span class="op">&lt;</span><span class="kw">const</span> Views<span class="op">&gt;&gt;&amp;&amp;...)</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">8</a></span>
 <em>Effects</em>: Initializes
@@ -1728,7 +1694,7 @@ denotes <code class="sourceCode default">input_iterator_tag</code>.</li>
 initializes <code class="sourceCode default"><em>it_</em></code> with
 <code class="sourceCode default">std::move(i.<em>it_</em>)</code>.</p>
 </div>
-<div class="sourceCode" id="cb47"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">auto</span><span class="op">)</span> <span class="kw">operator</span><span class="op">*()</span> <span class="kw">const</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">auto</span><span class="op">)</span> <span class="kw">operator</span><span class="op">*()</span> <span class="kw">const</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">9</a></span>
 <em>Preconditions</em>:
@@ -1736,11 +1702,11 @@ initializes <code class="sourceCode default"><em>it_</em></code> with
 is <code class="sourceCode default">false</code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">10</a></span>
 <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> reference <span class="op">=</span> <em>concat-reference-t</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> std<span class="op">::</span>visit<span class="op">([](</span><span class="kw">auto</span><span class="op">&amp;&amp;</span> it<span class="op">)</span> <span class="op">-&gt;</span> reference <span class="op">{</span> </span>
-<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">*</span>it; <span class="op">}</span>, <em>it_</em><span class="op">)</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> reference <span class="op">=</span> <em>concat-reference-t</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> std<span class="op">::</span>visit<span class="op">([](</span><span class="kw">auto</span><span class="op">&amp;&amp;</span> it<span class="op">)</span> <span class="op">-&gt;</span> reference <span class="op">{</span> </span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="op">*</span>it; <span class="op">}</span>, <em>it_</em><span class="op">)</span>;</span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb49"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">++()</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">++()</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">11</a></span>
 <em>Preconditions</em>:
@@ -1750,27 +1716,27 @@ is <code class="sourceCode default">false</code>.</p>
 <em>Effects</em>: Let <code class="sourceCode default"><em>i</em></code>
 be <code class="sourceCode default"><em>it_</em>.index()</code>.
 Equivalent to:</p>
-<div class="sourceCode" id="cb50"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="op">++</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>it_</em><span class="op">)</span>;</span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><em>satisfy</em><span class="op">&lt;</span><em>i</em><span class="op">&gt;()</span>;</span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">*</span><span class="kw">this</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="op">++</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>it_</em><span class="op">)</span>;</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><em>satisfy</em><span class="op">&lt;</span><em>i</em><span class="op">&gt;()</span>;</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">*</span><span class="kw">this</span>;</span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb51"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">void</span> <span class="kw">operator</span><span class="op">++(</span><span class="dt">int</span><span class="op">)</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">void</span> <span class="kw">operator</span><span class="op">++(</span><span class="dt">int</span><span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">13</a></span>
 <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb52"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="op">++*</span><span class="kw">this</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="op">++*</span><span class="kw">this</span>;</span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb53"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">++(</span><span class="dt">int</span><span class="op">)</span> </span>
-<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>all-forward</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">++(</span><span class="dt">int</span><span class="op">)</span> </span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>all-forward</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">14</a></span>
 <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb54"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> tmp <span class="op">=</span> <span class="op">*</span><span class="kw">this</span>;</span>
-<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="op">++*</span><span class="kw">this</span>;</span>
-<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> tmp;</span></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> tmp <span class="op">=</span> <span class="op">*</span><span class="kw">this</span>;</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="op">++*</span><span class="kw">this</span>;</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> tmp;</span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb55"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">--()</span> </span>
-<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-bidirectional</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">--()</span> </span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-bidirectional</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">15</a></span>
 <em>Preconditions</em>:
@@ -1780,20 +1746,20 @@ is <code class="sourceCode default">false</code>.</p>
 <em>Effects</em>: Let <code class="sourceCode default"><em>i</em></code>
 be <code class="sourceCode default"><em>it_</em>.index()</code>.
 Equivalent to:</p>
-<div class="sourceCode" id="cb56"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><em>prev</em><span class="op">&lt;</span><em>i</em><span class="op">&gt;()</span>;</span>
-<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">*</span><span class="kw">this</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><em>prev</em><span class="op">&lt;</span><em>i</em><span class="op">&gt;()</span>;</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">*</span><span class="kw">this</span>;</span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb57"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">--(</span><span class="dt">int</span><span class="op">)</span> </span>
-<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-bidirectional</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">--(</span><span class="dt">int</span><span class="op">)</span> </span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-bidirectional</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">17</a></span>
 <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb58"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> tmp <span class="op">=</span> <span class="op">*</span><span class="kw">this</span>;</span>
-<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a><span class="op">--*</span><span class="kw">this</span>;</span>
-<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> tmp;</span></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> tmp <span class="op">=</span> <span class="op">*</span><span class="kw">this</span>;</span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a><span class="op">--*</span><span class="kw">this</span>;</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> tmp;</span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb59"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">+=(</span>difference_type n<span class="op">)</span> </span>
-<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">+=(</span>difference_type n<span class="op">)</span> </span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">18</a></span>
 <em>Preconditions</em>:
@@ -1803,30 +1769,30 @@ is <code class="sourceCode default">false</code>.</p>
 <em>Effects</em>: Let <code class="sourceCode default"><em>i</em></code>
 be <code class="sourceCode default"><em>it_</em>.index()</code>.
 Equivalent to:</p>
-<div class="sourceCode" id="cb60"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span><span class="op">(</span>n <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>  <em>advance-fwd</em><span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">-</span> ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))</span>, n<span class="op">)</span>;</span>
-<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>n <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>  <em>advance-bwd</em><span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">-</span> ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))</span>, <span class="op">-</span>n<span class="op">)</span>;</span>
-<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">*</span><span class="kw">this</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb58"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span><span class="op">(</span>n <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>  <em>advance-fwd</em><span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">-</span> ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))</span>, n<span class="op">)</span>;</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>n <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb58-4"><a href="#cb58-4" aria-hidden="true" tabindex="-1"></a>  <em>advance-bwd</em><span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">-</span> ranges<span class="op">::</span>begin<span class="op">(</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))</span>, <span class="op">-</span>n<span class="op">)</span>;</span>
+<span id="cb58-5"><a href="#cb58-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb58-6"><a href="#cb58-6" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">*</span><span class="kw">this</span>;</span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb61"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">-=(</span>difference_type n<span class="op">)</span> </span>
-<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">-=(</span>difference_type n<span class="op">)</span> </span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">20</a></span>
 <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb62"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span><span class="kw">this</span> <span class="op">+=</span> <span class="op">-</span>n;</span>
-<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">*</span><span class="kw">this</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb60"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="op">*</span><span class="kw">this</span> <span class="op">+=</span> <span class="op">-</span>n;</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">*</span><span class="kw">this</span>;</span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb63"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">auto</span><span class="op">)</span> <span class="kw">operator</span><span class="op">[](</span>difference_type n<span class="op">)</span> <span class="kw">const</span></span>
-<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb61"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">auto</span><span class="op">)</span> <span class="kw">operator</span><span class="op">[](</span>difference_type n<span class="op">)</span> <span class="kw">const</span></span>
+<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">21</a></span>
 <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb64"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">*((*</span><span class="kw">this</span><span class="op">)</span> <span class="op">+</span> n<span class="op">)</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb62"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">*((*</span><span class="kw">this</span><span class="op">)</span> <span class="op">+</span> n<span class="op">)</span>;</span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb65"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">==(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
-<span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span><span class="op">(</span>equality_comparable<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&gt;&amp;&amp;...)</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb63"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">==(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span><span class="op">(</span>equality_comparable<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&gt;&amp;&amp;...)</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">22</a></span>
 <em>Preconditions</em>: <code class="sourceCode default">x.<em>it_</em>.valueless_by_exception()</code>
@@ -1834,30 +1800,30 @@ and <code class="sourceCode default">y.<em>it_</em>.valueless_by_exception()</co
 are each <code class="sourceCode default">false</code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">23</a></span>
 <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb66"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> x<span class="op">.</span><em>it_</em> <span class="op">==</span> y<span class="op">.</span><em>it_</em>;</span></code></pre></div>
+<div class="sourceCode" id="cb64"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> x<span class="op">.</span><em>it_</em> <span class="op">==</span> y<span class="op">.</span><em>it_</em>;</span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb67"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">==(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it, default_sentinel_t<span class="op">)</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">==(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it, default_sentinel_t<span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">24</a></span>
 <em>Preconditions</em>: <code class="sourceCode default">it.<em>it_</em>.valueless_by_exception()</code>
 is <code class="sourceCode default">false</code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">25</a></span>
 <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb68"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="kw">auto</span> last_idx <span class="op">=</span> <span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">)</span> <span class="op">-</span> <span class="dv">1</span>;</span>
-<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> it<span class="op">.</span><em>it_</em><span class="op">.</span>index<span class="op">()</span> <span class="op">==</span> last_idx <span class="op">&amp;&amp;</span></span>
-<span id="cb68-3"><a href="#cb68-3" aria-hidden="true" tabindex="-1"></a>       get<span class="op">&lt;</span>last_idx<span class="op">&gt;(</span>it<span class="op">.</span><em>it_</em><span class="op">)</span> <span class="op">==</span> ranges<span class="op">::</span>end<span class="op">(</span>get<span class="op">&lt;</span>last_idx<span class="op">&gt;(</span>it<span class="op">.</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb66"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="kw">auto</span> last_idx <span class="op">=</span> <span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">)</span> <span class="op">-</span> <span class="dv">1</span>;</span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> it<span class="op">.</span><em>it_</em><span class="op">.</span>index<span class="op">()</span> <span class="op">==</span> last_idx <span class="op">&amp;&amp;</span></span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>       get<span class="op">&lt;</span>last_idx<span class="op">&gt;(</span>it<span class="op">.</span><em>it_</em><span class="op">)</span> <span class="op">==</span> ranges<span class="op">::</span>end<span class="op">(</span>get<span class="op">&lt;</span>last_idx<span class="op">&gt;(</span>it<span class="op">.</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))</span>;</span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb69"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&lt;(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
-<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>all-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
-<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&gt;(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
-<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>all-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
-<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&lt;=(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
-<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>all-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
-<span id="cb69-7"><a href="#cb69-7" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&gt;=(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
-<span id="cb69-8"><a href="#cb69-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>all-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
-<span id="cb69-9"><a href="#cb69-9" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="kw">auto</span> <span class="kw">operator</span><span class="op">&lt;=&gt;(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
-<span id="cb69-10"><a href="#cb69-10" aria-hidden="true" tabindex="-1"></a>   <span class="kw">requires</span> <span class="op">(</span><em>all-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span> <span class="op">&amp;&amp;</span></span>
-<span id="cb69-11"><a href="#cb69-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">(</span>three_way_comparable<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;</span> <span class="op">&amp;&amp;...))</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb67"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&lt;(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>all-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&gt;(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
+<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>all-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb67-5"><a href="#cb67-5" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&lt;=(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
+<span id="cb67-6"><a href="#cb67-6" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>all-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb67-7"><a href="#cb67-7" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&gt;=(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
+<span id="cb67-8"><a href="#cb67-8" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>all-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span>
+<span id="cb67-9"><a href="#cb67-9" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="kw">auto</span> <span class="kw">operator</span><span class="op">&lt;=&gt;(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span></span>
+<span id="cb67-10"><a href="#cb67-10" aria-hidden="true" tabindex="-1"></a>   <span class="kw">requires</span> <span class="op">(</span><em>all-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb67-11"><a href="#cb67-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">(</span>three_way_comparable<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;</span> <span class="op">&amp;&amp;...))</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">26</a></span>
 <em>Preconditions</em>: <code class="sourceCode default">x.<em>it_</em>.valueless_by_exception()</code>
@@ -1867,34 +1833,34 @@ are each <code class="sourceCode default">false</code>.</p>
 <code class="sourceCode default"><em>op</em></code> be the operator.</p>
 <p><span class="marginalizedparent"><a class="marginalized">28</a></span>
 <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb70"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> x<span class="op">.</span><em>it_</em> <em>op</em> y<span class="op">.</span><em>it_</em>;</span></code></pre></div>
+<div class="sourceCode" id="cb68"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> x<span class="op">.</span><em>it_</em> <em>op</em> y<span class="op">.</span><em>it_</em>;</span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb71"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">+(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it, difference_type n<span class="op">)</span></span>
-<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb69"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">+(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it, difference_type n<span class="op">)</span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">29</a></span>
 <em>Preconditions</em>: <code class="sourceCode default">it.<em>it_</em>.valueless_by_exception()</code>
 is <code class="sourceCode default">false</code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">30</a></span>
 <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb72"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <em>iterator</em><span class="op">{</span>it<span class="op">}</span> <span class="op">+=</span> n;</span></code></pre></div>
+<div class="sourceCode" id="cb70"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <em>iterator</em><span class="op">{</span>it<span class="op">}</span> <span class="op">+=</span> n;</span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb73"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">+(</span>difference_type n, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it<span class="op">)</span></span>
-<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb71"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">+(</span>difference_type n, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it<span class="op">)</span></span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">31</a></span>
 <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb74"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> it <span class="op">+</span> n;</span></code></pre></div>
+<div class="sourceCode" id="cb72"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> it <span class="op">+</span> n;</span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb75"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it, difference_type n<span class="op">)</span></span>
-<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb73"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it, difference_type n<span class="op">)</span></span>
+<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">32</a></span>
 <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb76"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <em>iterator</em><span class="op">{</span>it<span class="op">}</span> <span class="op">-=</span> n;</span></code></pre></div>
+<div class="sourceCode" id="cb74"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <em>iterator</em><span class="op">{</span>it<span class="op">}</span> <span class="op">-=</span> n;</span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb77"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span> </span>
-<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb75"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span> </span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">33</a></span>
 <em>Preconditions</em>: <code class="sourceCode default">x.<em>it_</em>.valueless_by_exception()</code>
@@ -1918,19 +1884,19 @@ sizes of all the ranges <code class="sourceCode default">get&lt;<em>i</em>&gt;(x
 if there is any, and <code class="sourceCode default">0</code>
 otherwise, of type <code class="sourceCode default"><em>make-unsigned-like-t</em>&lt;common_type_t&lt;range_size_t&lt;<em>maybe-const</em>&lt;Const, Views&gt;&gt;...&gt;&gt;</code>,
 equivalent to</p>
-<div class="sourceCode" id="cb78"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <em>d<sub>y</sub></em> <span class="op">+</span> <span class="kw">static_cast</span><span class="op">&lt;</span>difference_type<span class="op">&gt;(</span>s<span class="op">)</span> <span class="op">+</span> <em>d<sub>x</sub></em>;</span></code></pre></div></li>
+<div class="sourceCode" id="cb76"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <em>d<sub>y</sub></em> <span class="op">+</span> <span class="kw">static_cast</span><span class="op">&lt;</span>difference_type<span class="op">&gt;(</span>s<span class="op">)</span> <span class="op">+</span> <em>d<sub>x</sub></em>;</span></code></pre></div></li>
 <li><p><span class="marginalizedparent"><a class="marginalized">(34.2)</a></span>
 otherwise, if
 <code class="sourceCode default"><em>i<sub>x</sub></em> &lt; <em>i<sub>y</sub></em></code>,
 equivalent to:</p>
-<div class="sourceCode" id="cb79"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">-(</span>y <span class="op">-</span> x<span class="op">)</span>;</span></code></pre></div></li>
+<div class="sourceCode" id="cb77"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">-(</span>y <span class="op">-</span> x<span class="op">)</span>;</span></code></pre></div></li>
 <li><p><span class="marginalizedparent"><a class="marginalized">(34.3)</a></span>
 otherwise, equivalent to:</p>
-<div class="sourceCode" id="cb80"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> get<span class="op">&lt;</span><em>i<sub>x</sub></em><span class="op">&gt;(</span>x<span class="op">.</span><em>it_</em><span class="op">)</span> <span class="op">-</span> get<span class="op">&lt;</span><em>i<sub>y</sub></em><span class="op">&gt;(</span>y<span class="op">.</span><em>it_</em><span class="op">)</span>;</span></code></pre></div></li>
+<div class="sourceCode" id="cb78"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> get<span class="op">&lt;</span><em>i<sub>x</sub></em><span class="op">&gt;(</span>x<span class="op">.</span><em>it_</em><span class="op">)</span> <span class="op">-</span> get<span class="op">&lt;</span><em>i<sub>y</sub></em><span class="op">&gt;(</span>y<span class="op">.</span><em>it_</em><span class="op">)</span>;</span></code></pre></div></li>
 </ul>
 </div>
-<div class="sourceCode" id="cb81"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, default_sentinel_t<span class="op">)</span> </span>
-<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>see below</em>;</span></code></pre></div>
+<div class="sourceCode" id="cb79"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, default_sentinel_t<span class="op">)</span> </span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>see below</em>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">35</a></span>
 <em>Preconditions</em>: <code class="sourceCode default">x.<em>it_</em>.valueless_by_exception()</code>
@@ -1946,48 +1912,48 @@ sizes of all the ranges <code class="sourceCode default">get&lt;<em>i</em>&gt;(x
 if there is any, and <code class="sourceCode default">0</code>
 otherwise, of type <code class="sourceCode default"><em>make-unsigned-like-t</em>&lt;common_type_t&lt;range_size_t&lt;<em>maybe-const</em>&lt;Const, Views&gt;&gt;...&gt;&gt;</code>,
 equivalent to</p>
-<div class="sourceCode" id="cb82"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">-(</span><em>d<sub>x</sub></em> <span class="op">+</span> <span class="kw">static_cast</span><span class="op">&lt;</span>difference_type<span class="op">&gt;(</span>s<span class="op">))</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb80"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">-(</span><em>d<sub>x</sub></em> <span class="op">+</span> <span class="kw">static_cast</span><span class="op">&lt;</span>difference_type<span class="op">&gt;(</span>s<span class="op">))</span>;</span></code></pre></div>
 <p><span class="marginalizedparent"><a class="marginalized">37</a></span>
 <em>Remarks</em>: Let <code class="sourceCode default">V</code> be the
 last element of the pack <code class="sourceCode default">Views</code>,
 the expression in the requires-clause is equivalent to:</p>
-<div class="sourceCode" id="cb83"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="op">(</span><em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span> <span class="op">&amp;&amp;</span> sized_range<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, V<span class="op">&gt;&gt;)</span></span></code></pre></div>
+<div class="sourceCode" id="cb81"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="op">(</span><em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span> <span class="op">&amp;&amp;</span> sized_range<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, V<span class="op">&gt;&gt;)</span></span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb84"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span>default_sentinel_t, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x<span class="op">)</span> </span>
-<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>see below</em>;</span></code></pre></div>
+<div class="sourceCode" id="cb82"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span>default_sentinel_t, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x<span class="op">)</span> </span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>see below</em>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">38</a></span>
 <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb85"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">-(</span>x <span class="op">-</span> default_sentinel<span class="op">)</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb83"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">-(</span>x <span class="op">-</span> default_sentinel<span class="op">)</span>;</span></code></pre></div>
 <p><span class="marginalizedparent"><a class="marginalized">39</a></span>
 <em>Remarks</em>: Let <code class="sourceCode default">V</code> be the
 last element of the pack <code class="sourceCode default">Views</code>,
 the expression in the requires-clause is equivalent to:</p>
-<div class="sourceCode" id="cb86"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="op">(</span><em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span> <span class="op">&amp;&amp;</span> sized_range<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, V<span class="op">&gt;&gt;)</span></span></code></pre></div>
+<div class="sourceCode" id="cb84"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="op">(</span><em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span> <span class="op">&amp;&amp;</span> sized_range<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, V<span class="op">&gt;&gt;)</span></span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb87"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">auto</span><span class="op">)</span> iter_move<span class="op">(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it<span class="op">)</span> <span class="kw">noexcept</span><span class="op">(</span><em>see below</em><span class="op">)</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb85"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">auto</span><span class="op">)</span> iter_move<span class="op">(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it<span class="op">)</span> <span class="kw">noexcept</span><span class="op">(</span><em>see below</em><span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">40</a></span>
 <em>Preconditions</em>: <code class="sourceCode default">it.<em>it_</em>.valueless_by_exception()</code>
 is <code class="sourceCode default">false</code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">41</a></span>
 <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb88"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> std<span class="op">::</span>visit<span class="op">(</span></span>
-<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">[](</span><span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> i<span class="op">)</span> <span class="op">-&gt;</span></span>
-<span id="cb88-3"><a href="#cb88-3" aria-hidden="true" tabindex="-1"></a>        <em>concat-rvalue-reference-t</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span> <span class="op">{</span> </span>
-<span id="cb88-4"><a href="#cb88-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ranges<span class="op">::</span>iter_move<span class="op">(</span>i<span class="op">)</span>;</span>
-<span id="cb88-5"><a href="#cb88-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span>,</span>
-<span id="cb88-6"><a href="#cb88-6" aria-hidden="true" tabindex="-1"></a>    it<span class="op">.</span><em>it_</em><span class="op">)</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb86"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> std<span class="op">::</span>visit<span class="op">(</span></span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">[](</span><span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> i<span class="op">)</span> <span class="op">-&gt;</span></span>
+<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a>        <em>concat-rvalue-reference-t</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span> <span class="op">{</span> </span>
+<span id="cb86-4"><a href="#cb86-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> ranges<span class="op">::</span>iter_move<span class="op">(</span>i<span class="op">)</span>;</span>
+<span id="cb86-5"><a href="#cb86-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span>,</span>
+<span id="cb86-6"><a href="#cb86-6" aria-hidden="true" tabindex="-1"></a>    it<span class="op">.</span><em>it_</em><span class="op">)</span>;</span></code></pre></div>
 <p><span class="marginalizedparent"><a class="marginalized">42</a></span>
 <em>Remarks</em>: The exception specification is equivalent to:</p>
-<div class="sourceCode" id="cb89"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="op">((</span>is_nothrow_invocable_v<span class="op">&lt;</span><span class="kw">decltype</span><span class="op">(</span>ranges<span class="op">::</span>iter_move<span class="op">)</span>, </span>
-<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a>                           <span class="kw">const</span> iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&amp;&gt;</span> <span class="op">&amp;&amp;</span></span>
-<span id="cb89-3"><a href="#cb89-3" aria-hidden="true" tabindex="-1"></a>  is_nothrow_convertible_v<span class="op">&lt;</span>range_rvalue_reference_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;</span>,</span>
-<span id="cb89-4"><a href="#cb89-4" aria-hidden="true" tabindex="-1"></a>                             common_reference_t<span class="op">&lt;</span>range_rvalue_reference_t<span class="op">&lt;</span></span>
-<span id="cb89-5"><a href="#cb89-5" aria-hidden="true" tabindex="-1"></a>                               <em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;...&gt;&gt;)</span> <span class="op">&amp;&amp;...)</span></span></code></pre></div>
+<div class="sourceCode" id="cb87"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="op">((</span>is_nothrow_invocable_v<span class="op">&lt;</span><span class="kw">decltype</span><span class="op">(</span>ranges<span class="op">::</span>iter_move<span class="op">)</span>, </span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>                           <span class="kw">const</span> iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&amp;&gt;</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a>  is_nothrow_convertible_v<span class="op">&lt;</span>range_rvalue_reference_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;</span>,</span>
+<span id="cb87-4"><a href="#cb87-4" aria-hidden="true" tabindex="-1"></a>                             common_reference_t<span class="op">&lt;</span>range_rvalue_reference_t<span class="op">&lt;</span></span>
+<span id="cb87-5"><a href="#cb87-5" aria-hidden="true" tabindex="-1"></a>                               <em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;...&gt;&gt;)</span> <span class="op">&amp;&amp;...)</span></span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb90"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">void</span> iter_swap<span class="op">(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span> <span class="kw">noexcept</span><span class="op">(</span><em>see below</em><span class="op">)</span></span>
-<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>see below</em>;</span></code></pre></div>
+<div class="sourceCode" id="cb88"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">void</span> iter_swap<span class="op">(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span> <span class="kw">noexcept</span><span class="op">(</span><em>see below</em><span class="op">)</span></span>
+<span id="cb88-2"><a href="#cb88-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>see below</em>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">43</a></span>
 <em>Preconditions</em>: <code class="sourceCode default">x.<em>it_</em>.valueless_by_exception()</code>
@@ -1995,26 +1961,26 @@ and <code class="sourceCode default">y.<em>it_</em>.valueless_by_exception()</co
 are each <code class="sourceCode default">false</code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">44</a></span>
 <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb91"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>visit<span class="op">(</span></span>
-<span id="cb91-2"><a href="#cb91-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">[&amp;](</span><span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> it1, <span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> it2<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb91-3"><a href="#cb91-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">constexpr</span> <span class="op">(</span>is_same_v<span class="op">&lt;</span><span class="kw">decltype</span><span class="op">(</span>it1<span class="op">)</span>, <span class="kw">decltype</span><span class="op">(</span>it2<span class="op">)&gt;)</span> <span class="op">{</span></span>
-<span id="cb91-4"><a href="#cb91-4" aria-hidden="true" tabindex="-1"></a>            ranges<span class="op">::</span>iter_swap<span class="op">(</span>it1, it2<span class="op">)</span>;</span>
-<span id="cb91-5"><a href="#cb91-5" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb91-6"><a href="#cb91-6" aria-hidden="true" tabindex="-1"></a>            ranges<span class="op">::</span>swap<span class="op">(*</span>x, <span class="op">*</span>y<span class="op">)</span>;</span>
-<span id="cb91-7"><a href="#cb91-7" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
-<span id="cb91-8"><a href="#cb91-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span>,</span>
-<span id="cb91-9"><a href="#cb91-9" aria-hidden="true" tabindex="-1"></a>    x<span class="op">.</span><em>it_</em>, y<span class="op">.</span><em>it_</em><span class="op">)</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb89"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>visit<span class="op">(</span></span>
+<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a>    <span class="op">[&amp;](</span><span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> it1, <span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> it2<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb89-3"><a href="#cb89-3" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="kw">constexpr</span> <span class="op">(</span>is_same_v<span class="op">&lt;</span><span class="kw">decltype</span><span class="op">(</span>it1<span class="op">)</span>, <span class="kw">decltype</span><span class="op">(</span>it2<span class="op">)&gt;)</span> <span class="op">{</span></span>
+<span id="cb89-4"><a href="#cb89-4" aria-hidden="true" tabindex="-1"></a>            ranges<span class="op">::</span>iter_swap<span class="op">(</span>it1, it2<span class="op">)</span>;</span>
+<span id="cb89-5"><a href="#cb89-5" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb89-6"><a href="#cb89-6" aria-hidden="true" tabindex="-1"></a>            ranges<span class="op">::</span>swap<span class="op">(*</span>x, <span class="op">*</span>y<span class="op">)</span>;</span>
+<span id="cb89-7"><a href="#cb89-7" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb89-8"><a href="#cb89-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span>,</span>
+<span id="cb89-9"><a href="#cb89-9" aria-hidden="true" tabindex="-1"></a>    x<span class="op">.</span><em>it_</em>, y<span class="op">.</span><em>it_</em><span class="op">)</span>;</span></code></pre></div>
 <p><span class="marginalizedparent"><a class="marginalized">45</a></span>
 <em>Remarks</em>: The exception specification is equivalent to</p>
-<div class="sourceCode" id="cb92"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="op">(</span><span class="kw">noexcept</span><span class="op">(</span>ranges<span class="op">::</span>swap<span class="op">(*</span>x, <span class="op">*</span>y<span class="op">))</span> <span class="op">&amp;&amp;</span> <span class="op">...</span> <span class="op">&amp;&amp;</span> <span class="kw">noexcept</span><span class="op">(</span>ranges<span class="op">::</span>iter_swap<span class="op">(</span>its, its<span class="op">)))</span></span></code></pre></div>
+<div class="sourceCode" id="cb90"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="op">(</span><span class="kw">noexcept</span><span class="op">(</span>ranges<span class="op">::</span>swap<span class="op">(*</span>x, <span class="op">*</span>y<span class="op">))</span> <span class="op">&amp;&amp;</span> <span class="op">...</span> <span class="op">&amp;&amp;</span> <span class="kw">noexcept</span><span class="op">(</span>ranges<span class="op">::</span>iter_swap<span class="op">(</span>its, its<span class="op">)))</span></span></code></pre></div>
 <p>where <code class="sourceCode default">its</code> is a pack of
 lvalues of type <code class="sourceCode default">iterator_t&lt;<em>maybe-const</em>&lt;Const, Views&gt;&gt; const</code>
 respectively.</p>
 <p><span class="marginalizedparent"><a class="marginalized">46</a></span>
 <em>Remarks</em>: The expression in the requires-clause is equivalent
 to</p>
-<div class="sourceCode" id="cb93"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="op">(</span>swappable_with<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>iterator</em><span class="op">&gt;</span>, iterator_t<span class="op">&lt;</span><em>iterator</em><span class="op">&gt;&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...</span> <span class="op">&amp;&amp;</span></span>
-<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a> indirectly_swappable<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&gt;)</span></span></code></pre></div>
+<div class="sourceCode" id="cb91"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="op">(</span>swappable_with<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>iterator</em><span class="op">&gt;</span>, iterator_t<span class="op">&lt;</span><em>iterator</em><span class="op">&gt;&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb91-2"><a href="#cb91-2" aria-hidden="true" tabindex="-1"></a> indirectly_swappable<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&gt;)</span></span></code></pre></div>
 </div>
 <h2 data-number="5.4" id="feature-test-macro"><span class="header-section-number">5.4</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
 <p>Add the following macro definition to <span>17.3.2
@@ -2022,7 +1988,7 @@ to</p>
 <code class="sourceCode default">&lt;version&gt;</code> synopsis, with
 the value selected by the editor to reflect the date of adoption of this
 paper:</p>
-<div class="sourceCode" id="cb94"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define __cpp_lib_ranges_concat  </span><span class="dv">20</span><span class="er">XXXXL</span><span class="pp"> </span><span class="co">// also in &lt;ranges&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb92"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define __cpp_lib_ranges_concat  </span><span class="dv">20</span><span class="er">XXXXL</span><span class="pp"> </span><span class="co">// also in &lt;ranges&gt;</span></span></code></pre></div>
 <style>
 .bq{
     display: block;

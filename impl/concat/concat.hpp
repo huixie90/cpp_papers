@@ -682,7 +682,7 @@ concat_view(R&&...) -> concat_view<views::all_t<R>...>;
 
 namespace views {
 namespace xo {
-class concat_expert_fn {
+class concat_fn {
  public:
   constexpr void operator()() const = delete;
 
@@ -701,39 +701,9 @@ class concat_expert_fn {
     return concat_view{static_cast<V&&>(v)...};
   }
 };
-
-// Expert mode required if concat reference_t is a prvalue T and at least one of
-// the range_reference_t is xvalue of T.
-template <class... Rs>
-concept concat_require_expert =
-    !is_reference_v<ranges::xo::concat_reference_t<Rs...>> &&
-    (same_as<range_reference_t<Rs>, ranges::xo::concat_reference_t<Rs...>&&> ||
-     ...);
-
-class concat_fn {
- public:
-  constexpr void operator()() const = delete;
-
-  template <viewable_range V>
-  constexpr auto operator()(V&& v) const
-      noexcept(noexcept(std::views::all(static_cast<V&&>(v)))) {
-    return std::views::all(static_cast<V&&>(v));
-  }
-
-  template <input_range... V>
-  requires(sizeof...(V) > 1) && ranges::xo::concatable<all_t<V&&>...> &&
-      (!concat_require_expert<all_t<V&&>...>)&&(viewable_range<V>&&...)  //
-      constexpr auto
-      operator()(V&&... v)
-          const {  // noexcept(noexcept(concat_view{static_cast<V&&>(v)...})) {
-    return concat_view{static_cast<V&&>(v)...};
-  }
-};
-
 }  // namespace xo
 
 inline constexpr xo::concat_fn concat;
-inline constexpr xo::concat_expert_fn concat_expert;
 }  // namespace views
 
 }  // namespace std::ranges
