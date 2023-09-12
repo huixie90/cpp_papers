@@ -1,8 +1,8 @@
 ---
 title: "`views::concat`"
-document: P2542R3
-date: 2023-06-07
-audience: SG9, LEWG
+document: P2542R5
+date: 2023-09-12
+audience: SG9, LEWG, LWG
 author:
   - name: Hui Xie
     email: <hui.xie1990@gmail.com>
@@ -13,6 +13,14 @@ toc: true
 
 # Revision History
 
+## R5
+
+- Fix `static_cast<difference_type>`
+- Reuse utilities in `cartesian_product_view` to define `concat-is-bidirectional`
+- Various wording fixes
+## R4
+
+- Add `concat_expert`
 ## R3
 
 - Redesigned `iter_swap`
@@ -583,6 +591,54 @@ namespace std::ranges {
 }
 ```
 
+Add the following to [range.adaptor.helpers]{.sref}
+
+```diff
+namespace std::ranges {
+// [...]
++ template<class R>
++   concept @*common-arg*@ =                        // exposition only
++     common_range<R> || (sized_range<R> && random_access_range<R>);
+// [...]
+}
+```
+
+Modify the following in [range.cartesian.view]{.sref}
+
+```diff
+namespace std::ranges {
+// [...]
+- template<class R>
+-   concept @*cartesian-product-common-arg*@ =      // exposition only
+-     common_range<R> || (sized_range<R> && random_access_range<R>);
+
+  template<bool Const, class First, class... Vs>
+  concept @*cartesian-product-is-bidirectional*@ =          // exposition only
+    (bidirectional_range<@*maybe-const*@<Const, First>> && ... &&
+      (bidirectional_range<@*maybe-const*@<Const, Vs>>
+-        && @*cartesian-product-common-arg*@<@*maybe-const*@<Const, Vs>>));
++        && @*common-arg*@<@*maybe-const*@<Const, Vs>>));
+
+  template<class First, class... Vs>
+  concept @*cartesian-product-is-common*@ =                 // exposition only
+-    @*cartesian-product-common-arg*@<First>;
++    @*common-arg*@<First>;
+
+// [...]
+
+-  template<@*cartesian-product-common-arg*@ R>
++  template<@*common-arg*@ R>
+  constexpr auto @*cartesian-common-arg-end*@(R& r) {       // exposition only
+    if constexpr (common_range<R>) {
+      return ranges::end(r);
+    } else {
+      return ranges::begin(r) + ranges::distance(r);
+    }
+  }
+// [...]
+}
+```
+
 ## `concat`
 
 Add the following subclause to [range.adaptors]{.sref}.
@@ -635,11 +691,6 @@ namespace std::ranges {
 
   template <bool Const, class... Rs>
   concept @_concat-is-random-access_@ = @*see below*@;   // exposition only
-
-  template <class R>
-  concept @_constant-time-reversible_@ =          // exposition only
-    (bidirectional_range<R> && common_range<R>) ||
-    (sized_range<R> && random_access_range<R>);
 
   template <bool Const, class... Rs>
   concept @_concat-is-bidirectional_@ = @*see below*@;   // exposition only
@@ -756,12 +807,12 @@ concept @_concat-is-bidirectional_@ = @*see below*@; // exposition only
 
 :::bq
 
-[4]{.pnum} Let `V` be the last element of `Rs`, and `Fs` be the pack that consists of all elements of `Rs` except `V`, then `@_concat-is-bidirectional_@` is equivalent to:
+[4]{.pnum} Let `Fs` be the pack that consists of all elements of `Rs` except the last element, then `@_concat-is-bidirectional_@` is equivalent to:
 
 ```cpp
 template <bool Const, class... Rs>
 concept @_concat-is-bidirectional_@ = // exposition only
-  (bidirectional_range<@*maybe_const*@<Const, V>> && ... && @*constant-time-reversible*@<@*maybe_const*@<Const, Fs>>);
+  (@*all-bidirectional*@<Const, Rs...> && ... && @*common-arg*@<@*maybe_const*@<Const, Fs>>);
 ```
 
 :::
