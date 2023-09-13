@@ -15,6 +15,7 @@ toc: true
 
 ## R5
 
+- Removed `concat_expert` (reverting to R3) per SG9 poll.
 - Fix `static_cast<difference_type>`
 - Reuse utilities in `cartesian_product_view` to define `concat-is-bidirectional`
 - Various wording fixes
