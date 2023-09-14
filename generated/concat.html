@@ -1422,7 +1422,7 @@ last element, then
 is equivalent to:</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="dt">bool</span> Const, <span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="kw">concept</span> <em>concat-is-bidirectional</em> <span class="op">=</span> <span class="co">// exposition only</span></span>
-<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">(</span><em>all-bidirectional</em><span class="op">&lt;</span>Const, Rs<span class="op">...&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...</span> <span class="op">&amp;&amp;</span> <em>common-arg</em><span class="op">&lt;</span><em>maybe_const</em><span class="op">&lt;</span>Const, Fs<span class="op">&gt;&gt;)</span>;</span></code></pre></div>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">(</span><em>all-bidirectional</em><span class="op">&lt;</span>Const, Rs<span class="op">...&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...</span> <span class="op">&amp;&amp;</span> <em>common-arg</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Fs<span class="op">&gt;&gt;)</span>;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb29"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="kw">explicit</span> concat_view<span class="op">(</span>Views<span class="op">...</span> views<span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
@@ -1933,9 +1933,9 @@ are each <code class="sourceCode default">false</code>.</p>
 let <code class="sourceCode default"><em>d<sub>y</sub></em></code> be
 <code class="sourceCode default">ranges::distance(get&lt;<em>i<sub>y</sub></em>&gt;(y.<em>it_</em>), ranges::end(get&lt;<em>i<sub>y</sub></em>&gt;(y.<em>parent_</em>-&gt;<em>views_</em>)))</code>,
 <code class="sourceCode default"><em>d<sub>x</sub></em></code> be <code class="sourceCode default">ranges::distance(ranges::begin(get&lt;<em>i<sub>x</sub></em>&gt;(x.<em>parent_</em>-&gt;<em>views_</em>)), get&lt;<em>i<sub>x</sub></em>&gt;(x.<em>it_</em>))</code>.
-For every integer <code class="sourceCode default"><em>i<sub>y</sub></em> &lt; <em>i</em> &lt; <em>i<sub>x</sub></em></code>,
-let <code class="sourceCode default">s</code> denote the sum of the
+Let <code class="sourceCode default">s</code> denote the sum of the
 sizes of all the ranges <code class="sourceCode default">get&lt;<em>i</em>&gt;(x.<em>parent_</em>-&gt;<em>views_</em>)</code>
+for every integer <code class="sourceCode default"><em>i<sub>y</sub></em> &lt; <em>i</em> &lt; <em>i<sub>x</sub></em></code>
 if there is any, and <code class="sourceCode default">0</code>
 otherwise, of type <code class="sourceCode default"><em>make-unsigned-like-t</em>&lt;common_type_t&lt;range_size_t&lt;<em>maybe-const</em>&lt;Const, Views&gt;&gt;...&gt;&gt;</code>,
 equivalent to</p>
@@ -1961,9 +1961,9 @@ is <code class="sourceCode default">false</code>.</p>
 <code class="sourceCode default"><em>i<sub>x</sub></em></code> denote
 <code class="sourceCode default">x.<em>it_</em>.index()</code>,
 <code class="sourceCode default"><em>d<sub>x</sub></em></code> be <code class="sourceCode default">ranges::distance(get&lt;<em>i<sub>x</sub></em>&gt;(x.<em>it_</em>), ranges::end(get&lt;<em>i<sub>x</sub></em>&gt;(x.<em>parent_</em>-&gt;<em>views_</em>)))</code>.
-For every integer <code class="sourceCode default"><em>i<sub>x</sub></em> &lt; <em>i</em> &lt; sizeof...(Views)</code>,
-let <code class="sourceCode default">s</code> denote the sum of the
+Let <code class="sourceCode default">s</code> denote the sum of the
 sizes of all the ranges <code class="sourceCode default">get&lt;<em>i</em>&gt;(x.<em>parent_</em>-&gt;<em>views_</em>)</code>
+For every integer <code class="sourceCode default"><em>i<sub>x</sub></em> &lt; <em>i</em> &lt; sizeof...(Views)</code>
 if there is any, and <code class="sourceCode default">0</code>
 otherwise, of type <code class="sourceCode default"><em>make-unsigned-like-t</em>&lt;common_type_t&lt;range_size_t&lt;<em>maybe-const</em>&lt;Const, Views&gt;&gt;...&gt;&gt;</code>,
 equivalent to</p>
@@ -2029,13 +2029,13 @@ are each <code class="sourceCode default">false</code>.</p>
 <em>Remarks</em>: The exception specification is equivalent to</p>
 <div class="sourceCode" id="cb92"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="op">(</span><span class="kw">noexcept</span><span class="op">(</span>ranges<span class="op">::</span>swap<span class="op">(*</span>x, <span class="op">*</span>y<span class="op">))</span> <span class="op">&amp;&amp;</span> <span class="op">...</span> <span class="op">&amp;&amp;</span> <span class="kw">noexcept</span><span class="op">(</span>ranges<span class="op">::</span>iter_swap<span class="op">(</span>its, its<span class="op">)))</span></span></code></pre></div>
 <p>where <code class="sourceCode default">its</code> is a pack of
-lvalues of type <code class="sourceCode default">iterator_t&lt;<em>maybe-const</em>&lt;Const, Views&gt;&gt; const</code>
+lvalues of type <code class="sourceCode default">const iterator_t&lt;<em>maybe-const</em>&lt;Const, Views&gt;&gt;</code>
 respectively.</p>
 <p><span class="marginalizedparent"><a class="marginalized">46</a></span>
 <em>Remarks</em>: The expression in the requires-clause is equivalent
 to</p>
-<div class="sourceCode" id="cb93"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="op">(</span>swappable_with<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>iterator</em><span class="op">&gt;</span>, iterator_t<span class="op">&lt;</span><em>iterator</em><span class="op">&gt;&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...</span> <span class="op">&amp;&amp;</span></span>
-<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a> indirectly_swappable<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&gt;)</span></span></code></pre></div>
+<div class="sourceCode" id="cb93"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a>swappable_with<span class="op">&lt;</span>iter_reference_t<span class="op">&lt;</span><em>iterator</em><span class="op">&gt;</span>, iter_reference_t<span class="op">&lt;</span><em>iterator</em><span class="op">&gt;&gt;</span> <span class="op">&amp;&amp;</span> </span>
+<span id="cb93-2"><a href="#cb93-2" aria-hidden="true" tabindex="-1"></a><span class="op">(...</span> <span class="op">&amp;&amp;</span> indirectly_swappable<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&gt;)</span></span></code></pre></div>
 </div>
 <h2 data-number="5.4" id="feature-test-macro"><span class="header-section-number">5.4</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
 <p>Add the following macro definition to <span>17.3.2

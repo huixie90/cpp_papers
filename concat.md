@@ -815,7 +815,7 @@ concept @_concat-is-bidirectional_@ = @*see below*@; // exposition only
 ```cpp
 template <bool Const, class... Rs>
 concept @_concat-is-bidirectional_@ = // exposition only
-  (@*all-bidirectional*@<Const, Rs...> && ... && @*common-arg*@<@*maybe_const*@<Const, Fs>>);
+  (@*all-bidirectional*@<Const, Rs...> && ... && @*common-arg*@<@*maybe-const*@<Const, Fs>>);
 ```
 
 :::
@@ -1451,13 +1451,13 @@ friend constexpr difference_type operator-(const @_iterator_@& x, const @_iterat
 [34]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()` and `@*i~y~*@`
 denote `y.@*it_*@.index()`
 
-- [34.1]{.pnum} if `@*i~x~*@ > @*i~y~*@`, let `@*d~y~*@` be 
+- [34.1]{.pnum} if `@*i~x~*@ > @*i~y~*@`, let `@*d~y~*@` be
   `ranges::distance(get<@*i~y~*@>(y.@*it_*@), ranges::end(get<@*i~y~*@>(y.@*parent_*@->@*views_*@)))`, 
   `@*d~x~*@` be
   `ranges::distance(ranges::begin(get<@*i~x~*@>(x.@*parent_*@->@*views_*@)), get<@*i~x~*@>(x.@*it_*@))`.
-  For every integer `@*i~y~*@ < @*i*@ < @*i~x~*@`,
-  let `s` denote the sum of the sizes of all the ranges
-  `get<@*i*@>(x.@*parent_*@->@*views_*@)` if there is any, and `0` otherwise, of type
+  Let `s` denote the sum of the sizes of all the ranges
+  `get<@*i*@>(x.@*parent_*@->@*views_*@)` for every integer
+  `@*i~y~*@ < @*i*@ < @*i~x~*@` if there is any, and `0` otherwise, of type
   `@*make-unsigned-like-t*@<common_type_t<range_size_t<@*maybe-const*@<Const, Views>>...>>`,
   equivalent to
 
@@ -1490,8 +1490,9 @@ friend constexpr difference_type operator-(const @_iterator_@& x, default_sentin
 
 [36]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()`, `@*d~x~*@`
 be `ranges::distance(get<@*i~x~*@>(x.@*it_*@), ranges::end(get<@*i~x~*@>(x.@*parent_*@->@*views_*@)))`.
-For every integer `@*i~x~*@ < @*i*@ < sizeof...(Views)`, let `s` denote the sum of the sizes of
-all the ranges `get<@*i*@>(x.@*parent_*@->@*views_*@)` if there is any, and `0`
+Let `s` denote the sum of the sizes of all the ranges
+`get<@*i*@>(x.@*parent_*@->@*views_*@)` For every integer
+`@*i~x~*@ < @*i*@ < sizeof...(Views)` if there is any, and `0`
 otherwise, of type `@*make-unsigned-like-t*@<common_type_t<range_size_t<@*maybe-const*@<Const, Views>>...>>`,
 equivalent to
 
@@ -1589,13 +1590,13 @@ std::visit(
 (noexcept(ranges::swap(*x, *y)) && ... && noexcept(ranges::iter_swap(its, its)))
 ```
 
-where `its` is a pack of lvalues of type `iterator_t<@*maybe-const*@<Const, Views>> const` respectively.
+where `its` is a pack of lvalues of type `const iterator_t<@*maybe-const*@<Const, Views>>` respectively.
 
 [46]{.pnum} *Remarks*: The expression in the requires-clause is equivalent to
 
 ```cpp
-(swappable_with<iterator_t<@*iterator*@>, iterator_t<@*iterator*@>> && ... &&
- indirectly_swappable<iterator_t<@*maybe-const*@<Const, Views>>>)
+swappable_with<iter_reference_t<@*iterator*@>, iter_reference_t<@*iterator*@>> && 
+(... && indirectly_swappable<iterator_t<@*maybe-const*@<Const, Views>>>)
 ```
 
 :::

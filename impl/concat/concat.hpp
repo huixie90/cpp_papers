@@ -594,9 +594,9 @@ class concat_view : public view_interface<concat_view<Views...>> {
     }
 
     friend constexpr void
-    iter_swap(const iterator& x, const iterator& y) requires(
-        swappable_with<iter_reference_t<iterator>, iter_reference_t<iterator>> &&...&&
-        indirectly_swappable<iterator_t<__maybe_const<Const, Views>>>)
+    iter_swap(const iterator& x, const iterator& y) requires
+        swappable_with<iter_reference_t<iterator>, iter_reference_t<iterator>> &&
+        (...&& indirectly_swappable<iterator_t<__maybe_const<Const, Views>>>)
     // todo: noexcept?
     {
       std::visit(
