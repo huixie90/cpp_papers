@@ -404,6 +404,75 @@ only concepts and functions can be reused for both of the views, and their defin
 of `end` function would be very similar, except that `cartesian_product_view` checks
 the first underlying range and `concat_view` checks the last underlying range.
 
+### `!common_range && (random_accessed_range && sized_range)`
+
+In R0 version, `concat_view` is a `common_range` if the last range satisfies
+`common_range || (random_accessed_range && sized_range)`
+
+As per SG9's direction, `concat_view` should not pretend to be a `common_range`,
+when the last underlying range is a `!common_range && random_accessed_range && sized_range`,
+even though the end iterator could be computed from `ranges::begin(r) + ranges::size(r)`.
+
+Therefore in the current version the `common_range` is simplified to,
+
+```cpp
+concat-is-common = common_range<last-view>
+```
+
+However, the current design of `concat_view`'s bidirectional behaviour does use
+`ranges::begin(r) + ranges::size(r) - 1` to get to the previous range's last iterator,
+when the previous range is `!common_range && random_accessed_range && sized_range`.
+Its `bidirectional_range` requirement is designed as follows
+
+```cpp
+template <class R>
+concept common-ish = common_range<R> || (random_accessed_range<R> && sized_range<R>)
+
+concat-is-bidi = (bidirectional_range<all-views> && ...) && (common-ish<all-but-last-views> && ...)
+```
+
+In the LWG wording review on 2023-09-13, it was suggested that `concat_view`'s `bidirectional_range`
+behaviour should be consistent with its `common_range` behaviour, i.e, do not support
+`!common_range && random_accessed_range && sized_range` ranges. This would simplify the wording,
+so that to get to the end of the previous range, `--ranges::end(r)` would always work.
+
+So,
+
+```cpp
+concat-is-bidi = (bidirectional_range<all-views> && ...) && (common_range<all-but-last-views> && ...)
+```
+
+Similarly, `random_access_range` could follow the same design.
+To implement `it + n`, it is necessary to know if `n` is larger than the distance from `it` to the
+end of the current underlying range. If the underlying range is
+`!common_range && random_accessed_range && sized_range`, to compute the distance from `it` to the end
+of the range, an implementation must do `ranges::size(r) - (it - ranges::begin(r))`. If it is `common_range`,
+the distance is simply `ranges::distance(it, ranges::end(r))`.
+
+If the support of `!common_range && random_accessed_range && sized_range` is dropped,
+it would simplify the exposition only helper functions `advance_fwd`, `advance_bwd`
+and all other random access related functions.
+
+So change
+
+```cpp
+concat-is-random-access = (random_access_range<all-views> && ...) && (sized_range<all-but-last-views> && ...)
+```
+
+to
+
+```cpp
+concat-is-random-access = (random_access_range<all-views> && ...) && (common_range<all-but-last-views> && ...)
+```
+
+Ranges that are `!common_range && random_accessed_range && sized_range` are rare, and if
+the user does have one of these ranges and would like to have common, bidirectional or random
+access support in the `concat_view`, they can do
+
+```cpp
+auto cv = views::concat(r | views::common, other_views...)
+```
+
 ## Bidirectional Range
 
 `concat_view` can model `bidirectional_range` if the underlying ranges satisfy
