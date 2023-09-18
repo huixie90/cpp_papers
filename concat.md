@@ -1,6 +1,6 @@
 ---
 title: "`views::concat`"
-document: P2542D6
+document: D2542R6
 date: 2023-09-18
 audience: SG9, LEWG, LWG
 author:
