@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="mpark/wg21" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="dcterms.date" content="2023-09-12" />
+  <meta name="dcterms.date" content="2023-09-18" />
   <title>`views::concat`</title>
   <style>
       code{white-space: pre-wrap;}
@@ -423,11 +423,11 @@ code.sourceCode > span { display: inline; }
 <table style="border:none;float:right">
   <tr>
     <td>Document #:</td>
-    <td>P2542R5</td>
+    <td>P2542D6</td>
   </tr>
   <tr>
     <td>Date:</td>
-    <td>2023-09-12</td>
+    <td>2023-09-18</td>
   </tr>
   <tr>
     <td style="vertical-align:top">Project:</td>
@@ -454,11 +454,12 @@ code.sourceCode > span { display: inline; }
 <ul>
 <li><a href="#revision-history" id="toc-revision-history"><span class="toc-section-number">1</span> Revision History<span></span></a>
 <ul>
-<li><a href="#r5" id="toc-r5"><span class="toc-section-number">1.1</span> R5<span></span></a></li>
-<li><a href="#r4" id="toc-r4"><span class="toc-section-number">1.2</span> R4<span></span></a></li>
-<li><a href="#r3" id="toc-r3"><span class="toc-section-number">1.3</span> R3<span></span></a></li>
-<li><a href="#r2" id="toc-r2"><span class="toc-section-number">1.4</span> R2<span></span></a></li>
-<li><a href="#r1" id="toc-r1"><span class="toc-section-number">1.5</span> R1<span></span></a></li>
+<li><a href="#r6" id="toc-r6"><span class="toc-section-number">1.1</span> R6<span></span></a></li>
+<li><a href="#r5" id="toc-r5"><span class="toc-section-number">1.2</span> R5<span></span></a></li>
+<li><a href="#r4" id="toc-r4"><span class="toc-section-number">1.3</span> R4<span></span></a></li>
+<li><a href="#r3" id="toc-r3"><span class="toc-section-number">1.4</span> R3<span></span></a></li>
+<li><a href="#r2" id="toc-r2"><span class="toc-section-number">1.5</span> R2<span></span></a></li>
+<li><a href="#r1" id="toc-r1"><span class="toc-section-number">1.6</span> R1<span></span></a></li>
 </ul></li>
 <li><a href="#abstract" id="toc-abstract"><span class="toc-section-number">2</span> Abstract<span></span></a></li>
 <li><a href="#motivation-and-examples" id="toc-motivation-and-examples"><span class="toc-section-number">3</span> Motivation and
@@ -534,7 +535,11 @@ Macro<span></span></a></li>
 </ul>
 </div>
 <h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
-<h2 data-number="1.1" id="r5"><span class="header-section-number">1.1</span> R5<a href="#r5" class="self-link"></a></h2>
+<h2 data-number="1.1" id="r6"><span class="header-section-number">1.1</span> R6<a href="#r6" class="self-link"></a></h2>
+<ul>
+<li>Added a section <code class="sourceCode default">!common_range &amp;&amp; random_access_range &amp;&amp; sized_range</code></li>
+</ul>
+<h2 data-number="1.2" id="r5"><span class="header-section-number">1.2</span> R5<a href="#r5" class="self-link"></a></h2>
 <ul>
 <li>Removed <code class="sourceCode default">concat_expert</code>
 (reverting to R3) per SG9 poll.</li>
@@ -544,11 +549,11 @@ Macro<span></span></a></li>
 <code class="sourceCode default">concat-is-bidirectional</code></li>
 <li>Various wording fixes</li>
 </ul>
-<h2 data-number="1.2" id="r4"><span class="header-section-number">1.2</span> R4<a href="#r4" class="self-link"></a></h2>
+<h2 data-number="1.3" id="r4"><span class="header-section-number">1.3</span> R4<a href="#r4" class="self-link"></a></h2>
 <ul>
 <li>Add <code class="sourceCode default">concat_expert</code></li>
 </ul>
-<h2 data-number="1.3" id="r3"><span class="header-section-number">1.3</span> R3<a href="#r3" class="self-link"></a></h2>
+<h2 data-number="1.4" id="r3"><span class="header-section-number">1.4</span> R3<a href="#r3" class="self-link"></a></h2>
 <ul>
 <li>Redesigned <code class="sourceCode default">iter_swap</code></li>
 <li>Relaxed <code class="sourceCode default">random_access_range</code>
@@ -557,7 +562,7 @@ constraints</li>
 <code class="sourceCode default">difference</code> types</li>
 <li>Various wording fixes</li>
 </ul>
-<h2 data-number="1.4" id="r2"><span class="header-section-number">1.4</span> R2<a href="#r2" class="self-link"></a></h2>
+<h2 data-number="1.5" id="r2"><span class="header-section-number">1.5</span> R2<a href="#r2" class="self-link"></a></h2>
 <ul>
 <li>Adding extra semantic constraints in the concept
 <code class="sourceCode default">concat-indirectly-readable</code> to
@@ -565,7 +570,7 @@ prevent non-equality-preserving behaviour of
 <code class="sourceCode default">operator*</code> and
 <code class="sourceCode default">iter_move</code>.</li>
 </ul>
-<h2 data-number="1.5" id="r1"><span class="header-section-number">1.5</span> R1<a href="#r1" class="self-link"></a></h2>
+<h2 data-number="1.6" id="r1"><span class="header-section-number">1.6</span> R1<a href="#r1" class="self-link"></a></h2>
 <ul>
 <li><p>Removed the <code class="sourceCode default">common_range</code>
 support for underlying ranges that are <code class="sourceCode default">!common_range &amp;&amp; random_access_range &amp;&amp; sized_range</code>.</p></li>
