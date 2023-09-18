@@ -1,7 +1,7 @@
 ---
 title: "`views::concat`"
-document: P2542R5
-date: 2023-09-12
+document: D2542R6
+date: 2023-09-18
 audience: SG9, LEWG, LWG
 author:
   - name: Hui Xie
@@ -12,6 +12,10 @@ toc: true
 ---
 
 # Revision History
+
+## R6
+
+- Added a section `!common_range && random_access_range && sized_range`
 
 ## R5
 
