@@ -272,7 +272,7 @@ TEST_POINT("bidirectional_concept") {
     STATIC_REQUIRE(bidirectional_range<iota_view<int, int>>);
     STATIC_REQUIRE(common_range<iota_view<int, int>>);
 
-    STATIC_CHECK(bidirectional_range<concat_view_of<iota_view<int, size_t>, IntV&>>); // because
+    STATIC_CHECK(!bidirectional_range<concat_view_of<iota_view<int, size_t>, IntV&>>); // because
     STATIC_REQUIRE(bidirectional_range<iota_view<int, size_t>>);
     STATIC_REQUIRE(!common_range<iota_view<int, size_t>>);
     STATIC_REQUIRE(random_access_range<iota_view<int, size_t>>);
@@ -326,7 +326,7 @@ TEST_POINT("bidirectional_common") {
 }
 
 
-TEST_POINT("bidirectional_noncommon_random_access_sized") {
+TEST_POINT("non-bidi_noncommon_random_access_sized") {
     std::vector<int> v1{1};
     std::ranges::empty_view<int> e2{};
     std::ranges::iota_view<int, size_t> i3{0, 0};
@@ -345,14 +345,15 @@ TEST_POINT("bidirectional_noncommon_random_access_sized") {
     ++it;
     REQUIRE(it == std::ranges::end(cv));
 
-    --it;
-    REQUIRE(*it == 3);
+    static_assert(!std::ranges::bidirectional_range<decltype(cv)>);
+    // --it;
+    // REQUIRE(*it == 3);
 
-    --it;
-    REQUIRE(*it == 2);
+    // --it;
+    // REQUIRE(*it == 2);
 
-    --it;
-    REQUIRE(*it == 1);
+    // --it;
+    // REQUIRE(*it == 1);
 }
 
 
@@ -370,8 +371,8 @@ TEST_POINT("random_but_not_bidi_impossible") {
 
     using CV = decltype(std::views::concat(NonCommonRandomSized{}, NonCommonRandomSized{}));
     static_assert(!common_range<CV>);
-    static_assert(bidirectional_range<CV>);
-    static_assert(random_access_range<CV>);
+    static_assert(!bidirectional_range<CV>);
+    static_assert(!random_access_range<CV>);
     static_assert(sized_range<CV>);
 }
 

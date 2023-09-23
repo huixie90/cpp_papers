@@ -1,8 +1,8 @@
 ```
-[TODO] TK: common-arg is very generic (it is exposition-only); can we give a different name?
+[REMOVED] TK: common-arg is very generic (it is exposition-only); can we give a different name?
        JW: people should think of a better name - we don’t do that now
 [DONE] JW: maybe_const should be hyphenated
-[TODO] TK: [on advance-bwd] we always compute the end but we don’t need to do that for common; in Cartesian product there is something like that; the question is whether we want to do it here, too?
+[DONE] TK: [on advance-bwd] we always compute the end but we don’t need to do that for common; in Cartesian product there is something like that; the question is whether we want to do it here, too?
        JW: anybody want to have that replaced by the tool from Cartesian?
        JW: implementations can do that anyway
        TK: equivalent => the + is observable
@@ -21,7 +21,7 @@
        TK: why would we impose a requirement which isn’t needed
        TS: you don’t need random access but you can work around that
        JW: is this an SG9 discussion? That seems to be a design question
-[TODO] TK: same discussion: the ranges::end(...) isn’t required to be sized, i.e., we need to use a common range again
+[Done] TK: same discussion: the ranges::end(...) isn’t required to be sized, i.e., we need to use a common range again
        TK: I guess, that is the reason why we shouldn’t bother
        JG: aside from that point, let’s check if we are happy with the changes
        TK: it should be back to the prose if we need the end
