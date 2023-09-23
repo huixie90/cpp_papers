@@ -1,7 +1,7 @@
 ---
 title: "`views::concat`"
-document: D2542R6
-date: 2023-09-18
+document: P2542R6
+date: 2023-09-23
 audience: SG9, LEWG, LWG
 author:
   - name: Hui Xie
@@ -17,6 +17,8 @@ toc: true
 
 - remove `bidirectional_range` support for `!common_range && random_access_range && sized_range`
 - remove `random_access_range` support for `!common_range && random_access_range && sized_range`
+- fix const-conversion constructor
+- Various wording fixes
 
 ## R5
 
@@ -1181,15 +1183,16 @@ explicit constexpr @_iterator_@(
 :::
 
 ```cpp
-constexpr @_iterator_@(@_iterator_@<!Const> i) 
+constexpr @_iterator_@(@_iterator_@<!Const> it) 
     requires Const &&
     (convertible_to<iterator_t<Views>, iterator_t<const Views>>&&...);
 ```
 
 :::bq
 
-[8]{.pnum} *Effects*: Initializes `@*parent_*@` with `i.@*parent_*@`, and
-initializes `@*it_*@` with `std::move(i.@*it_*@)`.
+[8]{.pnum} *Effects*: Initializes `@*parent_*@` with `it.@*parent_*@`, and
+let `@*i*@` be `it.@*it_*@.index()`, initializes `@*it_*@` with
+`@*base-iter*@(in_place_index<@*i*@>, get<@*i*@>(std::move(it.@*it_*@)))`
 
 :::
 
