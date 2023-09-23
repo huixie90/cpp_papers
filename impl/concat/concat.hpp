@@ -25,10 +25,6 @@ concept all_bidirectional = (bidirectional_range<__maybe_const<Const, Views>> &&
 template <bool Const, class... Views>
 concept all_forward = (forward_range<__maybe_const<Const, Views>> && ...);
 
-template<class R>
-concept common_arg =                // exposition only
-  common_range<R> || (sized_range<R> && random_access_range<R>);
-
 inline namespace not_to_spec {
 
 template <class... Rs>
@@ -88,10 +84,10 @@ constexpr bool all_but_last =
 template <bool Const, class... Views>
 concept concat_is_random_access =
     (all_random_access<Const, Views> && ...) &&
-    (all_but_last<sized_range<__maybe_const<Const, Views>>...>);
+    (all_but_last<common_range<__maybe_const<Const, Views>>...>);
 
 template <bool Const, class... Views>
-concept concat_bidirectional = all_but_last<common_arg<__maybe_const<Const, Views>>...> &&
+concept concat_bidirectional = all_but_last<common_range<__maybe_const<Const, Views>>...> &&
     all_bidirectional<Const, Views...>;
 
 static_assert(true);  // clang-format badness
@@ -287,18 +283,8 @@ class concat_view : public view_interface<concat_view<Views...>> {
         --get<0>(it_);
       } else {
         if (get<N>(it_) == ranges::begin(get<N>(parent_->views_))) {
-          using prev_view =
-              __maybe_const<Const, tuple_element_t<N - 1, tuple<Views...>>>;
-          if constexpr (common_range<prev_view>) {
             it_.template emplace<N - 1>(
                 ranges::end(get<N - 1>(parent_->views_)));
-          } else {
-            static_assert(random_access_range<prev_view> &&
-                          sized_range<prev_view>);
-            it_.template emplace<N - 1>(
-                ranges::next(ranges::begin(get<N - 1>(parent_->views_)),
-                             ranges::size(get<N - 1>(parent_->views_))));
-          }
           prev<N - 1>();
         } else {
           --get<N>(it_);
@@ -315,7 +301,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
         get<N>(it_) += static_cast<underlying_diff_type>(steps);
       } else {
         static_assert(
-            std::ranges::sized_range<decltype(get<N>(parent_->views_))>);
+            std::ranges::common_range<decltype(get<N>(parent_->views_))>);
         auto n_size = ranges::distance(get<N>(parent_->views_));
         if (current_offset + steps < n_size) {
           get<N>(it_) += static_cast<underlying_diff_type>(steps);
@@ -340,10 +326,9 @@ class concat_view : public view_interface<concat_view<Views...>> {
           get<N>(it_) -= static_cast<underlying_diff_type>(steps);
         } else {
           static_assert(
-              std::ranges::sized_range<decltype(get<N - 1>(parent_->views_))>);
+              std::ranges::common_range<decltype(get<N - 1>(parent_->views_))>);
           auto prev_size = ranges::distance(get<N - 1>(parent_->views_));
-          it_.template emplace<N - 1>(
-              ranges::begin(get<N - 1>(parent_->views_)) + prev_size);
+          it_.template emplace<N - 1>(ranges::end(get<N - 1>(parent_->views_)));
           advance_bwd<N - 1>(prev_size, steps - current_offset);
         }
       }
@@ -513,10 +498,10 @@ class concat_view : public view_interface<concat_view<Views...>> {
         const auto all_sizes = std::apply(
             [&](const auto&... views) {
               const auto getSize = [](const auto& view) {
-                if constexpr (ranges::sized_range<decay_t<decltype(view)>>) {
-                  return ranges::size(view);
+                if constexpr (ranges::common_range<decay_t<decltype(view)>>) {
+                  return ranges::distance(view);
                 } else {
-                  return 0u;  // only the last range can be non-sized, and its
+                  return 0;  // only the last range can be non common, and its
                               // value is not used
                 }
               };
@@ -529,8 +514,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
                             difference_type(0));
 
         auto y_to_end = xo::visit_i(y.it_, [&](auto I, auto&& it) {
-          return all_sizes[I] -
-                 (it - ranges::begin(get<I>(y.get_parent_views())));
+          return ranges::distance(it, ranges::end(get<I>(y.get_parent_views())));
         });
 
         auto begin_to_x = xo::visit_i(x.it_, [&](auto I, auto&& it) {
@@ -551,21 +535,19 @@ class concat_view : public view_interface<concat_view<Views...>> {
     friend constexpr difference_type
     operator-(const iterator& it, default_sentinel_t) requires(
         xo::concat_is_random_access<Const, Views...>&&
-            sized_range<xo::back<__maybe_const<Const, Views>...>>) {
+            common_range<xo::back<__maybe_const<Const, Views>...>>) {
       const auto idx = it.it_.index();
       const auto all_sizes = std::apply(
           [&](const auto&... views) {
             return std::array{
-                static_cast<difference_type>(ranges::size(views))...};
+                static_cast<difference_type>(ranges::distance(views))...};
           },
           it.get_parent_views());
       auto to_the_end = std::accumulate(all_sizes.begin() + idx + 1,
                                         all_sizes.end(), difference_type(0));
 
       auto i_to_idx_end = xo::visit_i(it.it_, [&](auto I, auto&& i) {
-        return all_sizes[I] -
-               static_cast<difference_type>(
-                   i - ranges::begin(get<I>(it.get_parent_views())));
+        return ranges::distance(i, ranges::end(get<I>(it.get_parent_views())));
       });
       return -(i_to_idx_end + to_the_end);
     }
@@ -573,7 +555,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
     friend constexpr difference_type
     operator-(default_sentinel_t, const iterator& it) requires(
         xo::concat_is_random_access<Const, Views...>&&
-            sized_range<xo::back<__maybe_const<Const, Views>...>>) {
+            common_range<xo::back<__maybe_const<Const, Views>...>>) {
       return -(it - default_sentinel);
     }
 

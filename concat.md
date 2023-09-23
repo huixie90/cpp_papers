@@ -15,7 +15,8 @@ toc: true
 
 ## R6
 
-- Added a section `!common_range && random_access_range && sized_range`
+- remove `bidirectional_range` support for `!common_range && random_access_range && sized_range`
+- remove `random_access_range` support for `!common_range && random_access_range && sized_range`
 
 ## R5
 
@@ -408,6 +409,8 @@ only concepts and functions can be reused for both of the views, and their defin
 of `end` function would be very similar, except that `cartesian_product_view` checks
 the first underlying range and `concat_view` checks the last underlying range.
 
+As per SG9 direction, this section is dropped.
+
 ### `!common_range && (random_accessed_range && sized_range)`
 
 In R0 version, `concat_view` is a `common_range` if the last range satisfies
@@ -477,6 +480,7 @@ access support in the `concat_view`, they can do
 auto cv = views::concat(r | views::common, other_views...)
 ```
 
+As per LEWG direction, the change proposed in this section is adopted
 ## Bidirectional Range
 
 `concat_view` can model `bidirectional_range` if the underlying ranges satisfy
@@ -490,7 +494,7 @@ the following conditions:
     `--ranges::end(n-1th range)`, assuming n-1th range is not empty, or
   - `random_access_range && sized_range`, so the position can be reached by
     `ranges::begin(n-1th range) + (ranges::size(n-1th range) - 1)` in constant
-    time, assuming n-1th range is not empty.
+    time, assuming n-1th range is not empty. However, as per LEWG's direction,`!common_range && random_access_range && sized_range` is removed
   
   Note that the last underlying range does not have to satisfy this constraint
   because n-1 can never be the last underlying range. If neither of the two
@@ -502,7 +506,7 @@ In the `concat` implementation in [@rangev3], `operator--` is only constrained
 on all underlying ranges being `bidirectional_range` on the declaration, but its
 implementation is using `ranges::next(ranges::begin(r), ranges::end(r))` which
 implicitly requires random access to make the operation constant time. So it
-went with the second constraint. In this paper, both are supported.
+went with the second constraint.
 
 ## Random Access Range
 
@@ -510,7 +514,7 @@ went with the second constraint. In this paper, both are supported.
 the following conditions:
 
 - Every underlying range models `random_access_range`  
-- All except the last range model `sized_range`
+- All except the last range model `common_range`
 
 ## Sized Range
 
@@ -663,54 +667,6 @@ namespace std::ranges {
 - template<bool Const, class... Views>
 -   concept @*all-forward*@ =                       // exposition only
 -     (forward_range<@*maybe-const*@<Const, Views>> && ...);
-// [...]
-}
-```
-
-Add the following to [range.adaptor.helpers]{.sref}
-
-```diff
-namespace std::ranges {
-// [...]
-+ template<class R>
-+   concept @*common-arg*@ =                        // exposition only
-+     common_range<R> || (sized_range<R> && random_access_range<R>);
-// [...]
-}
-```
-
-Modify the following in [range.cartesian.view]{.sref}
-
-```diff
-namespace std::ranges {
-// [...]
-- template<class R>
--   concept @*cartesian-product-common-arg*@ =      // exposition only
--     common_range<R> || (sized_range<R> && random_access_range<R>);
-
-  template<bool Const, class First, class... Vs>
-  concept @*cartesian-product-is-bidirectional*@ =          // exposition only
-    (bidirectional_range<@*maybe-const*@<Const, First>> && ... &&
-      (bidirectional_range<@*maybe-const*@<Const, Vs>>
--        && @*cartesian-product-common-arg*@<@*maybe-const*@<Const, Vs>>));
-+        && @*common-arg*@<@*maybe-const*@<Const, Vs>>));
-
-  template<class First, class... Vs>
-  concept @*cartesian-product-is-common*@ =                 // exposition only
--    @*cartesian-product-common-arg*@<First>;
-+    @*common-arg*@<First>;
-
-// [...]
-
--  template<@*cartesian-product-common-arg*@ R>
-+  template<@*common-arg*@ R>
-  constexpr auto @*cartesian-common-arg-end*@(R& r) {       // exposition only
-    if constexpr (common_range<R>) {
-      return ranges::end(r);
-    } else {
-      return ranges::begin(r) + ranges::distance(r);
-    }
-  }
 // [...]
 }
 ```
@@ -871,7 +827,7 @@ concept @_concat-is-random-access_@ = @*see below*@; // exposition only
 template <bool Const, class... Rs>
 concept @_concat-is-random-access_@ = // exposition only
    @*all-random-access*@<Const, Rs...> &&
-   (sized_range<@*maybe-const*@<Const, Fs>> && ...);
+   (common_range<@*maybe-const*@<Const, Fs>> && ...);
 ```
 
 :::
@@ -888,7 +844,7 @@ concept @_concat-is-bidirectional_@ = @*see below*@; // exposition only
 ```cpp
 template <bool Const, class... Rs>
 concept @_concat-is-bidirectional_@ = // exposition only
-  (@*all-bidirectional*@<Const, Rs...> && ... && @*common-arg*@<@*maybe-const*@<Const, Fs>>);
+  (@*all-bidirectional*@<Const, Rs...> && ... && common_range<@*maybe-const*@<Const, Fs>>);
 ```
 
 :::
@@ -1147,14 +1103,7 @@ if constexpr (N == 0) {
     --get<0>(@*it_*@);
 } else {
     if (get<N>(@*it_*@) == ranges::begin(get<N>(@*parent_*@->@*views_*@))) {
-        using prev_view = @_maybe-const_@<Const, tuple_element_t<N - 1, tuple<Views...>>>;
-        if constexpr (common_range<prev_view>) {
-            @*it_*@.template emplace<N - 1>(ranges::end(get<N - 1>(@*parent_*@->@*views_*@)));
-        } else {
-            @*it_*@.template emplace<N - 1>(
-                ranges::next(ranges::begin(get<N - 1>(@*parent_*@->@*views_*@)),
-                             ranges::size(get<N - 1>(@*parent_*@->@*views_*@))));
-        }
+        @*it_*@.template emplace<N - 1>(ranges::end(get<N - 1>(@*parent_*@->@*views_*@)));
         @_prev_@<N - 1>();
     } else {
         --get<N>(@*it_*@);
@@ -1208,7 +1157,7 @@ if constexpr (N == 0) {
         get<N>(@*it_*@) -= static_cast<underlying_diff_type>(steps);
     } else {
         auto prev_size = ranges::distance(get<N - 1>(@*parent_*@->@*views_*@));
-        @*it_*@.template emplace<N - 1>(ranges::begin(get<N - 1>(@*parent_*@->@*views_*@)) + prev_size);
+        @*it_*@.template emplace<N - 1>(ranges::end(get<N - 1>(@*parent_*@->@*views_*@)));
         @*advance-bwd*@<N - 1>(prev_size, steps - offset);
     }
 }
@@ -1525,17 +1474,17 @@ friend constexpr difference_type operator-(const @_iterator_@& x, const @_iterat
 denote `y.@*it_*@.index()`
 
 - [34.1]{.pnum} if `@*i~x~*@ > @*i~y~*@`, let `@*d~y~*@` be
-  `ranges::distance(get<@*i~y~*@>(y.@*it_*@), ranges::end(get<@*i~y~*@>(y.@*parent_*@->@*views_*@)))`, 
+  `ranges::distance(get<@*i~y~*@>(y.@*it_*@), ranges::end(get<@*i~y~*@>(y.@*parent_*@->@*views_*@)))`,
   `@*d~x~*@` be
   `ranges::distance(ranges::begin(get<@*i~x~*@>(x.@*parent_*@->@*views_*@)), get<@*i~x~*@>(x.@*it_*@))`.
   Let `s` denote the sum of the sizes of all the ranges
   `get<@*i*@>(x.@*parent_*@->@*views_*@)` for every integer
   `@*i~y~*@ < @*i*@ < @*i~x~*@` if there is any, and `0` otherwise, of type
-  `@*make-unsigned-like-t*@<common_type_t<range_size_t<@*maybe-const*@<Const, Views>>...>>`,
+  `difference_type`,
   equivalent to
 
   ```cpp
-  return @*d~y~*@ + static_cast<difference_type>(s) + @*d~x~*@;
+  return @*d~y~*@ + s + @*d~x~*@;
   ```
 
 - [34.2]{.pnum} otherwise, if `@*i~x~*@ < @*i~y~*@`, equivalent to:
@@ -1564,19 +1513,19 @@ friend constexpr difference_type operator-(const @_iterator_@& x, default_sentin
 [36]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()`, `@*d~x~*@`
 be `ranges::distance(get<@*i~x~*@>(x.@*it_*@), ranges::end(get<@*i~x~*@>(x.@*parent_*@->@*views_*@)))`.
 Let `s` denote the sum of the sizes of all the ranges
-`get<@*i*@>(x.@*parent_*@->@*views_*@)` For every integer
+`get<@*i*@>(x.@*parent_*@->@*views_*@)` for every integer
 `@*i~x~*@ < @*i*@ < sizeof...(Views)` if there is any, and `0`
-otherwise, of type `@*make-unsigned-like-t*@<common_type_t<range_size_t<@*maybe-const*@<Const, Views>>...>>`,
+otherwise, of type `difference_type`,
 equivalent to
 
 ```cpp
-return -(@*d~x~*@ + static_cast<difference_type>(s));
+return -(@*d~x~*@ + s);
 ```
 
 [37]{.pnum} *Remarks*: Let `V` be the last element of the pack `Views`, the expression in the requires-clause is equivalent to:
 
 ```cpp
-(@_concat-is-random-access_@<Const, Views...> && sized_range<@*maybe-const*@<Const, V>>)
+(@_concat-is-random-access_@<Const, Views...> && common_range<@*maybe-const*@<Const, V>>)
 ```
 
 :::
@@ -1597,7 +1546,7 @@ return -(x - default_sentinel);
 [39]{.pnum} *Remarks*: Let `V` be the last element of the pack `Views`, the expression in the requires-clause is equivalent to:
 
 ```cpp
-(@_concat-is-random-access_@<Const, Views...> && sized_range<@*maybe-const*@<Const, V>>)
+(@_concat-is-random-access_@<Const, Views...> && common_range<@*maybe-const*@<Const, V>>)
 ```
 
 :::
