@@ -14,5 +14,5 @@ TEST_POINT("#4") {
   [[maybe_unused]] decltype(it) it_copy(it);     // OK
   [[maybe_unused]] decltype(cit) cit_copy(cit);  // OK
   // [[maybe_unused]] decltype(it) it_copy2(cit);   // NOK by design
-  // [[maybe_unused]] decltype(cit) cit_copy2(it);  // NOK  bug!
+   [[maybe_unused]] decltype(cit) cit_copy2(it);  // NOK  bug!
 }

@@ -347,7 +347,9 @@ class concat_view : public view_interface<concat_view<Views...>> {
     constexpr iterator(iterator<!Const> i) requires Const &&
         (convertible_to<iterator_t<Views>, iterator_t<const Views>>&&...)
         // [TODO] noexcept specs?
-        : parent_{i.parent_}, it_{std::move(i.it_)} {}
+        : parent_{i.parent_}, it_{xo::visit_i(std::move(i.it_), [](auto I, auto&& it){
+          return BaseIt(in_place_index<I>, std::move(it));
+        })} {}
 
     constexpr decltype(auto) operator*() const {
       using reference = xo::concat_reference_t<__maybe_const<Const, Views>...>;

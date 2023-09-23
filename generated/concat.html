@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="mpark/wg21" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="dcterms.date" content="2023-09-18" />
+  <meta name="dcterms.date" content="2023-09-23" />
   <title>`views::concat`</title>
   <style>
       code{white-space: pre-wrap;}
@@ -423,11 +423,11 @@ code.sourceCode > span { display: inline; }
 <table style="border:none;float:right">
   <tr>
     <td>Document #:</td>
-    <td>D2542R6</td>
+    <td>P2542R6</td>
   </tr>
   <tr>
     <td>Date:</td>
-    <td>2023-09-18</td>
+    <td>2023-09-23</td>
   </tr>
   <tr>
     <td style="vertical-align:top">Project:</td>
@@ -539,6 +539,8 @@ Macro<span></span></a></li>
 support for <code class="sourceCode default">!common_range &amp;&amp; random_access_range &amp;&amp; sized_range</code></li>
 <li>remove <code class="sourceCode default">random_access_range</code>
 support for <code class="sourceCode default">!common_range &amp;&amp; random_access_range &amp;&amp; sized_range</code></li>
+<li>fix const-conversion constructor</li>
+<li>Various wording fixes</li>
 </ul>
 <h2 data-number="1.2" id="r5"><span class="header-section-number">1.2</span> R5<a href="#r5" class="self-link"></a></h2>
 <ul>
@@ -1756,16 +1758,18 @@ denotes <code class="sourceCode default">input_iterator_tag</code>.</li>
 <code class="sourceCode default">parent</code>, and initializes
 <code class="sourceCode default"><em>it_</em></code> with <code class="sourceCode default">std::forward&lt;Args&gt;(args)...</code>.</p>
 </div>
-<div class="sourceCode" id="cb50"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">(</span><em>iterator</em><span class="op">&lt;!</span>Const<span class="op">&gt;</span> i<span class="op">)</span> </span>
+<div class="sourceCode" id="cb50"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">(</span><em>iterator</em><span class="op">&lt;!</span>Const<span class="op">&gt;</span> it<span class="op">)</span> </span>
 <span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> Const <span class="op">&amp;&amp;</span></span>
 <span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>    <span class="op">(</span>convertible_to<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span>Views<span class="op">&gt;</span>, iterator_t<span class="op">&lt;</span><span class="kw">const</span> Views<span class="op">&gt;&gt;&amp;&amp;...)</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">8</a></span>
 <em>Effects</em>: Initializes
 <code class="sourceCode default"><em>parent_</em></code> with
-<code class="sourceCode default">i.<em>parent_</em></code>, and
+<code class="sourceCode default">it.<em>parent_</em></code>, and let
+<code class="sourceCode default"><em>i</em></code> be
+<code class="sourceCode default">it.<em>it_</em>.index()</code>,
 initializes <code class="sourceCode default"><em>it_</em></code> with
-<code class="sourceCode default">std::move(i.<em>it_</em>)</code>.</p>
+<code class="sourceCode default"><em>base-iter</em>(in_place_index&lt;<em>i</em>&gt;, get&lt;<em>i</em>&gt;(std::move(it.<em>it_</em>)))</code></p>
 </div>
 <div class="sourceCode" id="cb51"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">auto</span><span class="op">)</span> <span class="kw">operator</span><span class="op">*()</span> <span class="kw">const</span>;</span></code></pre></div>
 <div class="bq">
