@@ -757,3 +757,14 @@ TEST_POINT("size") {
     auto cv2 = std::ranges::concat_view(std::views::all(v1), std::views::all(v1));
     CHECK(cv2.size() == 4);
 }
+
+TEST_POINT("spaceship")
+{
+    int a1[] = {1,2};
+    int a2[] = {3,4};
+    auto v1 = std::views::concat(a1,a2);
+
+    auto it = v1.begin();
+    
+    [[maybe_unused]] auto b = it <=> it;
+}

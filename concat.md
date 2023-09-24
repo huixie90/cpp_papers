@@ -750,7 +750,8 @@ namespace std::ranges {
 
     constexpr auto end() requires(!(@_simple-view_@<Views> && ...));
 
-    constexpr auto end() const requires(range<const Views>&&...);
+    constexpr auto end() const
+      requires((range<const Views> && ...) && @_concatable_@<const Views...>);
 
     constexpr auto size() requires(sized_range<Views>&&...);
 
@@ -823,7 +824,7 @@ concept @_concat-is-random-access_@ = @*see below*@; // exposition only
 
 :::bq
 
-[3]{.pnum} Let `Fs` be the pack that consists of all elements of `Rs` except the last, then `@_concat-is-random-access_@` is equivalent to:
+[3]{.pnum} Let `Fs` be the pack that consists of all elements of `Rs` except the last element, then `@_concat-is-random-access_@` is equivalent to:
 
 ```cpp
 template <bool Const, class... Rs>
@@ -882,7 +883,8 @@ return it;
 
 ```cpp
 constexpr auto end() requires(!(@_simple-view_@<Views> && ...));
-constexpr auto end() const requires(range<const Views>&&...);
+constexpr auto end() const
+  requires((range<const Views> && ...) && @_concatable_@<const Views...>);
 ```
 
 :::bq
@@ -1014,7 +1016,7 @@ namespace std::ranges{
 
     friend constexpr auto operator<=>(const @_iterator_@& x, const @_iterator_@& y)
         requires (@*all-random-access*@<Const, Views...> &&
-         (three_way_comparable<@_maybe-const_@<Const, Views>> &&...));
+         (three_way_comparable<iterator_t<@_maybe-const_@<Const, Views>>> && ...));
 
     friend constexpr @_iterator_@ operator+(const @_iterator_@& it, difference_type n)
         requires @_concat-is-random-access_@<Const, Views...>;
@@ -1185,7 +1187,7 @@ explicit constexpr @_iterator_@(
 ```cpp
 constexpr @_iterator_@(@_iterator_@<!Const> it) 
     requires Const &&
-    (convertible_to<iterator_t<Views>, iterator_t<const Views>>&&...);
+    (convertible_to<iterator_t<Views>, iterator_t<const Views>> && ...);
 ```
 
 :::bq
@@ -1398,7 +1400,7 @@ friend constexpr bool operator>=(const @_iterator_@& x, const @_iterator_@& y)
     requires @*all-random-access*@<Const, Views...>;
 friend constexpr auto operator<=>(const @_iterator_@& x, const @_iterator_@& y)
    requires (@*all-random-access*@<Const, Views...> &&
-    (three_way_comparable<@_maybe-const_@<Const, Views>> &&...));
+    (three_way_comparable<iterator_t<@_maybe-const_@<Const, Views>>> && ...));
 ```
 
 :::bq
@@ -1428,7 +1430,7 @@ friend constexpr @_iterator_@ operator+(const @_iterator_@& it, difference_type 
 [30]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-return @_iterator_@{it} += n;
+return @_iterator_@(it) += n;
 ```
 
 :::
@@ -1458,7 +1460,7 @@ friend constexpr @_iterator_@ operator-(const @_iterator_@& it, difference_type 
 [32]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-return @*iterator*@{it} -= n;
+return @*iterator*@(it) -= n;
 ```
 
 :::
@@ -1579,8 +1581,7 @@ return std::visit(
 ((is_nothrow_invocable_v<decltype(ranges::iter_move), 
                            const iterator_t<@_maybe-const_@<Const, Views>>&> &&
   is_nothrow_convertible_v<range_rvalue_reference_t<@_maybe-const_@<Const, Views>>,
-                             common_reference_t<range_rvalue_reference_t<
-                               @_maybe-const_@<Const, Views>>...>>) &&...)
+                           @*concat-rvalue-reference-t*@<@_maybe-const_@<Const, Views>...>>) && ...)
 ```
 
 :::

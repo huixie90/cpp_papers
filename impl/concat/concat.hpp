@@ -468,14 +468,14 @@ class concat_view : public view_interface<concat_view<Views...>> {
     friend constexpr auto
     operator<=>(const iterator& x, const iterator& y) requires(
         (random_access_range<__maybe_const<Const, Views>> &&
-         three_way_comparable<__maybe_const<Const, Views>>)&&...) {
+         three_way_comparable<iterator_t<__maybe_const<Const, Views>>>)&&...) {
       return x.it_ <=> y.it_;
     }
 
     friend constexpr iterator operator+(const iterator& it,
                                         difference_type n) requires
         xo::concat_is_random_access<Const, Views...> {
-      return iterator{it} += n;
+      return iterator(it) += n;
     }
 
     friend constexpr iterator operator+(difference_type n,
@@ -487,7 +487,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
     friend constexpr iterator operator-(const iterator& it,
                                         difference_type n) requires
         xo::concat_is_random_access<Const, Views...> {
-      return iterator{it} -= n;
+      return iterator(it) -= n;
     }
 
     friend constexpr difference_type operator-(const iterator& x,
@@ -567,8 +567,7 @@ class concat_view : public view_interface<concat_view<Views...>> {
               const iterator_t<__maybe_const<Const, Views>>&> &&
           std::is_nothrow_convertible_v<
               range_rvalue_reference_t<__maybe_const<Const, Views>>,
-              common_reference_t<range_rvalue_reference_t<
-                  __maybe_const<Const, Views>>...>>)&&...)) {
+              xo::concat_rvalue_reference_t<__maybe_const<Const, Views>...>>)&&...)) {
       return std::visit(
           [](auto const& i) -> xo::concat_rvalue_reference_t<
                                 __maybe_const<Const, Views>...> {  //
@@ -628,7 +627,9 @@ class concat_view : public view_interface<concat_view<Views...>> {
     }
   }
 
-  constexpr auto end() const requires(range<const Views>&&...) {
+  constexpr auto end() const requires((range<const Views>&&...) &&
+                                      xo::concatable<const Views...>)
+  {
     using LastView = xo::back<const Views...>;
     if constexpr (common_range<LastView>) {
       constexpr auto N = sizeof...(Views);
