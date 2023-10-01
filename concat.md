@@ -1,6 +1,6 @@
 ---
 title: "`views::concat`"
-document: P2542R6
+document: P2542R7
 date: 2023-09-23
 audience: SG9, LEWG, LWG
 author:
@@ -13,12 +13,15 @@ toc: true
 
 # Revision History
 
-## R6
+## R7
 
-- remove `bidirectional_range` support for `!common_range && random_access_range && sized_range`
-- remove `random_access_range` support for `!common_range && random_access_range && sized_range`
+- update wording w.r.t `!common_range && random_access_range && sized_range` changes
 - fix const-conversion constructor
 - Various wording fixes
+
+## R6
+
+- Added a section `!common_range && random_access_range && sized_range`
 
 ## R5
 
