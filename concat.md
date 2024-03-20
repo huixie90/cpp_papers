@@ -691,8 +691,7 @@ ranges.
 ([customization.point.object]{.sref}). Given a pack of subexpressions `Es...`,
 the expression `views::concat(Es...)` is expression-equivalent to
 
-- [2.1]{.pnum} `views::all(Es...)` if `Es` is a pack with only one element
-        and `views::all(Es...)` is a well formed expression,
+- [2.1]{.pnum} `views::all(Es...)` if `Es` is a pack with only one element,
 - [2.2]{.pnum} otherwise, `concat_view(Es...)`
 
 \[*Example:*
@@ -701,7 +700,7 @@ std::vector<int> v1{1,2,3}, v2{4,5}, v3{};
 std::array  a{6,7,8};
 auto s = std::views::single(9);
 for(auto&& i : std::views::concat(v1, v2, v3, a, s)){
-  std::cout << i << ' '; // prints: 1 2 3 4 5 6 7 8 9 
+  std::print("{} ", i); // prints: 1 2 3 4 5 6 7 8 9 
 }
 ```
 - *end example*\]
@@ -850,7 +849,8 @@ concept @_concat-is-bidirectional_@ = @*see below*@; // exposition only
 ```cpp
 template <bool Const, class... Rs>
 concept @_concat-is-bidirectional_@ = // exposition only
-  (@*all-bidirectional*@<Const, Rs...> && ... && common_range<@*maybe-const*@<Const, Fs>>);
+  @*all-bidirectional*@<Const, Rs...> &&
+  (common_range<@*maybe-const*@<Const, Fs>> && ...);
 ```
 
 :::
@@ -877,7 +877,7 @@ constexpr @_iterator_@<true> begin() const
 and `false` otherwise. Equivalent to:
 
 ```cpp
-@_iterator_@<@_is-const_@> it(this, in_place_index<0>, ranges::begin(get<0>(@*views_*@)));
+@_iterator_@<@_is-const_@> it(this, in_place_index<0>, ranges::begin(std::get<0>(@*views_*@)));
 it.template @_satisfy_@<0>();
 return it;
 ```
@@ -893,15 +893,13 @@ constexpr auto end() const
 :::bq
 
 [7]{.pnum} *Effects*: Let `@*is-const*@` be `true` for the const-qualified overload,
-and `false` otherwise, and let `@_last-view_@` be the last element of the pack
-`const Views...` for the const-qualified overload, and the last element of the pack
-`Views...` otherwise. Equivalent to:
+and `false` otherwise. Equivalent to:
 
 ```cpp
-if constexpr (common_range<@_last-view_@>) {
-    constexpr auto N = sizeof...(Views);
+constexpr auto N = sizeof...(Views);
+if constexpr (common_range<@_maybe-const_@<@*is-const*@, Views...[N-1]>>) {
     return @_iterator_@<@_is-const_@>(this, in_place_index<N - 1>, 
-                      ranges::end(get<N - 1>(@*views_*@)));
+                      ranges::end(std::get<N - 1>(@*views_*@)));
 } else {
     return default_sentinel;
 }
@@ -953,16 +951,16 @@ namespace std::ranges{
     @_maybe-const_@<Const, concat_view>* @*parent_*@ = nullptr;   // exposition only
     @*base-iter*@ @*it_*@;                                        // exposition only
 
-    template <std::size_t N>
+    template <size_t N>
     constexpr void @_satisfy_@();                             // exposition only
 
-    template <std::size_t N>
+    template <size_t N>
     constexpr void @_prev_@();                                // exposition only
 
-    template <std::size_t N>
+    template <size_t N>
     constexpr void @_advance-fwd_@(difference_type offset, difference_type steps); // exposition only
 
-    template <std::size_t N>
+    template <size_t N>
     constexpr void @_advance-bwd_@(difference_type offset, difference_type steps); // exposition only
 
     template <class... Args>
@@ -1077,7 +1075,7 @@ namespace std::ranges{
   - [2.2.4]{.pnum} Otherwise, `iterator_category` denotes `input_iterator_tag`.
 
 ```cpp
-template <std::size_t N>
+template <size_t N>
 constexpr void @_satisfy_@();                             // exposition only
 ```
 
@@ -1087,8 +1085,8 @@ constexpr void @_satisfy_@();                             // exposition only
 
 ```cpp
 if constexpr (N < (sizeof...(Views) - 1)) {
-    if (get<N>(@*it_*@) == ranges::end(get<N>(@*parent_*@->@*views_*@))) {
-        @*it_*@.template emplace<N + 1>(ranges::begin(get<N + 1>(@*parent_*@->@*views_*@)));
+    if (std::get<N>(@*it_*@) == ranges::end(std::get<N>(@*parent_*@->@*views_*@))) {
+        @*it_*@.template emplace<N + 1>(ranges::begin(std::get<N + 1>(@*parent_*@->@*views_*@)));
         @*satisfy*@<N + 1>();
     }
 }
@@ -1097,7 +1095,7 @@ if constexpr (N < (sizeof...(Views) - 1)) {
 :::
 
 ```cpp
-template <std::size_t N>
+template <size_t N>
 constexpr void @_prev_@();                                // exposition only
 ```
 
@@ -1107,13 +1105,13 @@ constexpr void @_prev_@();                                // exposition only
 
 ```cpp
 if constexpr (N == 0) {
-    --get<0>(@*it_*@);
+    --std::get<0>(@*it_*@);
 } else {
-    if (get<N>(@*it_*@) == ranges::begin(get<N>(@*parent_*@->@*views_*@))) {
-        @*it_*@.template emplace<N - 1>(ranges::end(get<N - 1>(@*parent_*@->@*views_*@)));
+    if (std::get<N>(@*it_*@) == ranges::begin(std::get<N>(@*parent_*@->@*views_*@))) {
+        @*it_*@.template emplace<N - 1>(ranges::end(std::get<N - 1>(@*parent_*@->@*views_*@)));
         @_prev_@<N - 1>();
     } else {
-        --get<N>(@*it_*@);
+        --std::get<N>(@*it_*@);
     }
 }
 ```
@@ -1121,7 +1119,7 @@ if constexpr (N == 0) {
 :::
 
 ```cpp
-template <std::size_t N>
+template <size_t N>
 constexpr void @_advance-fwd_@(difference_type offset, difference_type steps); // exposition only
 ```
 
@@ -1132,13 +1130,13 @@ constexpr void @_advance-fwd_@(difference_type offset, difference_type steps); /
 ```cpp
 using underlying_diff_type = iter_difference_t<variant_alternative_t<N, @*base-iter*@>>;
 if constexpr (N == sizeof...(Views) - 1) {
-    get<N>(@*it_*@) += static_cast<underlying_diff_type>(steps);
+    std::get<N>(@*it_*@) += static_cast<underlying_diff_type>(steps);
 } else {
-    auto n_size = ranges::distance(get<N>(@*parent_*@->@*views_*@));
+    auto n_size = ranges::distance(std::get<N>(@*parent_*@->@*views_*@));
     if (offset + steps < n_size) {
-        get<N>(@*it_*@) += static_cast<underlying_diff_type>(steps);
+        std::get<N>(@*it_*@) += static_cast<underlying_diff_type>(steps);
     } else {
-        @*it_*@.template emplace<N + 1>(ranges::begin(get<N + 1>(@*parent_*@->@*views_*@)));
+        @*it_*@.template emplace<N + 1>(ranges::begin(std::get<N + 1>(@*parent_*@->@*views_*@)));
         @*advance-fwd*@<N + 1>(0, offset + steps - n_size);
     }
 }
@@ -1147,7 +1145,7 @@ if constexpr (N == sizeof...(Views) - 1) {
 :::
 
 ```cpp
-template <std::size_t N>
+template <size_t N>
 constexpr void @_advance-bwd_@(difference_type offset, difference_type steps); // exposition only
 ```
 
@@ -1158,13 +1156,13 @@ constexpr void @_advance-bwd_@(difference_type offset, difference_type steps); /
 ```cpp
 using underlying_diff_type = iter_difference_t<variant_alternative_t<N, @*base-iter*@>>;
 if constexpr (N == 0) {
-    get<N>(@*it_*@) -= static_cast<underlying_diff_type>(steps);
+    std::get<N>(@*it_*@) -= static_cast<underlying_diff_type>(steps);
 } else {
     if (offset >= steps) {
-        get<N>(@*it_*@) -= static_cast<underlying_diff_type>(steps);
+        std::get<N>(@*it_*@) -= static_cast<underlying_diff_type>(steps);
     } else {
-        auto prev_size = ranges::distance(get<N - 1>(@*parent_*@->@*views_*@));
-        @*it_*@.template emplace<N - 1>(ranges::end(get<N - 1>(@*parent_*@->@*views_*@)));
+        auto prev_size = ranges::distance(std::get<N - 1>(@*parent_*@->@*views_*@));
+        @*it_*@.template emplace<N - 1>(ranges::end(std::get<N - 1>(@*parent_*@->@*views_*@)));
         @*advance-bwd*@<N - 1>(prev_size, steps - offset);
     }
 }
@@ -1197,7 +1195,7 @@ constexpr @_iterator_@(@_iterator_@<!Const> it)
 
 [8]{.pnum} *Effects*: Initializes `@*parent_*@` with `it.@*parent_*@`, and
 let `@*i*@` be `it.@*it_*@.index()`, initializes `@*it_*@` with
-`@*base-iter*@(in_place_index<@*i*@>, get<@*i*@>(std::move(it.@*it_*@)))`
+`@*base-iter*@(in_place_index<@*i*@>, std::get<@*i*@>(std::move(it.@*it_*@)))`
 
 :::
 
@@ -1230,7 +1228,7 @@ constexpr @_iterator_@& operator++();
 [12]{.pnum} *Effects*: Let `@*i*@` be `@*it_*@.index()`. Equivalent to:
 
 ```cpp
-++get<@*i*@>(@*it_*@);
+++std::get<@*i*@>(@*it_*@);
 @*satisfy*@<@*i*@>();
 return *this;
 ```
@@ -1316,9 +1314,9 @@ constexpr @_iterator_@& operator+=(difference_type n)
 
 ```cpp
 if(n > 0) {
-  @*advance-fwd*@<@*i*@>(get<@*i*@>(@*it_*@) - ranges::begin(get<@*i*@>(@*parent_*@->@*views_*@)), n);
+  @*advance-fwd*@<@*i*@>(std::get<@*i*@>(@*it_*@) - ranges::begin(std::get<@*i*@>(@*parent_*@->@*views_*@)), n);
 } else if (n < 0) {
-  @*advance-bwd*@<@*i*@>(get<@*i*@>(@*it_*@) - ranges::begin(get<@*i*@>(@*parent_*@->@*views_*@)), -n);
+  @*advance-bwd*@<@*i*@>(std::get<@*i*@>(@*it_*@) - ranges::begin(std::get<@*i*@>(@*parent_*@->@*views_*@)), -n);
 }
 return *this;
 ```
@@ -1387,7 +1385,7 @@ friend constexpr bool operator==(const @_iterator_@& it, default_sentinel_t);
 ```cpp
 constexpr auto last_idx = sizeof...(Views) - 1;
 return it.@*it_*@.index() == last_idx &&
-       get<last_idx>(it.@*it_*@) == ranges::end(get<last_idx>(it.@*parent_*@->@*views_*@));
+       std::get<last_idx>(it.@*it_*@) == ranges::end(std::get<last_idx>(it.@*parent_*@->@*views_*@));
 ```
 
 :::
@@ -1428,12 +1426,12 @@ friend constexpr @_iterator_@ operator+(const @_iterator_@& it, difference_type 
 
 :::bq
 
-[29]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
-
-[30]{.pnum} *Effects*: Equivalent to:
+[29]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-return @_iterator_@(it) += n;
+auto temp = it;
+temp += n;
+return temp;
 ```
 
 :::
@@ -1445,7 +1443,7 @@ friend constexpr @_iterator_@ operator+(difference_type n, const @_iterator_@& i
 
 :::bq
 
-[31]{.pnum} *Effects*: Equivalent to:
+[30]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return it + n;
@@ -1460,10 +1458,12 @@ friend constexpr @_iterator_@ operator-(const @_iterator_@& it, difference_type 
 
 :::bq
 
-[32]{.pnum} *Effects*: Equivalent to:
+[31]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-return @*iterator*@(it) -= n;
+auto temp = it;
+temp -= n;
+return temp;
 ```
 
 :::
@@ -1475,19 +1475,19 @@ friend constexpr difference_type operator-(const @_iterator_@& x, const @_iterat
 
 :::bq
 
-[33]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
+[32]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
 `y.@*it_*@.valueless_by_exception()` are each `false`.
 
-[34]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()` and `@*i~y~*@`
+[33]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()` and `@*i~y~*@`
 denote `y.@*it_*@.index()`
 
-- [34.1]{.pnum} if `@*i~x~*@ > @*i~y~*@`, let `@*d~y~*@` be
-  `ranges::distance(get<@*i~y~*@>(y.@*it_*@), ranges::end(get<@*i~y~*@>(y.@*parent_*@->@*views_*@)))`,
+- [33.1]{.pnum} if `@*i~x~*@ > @*i~y~*@`, let `@*d~y~*@` be
+  `ranges::distance(std::get<@*i~y~*@>(y.@*it_*@), ranges::end(std::get<@*i~y~*@>(y.@*parent_*@->@*views_*@)))`,
   `@*d~x~*@` be
-  `ranges::distance(ranges::begin(get<@*i~x~*@>(x.@*parent_*@->@*views_*@)), get<@*i~x~*@>(x.@*it_*@))`.
+  `ranges::distance(ranges::begin(std::get<@*i~x~*@>(x.@*parent_*@->@*views_*@)), std::get<@*i~x~*@>(x.@*it_*@))`.
   Let `s` denote the sum of the sizes of all the ranges
-  `get<@*i*@>(x.@*parent_*@->@*views_*@)` for every integer
-  `@*i~y~*@ < @*i*@ < @*i~x~*@` if there is any, and `0` otherwise, of type
+  `std::get<@*i*@>(x.@*parent_*@->@*views_*@)` for every integer `@*i*@` in the range
+  `[@*i~y~*@ + 1, @*i~x~*@)` if there is any, and `0` otherwise, of type
   `difference_type`,
   equivalent to
 
@@ -1495,16 +1495,16 @@ denote `y.@*it_*@.index()`
   return @*d~y~*@ + s + @*d~x~*@;
   ```
 
-- [34.2]{.pnum} otherwise, if `@*i~x~*@ < @*i~y~*@`, equivalent to:
+- [33.2]{.pnum} otherwise, if `@*i~x~*@ < @*i~y~*@`, equivalent to:
 
   ```cpp
   return -(y - x);
   ```
 
-- [34.3]{.pnum} otherwise, equivalent to:
+- [33.3]{.pnum} otherwise, equivalent to:
 
   ```cpp
-  return get<@*i~x~*@>(x.@*it_*@) - get<@*i~y~*@>(y.@*it_*@);
+  return std::get<@*i~x~*@>(x.@*it_*@) - std::get<@*i~y~*@>(y.@*it_*@);
   ```
 
 :::
@@ -1516,13 +1516,13 @@ friend constexpr difference_type operator-(const @_iterator_@& x, default_sentin
 
 :::bq
 
-[35]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` is `false`.
+[34]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` is `false`.
 
-[36]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()`, `@*d~x~*@`
-be `ranges::distance(get<@*i~x~*@>(x.@*it_*@), ranges::end(get<@*i~x~*@>(x.@*parent_*@->@*views_*@)))`.
+[35]{.pnum} *Effects*: Let `@*i~x~*@` denote `x.@*it_*@.index()`, `@*d~x~*@`
+be `ranges::distance(std::get<@*i~x~*@>(x.@*it_*@), ranges::end(std::get<@*i~x~*@>(x.@*parent_*@->@*views_*@)))`.
 Let `s` denote the sum of the sizes of all the ranges
-`get<@*i*@>(x.@*parent_*@->@*views_*@)` for every integer
-`@*i~x~*@ < @*i*@ < sizeof...(Views)` if there is any, and `0`
+`std::get<@*i*@>(x.@*parent_*@->@*views_*@)` for every integer `@*i*@` in the range
+`[@*i~x~*@ + 1, sizeof...(Views))` if there is any, and `0`
 otherwise, of type `difference_type`,
 equivalent to
 
@@ -1530,10 +1530,13 @@ equivalent to
 return -(@*d~x~*@ + s);
 ```
 
-[37]{.pnum} *Remarks*: Let `V` be the last element of the pack `Views`, the expression in the requires-clause is equivalent to:
+[36]{.pnum} *Remarks*: Let `Fs` be the pack that consists of all elements of `Views`
+except the first element, the expression in the requires-clause is equivalent to:
 
 ```cpp
-(@_concat-is-random-access_@<Const, Views...> && common_range<@*maybe-const*@<Const, V>>)
+(sized_sentinel_for<sentinel_t<@*maybe-const*@<Const, Views>>, 
+                    iterator_t<@*maybe-const*@<Const, Views>>> && ...)
+  && (sized_range<@*maybe-const*@<Const, Fs>> && ...)
 ```
 
 :::
@@ -1545,16 +1548,19 @@ friend constexpr difference_type operator-(default_sentinel_t, const @_iterator_
 
 :::bq
 
-[38]{.pnum} *Effects*: Equivalent to:
+[37]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return -(x - default_sentinel);
 ```
 
-[39]{.pnum} *Remarks*: Let `V` be the last element of the pack `Views`, the expression in the requires-clause is equivalent to:
+[38]{.pnum} *Remarks*: Let `Fs` be the pack that consists of all elements of `Views`
+except the first element, the expression in the requires-clause is equivalent to:
 
 ```cpp
-(@_concat-is-random-access_@<Const, Views...> && common_range<@*maybe-const*@<Const, V>>)
+(sized_sentinel_for<sentinel_t<@*maybe-const*@<Const, Views>>, 
+                    iterator_t<@*maybe-const*@<Const, Views>>> && ...)
+  && (sized_range<@*maybe-const*@<Const, Fs>> && ...)
 ```
 
 :::
@@ -1565,9 +1571,9 @@ friend constexpr decltype(auto) iter_move(const @_iterator_@& it) noexcept(@*see
 
 :::bq
 
-[40]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
+[39]{.pnum} *Preconditions*: `it.@*it_*@.valueless_by_exception()` is `false`.
 
-[41]{.pnum} *Effects*: Equivalent to:
+[40]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return std::visit(
@@ -1578,7 +1584,7 @@ return std::visit(
     it.@*it_*@);
 ```
 
-[42]{.pnum} *Remarks*: The exception specification is equivalent to:
+[41]{.pnum} *Remarks*: The exception specification is equivalent to:
 
 ```cpp
 ((is_nothrow_invocable_v<decltype(ranges::iter_move), 
@@ -1596,10 +1602,10 @@ friend constexpr void iter_swap(const @_iterator_@& x, const @_iterator_@& y) no
 
 :::bq
 
-[43]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
+[42]{.pnum} *Preconditions*: `x.@*it_*@.valueless_by_exception()` and
 `y.@*it_*@.valueless_by_exception()` are each `false`.
 
-[44]{.pnum} *Effects*: Equivalent to:
+[43]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 std::visit(
@@ -1613,7 +1619,7 @@ std::visit(
     x.@*it_*@, y.@*it_*@);
 ```
 
-[45]{.pnum} *Remarks*: The exception specification is equivalent to
+[44]{.pnum} *Remarks*: The exception specification is equivalent to
 
 ```cpp
 (noexcept(ranges::swap(*x, *y)) && ... && noexcept(ranges::iter_swap(its, its)))
@@ -1621,7 +1627,7 @@ std::visit(
 
 where `its` is a pack of lvalues of type `const iterator_t<@*maybe-const*@<Const, Views>>` respectively.
 
-[46]{.pnum} *Remarks*: The expression in the requires-clause is equivalent to
+[45]{.pnum} *Remarks*: The expression in the requires-clause is equivalent to
 
 ```cpp
 swappable_with<iter_reference_t<@*iterator*@>, iter_reference_t<@*iterator*@>> && 

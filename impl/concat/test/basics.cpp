@@ -768,3 +768,127 @@ TEST_POINT("spaceship")
     
     [[maybe_unused]] auto b = it <=> it;
 }
+
+
+
+struct sized_sentinel_iter {
+    int* it_;
+    int operator*() const { return *it_; }
+
+    sized_sentinel_iter& operator++() { ++it_; return *this; }
+    void operator++(int) {}
+
+    using value_type = int;                 // to model indirectly_readable_traits
+    using difference_type = std::ptrdiff_t; // to model incrementable_traits
+};
+
+template <bool sized_sentinel>
+struct maybe_sized_sentinel
+{
+    int* it_;
+
+    bool operator==(sized_sentinel_iter iter) const {
+        return iter.it_ == it_;
+    }
+
+    friend auto operator-(maybe_sized_sentinel s, sized_sentinel_iter it)
+        requires sized_sentinel
+    {
+        return s.it_ - it.it_;
+    }
+
+    friend auto operator-(sized_sentinel_iter it, maybe_sized_sentinel s)
+        requires sized_sentinel
+    {
+        return it.it_ - s.it_;
+    }
+};
+
+template <bool sized_sentinel, bool sized_range>
+struct maybe_sized_range : std::ranges::view_base
+{
+    int* begin_;
+    int* end_;
+
+    template <size_t N>
+    maybe_sized_range(int (&input) [N]) : begin_(input), end_(input+N){}
+
+    auto begin() const { return sized_sentinel_iter{begin_};}
+    auto end() const { return maybe_sized_sentinel<sized_sentinel>{end_};}
+
+    auto size() const requires sized_range {return end_ - begin_;}
+};
+
+TEST_POINT("default sentinel") {
+    int r1[] = {1, 2, 3};
+    int r2[] = {4, 5, 6};
+    int r3[] = {7, 8, 9};
+
+    {
+        maybe_sized_range<true, true> v1{r1};
+        maybe_sized_range<true, true> v2{r2};
+        maybe_sized_range<true, true> v3{r3};
+        auto cv = std::views::concat(v1, v2, v3);
+        auto it = cv.begin();
+        CHECK(it - std::default_sentinel == -9);
+        CHECK(std::default_sentinel - it == 9);
+        std::ranges::advance(it, 5);
+        CHECK(it - std::default_sentinel == -4);
+        CHECK(std::default_sentinel - it == 4);
+        std::ranges::advance(it, 2);
+        CHECK(it - std::default_sentinel == -2);
+        CHECK(std::default_sentinel - it == 2);
+
+        static_assert(std::sized_sentinel_for<std::default_sentinel_t, decltype(it)>);
+    }
+    {
+        maybe_sized_range<false, true> v1{r1};
+        maybe_sized_range<true, true> v2{r2};
+        maybe_sized_range<true, true> v3{r3};
+        auto cv = std::views::concat(v1, v2, v3);
+        auto it = cv.begin();
+        static_assert(!std::sized_sentinel_for<std::default_sentinel_t, decltype(it)>);
+    }
+    {
+        maybe_sized_range<true, true> v1{r1};
+        maybe_sized_range<false, true> v2{r2};
+        maybe_sized_range<true, true> v3{r3};
+        auto cv = std::views::concat(v1, v2, v3);
+        auto it = cv.begin();
+        static_assert(!std::sized_sentinel_for<std::default_sentinel_t, decltype(it)>);
+    }
+
+    {
+        maybe_sized_range<true, false> v1{r1};
+        maybe_sized_range<true, true> v2{r2};
+        maybe_sized_range<true, true> v3{r3};
+        auto cv = std::views::concat(v1, v2, v3);
+        auto it = cv.begin();
+        CHECK(it - std::default_sentinel == -9);
+        CHECK(std::default_sentinel - it == 9);
+        std::ranges::advance(it, 5);
+        CHECK(it - std::default_sentinel == -4);
+        CHECK(std::default_sentinel - it == 4);
+        std::ranges::advance(it, 2);
+        CHECK(it - std::default_sentinel == -2);
+        CHECK(std::default_sentinel - it == 2);
+
+        static_assert(std::sized_sentinel_for<std::default_sentinel_t, decltype(it)>);
+    }
+    {
+        maybe_sized_range<true, true> v1{r1};
+        maybe_sized_range<true, false> v2{r2};
+        maybe_sized_range<true, true> v3{r3};
+        auto cv = std::views::concat(v1, v2, v3);
+        auto it = cv.begin();
+        static_assert(!std::sized_sentinel_for<std::default_sentinel_t, decltype(it)>);
+    }
+    {
+        maybe_sized_range<true, true> v1{r1};
+        maybe_sized_range<true, true> v2{r2};
+        maybe_sized_range<true, false> v3{r3};
+        auto cv = std::views::concat(v1, v2, v3);
+        auto it = cv.begin();
+        static_assert(!std::sized_sentinel_for<std::default_sentinel_t, decltype(it)>);
+    }
+}
