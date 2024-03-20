@@ -1,7 +1,7 @@
 ---
 title: "`views::concat`"
-document: P2542R7
-date: 2023-09-23
+document: P2542R8
+date: 2024-03-20
 audience: SG9, LEWG, LWG
 author:
   - name: Hui Xie
@@ -12,6 +12,11 @@ toc: true
 ---
 
 # Revision History
+
+## R8
+
+- requires expression update in `operator-(it, default_sentinel)`
+- Various minor wording fixes
 
 ## R7
 
