@@ -11,7 +11,7 @@ endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
    set(CXX_STANDARD_REQUIRED TRUE)
-	#add_compile_options(-Wall -Wextra -Werror -stdlib=libc++ -std=c++2b)
+	add_compile_options(-Wall -Wextra -Werror -stdlib=libc++ -std=c++23)
 	#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
    set(CXX_STANDARD_REQUIRED TRUE)
@@ -49,6 +49,15 @@ file(GLOB_RECURSE ref_wrapper_hdr  RELATIVE ${CMAKE_SOURCE_DIR} ref_wrapper/*.hp
 add_library(ref_wrapper INTERFACE) # header-only library
 target_sources(ref_wrapper INTERFACE ${ref_wrapper_hdr})
 
+#  +----------+
+#  |  ANY_VIEW  |
+#  +----------+
+# for now, all in one file. ideally if things grow, consider splitting CMake logic to individual directories, via
+#    add_subdirectory(any_view) etc.
+file(GLOB_RECURSE any_view_hdr  RELATIVE ${CMAKE_SOURCE_DIR} any_view/*.hpp)
+add_library(any_view INTERFACE) # header-only library
+target_sources(any_view INTERFACE ${any_view_hdr})
+
 
 #  +---------------+
 #  |  CONCAT-TEST  |
@@ -75,3 +84,15 @@ target_sources(ref_wrapper-test PRIVATE ${ref_wrapper_test_src})
 target_link_libraries(ref_wrapper-test PRIVATE Catch2::Catch2WithMain)
 target_include_directories(ref_wrapper-test PRIVATE ref_wrapper)
 #target_link_libraries(ref_wrapper-test PRIVATE range-v3)
+
+
+#  +---------------+
+#  |  ANY-VIEW-TEST  |
+#  +---------------+
+
+file(GLOB_RECURSE any_view_test_src RELATIVE ${CMAKE_SOURCE_DIR} CONFIGURE_DEPENDS  any_view/test/*.cpp)
+add_executable(any_view-test)
+target_sources(any_view-test PRIVATE ${any_view_test_src})
+target_link_libraries(any_view-test PRIVATE Catch2::Catch2WithMain)
+target_include_directories(any_view-test PRIVATE any_view ref_wrapper)
+target_link_libraries(any_view-test PRIVATE range-v3)
