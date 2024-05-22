@@ -8,11 +8,9 @@ on:
   push:
     branches:
       - main
-      - concat_expert
   pull_request:
     branches:
       - main
-      - concat_expert
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -34,10 +32,10 @@ jobs:
 
       - name: Build pages
         run: |
+          make any_view.html
           make concat.html
           make P2483R0.html
           make ref_wrapper_common_ref.html
-          make any_view.html
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4.2.2
