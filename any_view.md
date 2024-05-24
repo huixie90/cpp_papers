@@ -141,6 +141,17 @@ considered.
 Here is the type declaration
 
 ```cpp
+enum class category
+{
+    none = 0,
+    input = 1,
+    forward = 3,
+    bidirectional = 7,
+    random_access = 15,
+    mask = random_access,
+    sized = 16,
+};
+
 template<typename Ref, category Cat = category::input>
 struct any_view;
 ```
