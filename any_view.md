@@ -159,6 +159,34 @@ struct any_view;
 Here `Cat` handles both the traversal category and `sized_range`. `Ref` is the `range_reference_t`. It
 does not allow users to configure the `range_value_t`, `range_difference_t`, `borrowed_range` and `common_range`. `copyable` is mandatory in range-v3.
 
+### Parameters Design
+
+```cpp
+enum class category
+{
+    none = 0,
+    input = 1,
+    forward = 3,
+    bidirectional = 7,
+    random_access = 15,
+    contiguous = 31
+    mask = contiguous,
+    sized = 32,
+    borrowed = 64,
+    common = 128,
+    move_only_iterator = 256,
+    move_only_view = 512
+};
+
+template <class Ref, 
+          category Cat = category::input,
+          class Value = decay_t<Ref>,
+          class RValueRef = add_rvalue_reference_t<Value>,
+          class Diff = ptrdiff_t>
+struct any_view;
+```
+
+
 # Implementation Experience
 
 # Wording

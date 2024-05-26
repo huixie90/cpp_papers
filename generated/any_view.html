@@ -469,6 +469,8 @@ Configure?<span></span></a>
 <code class="sourceCode default">boost::ranges::any_range</code><span></span></a></li>
 <li><a href="#range-v3-rangesviewsany_view" id="toc-range-v3-rangesviewsany_view"><span class="toc-section-number">4.1.2</span> range-v3
 <code class="sourceCode default">ranges::views::any_view</code><span></span></a></li>
+<li><a href="#parameters-design" id="toc-parameters-design"><span class="toc-section-number">4.1.3</span> Parameters
+Design<span></span></a></li>
 </ul></li>
 </ul></li>
 <li><a href="#implementation-experience" id="toc-implementation-experience"><span class="toc-section-number">5</span> Implementation
@@ -651,6 +653,29 @@ allow users to configure the
 <code class="sourceCode default">common_range</code>.
 <code class="sourceCode default">copyable</code> is mandatory in
 range-v3.</p>
+<h3 data-number="4.1.3" id="parameters-design"><span class="header-section-number">4.1.3</span> Parameters Design<a href="#parameters-design" class="self-link"></a></h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">enum</span> <span class="kw">class</span> category</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    none <span class="op">=</span> <span class="dv">0</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    input <span class="op">=</span> <span class="dv">1</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    forward <span class="op">=</span> <span class="dv">3</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    bidirectional <span class="op">=</span> <span class="dv">7</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    random_access <span class="op">=</span> <span class="dv">15</span>,</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    contiguous <span class="op">=</span> <span class="dv">31</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    mask <span class="op">=</span> contiguous,</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    sized <span class="op">=</span> <span class="dv">32</span>,</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    borrowed <span class="op">=</span> <span class="dv">64</span>,</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    common <span class="op">=</span> <span class="dv">128</span>,</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    move_only_iterator <span class="op">=</span> <span class="dv">256</span>,</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    move_only_view <span class="op">=</span> <span class="dv">512</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Ref, </span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>          category Cat <span class="op">=</span> category<span class="op">::</span>input,</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Value <span class="op">=</span> decay_t<span class="op">&lt;</span>Ref<span class="op">&gt;</span>,</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> RValueRef <span class="op">=</span> add_rvalue_reference_t<span class="op">&lt;</span>Value<span class="op">&gt;</span>,</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Diff <span class="op">=</span> <span class="dt">ptrdiff_t</span><span class="op">&gt;</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> any_view;</span></code></pre></div>
 <h1 data-number="5" id="implementation-experience"><span class="header-section-number">5</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
 <h1 data-number="6" id="wording"><span class="header-section-number">6</span> Wording<a href="#wording" class="self-link"></a></h1>
 <h2 data-number="6.1" id="feature-test-macro"><span class="header-section-number">6.1</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
