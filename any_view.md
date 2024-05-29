@@ -106,7 +106,6 @@ For `any_view`, it is much much more complex than that:
 
 - Is it an `input_range`, `forward_range`, `bidirectional_range`, `random_access_range`, or a `contiguous_range` ?
 - Is the range `copyable` ?
-- Is the iterator `copyable` ?
 - Is it a `sized_range` ?
 - Is it a `borrowed_range` ?
 - Is it a `common_range` ?
@@ -114,6 +113,10 @@ For `any_view`, it is much much more complex than that:
 - What is the `range_value_t` ?
 - What is the `range_rvalue_reference_t` ?
 - What is the `range_difference_t` ?
+- Is the `range` const-iterable?
+- Is the iterator `copyable` for `input_iterator`?
+- Is the iterator equality comparable for `input_iterator`?
+- sized_sentinel_for<S, I> ?
 
 We can easily get combinatorial explosion of types if we follow the same approach of `std::function`. So let's look at the prior arts.
 
@@ -169,13 +172,12 @@ enum class category
     forward = 3,
     bidirectional = 7,
     random_access = 15,
-    contiguous = 31
+    contiguous = 31,
     mask = contiguous,
     sized = 32,
     borrowed = 64,
     common = 128,
-    move_only_iterator = 256,
-    move_only_view = 512
+    move_only_view = 256
 };
 
 template <class Ref, 
@@ -183,11 +185,22 @@ template <class Ref,
           class Value = decay_t<Ref>,
           class RValueRef = add_rvalue_reference_t<Value>,
           class Diff = ptrdiff_t>
-struct any_view;
+class any_view;
 ```
 
+#### Considerations
+
+- `contiguous_range` is still useful to support even though we have already `std::span`. But `span` is non-owning.
+
+- move-only iterator is not a useful thing to be configured. We can always make the `input_iterator` move-only, as algorithms that deal with input ranges must already deal with the non-copyability.
+
+- move-only view is still useful. (see `std::function` vs `std::move_only_function`)
+
+- const-iteratable will make the design super complicated as all the types can be different between const and non-const.
 
 # Implementation Experience
+
+- Reference implementation in the repo
 
 # Wording
 
