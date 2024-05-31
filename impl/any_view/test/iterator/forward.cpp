@@ -9,7 +9,7 @@
 namespace {
 
 using AnyView = std::ranges::any_view<int&, std::ranges::category::forward>;
-using Iter = AnyView::any_iterator;
+using Iter = std::ranges::iterator_t<AnyView>;
 
 static_assert(std::forward_iterator<Iter>);
 static_assert(!std::bidirectional_iterator<Iter>);
@@ -28,9 +28,10 @@ static_assert(std::same_as<typename std::iterator_traits<Iter>::difference_type,
                            ptrdiff_t>);
 
 constexpr void basic() {
-  std::array v{1, 2, 3, 4, 5};
+  std::array a{1, 2, 3, 4, 5};
+  AnyView v(std::views::all(a));
 
-  Iter iter(v.begin());
+  Iter iter = v.begin();
   {
     std::same_as<int&> decltype(auto) r = *iter;
     assert(r == 1);
@@ -55,9 +56,10 @@ constexpr void basic() {
 }
 
 constexpr void default_ctor() {
-  std::array v{1, 2, 3, 4, 5};
+  std::array a{1, 2, 3, 4, 5};
+  AnyView v(std::views::all(a));
 
-  Iter iter(v.begin());
+  Iter iter = v.begin();
 
   Iter iter1, iter2;
 
@@ -69,9 +71,10 @@ constexpr void default_ctor() {
 }
 
 constexpr void move() {
-  std::array v{1, 2, 3, 4, 5};
+  std::array a{1, 2, 3, 4, 5};
+  AnyView v(std::views::all(a));
 
-  Iter iter1(v.begin());
+  Iter iter1 = v.begin();
   Iter iter2(std::move(iter1));
 
   assert(*iter1 == 1);
@@ -88,9 +91,10 @@ constexpr void move() {
 }
 
 constexpr void copy() {
-  std::array v{1, 2, 3, 4, 5};
+  std::array a{1, 2, 3, 4, 5};
+  AnyView v(std::views::all(a));
 
-  Iter iter1(v.begin());
+  Iter iter1 = v.begin();
   Iter iter2(iter1);
 
   assert(*iter1 == 1);
@@ -107,8 +111,9 @@ constexpr void copy() {
 }
 
 constexpr void equal() {
-  std::array v{1, 2, 3, 4, 5};
-  Iter iter1(v.begin());
+  std::array a{1, 2, 3, 4, 5};
+  AnyView v(std::views::all(a));
+  Iter iter1 = v.begin();
   Iter iter2(iter1);
 
   std::same_as<bool> decltype(auto) r = iter1 == iter2;
