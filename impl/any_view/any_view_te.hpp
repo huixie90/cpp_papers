@@ -114,245 +114,6 @@ class any_view {
 
   using any_iterator_vtable = iterator_vtable<Cat & category::category_mask>;
 
-  struct empty_iterator_category {};
-  struct with_iterator_category {
-   private:
-    constexpr static auto get_category() {
-      constexpr auto cat_mask = Cat & category::category_mask;
-      if constexpr (!std::is_reference_v<Ref>) {
-        return std::input_iterator_tag{};
-      } else if constexpr (cat_mask >= category::random_access) {
-        return std::random_access_iterator_tag{};
-      } else if constexpr (cat_mask == category::bidirectional) {
-        return std::bidirectional_iterator_tag{};
-      } else if constexpr (cat_mask == category::forward) {
-        return std::forward_iterator_tag{};
-      } else {
-        return std::input_iterator_tag{};
-      }
-    }
-
-   public:
-    using iterator_category = decltype(get_category());
-  };
-  constexpr static auto get_concept() {
-    constexpr auto cat_mask = Cat & category::category_mask;
-    if constexpr (cat_mask >= category::random_access) {
-      return std::random_access_iterator_tag{};
-    } else if constexpr (cat_mask == category::bidirectional) {
-      return std::bidirectional_iterator_tag{};
-    } else if constexpr (cat_mask == category::forward) {
-      return std::forward_iterator_tag{};
-    } else {
-      return std::input_iterator_tag{};
-    }
-  }
-  struct any_iterator
-      : std::conditional_t<(Cat & category::category_mask) >= category::forward,
-                           with_iterator_category, empty_iterator_category> {
-    using iterator_concept = decltype(get_concept());
-    using value_type = Value;
-    using difference_type = Diff;
-
-    constexpr any_iterator() = default;
-
-    constexpr any_iterator(const any_iterator &other)
-      requires((Cat & category::category_mask) >= category::forward ||
-               (Cat & category::common) != category::none)
-        : parent_(other.parent_) {
-      if (!other.is_singular()) {
-        iter_ = (*(other.parent_->iter_vtable_.copy_))(other.iter_);
-      }
-    }
-
-    constexpr any_iterator(any_iterator &&other) : parent_(other.parent_) {
-      if (!other.is_singular()) {
-        iter_ = (*(other.parent_->iter_vtable_.move_))(other.iter_);
-      }
-    }
-
-    constexpr any_iterator &operator=(const any_iterator &other)
-      requires((Cat & category::category_mask) >= category::forward ||
-               (Cat & category::common) != category::none)
-    {
-      if (this != &other) {
-        if (!is_singular()) {
-          (*(parent_->iter_vtable_.destructor_))(iter_);
-        }
-        if (!other.is_singular()) {
-          iter_ = (*(other.parent_->iter_vtable_.copy_))(other.iter_);
-        }
-        parent_ = other.parent_;
-      }
-      return *this;
-    }
-
-    constexpr any_iterator &operator=(any_iterator &&other) {
-      if (this != &other) {
-        if (!is_singular()) {
-          (*(parent_->iter_vtable_.destructor_))(iter_);
-        }
-        if (!other.is_singular()) {
-          iter_ = (*(other.parent_->iter_vtable_.move_))(other.iter_);
-        }
-        parent_ = other.parent_;
-      }
-      return *this;
-    }
-
-    constexpr ~any_iterator() {
-      if (!is_singular()) {
-        (*(parent_->iter_vtable_.destructor_))(iter_);
-      }
-    }
-
-    constexpr Ref operator*() const {
-      assert(parent_);
-      return (*(parent_->iter_vtable_.deref_))(iter_);
-    }
-
-    constexpr any_iterator &operator++() {
-      assert(parent_);
-      (*(parent_->iter_vtable_.increment_))(iter_);
-      return *this;
-    }
-
-    constexpr void operator++(int) { ++(*this); }
-
-    constexpr any_iterator operator++(int)
-      requires((Cat & category::category_mask) >= category::forward)
-    {
-      auto tmp = *this;
-      ++(*this);
-      return tmp;
-    }
-
-    constexpr any_iterator &operator--()
-      requires((Cat & category::category_mask) >= category::bidirectional)
-    {
-      assert(parent_);
-      (*(parent_->iter_vtable_.decrement_))(iter_);
-      return *this;
-    }
-
-    constexpr any_iterator operator--(int)
-      requires((Cat & category::category_mask) >= category::bidirectional)
-    {
-      auto tmp = *this;
-      --(*this);
-      return tmp;
-    }
-
-    constexpr any_iterator &operator+=(difference_type n)
-      requires((Cat & category::category_mask) >= category::random_access)
-    {
-      assert(parent_);
-      (*(parent_->iter_vtable_.advance_))(iter_, n);
-      return *this;
-    }
-
-    constexpr any_iterator &operator-=(difference_type n)
-      requires((Cat & category::category_mask) >= category::random_access)
-    {
-      *this += -n;
-      return *this;
-    }
-
-    constexpr Ref operator[](difference_type n) const
-      requires((Cat & category::category_mask) >= category::random_access)
-    {
-      return *((*this) + n);
-    }
-
-    friend constexpr bool operator<(const any_iterator &x,
-                                    const any_iterator &y)
-      requires((Cat & category::category_mask) >= category::random_access)
-    {
-      return (x - y) < 0;
-    }
-
-    friend constexpr bool operator>(const any_iterator &x,
-                                    const any_iterator &y)
-      requires((Cat & category::category_mask) >= category::random_access)
-    {
-      return (x - y) > 0;
-    }
-
-    friend constexpr bool operator<=(const any_iterator &x,
-                                     const any_iterator &y)
-      requires((Cat & category::category_mask) >= category::random_access)
-    {
-      return (x - y) <= 0;
-    }
-
-    friend constexpr bool operator>=(const any_iterator &x,
-                                     const any_iterator &y)
-      requires((Cat & category::category_mask) >= category::random_access)
-    {
-      return (x - y) >= 0;
-    }
-
-    friend constexpr any_iterator operator+(const any_iterator &it,
-                                            difference_type n)
-      requires((Cat & category::category_mask) >= category::random_access)
-    {
-      auto temp = it;
-      temp += n;
-      return temp;
-    }
-
-    friend constexpr any_iterator operator+(difference_type n,
-                                            const any_iterator &it)
-      requires((Cat & category::category_mask) >= category::random_access)
-    {
-      return it + n;
-    }
-
-    friend constexpr any_iterator operator-(const any_iterator &it,
-                                            difference_type n)
-      requires((Cat & category::category_mask) >= category::random_access)
-    {
-      auto temp = it;
-      temp -= n;
-      return temp;
-    }
-
-    friend constexpr difference_type operator-(const any_iterator &x,
-                                               const any_iterator &y)
-      requires((Cat & category::category_mask) >= category::random_access)
-    {
-      assert(x.parent_);
-      assert(y.parent_);
-      assert(x.parent_ == y.parent_);
-      return (*(x.parent_->iter_vtable_.distance_to_))(x.iter_, y.iter_);
-    }
-
-    friend constexpr bool operator==(const any_iterator &x,
-                                     const any_iterator &y)
-      requires((Cat & category::category_mask) >= category::forward ||
-               (Cat & category::common) != category::none)
-    {
-      if (x.parent_ != y.parent_) return false;
-      if (!x.parent_) return true;
-      return (*(x.parent_->iter_vtable_.equal_))(x.iter_, y.iter_);
-    }
-
-    friend constexpr RValueRef iter_move(const any_iterator &iter) {
-      assert(iter.parent_);
-      return (*(iter.parent_->iter_vtable_.iter_move_))(iter.iter_);
-    }
-
-    // private:
-    any_view *parent_ = nullptr;
-    void *iter_ = nullptr;
-
-    template <class Iter>
-    constexpr any_iterator(any_view *parent, Iter iter)
-        : parent_(parent), iter_(new Iter(std::move(iter))) {}
-
-    constexpr bool is_singular() const { return !parent_; }
-  };
-
   struct basic_vtable_gen {
     template <class T>
     static constexpr void *move(void *self) {
@@ -448,6 +209,246 @@ class any_view {
     }
   };
 
+  struct empty_iterator_category {};
+  struct with_iterator_category {
+   private:
+    constexpr static auto get_category() {
+      constexpr auto cat_mask = Cat & category::category_mask;
+      if constexpr (!std::is_reference_v<Ref>) {
+        return std::input_iterator_tag{};
+      } else if constexpr (cat_mask >= category::random_access) {
+        return std::random_access_iterator_tag{};
+      } else if constexpr (cat_mask == category::bidirectional) {
+        return std::bidirectional_iterator_tag{};
+      } else if constexpr (cat_mask == category::forward) {
+        return std::forward_iterator_tag{};
+      } else {
+        return std::input_iterator_tag{};
+      }
+    }
+
+   public:
+    using iterator_category = decltype(get_category());
+  };
+  constexpr static auto get_concept() {
+    constexpr auto cat_mask = Cat & category::category_mask;
+    if constexpr (cat_mask >= category::random_access) {
+      return std::random_access_iterator_tag{};
+    } else if constexpr (cat_mask == category::bidirectional) {
+      return std::bidirectional_iterator_tag{};
+    } else if constexpr (cat_mask == category::forward) {
+      return std::forward_iterator_tag{};
+    } else {
+      return std::input_iterator_tag{};
+    }
+  }
+  struct any_iterator
+      : std::conditional_t<(Cat & category::category_mask) >= category::forward,
+                           with_iterator_category, empty_iterator_category> {
+    using iterator_concept = decltype(get_concept());
+    using value_type = Value;
+    using difference_type = Diff;
+
+    constexpr any_iterator() = default;
+
+    constexpr any_iterator(const any_iterator &other)
+      requires((Cat & category::category_mask) >= category::forward ||
+               (Cat & category::common) != category::none)
+        : iter_vtable_(other.iter_vtable_) {
+      if (!other.is_singular()) {
+        iter_ = (*(other.iter_vtable_->copy_))(other.iter_);
+      }
+    }
+
+    constexpr any_iterator(any_iterator &&other)
+        : iter_vtable_(other.iter_vtable_) {
+      if (!other.is_singular()) {
+        iter_ = (*(other.iter_vtable_->move_))(other.iter_);
+      }
+    }
+
+    constexpr any_iterator &operator=(const any_iterator &other)
+      requires((Cat & category::category_mask) >= category::forward ||
+               (Cat & category::common) != category::none)
+    {
+      if (this != &other) {
+        if (!is_singular()) {
+          (*(iter_vtable_->destructor_))(iter_);
+        }
+        if (!other.is_singular()) {
+          iter_ = (*(other.iter_vtable_->copy_))(other.iter_);
+        }
+        iter_vtable_ = other.iter_vtable_;
+      }
+      return *this;
+    }
+
+    constexpr any_iterator &operator=(any_iterator &&other) {
+      if (this != &other) {
+        if (!is_singular()) {
+          (*(iter_vtable_->destructor_))(iter_);
+        }
+        if (!other.is_singular()) {
+          iter_ = (*(other.iter_vtable_->move_))(other.iter_);
+        }
+        iter_vtable_ = other.iter_vtable_;
+      }
+      return *this;
+    }
+
+    constexpr ~any_iterator() {
+      if (!is_singular()) {
+        (*(iter_vtable_->destructor_))(iter_);
+      }
+    }
+
+    constexpr Ref operator*() const {
+      assert(iter_vtable_);
+      return (*(iter_vtable_->deref_))(iter_);
+    }
+
+    constexpr any_iterator &operator++() {
+      assert(iter_vtable_);
+      (*(iter_vtable_->increment_))(iter_);
+      return *this;
+    }
+
+    constexpr void operator++(int) { ++(*this); }
+
+    constexpr any_iterator operator++(int)
+      requires((Cat & category::category_mask) >= category::forward)
+    {
+      auto tmp = *this;
+      ++(*this);
+      return tmp;
+    }
+
+    constexpr any_iterator &operator--()
+      requires((Cat & category::category_mask) >= category::bidirectional)
+    {
+      assert(iter_vtable_);
+      (*(iter_vtable_->decrement_))(iter_);
+      return *this;
+    }
+
+    constexpr any_iterator operator--(int)
+      requires((Cat & category::category_mask) >= category::bidirectional)
+    {
+      auto tmp = *this;
+      --(*this);
+      return tmp;
+    }
+
+    constexpr any_iterator &operator+=(difference_type n)
+      requires((Cat & category::category_mask) >= category::random_access)
+    {
+      assert(iter_vtable_);
+      (*(iter_vtable_->advance_))(iter_, n);
+      return *this;
+    }
+
+    constexpr any_iterator &operator-=(difference_type n)
+      requires((Cat & category::category_mask) >= category::random_access)
+    {
+      *this += -n;
+      return *this;
+    }
+
+    constexpr Ref operator[](difference_type n) const
+      requires((Cat & category::category_mask) >= category::random_access)
+    {
+      return *((*this) + n);
+    }
+
+    friend constexpr bool operator<(const any_iterator &x,
+                                    const any_iterator &y)
+      requires((Cat & category::category_mask) >= category::random_access)
+    {
+      return (x - y) < 0;
+    }
+
+    friend constexpr bool operator>(const any_iterator &x,
+                                    const any_iterator &y)
+      requires((Cat & category::category_mask) >= category::random_access)
+    {
+      return (x - y) > 0;
+    }
+
+    friend constexpr bool operator<=(const any_iterator &x,
+                                     const any_iterator &y)
+      requires((Cat & category::category_mask) >= category::random_access)
+    {
+      return (x - y) <= 0;
+    }
+
+    friend constexpr bool operator>=(const any_iterator &x,
+                                     const any_iterator &y)
+      requires((Cat & category::category_mask) >= category::random_access)
+    {
+      return (x - y) >= 0;
+    }
+
+    friend constexpr any_iterator operator+(const any_iterator &it,
+                                            difference_type n)
+      requires((Cat & category::category_mask) >= category::random_access)
+    {
+      auto temp = it;
+      temp += n;
+      return temp;
+    }
+
+    friend constexpr any_iterator operator+(difference_type n,
+                                            const any_iterator &it)
+      requires((Cat & category::category_mask) >= category::random_access)
+    {
+      return it + n;
+    }
+
+    friend constexpr any_iterator operator-(const any_iterator &it,
+                                            difference_type n)
+      requires((Cat & category::category_mask) >= category::random_access)
+    {
+      auto temp = it;
+      temp -= n;
+      return temp;
+    }
+
+    friend constexpr difference_type operator-(const any_iterator &x,
+                                               const any_iterator &y)
+      requires((Cat & category::category_mask) >= category::random_access)
+    {
+      assert(x.iter_vtable_);
+      assert(y.iter_vtable_);
+      assert(x.iter_vtable_ == y.iter_vtable_);
+      return (*(x.iter_vtable_->distance_to_))(x.iter_, y.iter_);
+    }
+
+    friend constexpr bool operator==(const any_iterator &x,
+                                     const any_iterator &y)
+      requires((Cat & category::category_mask) >= category::forward ||
+               (Cat & category::common) != category::none)
+    {
+      if (x.iter_vtable_ != y.iter_vtable_) return false;
+      if (!x.iter_vtable_) return true;
+      return (*(x.iter_vtable_->equal_))(x.iter_, y.iter_);
+    }
+
+    friend constexpr RValueRef iter_move(const any_iterator &iter) {
+      assert(iter.iter_vtable_);
+      return (*(iter.iter_vtable_->iter_move_))(iter.iter_);
+    }
+
+    // private:
+    const any_iterator_vtable *iter_vtable_ = nullptr;
+    void *iter_ = nullptr;
+
+    template <class Iter>
+    constexpr any_iterator(const any_iterator_vtable *table, Iter iter)
+        : iter_vtable_(table), iter_(new Iter(std::move(iter))) {}
+
+    constexpr bool is_singular() const { return !iter_vtable_; }
+  };
+
   using iterator = std::conditional_t<(Cat & category::category_mask) ==
                                           category::contiguous,
                                       std::add_pointer_t<Ref>, any_iterator>;
@@ -458,73 +459,6 @@ class any_view {
 
   struct any_sentinel_vtable
       : maybe_t<sentinel_vtable, (Cat & category::common) == category::none> {};
-
-  struct any_sentinel {
-    constexpr any_sentinel() = default;
-
-    constexpr any_sentinel(const any_sentinel &other) : parent_(other.parent_) {
-      if (!other.is_singular()) {
-        sent_ = (*(other.parent_->sent_vtable_.copy_))(other.sent_);
-      }
-    }
-
-    constexpr any_sentinel(any_sentinel &&other) : parent_(other.parent_) {
-      if (!other.is_singular()) {
-        sent_ = (*(other.parent_->sent_vtable_.move_))(other.sent_);
-      }
-    }
-
-    constexpr any_sentinel &operator=(const any_sentinel &other) {
-      if (this != &other) {
-        if (!is_singular()) {
-          (*(parent_->sent_vtable_.destructor_))(sent_);
-        }
-        if (!other.is_singular()) {
-          sent_ = (*(other.parent_->sent_vtable_.copy_))(other.sent_);
-        }
-        parent_ = other.parent_;
-      }
-      return *this;
-    }
-
-    constexpr any_sentinel &operator=(any_sentinel &&other) {
-      if (this != &other) {
-        if (!is_singular()) {
-          (*(parent_->sent_vtable_.destructor_))(sent_);
-        }
-        if (!other.is_singular()) {
-          sent_ = (*(other.parent_->sent_vtable_.move_))(other.sent_);
-        }
-        parent_ = other.parent_;
-      }
-      return *this;
-    }
-
-    constexpr ~any_sentinel() {
-      if (!is_singular()) {
-        (*(parent_->sent_vtable_.destructor_))(sent_);
-      }
-    }
-
-    friend constexpr bool operator==(const iterator &iter,
-                                     const any_sentinel &sent) {
-      return (*(sent.parent_->sent_vtable_.equal_))(iter, sent);
-    }
-
-    // private:
-    any_view *parent_ = nullptr;
-    void *sent_ = nullptr;
-
-    template <class Sent>
-    constexpr any_sentinel(any_view *parent, Sent sent)
-        : parent_(parent), sent_(new Sent(std::move(sent))) {}
-
-    constexpr bool is_singular() const { return !parent_; }
-  };
-
-  using sentinel =
-      std::conditional_t<(Cat & category::common) == category::none,
-                         any_sentinel, iterator>;
 
   struct sentinel_vtable_gen : basic_vtable_gen {
     template <class Iter, class Sent>
@@ -555,24 +489,93 @@ class any_view {
     }
   };
 
+  struct any_sentinel {
+    constexpr any_sentinel() = default;
+
+    constexpr any_sentinel(const any_sentinel &other)
+        : sent_vtable_(other.sent_vtable_) {
+      if (!other.is_singular()) {
+        sent_ = (*(other.sent_vtable_->copy_))(other.sent_);
+      }
+    }
+
+    constexpr any_sentinel(any_sentinel &&other)
+        : sent_vtable_(other.sent_vtable_) {
+      if (!other.is_singular()) {
+        sent_ = (*(other.sent_vtable_->move_))(other.sent_);
+      }
+    }
+
+    constexpr any_sentinel &operator=(const any_sentinel &other) {
+      if (this != &other) {
+        if (!is_singular()) {
+          (*(sent_vtable_->destructor_))(sent_);
+        }
+        if (!other.is_singular()) {
+          sent_ = (*(other.sent_vtable_->copy_))(other.sent_);
+        }
+        sent_vtable_ = other.sent_vtable_;
+      }
+      return *this;
+    }
+
+    constexpr any_sentinel &operator=(any_sentinel &&other) {
+      if (this != &other) {
+        if (!is_singular()) {
+          (*(sent_vtable_->destructor_))(sent_);
+        }
+        if (!other.is_singular()) {
+          sent_ = (*(other.sent_vtable_->move_))(other.sent_);
+        }
+        sent_vtable_ = other.sent_vtable_;
+      }
+      return *this;
+    }
+
+    constexpr ~any_sentinel() {
+      if (!is_singular()) {
+        (*(sent_vtable_->destructor_))(sent_);
+      }
+    }
+
+    friend constexpr bool operator==(const iterator &iter,
+                                     const any_sentinel &sent) {
+      return (*(sent.sent_vtable_->equal_))(iter, sent);
+    }
+
+    // private:
+    const any_sentinel_vtable *sent_vtable_ = nullptr;
+    void *sent_ = nullptr;
+
+    template <class Sent>
+    constexpr any_sentinel(const any_sentinel_vtable *table, Sent sent)
+        : sent_vtable_(table), sent_(new Sent(std::move(sent))) {}
+
+    constexpr bool is_singular() const { return !sent_vtable_; }
+  };
+
+  using sentinel =
+      std::conditional_t<(Cat & category::common) == category::none,
+                         any_sentinel, iterator>;
+
   struct sized_vtable {
     std::size_t (*size_)(const void *);
   };
 
-  struct view_vtable
+  struct any_view_vtable
       : destructor_vtable,
         movable_vtable,
         maybe_t<copyable_vtable,
                 (Cat & category::move_only_view) == category::none>,
         maybe_t<sized_vtable, (Cat & category::sized) != category::none> {
-    iterator (*begin_)(any_view *);
-    sentinel (*end_)(any_view *);
+    iterator (*begin_)(void *);
+    sentinel (*end_)(void *);
   };
 
   struct view_vtable_gen : basic_vtable_gen {
     template <class View>
     static constexpr auto generate() {
-      view_vtable t;
+      any_view_vtable t;
       t.move_ = &basic_vtable_gen::template move<View>;
       t.destructor_ = &basic_vtable_gen::template destroy<View>;
 
@@ -591,25 +594,29 @@ class any_view {
     }
 
     template <class View>
-    static constexpr iterator begin(any_view *av) {
-      auto &view = *(static_cast<View *>(av->view_));
+    static constexpr iterator begin(void *v) {
+      auto &view = *(static_cast<View *>(v));
       if constexpr ((Cat & category::category_mask) == category::contiguous) {
         return std::ranges::begin(view);
       } else {
-        return any_iterator(av, std::ranges::begin(view));
+        return any_iterator(&iter_vtable<std::ranges::iterator_t<View>>,
+                            std::ranges::begin(view));
       }
     }
 
     template <class View>
-    static constexpr sentinel end(any_view *av) {
-      auto &view = *(static_cast<View *>(av->view_));
+    static constexpr sentinel end(void *v) {
+      auto &view = *(static_cast<View *>(v));
       if constexpr ((Cat & category::category_mask) == category::contiguous &&
                     (Cat & category::common) != category::none) {
         return std::ranges::end(view);
       } else if constexpr ((Cat & category::common) != category::none) {
-        return any_iterator(av, std::ranges::end(view));
+        return any_iterator(&iter_vtable<std::ranges::iterator_t<View>>,
+                            std::ranges::end(view));
       } else {
-        return any_sentinel(av, std::ranges::end(view));
+        return any_sentinel(&sent_vtable<std::ranges::iterator_t<View>,
+                                         std::ranges::sentinel_t<View>>,
+                            std::ranges::end(view));
       }
     }
 
@@ -658,35 +665,23 @@ class any_view {
     requires(!std::same_as<View, any_view> && std::ranges::view<View> &&
              view_category_constraint<View>())
   constexpr any_view(View view)
-      : iter_vtable_(iterator_vtable_gen::template generate<
-                     std::ranges::iterator_t<View>>()),
-        sent_vtable_(sentinel_vtable_gen::template generate<
-                     std::ranges::iterator_t<View>,
-                     std::ranges::sentinel_t<View>>()),
-        view_vtable_(view_vtable_gen::template generate<View>()),
-        view_(new View(std::move(view))) {}
+      : view_vtable_(&view_vtable<View>), view_(new View(std::move(view))) {}
 
   constexpr any_view(const any_view &other)
     requires((Cat & category::move_only_view) == category::none)
-      : iter_vtable_(other.iter_vtable_),
-        sent_vtable_(other.sent_vtable_),
-        view_vtable_(other.view_vtable_),
-        view_((*(view_vtable_.copy_))(other.view_)) {}
+      : view_vtable_(other.view_vtable_),
+        view_((*(view_vtable_->copy_))(other.view_)) {}
 
   constexpr any_view(any_view &&other)
-      : iter_vtable_(other.iter_vtable_),
-        sent_vtable_(other.sent_vtable_),
-        view_vtable_(other.view_vtable_),
-        view_((*(view_vtable_.move_))(other.view_)) {}
+      : view_vtable_(other.view_vtable_),
+        view_((*(view_vtable_->move_))(other.view_)) {}
 
   constexpr any_view &operator=(const any_view &other)
     requires((Cat & category::move_only_view) == category::none)
   {
     if (this != &other) {
-      (*(view_vtable_.destructor_))(view_);
-      view_ = (*(other.view_vtable_.copy_))(other.view_);
-      iter_vtable_ = other.iter_vtable_;
-      sent_vtable_ = other.sent_vtable_;
+      (*(view_vtable_->destructor_))(view_);
+      view_ = (*(other.view_vtable_->copy_))(other.view_);
       view_vtable_ = other.view_vtable_;
     }
     return *this;
@@ -694,28 +689,36 @@ class any_view {
 
   constexpr any_view &operator=(any_view &&other) {
     if (this != &other) {
-      (*(view_vtable_.destructor_))(view_);
-      view_ = (*(other.view_vtable_.move_))(other.view_);
-      iter_vtable_ = other.iter_vtable_;
-      sent_vtable_ = other.sent_vtable_;
+      (*(view_vtable_->destructor_))(view_);
+      view_ = (*(other.view_vtable_->move_))(other.view_);
       view_vtable_ = other.view_vtable_;
     }
     return *this;
   }
 
-  constexpr iterator begin() { return (*(view_vtable_.begin_))(this); }
-  constexpr sentinel end() { return (*(view_vtable_.end_))(this); }
+  constexpr iterator begin() { return (*(view_vtable_->begin_))(view_); }
+  constexpr sentinel end() { return (*(view_vtable_->end_))(view_); }
 
   constexpr std::size_t size() const
     requires((Cat & category::sized) != category::none)
   {
-    return (*(view_vtable_.size_))(view_);
+    return (*(view_vtable_->size_))(view_);
   }
 
  private:
-  any_iterator_vtable iter_vtable_;
-  any_sentinel_vtable sent_vtable_;
-  view_vtable view_vtable_;
+  template <class Iter>
+  static constexpr any_iterator_vtable iter_vtable =
+      iterator_vtable_gen::template generate<Iter>();
+
+  template <class Iter, class Sent>
+  static constexpr any_sentinel_vtable sent_vtable =
+      sentinel_vtable_gen::template generate<Iter, Sent>();
+
+  template <class View>
+  static constexpr any_view_vtable view_vtable =
+      view_vtable_gen::template generate<View>();
+
+  const any_view_vtable *view_vtable_;
   void *view_;
 };
 
