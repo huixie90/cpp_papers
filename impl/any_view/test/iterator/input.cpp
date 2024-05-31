@@ -10,7 +10,7 @@
 namespace {
 
 using AnyView = std::ranges::any_view<int&, std::ranges::category::input>;
-using Iter = AnyView::any_iterator;
+using Iter = std::ranges::iterator_t<AnyView>;
 
 static_assert(std::input_iterator<Iter>);
 static_assert(!std::forward_iterator<Iter>);
@@ -24,9 +24,10 @@ concept has_iterator_category = requires() { typename T::iterator_category; };
 static_assert(!has_iterator_category<Iter>);
 
 constexpr void basic() {
-  std::array v{1, 2, 3, 4, 5};
+  std::array a{1, 2, 3, 4, 5};
+  AnyView v(std::views::all(a));
 
-  Iter iter(v.begin());
+  Iter iter =v.begin();
   {
     std::same_as<int&> decltype(auto) r = *iter;
     assert(r == 1);
@@ -51,9 +52,10 @@ constexpr void basic() {
 }
 
 constexpr void move() {
-  std::array v{1, 2, 3, 4, 5};
+  std::array a{1, 2, 3, 4, 5};
+  AnyView v(std::views::all(a));
 
-  Iter iter1(v.begin());
+  Iter iter1 = v.begin();
   Iter iter2(std::move(iter1));
 
   assert(*iter1 == 1);
