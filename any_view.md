@@ -198,6 +198,10 @@ class any_view;
 
 - const-iteratable will make the design super complicated as all the types can be different between const and non-const.
 
+- TODO: remove constexpr due to SBO
+- TODO: move ctor cannot guarentee move ctors have been called
+- TODO: view can be valueless: because strong exception guarentee + if we want to support move (or move-only)
+
 # Implementation Experience
 
 - Reference implementation in the repo

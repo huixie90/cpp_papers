@@ -695,6 +695,11 @@ with the non-copyability.</p></li>
 <code class="sourceCode default">std::move_only_function</code>)</p></li>
 <li><p>const-iteratable will make the design super complicated as all
 the types can be different between const and non-const.</p></li>
+<li><p>TODO: remove constexpr due to SBO</p></li>
+<li><p>TODO: move ctor cannot guarentee move ctors have been
+called</p></li>
+<li><p>TODO: view can be valueless: because strong exception guarentee +
+if we want to support move (or move-only)</p></li>
 </ul>
 <h1 data-number="5" id="implementation-experience"><span class="header-section-number">5</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
 <ul>
