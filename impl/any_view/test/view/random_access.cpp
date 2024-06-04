@@ -34,6 +34,11 @@ static_assert(std::ranges::sized_range<AnyViewFull>);
 static_assert(std::ranges::common_range<AnyViewFull>);
 static_assert(std::ranges::borrowed_range<AnyViewFull>);
 
+static_assert(std::is_nothrow_move_constructible_v<AnyView>);
+static_assert(std::is_nothrow_move_assignable_v<AnyView>);
+static_assert(std::is_nothrow_move_constructible_v<AnyViewFull>);
+static_assert(std::is_nothrow_move_assignable_v<AnyViewFull>);
+
 template <class V>
 constexpr void basic() {
   std::array v{1, 2, 3, 4, 5};

@@ -1,7 +1,9 @@
 #include <array>
+#include <catch2/catch_test_macros.hpp>
 
 #include "any_view.hpp"
 
+#define TEST_POINT(x) TEST_CASE(x, "[exception]")
 using AnyView = std::ranges::any_view<int&, std::ranges::category::forward>;
 using Iter = std::ranges::iterator_t<AnyView>;
 
@@ -114,7 +116,7 @@ constexpr bool test() {
   return true;
 }
 
-int main() {
+TEST_POINT("exception") {
   test();
   //  static_assert(test());
 }
