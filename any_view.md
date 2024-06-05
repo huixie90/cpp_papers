@@ -309,6 +309,18 @@ struct UI {
 
 The implementation of creation of the results of `getWidgetNames` is hidden in a separate translation unit.
 
+And this is what we are going to measure
+
+```cpp
+  lib::UI ui{global_widgets | std::views::take(state.range(0)) |
+              td::ranges::to<std::vector>()};
+  for (auto _ : state) {
+    for (auto const& name : ui.getWidgetNames()) {
+      benchmark::DoNotOptimize(const_cast<std::string&>(name));
+    }
+  }
+```
+
 In first case, we use the `view` directly. It is tedious to spell the type, and it is impossible to use lambda now because the function type is part of the result type. We ended up writing something like this
 
 ```cpp
