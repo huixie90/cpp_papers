@@ -204,6 +204,14 @@ class any_view;
 
 ### Performance
 
+One of the major concerns of using type erased type is the performance cost of `virtual`/indirect function calls. With `any_view`, every iteration will have three `virtual`/indirect function calls:
+
+```cpp
+++it;
+it != last;
+*it;
+```
+
 #### Micro benchmark : `vector` vs `any_view` on purely iterating
 
 Purely profile the iteration between `std::vector` and `any_view`
