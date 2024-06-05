@@ -471,6 +471,8 @@ Configure?<span></span></a>
 <code class="sourceCode default">ranges::views::any_view</code><span></span></a></li>
 <li><a href="#parameters-design" id="toc-parameters-design"><span class="toc-section-number">4.1.3</span> Parameters
 Design<span></span></a></li>
+<li><a href="#performance" id="toc-performance"><span class="toc-section-number">4.1.4</span>
+Performance<span></span></a></li>
 </ul></li>
 </ul></li>
 <li><a href="#implementation-experience" id="toc-implementation-experience"><span class="toc-section-number">5</span> Implementation
@@ -677,7 +679,7 @@ range-v3.</p>
 <span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Ref, </span>
 <span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>          category Cat <span class="op">=</span> category<span class="op">::</span>input,</span>
 <span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Value <span class="op">=</span> decay_t<span class="op">&lt;</span>Ref<span class="op">&gt;</span>,</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> RValueRef <span class="op">=</span> add_rvalue_reference_t<span class="op">&lt;</span>Value<span class="op">&gt;</span>,</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> RValueRef <span class="op">=</span> add_rvalue_reference_t<span class="op">&lt;</span>remove_reference_t<span class="op">&lt;</span>Ref<span class="op">&gt;&gt;</span>,</span>
 <span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Diff <span class="op">=</span> <span class="dt">ptrdiff_t</span><span class="op">&gt;</span></span>
 <span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> any_view;</span></code></pre></div>
 <h4 data-number="4.1.3.1" id="considerations"><span class="header-section-number">4.1.3.1</span> Considerations<a href="#considerations" class="self-link"></a></h4>
@@ -701,6 +703,299 @@ called</p></li>
 <li><p>TODO: view can be valueless: because strong exception guarentee +
 if we want to support move (or move-only)</p></li>
 </ul>
+<h3 data-number="4.1.4" id="performance"><span class="header-section-number">4.1.4</span> Performance<a href="#performance" class="self-link"></a></h3>
+<h4 data-number="4.1.4.1" id="micro-benchmark-vector-vs-any_view-on-purely-iterating"><span class="header-section-number">4.1.4.1</span> Micro benchmark :
+<code class="sourceCode default">vector</code> vs
+<code class="sourceCode default">any_view</code> on purely iterating<a href="#micro-benchmark-vector-vs-any_view-on-purely-iterating" class="self-link"></a></h4>
+<p>Purely profile the iteration between
+<code class="sourceCode default">std::vector</code> and
+<code class="sourceCode default">any_view</code></p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector v <span class="op">=</span> std<span class="op">::</span>views<span class="op">::</span>iota<span class="op">(</span><span class="dv">0</span>, state<span class="op">.</span>range<span class="op">(</span><span class="dv">0</span><span class="op">))</span> <span class="op">|</span> std<span class="op">::</span>ranges<span class="op">::</span>to<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&gt;()</span>;</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> _ <span class="op">:</span> state<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> i <span class="op">:</span> v<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>      benchmark<span class="op">::</span>DoNotOptimize<span class="op">(</span>i<span class="op">)</span>;</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code></pre></div>
+<p>vs</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector v <span class="op">=</span> std<span class="op">::</span>views<span class="op">::</span>iota<span class="op">(</span><span class="dv">0</span>, state<span class="op">.</span>range<span class="op">(</span><span class="dv">0</span><span class="op">))</span> <span class="op">|</span> std<span class="op">::</span>ranges<span class="op">::</span>to<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&gt;()</span>;</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>ranges<span class="op">::</span>any_view<span class="op">&lt;</span><span class="dt">int</span><span class="op">&amp;&gt;</span> av<span class="op">(</span>std<span class="op">::</span>views<span class="op">::</span>all<span class="op">(</span>v<span class="op">))</span>;</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> _ <span class="op">:</span> state<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> i <span class="op">:</span> av<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>      benchmark<span class="op">::</span>DoNotOptimize<span class="op">(</span>i<span class="op">)</span>;</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code></pre></div>
+<h5 data-number="4.1.4.1.1" id="o0"><span class="header-section-number">4.1.4.1.1</span> -O0<a href="#o0" class="self-link"></a></h5>
+<div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Benchmark</span>                                           Time             CPU      Time Old      Time New       CPU Old       CPU New</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">--------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_vector</span> vs. BM_AnyView]/1024                  +3.4488         +3.4487         10423         46371         10418         46347</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_vector</span> vs. BM_AnyView]/2048                  +3.3358         +3.3375         21318         92432         21301         92396</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_vector</span> vs. BM_AnyView]/4096                  +3.4224         +3.4237         41864        185137         41834        185061</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_vector</span> vs. BM_AnyView]/8192                  +3.4665         +3.4665         83019        370802         82986        370659</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_vector</span> vs. BM_AnyView]/16384                 +3.4586         +3.4574        166596        742785        166536        742319</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_vector</span> vs. BM_AnyView]/32768                 +3.4413         +3.4416        333311       1480349        333151       1479723</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_vector</span> vs. BM_AnyView]/65536                 +3.4166         +3.4154        667125       2946432        666900       2944657</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_vector</span> vs. BM_AnyView]/131072                +3.4295         +3.4305       1335405       5915230       1334717       5913487</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_vector</span> vs. BM_AnyView]/262144                +3.4320         +3.4329       2665004      11811264       2663916      11808776</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="ex">OVERALL_GEOMEAN</span>                                  +3.4278         +3.4281             0             0             0             0</span></code></pre></div>
+<h5 data-number="4.1.4.1.2" id="o2"><span class="header-section-number">4.1.4.1.2</span> -O2<a href="#o2" class="self-link"></a></h5>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Benchmark</span>                                           Time             CPU      Time Old      Time New       CPU Old       CPU New</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">--------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_vector</span> vs. BM_AnyView]/1024                 +14.8383        +14.8421           315          4991           315          4989</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_vector</span> vs. BM_AnyView]/2048                 +14.9416        +14.9453           632         10075           632         10071</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_vector</span> vs. BM_AnyView]/4096                 +15.1943        +15.2000          1231         19942          1231         19936</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_vector</span> vs. BM_AnyView]/8192                 +15.1609        +15.1626          2465         39835          2464         39820</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_vector</span> vs. BM_AnyView]/16384                +13.8958        +13.8949          5386         80235          5384         80196</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_vector</span> vs. BM_AnyView]/32768                +13.8638        +13.8647         10720        159341         10714        159264</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_vector</span> vs. BM_AnyView]/65536                +13.6891        +13.6912         21772        319807         21758        319659</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_vector</span> vs. BM_AnyView]/131072               +13.5340        +13.5338         44363        644768         44335        644359</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_vector</span> vs. BM_AnyView]/262144               +13.5374        +13.5384         87600       1273476         87558       1272956</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="ex">OVERALL_GEOMEAN</span>                                 +16.0765        +16.0789             0             0             0             0</span></code></pre></div>
+<p><code class="sourceCode default">any_view</code> is 3 - 16 times
+slower on iteration than
+<code class="sourceCode default">std::vector</code>. Yes, 3 virtual
+function calls vs <code class="sourceCode default">std::vector</code>,
+what can you expect? But this benchmark is not a realistic use case. No
+one would create a <code class="sourceCode default">vector</code>,
+immediately create a type erased wrapper
+<code class="sourceCode default">any_view</code> that wraps it and then
+iterate through it. The same way, no one would create a lambda,
+immediately create a
+<code class="sourceCode default">std::function</code> then call it.</p>
+<h4 data-number="4.1.4.2" id="slightly-more-realistic-case-a-view-pipeline-vs-any_view"><span class="header-section-number">4.1.4.2</span> Slightly more realistic
+case: A view pipeline vs
+<code class="sourceCode default">any_view</code><a href="#slightly-more-realistic-case-a-view-pipeline-vs-any_view" class="self-link"></a></h4>
+<p>Since <code class="sourceCode default">any_view</code> is most likely
+used in an ABI boundary, the benchmark will separate the creation of the
+view in a different TU. We will compare using the
+“<code class="sourceCode default">view</code> pipeline directly” with
+using <code class="sourceCode default">any_view</code> that wraps the
+<code class="sourceCode default">view</code> pipeline.</p>
+<p>Consider the following case :</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">// hpp file</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> Widget <span class="op">{</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>string name;</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> size;</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> UI <span class="op">{</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;</span> widgets_;</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">???</span> getWidgetNames<span class="op">()</span> <span class="kw">const</span>;</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a><span class="co">// cpp file</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="op">???</span> UI<span class="op">::</span>getWidgetNames<span class="op">()</span> <span class="kw">const</span> <span class="op">{</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>filter<span class="op">([](</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>           <span class="cf">return</span> widget<span class="op">.</span>size <span class="op">&gt;</span> <span class="dv">10</span>;</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>         <span class="op">})</span> <span class="op">|</span></span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(&amp;</span>Widget<span class="op">::</span>name<span class="op">)</span>;</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>The implementation of creation of the results of
+<code class="sourceCode default">getWidgetNames</code> is hidden in a
+separate translation unit.</p>
+<p>In first case, we use the
+<code class="sourceCode default">view</code> directly. It is tedious to
+spell the type, and it is impossible to use lambda now because the
+function type is part of the result type. We ended up writing something
+like this</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// hpp file</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> UI <span class="op">{</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;</span> widgets_;</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">// cannot use lambda because we need to spell the type of the view</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> FilterFn <span class="op">{</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> <span class="kw">operator</span><span class="op">()(</span><span class="kw">const</span> Widget<span class="op">&amp;)</span> <span class="kw">const</span>;</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span>;</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> TransformFn <span class="op">{</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> std<span class="op">::</span>string<span class="op">&amp;</span> <span class="kw">operator</span><span class="op">()(</span><span class="kw">const</span> Widget<span class="op">&amp;)</span> <span class="kw">const</span>;</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span>;</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>ranges<span class="op">::</span>transform_view<span class="op">&lt;</span></span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>      std<span class="op">::</span>ranges<span class="op">::</span>filter_view<span class="op">&lt;</span>std<span class="op">::</span>ranges<span class="op">::</span>ref_view<span class="op">&lt;</span><span class="kw">const</span> std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;&gt;</span>,</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>                               FilterFn<span class="op">&gt;</span>,</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>      TransformFn<span class="op">&gt;</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  getWidgetNames<span class="op">()</span> <span class="kw">const</span>;</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="co">// cpp file</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> UI<span class="op">::</span>FilterFn<span class="op">::</span><span class="kw">operator</span><span class="op">()(</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="kw">const</span> <span class="op">{</span></span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widget<span class="op">.</span>size <span class="op">&gt;</span> <span class="dv">10</span>;</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> std<span class="op">::</span>string<span class="op">&amp;</span> UI<span class="op">::</span>TransformFn<span class="op">::</span><span class="kw">operator</span><span class="op">()(</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="kw">const</span> <span class="op">{</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widget<span class="op">.</span>name;</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>ranges<span class="op">::</span>transform_view<span class="op">&lt;</span></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>    std<span class="op">::</span>ranges<span class="op">::</span>filter_view<span class="op">&lt;</span>std<span class="op">::</span>ranges<span class="op">::</span>ref_view<span class="op">&lt;</span><span class="kw">const</span> std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;&gt;</span>,</span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>                             UI<span class="op">::</span>FilterFn<span class="op">&gt;</span>,</span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>    UI<span class="op">::</span>TransformFn<span class="op">&gt;</span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>UI<span class="op">::</span>getWidgetNames<span class="op">()</span> <span class="kw">const</span> <span class="op">{</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>filter<span class="op">(</span>UI<span class="op">::</span>FilterFn<span class="op">{})</span> <span class="op">|</span></span>
+<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(</span>UI<span class="op">::</span>TransformFn<span class="op">{})</span>;</span>
+<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>With using <code class="sourceCode default">any_view</code>, the
+interface looks much simpler</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">// hpp file</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> UI <span class="op">{</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;</span> widgets_;</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>ranges<span class="op">::</span>any_view<span class="op">&lt;</span><span class="kw">const</span> std<span class="op">::</span>string<span class="op">&amp;&gt;</span> getWidgetNames<span class="op">()</span> <span class="kw">const</span>;</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a><span class="co">// cpp file</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>ranges<span class="op">::</span>any_view<span class="op">&lt;</span><span class="kw">const</span> std<span class="op">::</span>string<span class="op">&amp;&gt;</span> UI<span class="op">::</span>getWidgetNames<span class="op">()</span> <span class="kw">const</span> <span class="op">{</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>filter<span class="op">([](</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>           <span class="cf">return</span> widget<span class="op">.</span>size <span class="op">&gt;</span> <span class="dv">10</span>;</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>         <span class="op">})</span> <span class="op">|</span></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(&amp;</span>Widget<span class="op">::</span>name<span class="op">)</span>;</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h5 data-number="4.1.4.2.1" id="o0-1"><span class="header-section-number">4.1.4.2.1</span> -O0<a href="#o0-1" class="self-link"></a></h5>
+<div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Benchmark</span>                                                        Time             CPU      Time Old      Time New       CPU Old       CPU New</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">---------------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_RawPipeline</span> vs. BM_AnyViewPipeline]/1024                  +0.4290         +0.4291         78469        112130         78435        112090</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_RawPipeline</span> vs. BM_AnyViewPipeline]/2048                  +0.4051         +0.4050        159225        223729        159161        223625</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_RawPipeline</span> vs. BM_AnyViewPipeline]/4096                  +0.3568         +0.4021        331276        449466        320471        449331</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_RawPipeline</span> vs. BM_AnyViewPipeline]/8192                  +0.4022         +0.4030        639566        896817        639056        896623</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_RawPipeline</span> vs. BM_AnyViewPipeline]/16384                 +0.4148         +0.4144       1267196       1792804       1266743       1791639</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_RawPipeline</span> vs. BM_AnyViewPipeline]/32768                 +0.4293         +0.4287       2522849       3606022       2522004       3603164</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_RawPipeline</span> vs. BM_AnyViewPipeline]/65536                 +0.4199         +0.4201       5078713       7211428       5076977       7209978</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_RawPipeline</span> vs. BM_AnyViewPipeline]/131072                +0.4170         +0.4170      10142694      14372118      10139299      14367292</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_RawPipeline</span> vs. BM_AnyViewPipeline]/262144                +0.4358         +0.4357      20386564      29270816      20381118      29260958</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="ex">OVERALL_GEOMEAN</span>                                               +0.4120         +0.4172             0             0             0             0</span></code></pre></div>
+<h5 data-number="4.1.4.2.2" id="o2-1"><span class="header-section-number">4.1.4.2.2</span> -O2<a href="#o2-1" class="self-link"></a></h5>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Benchmark</span>                                                        Time             CPU      Time Old      Time New       CPU Old       CPU New</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">---------------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_RawPipeline</span> vs. BM_AnyViewPipeline]/1024                  +0.8066         +0.8064          3504          6330          3503          6327</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_RawPipeline</span> vs. BM_AnyViewPipeline]/2048                  +0.7136         +0.7134          7339         12576          7335         12568</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_RawPipeline</span> vs. BM_AnyViewPipeline]/4096                  +0.6746         +0.6748         14841         24853         14835         24846</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_RawPipeline</span> vs. BM_AnyViewPipeline]/8192                  +0.6424         +0.6423         30177         49563         30163         49537</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_RawPipeline</span> vs. BM_AnyViewPipeline]/16384                 +0.6538         +0.6539         60751        100468         60720        100427</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_RawPipeline</span> vs. BM_AnyViewPipeline]/32768                 +0.6524         +0.6521        121345        200514        121303        200404</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_RawPipeline</span> vs. BM_AnyViewPipeline]/65536                 +0.6582         +0.6579        240378        398604        240326        398440</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_RawPipeline</span> vs. BM_AnyViewPipeline]/131072                +0.6861         +0.6860        484220        816458        484055        816109</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_RawPipeline</span> vs. BM_AnyViewPipeline]/262144                +0.6234         +0.6235        991733       1609940        991406       1609560</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="ex">OVERALL_GEOMEAN</span>                                               +0.6782         +0.6782             0             0             0             0</span></code></pre></div>
+<p>This is slightly better now. It is about 40% - 70% slower on
+iteration. Although it is still not very realistic. Nobody is spelling
+the concrete type of a view pipeline. It is tedious to write and also it
+makes the implementation not flexible. Any changes in the implementation
+would result in changing the type in the header, which defeats the
+purpose of hiding implementation details in a TU.</p>
+<h4 data-number="4.1.4.3" id="much-more-realistic-case-a-copy-of-vectorstring-vs-any_view"><span class="header-section-number">4.1.4.3</span> Much more realistic case: A
+copy of <code class="sourceCode default">vector&lt;string&gt;</code> vs
+<code class="sourceCode default">any_view</code><a href="#much-more-realistic-case-a-copy-of-vectorstring-vs-any_view" class="self-link"></a></h4>
+<p>For situation like this, in most code bases in the wild, the
+interface is probably returning a
+<code class="sourceCode default">std::vector&lt;std::string&gt;</code>,
+i.e. using <code class="sourceCode default">std::vector</code> as a type
+erasure tool, with the cost of copying all the elements.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">// hpp file</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> UI <span class="op">{</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;</span> widgets_;</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>string<span class="op">&gt;</span> getWidgetNames<span class="op">()</span> <span class="kw">const</span>;</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="co">// cpp file</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>string<span class="op">&gt;</span> UI<span class="op">::</span>getWidgetNames<span class="op">()</span> <span class="kw">const</span> <span class="op">{</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>filter<span class="op">([](</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>           <span class="cf">return</span> widget<span class="op">.</span>size <span class="op">&gt;</span> <span class="dv">10</span>;</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>         <span class="op">})</span> <span class="op">|</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(&amp;</span>Widget<span class="op">::</span>name<span class="op">)</span> <span class="op">|</span> std<span class="op">::</span>ranges<span class="op">::</span>to<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&gt;()</span>;</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h5 data-number="4.1.4.3.1" id="o0-2"><span class="header-section-number">4.1.4.3.1</span> -O0<a href="#o0-2" class="self-link"></a></h5>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Benchmark</span>                                                       Time             CPU      Time Old      Time New       CPU Old       CPU New</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">--------------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/1024                  <span class="at">-0.5376</span>         <span class="at">-0.5376</span>        238558        110316        238396        110242</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/2048                  <span class="at">-0.5110</span>         <span class="at">-0.5110</span>        454350        222187        454157        222104</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/4096                  <span class="at">-0.4868</span>         <span class="at">-0.4869</span>        886121        454774        885773        454530</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/8192                  <span class="at">-0.4766</span>         <span class="at">-0.4769</span>       1729318        905041       1728626        904303</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/16384                 <span class="at">-0.4834</span>         <span class="at">-0.4834</span>       3462454       1788737       3461093       1788080</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/32768                 <span class="at">-0.4858</span>         <span class="at">-0.4729</span>       7006102       3602475       6830520       3600306</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/65536                 <span class="at">-0.4777</span>         <span class="at">-0.4776</span>      13741174       7176723      13734490       7175337</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/131072                <span class="at">-0.4792</span>         <span class="at">-0.4792</span>      27501856      14321826      27494923      14318104</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/262144                <span class="at">-0.4838</span>         <span class="at">-0.4835</span>      55950048      28883803      55912545      28879083</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="ex">OVERALL_GEOMEAN</span>                                              <span class="at">-0.4917</span>         <span class="at">-0.4903</span>             0             0             0             0</span></code></pre></div>
+<h5 data-number="4.1.4.3.2" id="o2-2"><span class="header-section-number">4.1.4.3.2</span> -O2<a href="#o2-2" class="self-link"></a></h5>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Benchmark</span>                                                       Time             CPU      Time Old      Time New       CPU Old       CPU New</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">--------------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/1024                  <span class="at">-0.8228</span>         <span class="at">-0.8228</span>         35350          6264         35330          6262</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/2048                  <span class="at">-0.8250</span>         <span class="at">-0.8250</span>         71983         12596         71953         12590</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/4096                  <span class="at">-0.8320</span>         <span class="at">-0.8320</span>        148942         25018        148873         25005</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/8192                  <span class="at">-0.8276</span>         <span class="at">-0.8276</span>        291307         50234        291198         50209</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/16384                 <span class="at">-0.8304</span>         <span class="at">-0.8304</span>        590026        100058        589571        100020</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/32768                 <span class="at">-0.8301</span>         <span class="at">-0.8300</span>       1175121        199685       1174459        199614</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/65536                 <span class="at">-0.8297</span>         <span class="at">-0.8298</span>       2363963        402634       2363007        402209</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/131072                <span class="at">-0.8340</span>         <span class="at">-0.8340</span>       4841300        803467       4838717        803175</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/262144                <span class="at">-0.8463</span>         <span class="at">-0.8463</span>      10412999       1600341      10410152       1600078</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a><span class="ex">OVERALL_GEOMEAN</span>                                              <span class="at">-0.8310</span>         <span class="at">-0.8310</span>             0             0             0             0</span></code></pre></div>
+<p>Boom! <code class="sourceCode default">any_view</code> is 50% - 80%
+faster. In the test cases, 10% of the
+<code class="sourceCode default">Widget</code>s were filtered out by the
+filter pipeline and the <code class="sourceCode default">name</code>
+string;s length is randomly 0-30. So some of
+<code class="sourceCode default">string</code>s are in the SBO and some
+are allocated. Yes this code pattern is very common: making the code
+simple and clean at the cost of copying data, even though most of the
+callers don’t need the ownership at all.</p>
+<h4 data-number="4.1.4.4" id="some-optimisations-in-the-wild-vectorreference_wrapper-vs-any_view"><span class="header-section-number">4.1.4.4</span> Some optimisations in the
+wild:
+<code class="sourceCode default">vector&lt;reference_wrapper&gt;</code>
+vs <code class="sourceCode default">any_view</code><a href="#some-optimisations-in-the-wild-vectorreference_wrapper-vs-any_view" class="self-link"></a></h4>
+<p>People who care about some level of the performance (and at the same
+time, needs to keep the ABI boundary) sometimes make it return <code class="sourceCode default">std::vector&lt;std::reference_wrapper&lt;const std::string&gt;&gt;</code>
+to save the copy of those
+<code class="sourceCode default">string</code>s</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">// hpp file</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> UI <span class="op">{</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;</span> widgets_;</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>reference_wrapper<span class="op">&lt;</span><span class="kw">const</span> std<span class="op">::</span>string<span class="op">&gt;&gt;</span> getWidgetNames<span class="op">()</span> <span class="kw">const</span>;</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">// cpp file</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>reference_wrapper<span class="op">&lt;</span><span class="kw">const</span> std<span class="op">::</span>string<span class="op">&gt;&gt;</span> UI<span class="op">::</span>getWidgetNames<span class="op">()</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> <span class="op">{</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>filter<span class="op">([](</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>           <span class="cf">return</span> widget<span class="op">.</span>size <span class="op">&gt;</span> <span class="dv">10</span>;</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>         <span class="op">})</span> <span class="op">|</span></span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>             <span class="op">[](</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> std<span class="op">::</span>cref<span class="op">(</span>widget<span class="op">.</span>name<span class="op">)</span>; <span class="op">})</span> <span class="op">|</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>ranges<span class="op">::</span>to<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&gt;()</span>;</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h5 data-number="4.1.4.4.1" id="o0-3"><span class="header-section-number">4.1.4.4.1</span> -O0<a href="#o0-3" class="self-link"></a></h5>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Benchmark</span>                                                             Time             CPU      Time Old      Time New       CPU Old       CPU New</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">--------------------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorRefWrapper</span> vs. BM_AnyViewPipeline]/1024                  <span class="at">-0.3744</span>         <span class="at">-0.3744</span>        183525        114814        183467        114768</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorRefWrapper</span> vs. BM_AnyViewPipeline]/2048                  <span class="at">-0.3757</span>         <span class="at">-0.3759</span>        368639        230131        368529        229985</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorRefWrapper</span> vs. BM_AnyViewPipeline]/4096                  <span class="at">-0.3689</span>         <span class="at">-0.3691</span>        736658        464898        736390        464614</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorRefWrapper</span> vs. BM_AnyViewPipeline]/8192                  <span class="at">-0.3821</span>         <span class="at">-0.3820</span>       1497364        925176       1496487        924814</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorRefWrapper</span> vs. BM_AnyViewPipeline]/16384                 <span class="at">-0.3930</span>         <span class="at">-0.3929</span>       3004560       1823724       3002700       1823008</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorRefWrapper</span> vs. BM_AnyViewPipeline]/32768                 <span class="at">-0.3841</span>         <span class="at">-0.3841</span>       5914763       3642657       5911948       3641151</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorRefWrapper</span> vs. BM_AnyViewPipeline]/65536                 <span class="at">-0.3848</span>         <span class="at">-0.3849</span>      11823432       7273326      11820603       7270880</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorRefWrapper</span> vs. BM_AnyViewPipeline]/131072                <span class="at">-0.3864</span>         <span class="at">-0.3863</span>      23783665      14592934      23776966      14591191</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorRefWrapper</span> vs. BM_AnyViewPipeline]/262144                <span class="at">-0.3834</span>         <span class="at">-0.3834</span>      47455488      29259513      47445000      29253042</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="ex">OVERALL_GEOMEAN</span>                                                    <span class="at">-0.3815</span>         <span class="at">-0.3815</span>             0             0             0             0</span></code></pre></div>
+<h5 data-number="4.1.4.4.2" id="o2-3"><span class="header-section-number">4.1.4.4.2</span> -O2<a href="#o2-3" class="self-link"></a></h5>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Benchmark</span>                                                             Time             CPU      Time Old      Time New       CPU Old       CPU New</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="ex">--------------------------------------------------------------------------------------------------------------------------------------------------</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorRefWrapper</span> vs. BM_AnyViewPipeline]/1024                  +1.7685         +1.7690          2175          6022          2174          6020</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorRefWrapper</span> vs. BM_AnyViewPipeline]/2048                  +1.7366         +1.7368          4476         12248          4474         12244</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorRefWrapper</span> vs. BM_AnyViewPipeline]/4096                  +1.4270         +1.4270         10039         24363         10034         24354</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorRefWrapper</span> vs. BM_AnyViewPipeline]/8192                  +0.8925         +0.8927         25901         49018         25888         48999</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorRefWrapper</span> vs. BM_AnyViewPipeline]/16384                 +0.6378         +0.6378         59587         97590         59567         97558</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorRefWrapper</span> vs. BM_AnyViewPipeline]/32768                 +0.5174         +0.5179        129966        197216        129883        197145</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorRefWrapper</span> vs. BM_AnyViewPipeline]/65536                 +0.4826         +0.4826        265071        392994        264940        392799</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorRefWrapper</span> vs. BM_AnyViewPipeline]/131072                +0.4483         +0.4484        549000        795131        548800        794858</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorRefWrapper</span> vs. BM_AnyViewPipeline]/262144                +0.2827         +0.2827       1240717       1591496       1240390       1590989</span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="ex">OVERALL_GEOMEAN</span>                                                    +0.8370         +0.8371             0             0             0             0</span></code></pre></div>
+<p>This set of results are not very consistent. Depending on the
+optimization level, <code class="sourceCode default">any_view</code> can
+be 30% faster or 80% slower.</p>
+<h4 data-number="4.1.4.5" id="conclusion"><span class="header-section-number">4.1.4.5</span> Conclusion?<a href="#conclusion" class="self-link"></a></h4>
+<p>In the cases where type erasure is needed, the performance is not bad
+at all and sometimes even faster than the most common solution today :
+copying data into the <code class="sourceCode default">vector</code></p>
 <h1 data-number="5" id="implementation-experience"><span class="header-section-number">5</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
 <ul>
 <li>Reference implementation in the repo</li>
