@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="mpark/wg21" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="dcterms.date" content="2024-05-27" />
+  <meta name="dcterms.date" content="2024-07-06" />
   <title>`any_view`</title>
   <style>
       code{white-space: pre-wrap;}
@@ -427,7 +427,7 @@ code.sourceCode > span { display: inline; }
   </tr>
   <tr>
     <td>Date:</td>
-    <td>2024-05-27</td>
+    <td>2024-07-06</td>
   </tr>
   <tr>
     <td style="vertical-align:top">Project:</td>
@@ -469,7 +469,7 @@ Configure?<span></span></a>
 <code class="sourceCode default">boost::ranges::any_range</code><span></span></a></li>
 <li><a href="#range-v3-rangesviewsany_view" id="toc-range-v3-rangesviewsany_view"><span class="toc-section-number">4.1.2</span> range-v3
 <code class="sourceCode default">ranges::views::any_view</code><span></span></a></li>
-<li><a href="#parameters-design" id="toc-parameters-design"><span class="toc-section-number">4.1.3</span> Parameters
+<li><a href="#interface-design" id="toc-interface-design"><span class="toc-section-number">4.1.3</span> Interface
 Design<span></span></a></li>
 <li><a href="#performance" id="toc-performance"><span class="toc-section-number">4.1.4</span>
 Performance<span></span></a></li>
@@ -482,6 +482,7 @@ Experience<span></span></a></li>
 <li><a href="#feature-test-macro" id="toc-feature-test-macro"><span class="toc-section-number">6.1</span> Feature Test
 Macro<span></span></a></li>
 </ul></li>
+<li><a href="#bibliography" id="toc-bibliography"><span class="toc-section-number">7</span> References<span></span></a></li>
 </ul>
 </div>
 <h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
@@ -572,6 +573,8 @@ now:</p>
 <li><code class="sourceCode default">function</code></li>
 <li><code class="sourceCode default">move_only_function</code></li>
 <li><code class="sourceCode default">function_ref</code></li>
+<li>(well, we also have
+<code class="sourceCode default">copyable_function</code>)</li>
 </ul>
 <p>For <code class="sourceCode default">any_view</code>, it is much much
 more complex than that:</p>
@@ -660,7 +663,8 @@ allow users to configure the
 <code class="sourceCode default">common_range</code>.
 <code class="sourceCode default">copyable</code> is mandatory in
 range-v3.</p>
-<h3 data-number="4.1.3" id="parameters-design"><span class="header-section-number">4.1.3</span> Parameters Design<a href="#parameters-design" class="self-link"></a></h3>
+<h3 data-number="4.1.3" id="interface-design"><span class="header-section-number">4.1.3</span> Interface Design<a href="#interface-design" class="self-link"></a></h3>
+<p>The proposed template declaration is:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">enum</span> <span class="kw">class</span> category</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    none <span class="op">=</span> <span class="dv">0</span>,</span>
@@ -683,26 +687,184 @@ range-v3.</p>
 <span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Diff <span class="op">=</span> <span class="dt">ptrdiff_t</span><span class="op">&gt;</span></span>
 <span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> any_view;</span></code></pre></div>
 <h4 data-number="4.1.3.1" id="considerations"><span class="header-section-number">4.1.3.1</span> Considerations<a href="#considerations" class="self-link"></a></h4>
+<h5 data-number="4.1.3.1.1" id="should-the-first-argument-be-ref-or-value"><span class="header-section-number">4.1.3.1.1</span> Should the first argument
+be <code class="sourceCode default">Ref</code> or
+<code class="sourceCode default">Value</code>?<a href="#should-the-first-argument-be-ref-or-value" class="self-link"></a></h5>
+<h6 data-number="4.1.3.1.1.1" id="option-1"><span class="header-section-number">4.1.3.1.1.1</span> Option 1<a href="#option-1" class="self-link"></a></h6>
+<p>If the first template parameter is
+<code class="sourceCode default">Ref</code>,</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Ref, </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>          category Cat <span class="op">=</span> category<span class="op">::</span>input,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Value <span class="op">=</span> decay_t<span class="op">&lt;</span>Ref<span class="op">&gt;&gt;</span></span></code></pre></div>
+<p>For a range with a reference to
+<code class="sourceCode default">int</code>, one would write</p>
 <ul>
-<li><p><code class="sourceCode default">contiguous_range</code> is still
+<li><code class="sourceCode default">any_view&lt;int&amp;&gt;</code></li>
+</ul>
+<p>And for a <code class="sourceCode default">const</code> reference to
+<code class="sourceCode default">int</code>, one would write</p>
+<ul>
+<li><code class="sourceCode default">any_view&lt;const int&amp;&gt;</code></li>
+</ul>
+<p>In case of a generator range, e.g a
+<code class="sourceCode default">transform_view</code> which generates
+pr-value <code class="sourceCode default">int</code>, the usage would
+be</p>
+<ul>
+<li><code class="sourceCode default">any_view&lt;int&gt;</code></li>
+</ul>
+<h6 data-number="4.1.3.1.1.2" id="option-2"><span class="header-section-number">4.1.3.1.1.2</span> Option 2<a href="#option-2" class="self-link"></a></h6>
+<p>If the first template parameter is
+<code class="sourceCode default">Value</code>,</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Value, </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>          category Cat <span class="op">=</span> category<span class="op">::</span>input,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Ref <span class="op">=</span> Value<span class="op">&amp;&gt;</span></span></code></pre></div>
+<p>For a range with a reference to
+<code class="sourceCode default">int</code>, it would be less
+verbose</p>
+<ul>
+<li><code class="sourceCode default">any_view&lt;int&gt;</code></li>
+</ul>
+<p>However, in order to have a
+<code class="sourceCode default">const</code> reference to
+<code class="sourceCode default">int</code>, one would have to
+explicitly specify the <code class="sourceCode default">Ref</code>,
+i.e.</p>
+<ul>
+<li><code class="sourceCode default">any_view&lt;int, category::input, const int&amp;&gt;</code></li>
+</ul>
+<p>This is a bit verbose. In case of a generator range, one would need
+to explicitly specify the <code class="sourceCode default">Ref</code> as
+well</p>
+<ul>
+<li><code class="sourceCode default">any_view&lt;int, category::input, int&gt;</code></li>
+</ul>
+<h6 data-number="4.1.3.1.1.3" id="conclusion"><span class="header-section-number">4.1.3.1.1.3</span> Conclusion<a href="#conclusion" class="self-link"></a></h6>
+<p>There is no decision yet, this is open for discussion. For non-const
+reference case, Option 2 is less verbose, but for const reference case,
+Option 1 is less verbose.</p>
+<h5 data-number="4.1.3.1.2" id="constexpr-support"><span class="header-section-number">4.1.3.1.2</span>
+<code class="sourceCode default">constexpr</code> Support<a href="#constexpr-support" class="self-link"></a></h5>
+<p><code class="sourceCode default">constexpr</code> is not supported
+due to the implementation of SBO. There is no way, with the current
+working draft, to construct an object of different type on a
+<code class="sourceCode default">unsigned char[N]</code> or
+<code class="sourceCode default">std::byte[N]</code> buffer in
+<code class="sourceCode default">constexpr</code> context.</p>
+<h5 data-number="4.1.3.1.3" id="move-only-view-support"><span class="header-section-number">4.1.3.1.3</span> Move-only
+<code class="sourceCode default">view</code> Support<a href="#move-only-view-support" class="self-link"></a></h5>
+<p>Move-only <code class="sourceCode default">view</code> is worth
+supporting as we generally support them in
+<code class="sourceCode default">ranges</code>. We propose to have a
+configuration template parameter
+<code class="sourceCode default">category::move_only_view</code> to make
+the <code class="sourceCode default">any_view</code> conditionally
+move-only. This removes the need to have another type
+<code class="sourceCode default">move_only_any_view</code> as we did for
+<code class="sourceCode default">move_only_function</code>.</p>
+<p>We also propose that by default,
+<code class="sourceCode default">any_view</code> is copyable and to make
+it move-only, the user needs to explicitly provide this template
+parameter
+<code class="sourceCode default">category::move_only_view</code>.</p>
+<h5 data-number="4.1.3.1.4" id="move-only-iterator-support"><span class="header-section-number">4.1.3.1.4</span> Move-only
+<code class="sourceCode default">iterator</code> Support<a href="#move-only-iterator-support" class="self-link"></a></h5>
+<p>In this proposal,
+<code class="sourceCode default">any_view::iterator</code> will be an
+exposition-only type. It is not worth making this
+<code class="sourceCode default">iterator</code> configurable. If the
+<code class="sourceCode default">iterator</code> is only
+<code class="sourceCode default">input_iterator</code>, we can also make
+it a move-only iterator. There is no need to make them copyable.
+Existing algorithms that take “input only” iterators already know that
+they cannot copy them.</p>
+<h5 data-number="4.1.3.1.5" id="is-any_viewt-categorycontiguous-needed"><span class="header-section-number">4.1.3.1.5</span> Is <code class="sourceCode default">any_view&lt;T, category::contiguous&gt;</code>
+Needed ?<a href="#is-any_viewt-categorycontiguous-needed" class="self-link"></a></h5>
+<p><code class="sourceCode default">contiguous_range</code> is still
 useful to support even though we have already
 <code class="sourceCode default">std::span</code>. But
-<code class="sourceCode default">span</code> is non-owning.</p></li>
-<li><p>move-only iterator is not a useful thing to be configured. We can
-always make the <code class="sourceCode default">input_iterator</code>
-move-only, as algorithms that deal with input ranges must already deal
-with the non-copyability.</p></li>
-<li><p>move-only view is still useful. (see
-<code class="sourceCode default">std::function</code> vs
-<code class="sourceCode default">std::move_only_function</code>)</p></li>
-<li><p>const-iteratable will make the design super complicated as all
-the types can be different between const and non-const.</p></li>
-<li><p>TODO: remove constexpr due to SBO</p></li>
-<li><p>TODO: move ctor cannot guarentee move ctors have been
-called</p></li>
-<li><p>TODO: view can be valueless: because strong exception guarentee +
-if we want to support move (or move-only)</p></li>
+<code class="sourceCode default">span</code> is non-owning and
+<code class="sourceCode default">any_view</code> owns the underlying
+<code class="sourceCode default">view</code>.</p>
+<h5 data-number="4.1.3.1.6" id="is-any_view-const-iterable"><span class="header-section-number">4.1.3.1.6</span> Is
+<code class="sourceCode default">any_view</code> const-iterable?<a href="#is-any_view-const-iterable" class="self-link"></a></h5>
+<p>We cannot make <code class="sourceCode default">any_view</code>
+unconditionally const-iterable. Because if we did,
+<code class="sourceCode default">views</code> with cache-on-begin, like
+<code class="sourceCode default">filter_view</code>,
+<code class="sourceCode default">drop_while_view</code> can no longer
+fit in <code class="sourceCode default">any_view</code>.</p>
+<p>One option is to make
+<code class="sourceCode default">any_view</code> conditionally
+const-iterable, via a configuration template parameter. However, this
+would make the whole interface super complicated. We will need to
+duplicate all the configuration template parameters, because those
+types, like <code class="sourceCode default">Ref</code> and
+<code class="sourceCode default">RValueRef</code> can be different
+between <code class="sourceCode default">const</code> and
+<code class="sourceCode default">non-const</code>.</p>
+<p>For simplicity, the authors propose to make
+<code class="sourceCode default">any_view</code> unconditionally
+non-const-iterable.</p>
+<h5 data-number="4.1.3.1.7" id="common_range-support"><span class="header-section-number">4.1.3.1.7</span>
+<code class="sourceCode default">common_range</code> support<a href="#common_range-support" class="self-link"></a></h5>
+<p>Unconditionally makes
+<code class="sourceCode default">any_view</code> a
+<code class="sourceCode default">common_range</code> is not an option.
+This would exclude majority of the stl
+<code class="sourceCode default">view</code>s. Add a configuration
+template parameter to make
+<code class="sourceCode default">any_view</code> conditionally
+<code class="sourceCode default">common_range</code> is an overkill.
+After all, if the user do needs
+<code class="sourceCode default">common_range</code>, they can do
+<code class="sourceCode default">my_any_view | views::common</code>.
+What is more, it would adds substantial complexity to make
+<code class="sourceCode default">any_view</code> a
+<code class="sourceCode default">common_range</code>. The authors
+believe it is not worth to add the complexity to have
+<code class="sourceCode default">common_range</code> support.</p>
+<h5 data-number="4.1.3.1.8" id="borrowed_range-support"><span class="header-section-number">4.1.3.1.8</span>
+<code class="sourceCode default">borrowed_range</code> support<a href="#borrowed_range-support" class="self-link"></a></h5>
+<p>It is simple enough to have
+<code class="sourceCode default">borrowed_range</code> support:</p>
+<ul>
+<li><ol type="1">
+<li>Add a template configuration parameter</li>
+</ol></li>
+<li><ol start="2" type="1">
+<li>Specialise the
+<code class="sourceCode default">enable_borrowed_range</code> if the
+template parameter is set to
+<code class="sourceCode default">true</code></li>
+</ol></li>
 </ul>
+<p>Therefore the author added the conditional
+<code class="sourceCode default">borrowed_range</code> support. However,
+<code class="sourceCode default">borrowed_range</code> is not a very
+useful concept in general. So this is open for discussion.</p>
+<h5 data-number="4.1.3.1.9" id="valueless-state-of-any_view"><span class="header-section-number">4.1.3.1.9</span> Valueless state of
+<code class="sourceCode default">any_view</code><a href="#valueless-state-of-any_view" class="self-link"></a></h5>
+<p>It is proposed to support strong exception guarantee, i.e. if
+swap/copy/move assignment fails, the two
+<code class="sourceCode default">any_view</code> objects need to be in
+their original states. If the underlying’s move constructor is not
+<code class="sourceCode default">noexcept</code>, the only way to
+achieve the guarantee is not calling the move constructor, i.e. making
+the objects on the heap and these operations would just swap pointers.
+And as a result, the “move-from”
+<code class="sourceCode default">any_view</code> object will be in a
+valueless state.</p>
+<h5 data-number="4.1.3.1.10" id="any_view-move-constructor-cannot-guarantee-underlyings-move-constructor-is-called"><span class="header-section-number">4.1.3.1.10</span>
+<code class="sourceCode default">any_view</code> move constructor cannot
+guarantee underlying’s move constructor is called<a href="#any_view-move-constructor-cannot-guarantee-underlyings-move-constructor-is-called" class="self-link"></a></h5>
+<p>This is an implementation detail. When object is on the heap, move
+constructor would just assign pointers and no move is happening.</p>
+<h5 data-number="4.1.3.1.11" id="abi-stability"><span class="header-section-number">4.1.3.1.11</span> ABI Stability<a href="#abi-stability" class="self-link"></a></h5>
+<p>The interface needs to get right at the very beginning. It is very
+difficult to have incremental evolution. Adding any features into
+<code class="sourceCode default">any_view</code> would likely to change
+the implementation’s vtable.</p>
 <h3 data-number="4.1.4" id="performance"><span class="header-section-number">4.1.4</span> Performance<a href="#performance" class="self-link"></a></h3>
 <p>One of the major concerns of using type erased type is the
 performance cost of
@@ -710,29 +872,29 @@ performance cost of
 With <code class="sourceCode default">any_view</code>, every iteration
 will have three <code class="sourceCode default">virtual</code>/indirect
 function calls:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="op">++</span>it;</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>it <span class="op">!=</span> last;</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span>it;</span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="op">++</span>it;</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>it <span class="op">!=</span> last;</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span>it;</span></code></pre></div>
 <h4 data-number="4.1.4.1" id="micro-benchmark-vector-vs-any_view-on-purely-iterating"><span class="header-section-number">4.1.4.1</span> Micro benchmark :
 <code class="sourceCode default">vector</code> vs
 <code class="sourceCode default">any_view</code> on purely iterating<a href="#micro-benchmark-vector-vs-any_view-on-purely-iterating" class="self-link"></a></h4>
 <p>Purely profile the iteration between
 <code class="sourceCode default">std::vector</code> and
 <code class="sourceCode default">any_view</code></p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector v <span class="op">=</span> std<span class="op">::</span>views<span class="op">::</span>iota<span class="op">(</span><span class="dv">0</span>, state<span class="op">.</span>range<span class="op">(</span><span class="dv">0</span><span class="op">))</span> <span class="op">|</span> std<span class="op">::</span>ranges<span class="op">::</span>to<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&gt;()</span>;</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> _ <span class="op">:</span> state<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> i <span class="op">:</span> v<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>      benchmark<span class="op">::</span>DoNotOptimize<span class="op">(</span>i<span class="op">)</span>;</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector v <span class="op">=</span> std<span class="op">::</span>views<span class="op">::</span>iota<span class="op">(</span><span class="dv">0</span>, state<span class="op">.</span>range<span class="op">(</span><span class="dv">0</span><span class="op">))</span> <span class="op">|</span> std<span class="op">::</span>ranges<span class="op">::</span>to<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&gt;()</span>;</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> _ <span class="op">:</span> state<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> i <span class="op">:</span> v<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>      benchmark<span class="op">::</span>DoNotOptimize<span class="op">(</span>i<span class="op">)</span>;</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code></pre></div>
 <p>vs</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector v <span class="op">=</span> std<span class="op">::</span>views<span class="op">::</span>iota<span class="op">(</span><span class="dv">0</span>, state<span class="op">.</span>range<span class="op">(</span><span class="dv">0</span><span class="op">))</span> <span class="op">|</span> std<span class="op">::</span>ranges<span class="op">::</span>to<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&gt;()</span>;</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>ranges<span class="op">::</span>any_view<span class="op">&lt;</span><span class="dt">int</span><span class="op">&amp;&gt;</span> av<span class="op">(</span>std<span class="op">::</span>views<span class="op">::</span>all<span class="op">(</span>v<span class="op">))</span>;</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> _ <span class="op">:</span> state<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> i <span class="op">:</span> av<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>      benchmark<span class="op">::</span>DoNotOptimize<span class="op">(</span>i<span class="op">)</span>;</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector v <span class="op">=</span> std<span class="op">::</span>views<span class="op">::</span>iota<span class="op">(</span><span class="dv">0</span>, state<span class="op">.</span>range<span class="op">(</span><span class="dv">0</span><span class="op">))</span> <span class="op">|</span> std<span class="op">::</span>ranges<span class="op">::</span>to<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&gt;()</span>;</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>ranges<span class="op">::</span>any_view<span class="op">&lt;</span><span class="dt">int</span><span class="op">&amp;&gt;</span> av<span class="op">(</span>std<span class="op">::</span>views<span class="op">::</span>all<span class="op">(</span>v<span class="op">))</span>;</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> _ <span class="op">:</span> state<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> i <span class="op">:</span> av<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>      benchmark<span class="op">::</span>DoNotOptimize<span class="op">(</span>i<span class="op">)</span>;</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code></pre></div>
 <h5 data-number="4.1.4.1.1" id="o0"><span class="header-section-number">4.1.4.1.1</span> -O0<a href="#o0" class="self-link"></a></h5>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Benchmark</span>                                           Time             CPU      Time Old      Time New       CPU Old       CPU New</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">--------------------------------------------------------------------------------------------------------------------------------</span></span>
@@ -780,92 +942,92 @@ view in a different TU. We will compare using the
 using <code class="sourceCode default">any_view</code> that wraps the
 <code class="sourceCode default">view</code> pipeline.</p>
 <p>Consider the following case :</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">// hpp file</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> Widget <span class="op">{</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>string name;</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> size;</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> UI <span class="op">{</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;</span> widgets_;</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">???</span> getWidgetNames<span class="op">()</span> <span class="kw">const</span>;</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a><span class="co">// cpp file</span></span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a><span class="op">???</span> UI<span class="op">::</span>getWidgetNames<span class="op">()</span> <span class="kw">const</span> <span class="op">{</span></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>filter<span class="op">([](</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>           <span class="cf">return</span> widget<span class="op">.</span>size <span class="op">&gt;</span> <span class="dv">10</span>;</span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>         <span class="op">})</span> <span class="op">|</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(&amp;</span>Widget<span class="op">::</span>name<span class="op">)</span>;</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">// hpp file</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> Widget <span class="op">{</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>string name;</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> size;</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> UI <span class="op">{</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;</span> widgets_;</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">???</span> getWidgetNames<span class="op">()</span> <span class="kw">const</span>;</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="co">// cpp file</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="op">???</span> UI<span class="op">::</span>getWidgetNames<span class="op">()</span> <span class="kw">const</span> <span class="op">{</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>filter<span class="op">([](</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>           <span class="cf">return</span> widget<span class="op">.</span>size <span class="op">&gt;</span> <span class="dv">10</span>;</span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>         <span class="op">})</span> <span class="op">|</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(&amp;</span>Widget<span class="op">::</span>name<span class="op">)</span>;</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>The implementation of creation of the results of
 <code class="sourceCode default">getWidgetNames</code> is hidden in a
 separate translation unit.</p>
 <p>And this is what we are going to measure</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>  lib<span class="op">::</span>UI ui<span class="op">{</span>global_widgets <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>take<span class="op">(</span>state<span class="op">.</span>range<span class="op">(</span><span class="dv">0</span><span class="op">))</span> <span class="op">|</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>              td<span class="op">::</span>ranges<span class="op">::</span>to<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&gt;()}</span>;</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> _ <span class="op">:</span> state<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;</span> name <span class="op">:</span> ui<span class="op">.</span>getWidgetNames<span class="op">())</span> <span class="op">{</span></span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>      benchmark<span class="op">::</span>DoNotOptimize<span class="op">(</span><span class="kw">const_cast</span><span class="op">&lt;</span>std<span class="op">::</span>string<span class="op">&amp;&gt;(</span>name<span class="op">))</span>;</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>  lib<span class="op">::</span>UI ui<span class="op">{</span>global_widgets <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>take<span class="op">(</span>state<span class="op">.</span>range<span class="op">(</span><span class="dv">0</span><span class="op">))</span> <span class="op">|</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>              td<span class="op">::</span>ranges<span class="op">::</span>to<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&gt;()}</span>;</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> _ <span class="op">:</span> state<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> <span class="kw">const</span><span class="op">&amp;</span> name <span class="op">:</span> ui<span class="op">.</span>getWidgetNames<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>      benchmark<span class="op">::</span>DoNotOptimize<span class="op">(</span><span class="kw">const_cast</span><span class="op">&lt;</span>std<span class="op">::</span>string<span class="op">&amp;&gt;(</span>name<span class="op">))</span>;</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code></pre></div>
 <p>In first case, we use the
 <code class="sourceCode default">view</code> directly. It is tedious to
 spell the type, and it is impossible to use lambda now because the
 function type is part of the result type. We ended up writing something
 like this</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">// hpp file</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> UI <span class="op">{</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;</span> widgets_;</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">// cannot use lambda because we need to spell the type of the view</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> FilterFn <span class="op">{</span></span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> <span class="kw">operator</span><span class="op">()(</span><span class="kw">const</span> Widget<span class="op">&amp;)</span> <span class="kw">const</span>;</span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span>;</span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> TransformFn <span class="op">{</span></span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> std<span class="op">::</span>string<span class="op">&amp;</span> <span class="kw">operator</span><span class="op">()(</span><span class="kw">const</span> Widget<span class="op">&amp;)</span> <span class="kw">const</span>;</span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span>;</span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>ranges<span class="op">::</span>transform_view<span class="op">&lt;</span></span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>      std<span class="op">::</span>ranges<span class="op">::</span>filter_view<span class="op">&lt;</span>std<span class="op">::</span>ranges<span class="op">::</span>ref_view<span class="op">&lt;</span><span class="kw">const</span> std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;&gt;</span>,</span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>                               FilterFn<span class="op">&gt;</span>,</span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>      TransformFn<span class="op">&gt;</span></span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  getWidgetNames<span class="op">()</span> <span class="kw">const</span>;</span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a><span class="co">// cpp file</span></span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> UI<span class="op">::</span>FilterFn<span class="op">::</span><span class="kw">operator</span><span class="op">()(</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="kw">const</span> <span class="op">{</span></span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widget<span class="op">.</span>size <span class="op">&gt;</span> <span class="dv">10</span>;</span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> std<span class="op">::</span>string<span class="op">&amp;</span> UI<span class="op">::</span>TransformFn<span class="op">::</span><span class="kw">operator</span><span class="op">()(</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="kw">const</span> <span class="op">{</span></span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widget<span class="op">.</span>name;</span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>ranges<span class="op">::</span>transform_view<span class="op">&lt;</span></span>
-<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>    std<span class="op">::</span>ranges<span class="op">::</span>filter_view<span class="op">&lt;</span>std<span class="op">::</span>ranges<span class="op">::</span>ref_view<span class="op">&lt;</span><span class="kw">const</span> std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;&gt;</span>,</span>
-<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>                             UI<span class="op">::</span>FilterFn<span class="op">&gt;</span>,</span>
-<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>    UI<span class="op">::</span>TransformFn<span class="op">&gt;</span></span>
-<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>UI<span class="op">::</span>getWidgetNames<span class="op">()</span> <span class="kw">const</span> <span class="op">{</span></span>
-<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>filter<span class="op">(</span>UI<span class="op">::</span>FilterFn<span class="op">{})</span> <span class="op">|</span></span>
-<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(</span>UI<span class="op">::</span>TransformFn<span class="op">{})</span>;</span>
-<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// hpp file</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> UI <span class="op">{</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;</span> widgets_;</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="co">// cannot use lambda because we need to spell the type of the view</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> FilterFn <span class="op">{</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> <span class="kw">operator</span><span class="op">()(</span><span class="kw">const</span> Widget<span class="op">&amp;)</span> <span class="kw">const</span>;</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span>;</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> TransformFn <span class="op">{</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> std<span class="op">::</span>string<span class="op">&amp;</span> <span class="kw">operator</span><span class="op">()(</span><span class="kw">const</span> Widget<span class="op">&amp;)</span> <span class="kw">const</span>;</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span>;</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>ranges<span class="op">::</span>transform_view<span class="op">&lt;</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>      std<span class="op">::</span>ranges<span class="op">::</span>filter_view<span class="op">&lt;</span>std<span class="op">::</span>ranges<span class="op">::</span>ref_view<span class="op">&lt;</span><span class="kw">const</span> std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;&gt;</span>,</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>                               FilterFn<span class="op">&gt;</span>,</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>      TransformFn<span class="op">&gt;</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  getWidgetNames<span class="op">()</span> <span class="kw">const</span>;</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="co">// cpp file</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> UI<span class="op">::</span>FilterFn<span class="op">::</span><span class="kw">operator</span><span class="op">()(</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="kw">const</span> <span class="op">{</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widget<span class="op">.</span>size <span class="op">&gt;</span> <span class="dv">10</span>;</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a><span class="kw">const</span> std<span class="op">::</span>string<span class="op">&amp;</span> UI<span class="op">::</span>TransformFn<span class="op">::</span><span class="kw">operator</span><span class="op">()(</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="kw">const</span> <span class="op">{</span></span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widget<span class="op">.</span>name;</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>ranges<span class="op">::</span>transform_view<span class="op">&lt;</span></span>
+<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>    std<span class="op">::</span>ranges<span class="op">::</span>filter_view<span class="op">&lt;</span>std<span class="op">::</span>ranges<span class="op">::</span>ref_view<span class="op">&lt;</span><span class="kw">const</span> std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;&gt;</span>,</span>
+<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>                             UI<span class="op">::</span>FilterFn<span class="op">&gt;</span>,</span>
+<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>    UI<span class="op">::</span>TransformFn<span class="op">&gt;</span></span>
+<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>UI<span class="op">::</span>getWidgetNames<span class="op">()</span> <span class="kw">const</span> <span class="op">{</span></span>
+<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>filter<span class="op">(</span>UI<span class="op">::</span>FilterFn<span class="op">{})</span> <span class="op">|</span></span>
+<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(</span>UI<span class="op">::</span>TransformFn<span class="op">{})</span>;</span>
+<span id="cb13-35"><a href="#cb13-35" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>With using <code class="sourceCode default">any_view</code>, the
 interface looks much simpler</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">// hpp file</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> UI <span class="op">{</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;</span> widgets_;</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>ranges<span class="op">::</span>any_view<span class="op">&lt;</span><span class="kw">const</span> std<span class="op">::</span>string<span class="op">&amp;&gt;</span> getWidgetNames<span class="op">()</span> <span class="kw">const</span>;</span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a><span class="co">// cpp file</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>ranges<span class="op">::</span>any_view<span class="op">&lt;</span><span class="kw">const</span> std<span class="op">::</span>string<span class="op">&amp;&gt;</span> UI<span class="op">::</span>getWidgetNames<span class="op">()</span> <span class="kw">const</span> <span class="op">{</span></span>
-<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>filter<span class="op">([](</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>           <span class="cf">return</span> widget<span class="op">.</span>size <span class="op">&gt;</span> <span class="dv">10</span>;</span>
-<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>         <span class="op">})</span> <span class="op">|</span></span>
-<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(&amp;</span>Widget<span class="op">::</span>name<span class="op">)</span>;</span>
-<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">// hpp file</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> UI <span class="op">{</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;</span> widgets_;</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>ranges<span class="op">::</span>any_view<span class="op">&lt;</span><span class="kw">const</span> std<span class="op">::</span>string<span class="op">&amp;&gt;</span> getWidgetNames<span class="op">()</span> <span class="kw">const</span>;</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co">// cpp file</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>ranges<span class="op">::</span>any_view<span class="op">&lt;</span><span class="kw">const</span> std<span class="op">::</span>string<span class="op">&amp;&gt;</span> UI<span class="op">::</span>getWidgetNames<span class="op">()</span> <span class="kw">const</span> <span class="op">{</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>filter<span class="op">([](</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>           <span class="cf">return</span> widget<span class="op">.</span>size <span class="op">&gt;</span> <span class="dv">10</span>;</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>         <span class="op">})</span> <span class="op">|</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(&amp;</span>Widget<span class="op">::</span>name<span class="op">)</span>;</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <h5 data-number="4.1.4.2.1" id="o0-1"><span class="header-section-number">4.1.4.2.1</span> -O0<a href="#o0-1" class="self-link"></a></h5>
 <div class="sourceCode" id="cb3"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Benchmark</span>                                                        Time             CPU      Time Old      Time New       CPU Old       CPU New</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="ex">---------------------------------------------------------------------------------------------------------------------------------------------</span></span>
@@ -906,20 +1068,20 @@ interface is probably returning a
 <code class="sourceCode default">std::vector&lt;std::string&gt;</code>,
 i.e. using <code class="sourceCode default">std::vector</code> as a type
 erasure tool, with the cost of copying all the elements.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">// hpp file</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> UI <span class="op">{</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;</span> widgets_;</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>string<span class="op">&gt;</span> getWidgetNames<span class="op">()</span> <span class="kw">const</span>;</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="co">// cpp file</span></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>string<span class="op">&gt;</span> UI<span class="op">::</span>getWidgetNames<span class="op">()</span> <span class="kw">const</span> <span class="op">{</span></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>filter<span class="op">([](</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>           <span class="cf">return</span> widget<span class="op">.</span>size <span class="op">&gt;</span> <span class="dv">10</span>;</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>         <span class="op">})</span> <span class="op">|</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(&amp;</span>Widget<span class="op">::</span>name<span class="op">)</span> <span class="op">|</span> std<span class="op">::</span>ranges<span class="op">::</span>to<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&gt;()</span>;</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co">// hpp file</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> UI <span class="op">{</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;</span> widgets_;</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>string<span class="op">&gt;</span> getWidgetNames<span class="op">()</span> <span class="kw">const</span>;</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="co">// cpp file</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>string<span class="op">&gt;</span> UI<span class="op">::</span>getWidgetNames<span class="op">()</span> <span class="kw">const</span> <span class="op">{</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>filter<span class="op">([](</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>           <span class="cf">return</span> widget<span class="op">.</span>size <span class="op">&gt;</span> <span class="dv">10</span>;</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>         <span class="op">})</span> <span class="op">|</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(&amp;</span>Widget<span class="op">::</span>name<span class="op">)</span> <span class="op">|</span> std<span class="op">::</span>ranges<span class="op">::</span>to<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&gt;()</span>;</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <h5 data-number="4.1.4.3.1" id="o0-2"><span class="header-section-number">4.1.4.3.1</span> -O0<a href="#o0-2" class="self-link"></a></h5>
 <div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Benchmark</span>                                                       Time             CPU      Time Old      Time New       CPU Old       CPU New</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">--------------------------------------------------------------------------------------------------------------------------------------------</span></span>
@@ -960,26 +1122,30 @@ wild:
 <code class="sourceCode default">vector&lt;reference_wrapper&gt;</code>
 vs <code class="sourceCode default">any_view</code><a href="#some-optimisations-in-the-wild-vectorreference_wrapper-vs-any_view" class="self-link"></a></h4>
 <p>People who care about some level of the performance (and at the same
-time, needs to keep the ABI boundary) sometimes make it return <code class="sourceCode default">std::vector&lt;std::reference_wrapper&lt;const std::string&gt;&gt;</code>
+time, need to keep a clean ABI boundary) sometimes make it return <code class="sourceCode default">std::vector&lt;std::reference_wrapper&lt;const std::string&gt;&gt;</code>
 to save the copy of those
-<code class="sourceCode default">string</code>s</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co">// hpp file</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> UI <span class="op">{</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;</span> widgets_;</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>reference_wrapper<span class="op">&lt;</span><span class="kw">const</span> std<span class="op">::</span>string<span class="op">&gt;&gt;</span> getWidgetNames<span class="op">()</span> <span class="kw">const</span>;</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co">// cpp file</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>reference_wrapper<span class="op">&lt;</span><span class="kw">const</span> std<span class="op">::</span>string<span class="op">&gt;&gt;</span> UI<span class="op">::</span>getWidgetNames<span class="op">()</span></span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> <span class="op">{</span></span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>filter<span class="op">([](</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>           <span class="cf">return</span> widget<span class="op">.</span>size <span class="op">&gt;</span> <span class="dv">10</span>;</span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>         <span class="op">})</span> <span class="op">|</span></span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(</span></span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>             <span class="op">[](</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> std<span class="op">::</span>cref<span class="op">(</span>widget<span class="op">.</span>name<span class="op">)</span>; <span class="op">})</span> <span class="op">|</span></span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>ranges<span class="op">::</span>to<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&gt;()</span>;</span>
-<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<code class="sourceCode default">string</code>s. (Note:
+<code class="sourceCode default">std::string_view</code> is not used in
+this example, because this example is to demonstrate a more generic case
+rather than just
+<code class="sourceCode default">std::string</code>.)</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">// hpp file</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> UI <span class="op">{</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;</span> widgets_;</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>reference_wrapper<span class="op">&lt;</span><span class="kw">const</span> std<span class="op">::</span>string<span class="op">&gt;&gt;</span> getWidgetNames<span class="op">()</span> <span class="kw">const</span>;</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co">// cpp file</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>reference_wrapper<span class="op">&lt;</span><span class="kw">const</span> std<span class="op">::</span>string<span class="op">&gt;&gt;</span> UI<span class="op">::</span>getWidgetNames<span class="op">()</span></span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>    <span class="kw">const</span> <span class="op">{</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>filter<span class="op">([](</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>           <span class="cf">return</span> widget<span class="op">.</span>size <span class="op">&gt;</span> <span class="dv">10</span>;</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>         <span class="op">})</span> <span class="op">|</span></span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(</span></span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>             <span class="op">[](</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="op">{</span> <span class="cf">return</span> std<span class="op">::</span>cref<span class="op">(</span>widget<span class="op">.</span>name<span class="op">)</span>; <span class="op">})</span> <span class="op">|</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>ranges<span class="op">::</span>to<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&gt;()</span>;</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <h5 data-number="4.1.4.4.1" id="o0-3"><span class="header-section-number">4.1.4.4.1</span> -O0<a href="#o0-3" class="self-link"></a></h5>
 <div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Benchmark</span>                                                             Time             CPU      Time Old      Time New       CPU Old       CPU New</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="ex">--------------------------------------------------------------------------------------------------------------------------------------------------</span></span>
@@ -1009,14 +1175,18 @@ to save the copy of those
 <p>This set of results are not very consistent. Depending on the
 optimization level, <code class="sourceCode default">any_view</code> can
 be 30% faster or 80% slower.</p>
-<h4 data-number="4.1.4.5" id="conclusion"><span class="header-section-number">4.1.4.5</span> Conclusion?<a href="#conclusion" class="self-link"></a></h4>
+<h4 data-number="4.1.4.5" id="conclusion-1"><span class="header-section-number">4.1.4.5</span> Conclusion?<a href="#conclusion-1" class="self-link"></a></h4>
 <p>In the cases where type erasure is needed, the performance is not bad
-at all and sometimes even faster than the most common solution today :
-copying data into the <code class="sourceCode default">vector</code></p>
+and sometimes even faster than the most common solution today : copying
+data into the <code class="sourceCode default">vector</code>.</p>
+<p>Implementations can explore optimisations on algorithms, such as
+<code class="sourceCode default">for_each</code>, for special handling
+of <code class="sourceCode default">any_view</code></p>
 <h1 data-number="5" id="implementation-experience"><span class="header-section-number">5</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
-<ul>
-<li>Reference implementation in the repo</li>
-</ul>
+<p><code class="sourceCode default">any_view</code> has been implemented
+in <span class="citation" data-cites="rangev3">[<a href="#ref-rangev3" role="doc-biblioref">range-v3</a>]</span>, with equivalent semantics as
+proposed here. The authors also implemented a version that directly
+follows the proposed wording below without any issue <span class="citation" data-cites="ours">[<a href="#ref-ours" role="doc-biblioref">ours</a>]</span>.</p>
 <h1 data-number="6" id="wording"><span class="header-section-number">6</span> Wording<a href="#wording" class="self-link"></a></h1>
 <h2 data-number="6.1" id="feature-test-macro"><span class="header-section-number">6.1</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
 <p>```</p>
@@ -1029,6 +1199,16 @@ copying data into the <code class="sourceCode default">vector</code></p>
     margin-inline-end: 40px;
 }
 </style>
+<h1 data-number="7" id="bibliography"><span class="header-section-number">7</span> References<a href="#bibliography" class="self-link"></a></h1>
+<div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
+<div id="ref-ours" class="csl-entry" role="doc-biblioentry">
+[ours] Hui Xie, S. Levent Yilmaz, and Dionne Louis. A proof-of-concept
+implementation of <code class="sourceCode default">any_view</code>. <a href="https://github.com/huixie90/cpp_papers/tree/main/impl/any_view"><div class="csl-block">https://github.com/huixie90/cpp_papers/tree/main/impl/any_view</div></a>
+</div>
+<div id="ref-rangev3" class="csl-entry" role="doc-biblioentry">
+[range-v3] Eric Niebler. range-v3 library. <a href="https://github.com/ericniebler/range-v3"><div class="csl-block">https://github.com/ericniebler/range-v3</div></a>
+</div>
+</div>
 </div>
 </div>
 </body>
