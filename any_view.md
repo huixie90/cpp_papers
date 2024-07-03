@@ -1,7 +1,7 @@
 ---
 title: "`any_view`"
 document: PXXXXR0
-date: 2024-05-27
+date: 2024-07-06
 audience: SG9, LEWG
 author:
   - name: Hui Xie
@@ -101,6 +101,7 @@ After answering all these questions we ended up with three types now:
 - `function`
 - `move_only_function`
 - `function_ref`
+- (well, we also have `copyable_function`)
 
 For `any_view`, it is much much more complex than that:
 
@@ -162,7 +163,9 @@ struct any_view;
 Here `Cat` handles both the traversal category and `sized_range`. `Ref` is the `range_reference_t`. It
 does not allow users to configure the `range_value_t`, `range_difference_t`, `borrowed_range` and `common_range`. `copyable` is mandatory in range-v3.
 
-### Parameters Design
+### Interface Design
+
+The proposed template declaration is:
 
 ```cpp
 enum class category
@@ -190,17 +193,109 @@ class any_view;
 
 #### Considerations
 
-- `contiguous_range` is still useful to support even though we have already `std::span`. But `span` is non-owning.
+##### Should the first argument be `Ref` or `Value`?
 
-- move-only iterator is not a useful thing to be configured. We can always make the `input_iterator` move-only, as algorithms that deal with input ranges must already deal with the non-copyability.
+###### Option 1
 
-- move-only view is still useful. (see `std::function` vs `std::move_only_function`)
+If the first template parameter is `Ref`,
 
-- const-iteratable will make the design super complicated as all the types can be different between const and non-const.
+```cpp
+template <class Ref, 
+          category Cat = category::input,
+          class Value = decay_t<Ref>>
+```
 
-- TODO: remove constexpr due to SBO
-- TODO: move ctor cannot guarentee move ctors have been called
-- TODO: view can be valueless: because strong exception guarentee + if we want to support move (or move-only)
+For a range with a reference to `int`, one would write
+
+- `any_view<int&>`
+
+And for a `const` reference to `int`, one would write
+
+- `any_view<const int&>`
+
+In case of a generator range, e.g a `transform_view` which generates pr-value `int`, the usage would be
+
+- `any_view<int>`
+
+###### Option 2
+
+If the first template parameter is `Value`,
+
+```cpp
+template <class Value, 
+          category Cat = category::input,
+          class Ref = Value&>
+```
+
+For a range with a reference to `int`, it would be less verbose
+
+- `any_view<int>`
+
+However, in order to have a `const` reference to `int`, one would have to explicitly specify the `Ref`, i.e.
+
+- `any_view<int, category::input, const int&>`
+
+This is a bit verbose. In case of a generator range, one would need to explicitly specify the `Ref` as well
+
+- `any_view<int, category::input, int>`
+
+###### Conclusion
+
+There is no decision yet, this is open for discussion. For non-const reference case, Option 2 is less verbose, but for const reference case, Option 1 is less verbose.
+
+##### `constexpr` Support
+
+`constexpr` is not supported due to the implementation of SBO. There is no way, with the current working draft, to construct an object of different type on a `unsigned char[N]` or `std::byte[N]` buffer in `constexpr` context.
+
+##### Move-only `view` Support
+
+Move-only `view` is worth supporting as we generally support them in `ranges`. We propose to have a configuration template parameter `category::move_only_view` to make the `any_view` conditionally move-only. This removes the need to have another type `move_only_any_view` as we did for `move_only_function`.
+
+We also propose that by default, `any_view` is copyable and to make it move-only, the user needs to explicitly provide this template parameter `category::move_only_view`.
+
+##### Move-only `iterator` Support
+
+In this proposal, `any_view::iterator` will be an exposition-only type. It is not worth making this `iterator` configurable. If the `iterator` is only `input_iterator`, we can also make it a
+move-only iterator. There is no need to make them copyable. Existing algorithms that take "input only" iterators already know that they cannot copy them.
+
+##### Is `any_view<T, category::contiguous>` Needed ?
+
+`contiguous_range` is still useful to support even though we have already `std::span`. But `span` is non-owning and `any_view` owns the underlying `view`.
+
+##### Is `any_view` const-iterable?
+
+We cannot make `any_view` unconditionally const-iterable. Because if we did, `views` with cache-on-begin, like `filter_view`, `drop_while_view` can no longer fit in `any_view`.
+
+One option is to make `any_view` conditionally const-iterable, via a configuration template parameter. However, this would make the whole interface super complicated. We will need to duplicate all the configuration template parameters, because those types, like `Ref` and `RValueRef` can be different between `const` and `non-const`.
+
+For simplicity, the authors propose to make `any_view` unconditionally non-const-iterable.
+
+##### `common_range` support
+
+Unconditionally makes `any_view` a `common_range` is not an option. This would exclude majority of the stl `view`s. Add a configuration template parameter to make `any_view` conditionally `common_range` is an overkill. After all, if the user do needs `common_range`, they can do `my_any_view | views::common`. What is more, it would adds substantial complexity to make `any_view` a `common_range`. The authors believe it is not worth to add the complexity to have
+`common_range` support.
+
+##### `borrowed_range` support
+
+It is simple enough to have `borrowed_range` support:
+
+- 1. Add a template configuration parameter
+- 2. Specialise the `enable_borrowed_range` if the template parameter is set to `true`
+
+Therefore the author added the conditional `borrowed_range` support. However, `borrowed_range` is not a very useful concept in general. So this is open for discussion.
+
+##### Valueless state of `any_view`
+
+It is proposed to support strong exception guarantee, i.e. if swap/copy/move assignment fails, the two `any_view` objects need to be in their original states. If the underlying's move constructor is not `noexcept`, the only way to achieve the guarantee is not calling the move constructor, i.e. making the objects on the heap and these operations would just swap pointers.
+And as a result, the "move-from" `any_view` object will be in a valueless state.
+
+##### `any_view` move constructor cannot guarantee underlying's move constructor is called
+
+This is an implementation detail. When object is on the heap, move constructor would just assign pointers and no move is happening.
+
+##### ABI Stability
+
+The interface needs to get right at the very beginning. It is very difficult to have incremental evolution. Adding any features into `any_view` would likely to change the implementation's vtable.
 
 ### Performance
 
@@ -482,7 +577,7 @@ Boom! `any_view` is 50% - 80% faster. In the test cases, 10% of the `Widget`s we
 
 #### Some optimisations in the wild: `vector<reference_wrapper>` vs `any_view`
 
-People who care about some level of the performance (and at the same time, needs to keep the ABI boundary) sometimes make it return `std::vector<std::reference_wrapper<const std::string>>` to save the copy of those `string`s
+People who care about some level of the performance (and at the same time, need to keep a clean ABI boundary) sometimes make it return `std::vector<std::reference_wrapper<const std::string>>` to save the copy of those `string`s. (Note: `std::string_view` is not used in this example, because this example is to demonstrate a more generic case rather than just `std::string`.)
 
 ```cpp
 // hpp file
@@ -542,11 +637,15 @@ This set of results are not very consistent. Depending on the optimization level
 
 #### Conclusion?
 
-In the cases where type erasure is needed, the performance is not bad at all and sometimes even faster than the most common solution today : copying data into the `vector`
+In the cases where type erasure is needed, the performance is not bad and sometimes even faster than the most common solution today : copying data into the `vector`.
+
+Implementations can explore optimisations on algorithms, such as `for_each`, for special handling of `any_view`
 
 # Implementation Experience
 
-- Reference implementation in the repo
+`any_view` has been implemented in [@rangev3], with equivalent semantics as
+proposed here. The authors also implemented a version that directly follows the
+proposed wording below without any issue [@ours].
 
 # Wording
 
@@ -556,6 +655,25 @@ In the cases where type erasure is needed, the performance is not bad at all and
 
 ---
 references:
+  - id: rangev3
+    citation-label: range-v3
+    title: "range-v3 library"
+    author:
+      - family: Niebler
+        given: Eric
+    URL: https://github.com/ericniebler/range-v3
+
+  - id: ours
+    citation-label: ours
+    title: "A proof-of-concept implementation of `any_view`"
+    author:
+      - family: Xie
+        given: Hui
+      - family: Yilmaz
+        given: S. Levent
+      - family: Louis
+        given: Dionne
+    URL: https://github.com/huixie90/cpp_papers/tree/main/impl/any_view
 ---
 
 <style>
