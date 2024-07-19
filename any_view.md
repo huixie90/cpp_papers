@@ -67,43 +67,45 @@ public:
 However, it is almost impossible to spell the correct type of the return value.
 And in fact, to allow the flexibility of future changes, we don't actually
 want to spell that particular type of the `view`. We need some type-erased helper
-that can easily written in the header and can accept any concrete type of `view`.
+that can easily be written in the header and can accept any concrete type of `view`.
 
-There is something very similar: Lambdas are extremely useful but one cannot
+There is precedent for something very similar: Lambdas are extremely useful but one cannot
 spell their types. When we need a type in the API boundary, we often use the type-erased
 type `std::function`.
 
-Prior to C++20, that return type is often `std::vector<Widget>`, which enforces ownership.
-This also enforces implementations to make copy of all the `Widget`s. On the other hand,
-the caller may not care about the ownership at all and all it wants is to iterate through them.
+Prior to C++20, code would often use `std::vector<Widget>` for this use case, which enforces ownership.
+Unfortunately, this also forces the code to make a copy of all the `Widget`s, when in reality
+the caller may not care about the ownership and only wants to iterate over the sequence.
 
-After C++20, that return type is sometimes `std::span<Widget>`, which explicitly says
-the caller does not want the ownership. However, one major caveat is that this enforces
-contiguous memory. As a result, implementations cannot return the `view` pipelines as
-shown in the example.
+After C++20, such code can now use `std::span<Widget>`, which explicitly says the caller
+does not care about ownership. However, one major caveat is that this requires the
+underlying elements to be contiguous in memory. As a result, the above example where we
+use an arbitrary `view` pipeline doesn't actually work with `std::span<Widget>`.
 
-This paper proposes a new type-erased view `any_view` so that the above function's return type
-can be spelled as `any_view<const Widget&>`.
+This paper proposes a new type-erased view called `std::ranges::any_view` wich would allow
+the above return type to be spelled as `any_view<const Widget&>`.
 
-# Design
+# Design Questions and Prior Art
 
-## What Parameters can Users Configure?
+Designing a type like `any_view` raises a lot of questions.
 
-Let's take `std::function` as an example. Its interface seems extremely simple:
-the `operator()` and users only need to configure the return type and argument
-types. Well, it is a bit more than that:
+Let's take `std::function` as an example. At first, its interface seems extremely simple:
+it provides `operator()` and users only need to configure the return type and argument
+types of the function. In reality, `std::function` makes many other decisions for the
+user:
 
-- Is it `copyable`?
-- Does it own the function
+- Is `std::function` and the callable it contains `copyable`?
+- Does `std::function` own the callable it contains?
+- Does `std::function` propagate const-ness?
 
-After answering all these questions we ended up with three types now:
+After answering all these questions we ended up with several types:
 
 - `function`
 - `move_only_function`
 - `function_ref`
-- (well, we also have `copyable_function`)
+- `copyable_function`
 
-For `any_view`, it is much much more complex than that:
+The design space of `any_view` is a lot more complex than that:
 
 - Is it an `input_range`, `forward_range`, `bidirectional_range`, `random_access_range`, or a `contiguous_range` ?
 - Is the range `copyable` ?
@@ -117,13 +119,14 @@ For `any_view`, it is much much more complex than that:
 - Is the `range` const-iterable?
 - Is the iterator `copyable` for `input_iterator`?
 - Is the iterator equality comparable for `input_iterator`?
-- sized_sentinel_for<S, I> ?
+- Do the iterator and sentinel types satisfy `sized_sentinel_for<S, I>`?
 
-We can easily get combinatorial explosion of types if we follow the same approach of `std::function`. So let's look at the prior arts.
+We can easily get a combinatorial explosion of types if we follow the same approach we did for `std::function`.
+Fortunately, there is prior art to help us guide the design.
 
-### BOOST.Range `boost::ranges::any_range`
+## Boost.Range `boost::ranges::any_range`
 
-Here is the type declaration
+The type declaration is:
 
 ```cpp
 template<
@@ -136,13 +139,13 @@ template<
 class any_range;
 ```
 
-It asks users to put `range_reference_t`, `range_value_t` and `range_difference_t`. `Traversal` is equivalent to `iterator_concept` so it decides the traversal category of the range. It does not need
-to configure `copyable`, `borrowed_range` and `common_range` because all BOOST.Range ranges are `copyable`, `borrowed_range` and `common_range`. `sized_range` and `range_rvalue_reference_t` are not
+It asks users to provide `range_reference_t`, `range_value_t` and `range_difference_t`. `Traversal` is equivalent to `iterator_concept` so it decides the traversal category of the range. Users don't need
+to specify `copyable`, `borrowed_range` and `common_range` because all Boost.Range ranges are `copyable`, `borrowed_range` and `common_range`. `sized_range` and `range_rvalue_reference_t` are not
 considered.
 
-### range-v3 `ranges::views::any_view`
+## range-v3 `ranges::views::any_view`
 
-Here is the type declaration
+The type declaration is:
 
 ```cpp
 enum class category
@@ -163,9 +166,9 @@ struct any_view;
 Here `Cat` handles both the traversal category and `sized_range`. `Ref` is the `range_reference_t`. It
 does not allow users to configure the `range_value_t`, `range_difference_t`, `borrowed_range` and `common_range`. `copyable` is mandatory in range-v3.
 
-### Interface Design
+# Proposed Design
 
-The proposed template declaration is:
+This paper proposes the following interface:
 
 ```cpp
 enum class category
@@ -179,8 +182,7 @@ enum class category
     mask = contiguous,
     sized = 32,
     borrowed = 64,
-    common = 128,
-    move_only_view = 256
+    move_only_view = 128
 };
 
 template <class Ref, 
@@ -191,11 +193,17 @@ template <class Ref,
 class any_view;
 ```
 
-#### Considerations
+The intent is that users can select various desired properties of the `any_view` by `bitwise-or`ing them. For example:
 
-##### Should the first argument be `Ref` or `Value`?
+```
+using MyView = std::ranges::any_view<const Widget&, std::ranges::category::bidirectional | std::ranges::category::sized>;
+```
 
-###### Option 1
+## Considerations
+
+### Should the first argument be `Ref` or `Value`?
+
+#### Option 1
 
 If the first template parameter is `Ref`,
 
@@ -207,17 +215,23 @@ template <class Ref,
 
 For a range with a reference to `int`, one would write
 
-- `any_view<int&>`
+```cpp
+any_view<int&>
+```
 
 And for a `const` reference to `int`, one would write
 
-- `any_view<const int&>`
+```cpp
+any_view<const int&>
+```
 
 In case of a generator range, e.g a `transform_view` which generates pr-value `int`, the usage would be
 
-- `any_view<int>`
+```cpp
+any_view<int>
+```
 
-###### Option 2
+#### Option 2
 
 If the first template parameter is `Value`,
 
@@ -229,65 +243,79 @@ template <class Value,
 
 For a range with a reference to `int`, it would be less verbose
 
-- `any_view<int>`
+```cpp
+any_view<int>
+```
 
-However, in order to have a `const` reference to `int`, one would have to explicitly specify the `Ref`, i.e.
+However, in order to have a `const` reference to `int`, one would have to explicitly specify the `Value`, the category and finally the `Ref`, i.e.
 
-- `any_view<int, category::input, const int&>`
+```cpp
+any_view<int, category::input, const int&>
+```
 
-This is a bit verbose. In case of a generator range, one would need to explicitly specify the `Ref` as well
+This is a bit verbose. In the case of a generator range, one would need to do the same:
 
-- `any_view<int, category::input, int>`
+```cpp
+any_view<int, category::input, int>
+```
 
-###### Conclusion
+#### Recommendation
 
 There is no decision yet, this is open for discussion. For non-const reference case, Option 2 is less verbose, but for const reference case, Option 1 is less verbose.
 
-##### `constexpr` Support
+<!--
+Louis' comment: IMO the "verbosity" rationale is not that interesting. Much more interesting is the fact that (IMO) users will say any_view<string> without realizing they specified the reference type, and without realizing that they now make a copy of the string every time. So IMO option (2) is preferable. The paper should explain that, and if you agree with my intuition, it should steer readers in that direction.
+Papers that come with design choices but no clear recommendation end up poorly in WG21 because Committees suck at designing stuff. They are good at saying "we like this" and "we don't like this", but don't come in with a "choose your own adventure" kind of paper -- each design choice should come with a recommendation for what YOU think is the best choice, and what creates an overall coherent design.
+-->
 
-`constexpr` is not supported due to the implementation of SBO. There is no way, with the current working draft, to construct an object of different type on a `unsigned char[N]` or `std::byte[N]` buffer in `constexpr` context.
+### `constexpr` Support
 
-##### Move-only `view` Support
+We do not require `constexpr` in order to allow efficient implementations using e.g. SBO. There is no way, with the current working draft, to construct an object of different type on a `unsigned char[N]` or `std::byte[N]` buffer in `constexpr` context.
+
+### Move-only `view` Support
 
 Move-only `view` is worth supporting as we generally support them in `ranges`. We propose to have a configuration template parameter `category::move_only_view` to make the `any_view` conditionally move-only. This removes the need to have another type `move_only_any_view` as we did for `move_only_function`.
 
 We also propose that by default, `any_view` is copyable and to make it move-only, the user needs to explicitly provide this template parameter `category::move_only_view`.
 
-##### Move-only `iterator` Support
+### Move-only `iterator` Support
 
-In this proposal, `any_view::iterator` will be an exposition-only type. It is not worth making this `iterator` configurable. If the `iterator` is only `input_iterator`, we can also make it a
-move-only iterator. There is no need to make them copyable. Existing algorithms that take "input only" iterators already know that they cannot copy them.
+In this proposal, `any_view::iterator` is an exposition-only type. It is not worth making this `iterator` configurable. If the `iterator` is only `input_iterator`, we can also make it a
+move-only iterator. There is no need to make it copyable. Existing algorithms that take "input only" iterators already know that they cannot copy them.
 
-##### Is `any_view<T, category::contiguous>` Needed ?
+### Is `category::contiguous` Needed ?
 
 `contiguous_range` is still useful to support even though we have already `std::span`. But `span` is non-owning and `any_view` owns the underlying `view`.
 
-##### Is `any_view` const-iterable?
+### Is `any_view` const-iterable?
 
-We cannot make `any_view` unconditionally const-iterable. Because if we did, `views` with cache-on-begin, like `filter_view`, `drop_while_view` can no longer fit in `any_view`.
+We cannot make `any_view` unconditionally const-iterable. If we did, `views` with cache-on-begin, like `filter_view` and `drop_while_view` could no longer be put into an `any_view`.
 
-One option is to make `any_view` conditionally const-iterable, via a configuration template parameter. However, this would make the whole interface super complicated. We will need to duplicate all the configuration template parameters, because those types, like `Ref` and `RValueRef` can be different between `const` and `non-const`.
+One option would be to make `any_view` conditionally const-iterable, via a configuration template parameter. However, this would make the whole interface much more complicated, as each configuration template parameter would need to be duplicated. Indeed, associated types like `Ref` and `RValueRef` can be different between `const` and non-`const` iterators.
 
 For simplicity, the authors propose to make `any_view` unconditionally non-const-iterable.
 
-##### `common_range` support
+### `common_range` support
 
-Unconditionally makes `any_view` a `common_range` is not an option. This would exclude majority of the stl `view`s. Add a configuration template parameter to make `any_view` conditionally `common_range` is an overkill. After all, if the user do needs `common_range`, they can do `my_any_view | views::common`. What is more, it would adds substantial complexity to make `any_view` a `common_range`. The authors believe it is not worth to add the complexity to have
-`common_range` support.
+Unconditionally making `any_view` a `common_range` is not an option. This would exclude most of the Standard Library `view`s. Adding a configuration template parameter to make `any_view` conditionally `common_range` is overkill. After all, if users need `common_range`, they can use `my_any_view | views::common`. Furthermore, supporting this turns out to add substantial complexity in the implementation.
+The authors believe that adding `common_range` support is not worth the added complexity.
 
-##### `borrowed_range` support
+### `borrowed_range` support
 
-It is simple enough to have `borrowed_range` support:
+Having support for `borrowed_range` is simple enough:
 
 - 1. Add a template configuration parameter
 - 2. Specialise the `enable_borrowed_range` if the template parameter is set to `true`
 
-Therefore the author added the conditional `borrowed_range` support. However, `borrowed_range` is not a very useful concept in general. So this is open for discussion.
+Therefore, we recommend conditional support for `borrowed_range`. However, since `borrowed_range` is not a very useful concept in general, this design point is open for discussion.
 
-##### Valueless state of `any_view`
+### Valueless state of `any_view`
 
-It is proposed to support strong exception guarantee, i.e. if swap/copy/move assignment fails, the two `any_view` objects need to be in their original states. If the underlying's move constructor is not `noexcept`, the only way to achieve the guarantee is not calling the move constructor, i.e. making the objects on the heap and these operations would just swap pointers.
-And as a result, the "move-from" `any_view` object will be in a valueless state.
+We propose providing the strong exception safety guarantee in the following operations: swap, copy-assignment, move-assignment and move-construction. This means that if the operation fails, the two `any_view` objects will be in their original states.
+If the underlying view's move constructor (or move-assignment operator) is not `noexcept`, the only way to achieve the strong exception safety guarantee is to avoid calling these operations altogether, which requires `any_view` to hold its underlying object on the heap so it can implement these operations by swapping pointers.
+This means that any implementation of `any_view` will have an empty state, and a "moved-from" `any_view` will be in that state.
+
+<!-- Louis note: stopped review here -->
 
 ##### `any_view` move constructor cannot guarantee underlying's move constructor is called
 
