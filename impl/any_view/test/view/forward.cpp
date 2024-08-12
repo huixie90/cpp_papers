@@ -11,8 +11,8 @@
 namespace {
 
 using AnyView =
-    std::ranges::any_view<int, std::ranges::category::forward |
-                                    std::ranges::category::move_only_view>;
+    std::ranges::any_view<int, std::ranges::any_view_category::forward |
+                                    std::ranges::any_view_category::move_only_view>;
 
 static_assert(std::ranges::forward_range<AnyView>);
 static_assert(!std::ranges::bidirectional_range<AnyView>);
@@ -23,8 +23,8 @@ static_assert(!std::ranges::common_range<AnyView>);
 static_assert(!std::ranges::borrowed_range<AnyView>);
 
 using AnyViewFull = std::ranges::any_view<
-    int, std::ranges::category::forward | std::ranges::category::sized |
-              std::ranges::category::common | std::ranges::category::borrowed>;
+    int, std::ranges::any_view_category::forward | std::ranges::any_view_category::sized |
+              std::ranges::any_view_category::common | std::ranges::any_view_category::borrowed>;
 
 static_assert(std::ranges::forward_range<AnyViewFull>);
 static_assert(!std::ranges::bidirectional_range<AnyViewFull>);
