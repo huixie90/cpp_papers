@@ -4,7 +4,8 @@
 #include "any_view.hpp"
 
 #define TEST_POINT(x) TEST_CASE(x, "[exception]")
-using AnyView = std::ranges::any_view<int&, std::ranges::category::forward>;
+using AnyView =
+    std::ranges::any_view<int, std::ranges::any_view_category::forward>;
 using Iter = std::ranges::iterator_t<AnyView>;
 
 struct ThrowIterator {
@@ -102,7 +103,7 @@ constexpr void move_exception() {
   Iter iter2 = av.begin();
 
   ThrowIterator::MoveThrow = true;
-  
+
   // won't throw because there should be no move happening
   iter2 = std::move(iter1);
 

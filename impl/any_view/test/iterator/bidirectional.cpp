@@ -9,7 +9,7 @@
 namespace {
 
 using AnyView =
-    std::ranges::any_view<int&, std::ranges::category::bidirectional>;
+    std::ranges::any_view<int, std::ranges::any_view_category::bidirectional>;
 using Iter = std::ranges::iterator_t<AnyView>;
 
 static_assert(std::bidirectional_iterator<Iter>);

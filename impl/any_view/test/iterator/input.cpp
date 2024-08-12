@@ -9,7 +9,8 @@
 
 namespace {
 
-using AnyView = std::ranges::any_view<int&, std::ranges::category::input>;
+using AnyView =
+    std::ranges::any_view<int, std::ranges::any_view_category::input>;
 using Iter = std::ranges::iterator_t<AnyView>;
 
 static_assert(std::input_iterator<Iter>);
@@ -27,7 +28,7 @@ constexpr void basic() {
   std::array a{1, 2, 3, 4, 5};
   AnyView v(std::views::all(a));
 
-  Iter iter =v.begin();
+  Iter iter = v.begin();
   {
     std::same_as<int&> decltype(auto) r = *iter;
     assert(r == 1);

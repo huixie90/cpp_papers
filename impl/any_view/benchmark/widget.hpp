@@ -16,7 +16,7 @@ struct Widget {
 struct UI1 {
   std::vector<Widget> widgets_;
 
-  std::ranges::any_view<const std::string&> getWidgetNames() const;
+  std::ranges::any_view<std::string> getWidgetNames();
 };
 
 struct UI2 {
@@ -27,13 +27,13 @@ struct UI2 {
   };
 
   struct TransformFn {
-    const std::string& operator()(const Widget&) const;
+    std::string& operator()(Widget&) const;
   };
   std::ranges::transform_view<
-      std::ranges::filter_view<std::ranges::ref_view<const std::vector<Widget>>,
+      std::ranges::filter_view<std::ranges::ref_view<std::vector<Widget>>,
                                FilterFn>,
       TransformFn>
-  getWidgetNames() const;
+  getWidgetNames();
 };
 
 struct UI3 {
@@ -47,7 +47,5 @@ struct UI4 {
 
   std::vector<std::reference_wrapper<const std::string>> getWidgetNames() const;
 };
-
-
 
 }  // namespace lib

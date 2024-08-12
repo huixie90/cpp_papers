@@ -46,8 +46,7 @@ struct storage {
     return *this;
   }
 
-  constexpr storage &operator=(storage &&other) noexcept
-  {
+  constexpr storage &operator=(storage &&other) noexcept {
     storage(std::move(other)).swap(*this);
     return *this;
   }
