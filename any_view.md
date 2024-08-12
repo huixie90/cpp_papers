@@ -33,7 +33,7 @@ With these `view`s, it is quite easy to create a range of objects. For example,
 class MyClass{
   std::unordered_map<Key, Widget> widgets_;
 public:
-  auto getWidgets () const {
+  auto getWidgets () {
     return widgets_ | std::views::values
                     | std::views::filter(myFilter);
   }
@@ -51,14 +51,14 @@ and implementation details are hidden in the implementation cpp files:
 class MyClass{
   std::unordered_map<Key, Widget> widgets_;
 public:
-  /* what should be the return type? */ getWidgets() const;
+  /* what should be the return type? */ getWidgets();
 
   // other members
 };
 
 // in MyClass.cpp
 
-/* what should be the return type? */ MyClass::getWidgets() const {
+/* what should be the return type? */ MyClass::getWidgets() {
     return widgets_ | std::views::values
                     | std::views::filter(myFilter);
 }
@@ -83,7 +83,7 @@ underlying elements to be contiguous in memory. As a result, the above example w
 use an arbitrary `view` pipeline doesn't actually work with `std::span<Widget>`.
 
 This paper proposes a new type-erased view called `std::ranges::any_view` wich would allow
-the above return type to be spelled as `any_view<const Widget&>`.
+the above return type to be spelled as `any_view<Widget>`.
 
 # Design Questions and Prior Art
 
@@ -171,7 +171,7 @@ does not allow users to configure the `range_value_t`, `range_difference_t`, `bo
 This paper proposes the following interface:
 
 ```cpp
-enum class category
+enum class any_view_category
 {
     none = 0,
     input = 1,
@@ -186,7 +186,7 @@ enum class category
 };
 
 template <class Ref, 
-          category Cat = category::input,
+          any_view_category Cat = category::input,
           class Value = decay_t<Ref>,
           class RValueRef = add_rvalue_reference_t<remove_reference_t<Ref>>,
           class Diff = ptrdiff_t>
@@ -195,8 +195,8 @@ class any_view;
 
 The intent is that users can select various desired properties of the `any_view` by `bitwise-or`ing them. For example:
 
-```
-using MyView = std::ranges::any_view<const Widget&, std::ranges::category::bidirectional | std::ranges::category::sized>;
+```cpp
+using MyView = std::ranges::any_view<Widget, std::ranges::any_view_category::bidirectional | std::ranges::any_view_category::sized>;
 ```
 
 # Design Considerations
@@ -209,7 +209,7 @@ If the first template parameter is `Ref`,
 
 ```cpp
 template <class Ref, 
-          category Cat = category::input,
+          any_view_category Cat = any_view_category::input,
           class Value = decay_t<Ref>>
 ```
 
@@ -240,7 +240,7 @@ If the first template parameter is `Value`,
 
 ```cpp
 template <class Value, 
-          category Cat = category::input,
+          any_view_category Cat = any_view_category::input,
           class Ref = Value&>
 ```
 
@@ -250,22 +250,26 @@ For a range with a reference to `int`, it would be less verbose
 any_view<int>
 ```
 
-However, in order to have a `const` reference to `int`, one would have to explicitly specify the `Value`, the category and finally the `Ref`, i.e.
+However, in order to have a `const` reference to `int`, one would have to explicitly specify the `Value`, the any_view_category and finally the `Ref`, i.e.
 
 ```cpp
-any_view<int, category::input, const int&>
+any_view<int, any_view_category::input, const int&>
 ```
 
 This is a bit verbose. In the case of a generator range, one would need to do the same:
 
 ```cpp
-any_view<int, category::input, int>
+any_view<int, any_view_category::input, int>
 ```
 
 ### Author Recommendation
 
 Even though Option 1 is less verbose in few cases, it might create unnecessary copies without user realizing it. The author recommends that Option 2 is preferable.
 
+## Name of the `any_view_category`
+
+`range-v3` uses the name `category` for the category enumeration type. However, the authors believe that the name `std::ranges::category` is too general and it should be reserved for
+more general purpose utility in ranges library. Therefore, the authors recommend a more specific name: `any_view_category`.
 
 ## `constexpr` Support
 
@@ -273,16 +277,16 @@ We do not require `constexpr` in order to allow efficient implementations using 
 
 ## Move-only `view` Support
 
-Move-only `view` is worth supporting as we generally support them in `ranges`. We propose to have a configuration template parameter `category::move_only_view` to make the `any_view` conditionally move-only. This removes the need to have another type `move_only_any_view` as we did for `move_only_function`.
+Move-only `view` is worth supporting as we generally support them in `ranges`. We propose to have a configuration template parameter `any_view_category::move_only_view` to make the `any_view` conditionally move-only. This removes the need to have another type `move_only_any_view` as we did for `move_only_function`.
 
-We also propose that by default, `any_view` is copyable and to make it move-only, the user needs to explicitly provide this template parameter `category::move_only_view`.
+We also propose that by default, `any_view` is copyable and to make it move-only, the user needs to explicitly provide this template parameter `any_view_category::move_only_view`.
 
 ## Move-only `iterator` Support
 
 In this proposal, `any_view::iterator` is an exposition-only type. It is not worth making this `iterator` configurable. If the `iterator` is only `input_iterator`, we can also make it a
 move-only iterator. There is no need to make it copyable. Existing algorithms that take "input only" iterators already know that they cannot copy them.
 
-## Is `category::contiguous` Needed ?
+## Is `any_view_category::contiguous` Needed ?
 
 `contiguous_range` is still useful to support even though we have already `std::span`. But `span` is non-owning and `any_view` owns the underlying `view`.
 
@@ -415,11 +419,11 @@ struct Widget {
 
 struct UI {
   std::vector<Widget> widgets_;
-  std::ranges::transform_view<complicated...> getWidgetNames() const;
+  std::ranges::transform_view<complicated...> getWidgetNames();
 };
 
 // cpp file
-std::ranges::transform_view<complicated...> UI::getWidgetNames() const {
+std::ranges::transform_view<complicated...> UI::getWidgetNames() {
   return widgets_ | std::views::filter([](const Widget& widget) {
            return widget.size > 10;
          }) |
@@ -432,8 +436,8 @@ And this is what we are going to measure:
 ```cpp
   lib::UI ui = {...};
   for (auto _ : state) {
-    for (auto const& name : ui.getWidgetNames()) {
-      benchmark::DoNotOptimize(const_cast<std::string&>(name));
+    for (auto& name : ui.getWidgetNames()) {
+      benchmark::DoNotOptimize(name);
     }
   }
 ```

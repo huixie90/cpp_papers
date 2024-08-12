@@ -2,7 +2,7 @@
 
 namespace lib {
 
-std::ranges::any_view<std::string, std::ranges::category::input, const std::string&> UI1::getWidgetNames() const {
+std::ranges::any_view<std::string> UI1::getWidgetNames() {
   return widgets_ | std::views::filter([](const Widget& widget) {
            return widget.size > 10;
          }) |
@@ -13,15 +13,15 @@ bool UI2::FilterFn::operator()(const Widget& widget) const {
   return widget.size > 10;
 }
 
-const std::string& UI2::TransformFn::operator()(const Widget& widget) const {
+std::string& UI2::TransformFn::operator()(Widget& widget) const {
   return widget.name;
 }
 
 std::ranges::transform_view<
-    std::ranges::filter_view<std::ranges::ref_view<const std::vector<Widget>>,
+    std::ranges::filter_view<std::ranges::ref_view<std::vector<Widget>>,
                              UI2::FilterFn>,
     UI2::TransformFn>
-UI2::getWidgetNames() const {
+UI2::getWidgetNames() {
   return widgets_ | std::views::filter(UI2::FilterFn{}) |
          std::views::transform(UI2::TransformFn{});
 }
