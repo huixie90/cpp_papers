@@ -2,7 +2,7 @@
 
 namespace lib {
 
-std::ranges::any_view<const std::string&> UI1::getWidgetNames() const {
+std::ranges::any_view<std::string, std::ranges::category::input, const std::string&> UI1::getWidgetNames() const {
   return widgets_ | std::views::filter([](const Widget& widget) {
            return widget.size > 10;
          }) |

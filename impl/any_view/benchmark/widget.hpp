@@ -16,7 +16,7 @@ struct Widget {
 struct UI1 {
   std::vector<Widget> widgets_;
 
-  std::ranges::any_view<const std::string&> getWidgetNames() const;
+  std::ranges::any_view<std::string, std::ranges::category::input, const std::string&> getWidgetNames() const;
 };
 
 struct UI2 {

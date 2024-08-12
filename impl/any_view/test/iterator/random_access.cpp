@@ -9,7 +9,7 @@
 namespace {
 
 using AnyView =
-    std::ranges::any_view<int&, std::ranges::category::random_access>;
+    std::ranges::any_view<int, std::ranges::category::random_access>;
 using Iter = std::ranges::iterator_t<AnyView>;
 
 static_assert(std::random_access_iterator<Iter>);

@@ -45,7 +45,7 @@ constexpr auto operator<=>(category lhs, category rhs) noexcept {
 
 }  // namespace __any_view
 
-template <class Ref, category Cat = category::input, class Value = decay_t<Ref>,
+template <class Value, category Cat = category::input, class Ref = Value&,
           class RValueRef = add_rvalue_reference_t<remove_reference_t<Ref>>,
           class Diff = ptrdiff_t>
 class any_view {

@@ -9,7 +9,7 @@
 
 namespace {
 
-using AnyView = std::ranges::any_view<int&, std::ranges::category::input |
+using AnyView = std::ranges::any_view<int, std::ranges::category::input |
                                                 std::ranges::category::common>;
 using Iter = std::ranges::iterator_t<AnyView>;
 

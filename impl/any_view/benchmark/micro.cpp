@@ -21,7 +21,7 @@ BENCHMARK(BM_vector)->RangeMultiplier(2)->Range(1 << 10, 1 << 18);
 static void BM_AnyView(benchmark::State& state) {
   std::vector v =
       std::views::iota(0, state.range(0)) | std::ranges::to<std::vector>();
-  std::ranges::any_view<int&> av(std::views::all(v));
+  std::ranges::any_view<int> av(std::views::all(v));
   for (auto _ : state) {
     for (auto i : av) {
       benchmark::DoNotOptimize(i);
