@@ -186,7 +186,7 @@ enum class any_view_category
 };
 
 template <class Ref, 
-          any_view_category Cat = category::input,
+          any_view_category Cat = any_view_category::input,
           class Value = decay_t<Ref>,
           class RValueRef = add_rvalue_reference_t<remove_reference_t<Ref>>,
           class Diff = ptrdiff_t>
