@@ -48,6 +48,4 @@ struct UI4 {
   std::vector<std::reference_wrapper<const std::string>> getWidgetNames() const;
 };
 
-
-
 }  // namespace lib

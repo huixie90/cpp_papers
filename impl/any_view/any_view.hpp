@@ -26,26 +26,30 @@ enum class any_view_category {
   move_only_view = 256
 };
 
-constexpr any_view_category operator&(any_view_category lhs, any_view_category rhs) noexcept {
+constexpr any_view_category operator&(any_view_category lhs,
+                                      any_view_category rhs) noexcept {
   return static_cast<any_view_category>(
       static_cast<std::underlying_type_t<any_view_category>>(lhs) &
       static_cast<std::underlying_type_t<any_view_category>>(rhs));
 }
 
-constexpr any_view_category operator|(any_view_category lhs, any_view_category rhs) noexcept {
+constexpr any_view_category operator|(any_view_category lhs,
+                                      any_view_category rhs) noexcept {
   return static_cast<any_view_category>(
       static_cast<std::underlying_type_t<any_view_category>>(lhs) |
       static_cast<std::underlying_type_t<any_view_category>>(rhs));
 }
 
-constexpr auto operator<=>(any_view_category lhs, any_view_category rhs) noexcept {
+constexpr auto operator<=>(any_view_category lhs,
+                           any_view_category rhs) noexcept {
   return static_cast<std::underlying_type_t<any_view_category>>(lhs) <=>
          static_cast<std::underlying_type_t<any_view_category>>(rhs);
 }
 
 }  // namespace __any_view
 
-template <class Value, any_view_category Cat = any_view_category::input, class Ref = Value&,
+template <class Value, any_view_category Cat = any_view_category::input,
+          class Ref = Value &,
           class RValueRef = add_rvalue_reference_t<remove_reference_t<Ref>>,
           class Diff = ptrdiff_t>
 class any_view {
@@ -53,7 +57,8 @@ class any_view {
   struct any_iterator;
   struct any_sentinel;
 
-  static constexpr any_view_category Traversal = Cat & any_view_category::category_mask;
+  static constexpr any_view_category Traversal =
+      Cat & any_view_category::category_mask;
   static constexpr bool is_common =
       (Cat & any_view_category::common) == any_view_category::common;
   static constexpr bool is_view_copyable =
@@ -101,7 +106,8 @@ class any_view {
   using any_iterator_vtable = conditional_t<
       Traversal == any_view_category::contiguous, contiguous_iterator_vtable,
       conditional_t<
-          Traversal == any_view_category::random_access, random_access_iterator_vtable,
+          Traversal == any_view_category::random_access,
+          random_access_iterator_vtable,
           conditional_t<
               Traversal == any_view_category::bidirectional,
               bidirectional_iterator_vtable,
@@ -383,8 +389,9 @@ class any_view {
     constexpr bool is_singular() const { return iter_.is_singular(); }
   };
 
-  using iterator = std::conditional_t<Traversal == any_view_category::contiguous,
-                                      std::add_pointer_t<Ref>, any_iterator>;
+  using iterator =
+      std::conditional_t<Traversal == any_view_category::contiguous,
+                         std::add_pointer_t<Ref>, any_iterator>;
 
   using sentinel_storage =
       detail::storage<3 * sizeof(void *), sizeof(void *), true>;
@@ -457,7 +464,8 @@ class any_view {
     std::size_t (*size_)(const view_storage &);
   };
   struct any_view_vtable
-      : maybe_t<sized_vtable, (Cat & any_view_category::sized) != any_view_category::none> {
+      : maybe_t<sized_vtable,
+                (Cat & any_view_category::sized) != any_view_category::none> {
     iterator (*begin_)(view_storage &);
     sentinel (*end_)(view_storage &);
   };
@@ -468,7 +476,8 @@ class any_view {
       any_view_vtable t;
       t.begin_ = &begin<View>;
       t.end_ = &end<View>;
-      if constexpr ((Cat & any_view_category::sized) != any_view_category::none) {
+      if constexpr ((Cat & any_view_category::sized) !=
+                    any_view_category::none) {
         t.size_ = &size<View>;
       }
 
@@ -518,7 +527,8 @@ class any_view {
       return false;
     }
 
-    if constexpr ((Cat & any_view_category::borrowed) != any_view_category::none &&
+    if constexpr ((Cat & any_view_category::borrowed) !=
+                      any_view_category::none &&
                   !std::ranges::borrowed_range<View>) {
       return false;
     }
@@ -587,7 +597,8 @@ class any_view {
   view_storage view_;
 };
 
-template <class Ref, any_view_category Cat, class Value, class RValueRef, class Diff>
+template <class Ref, any_view_category Cat, class Value, class RValueRef,
+          class Diff>
 inline constexpr bool
     enable_borrowed_range<any_view<Ref, Cat, Value, RValueRef, Diff>> =
         (Cat & any_view_category::borrowed) != any_view_category::none;
