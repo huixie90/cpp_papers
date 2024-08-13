@@ -25,8 +25,8 @@ This paper proposes a new type-erased `view`: `any_view`.
 
 # Motivation and Examples
 
-From C++20, a lot of `view`s have been introduced into the standard library.
-With these `view`s, it is quite easy to create a range of objects. For example,
+Since being merged into C++20, the Ranges library have been enjoying the
+contribution of ever richer set of expressive `view`s. For example,
 
 ```cpp
 // in MyClass.hpp
@@ -42,10 +42,10 @@ public:
 };
 ```
 
-While such use of ranges is exceedingly convenient, and indeed the recommended
-and intended use of the library for many implementation strategies, care must be
-taken when allowing such range definitions to "leak" as part of any interface
-element, such as the return type in this example:
+While such use of ranges is exceedingly convenient, and indeed is the
+recommended and the intended use of the library, prudence is advisable when
+allowing such range definitions to "leak" away into the interface, such as the
+return type in this simple example.
 
 Any client of `MyClass::getWidgets` must have its definition fully visible at
 the point of instantiation, which typically requires including the header files
@@ -53,10 +53,10 @@ that contain the implementation along with all of its transitive dependencies.
 Template instantiation in every separate translation unit results in a separate
 copy of the code, causing increased compilation times, and potentially leading
 to code bloat. This is especially true for ranges and views, where they are
-basically a mechanism to exchange algorithms of generic loops for compile-time
-metaprograms (when opportunity presents itself, the standard strives to improve
-this particular quality of ranges implementations, e.g. [@P1739R4] or
-[range.drop#overview-2]{.sref}).
+basically a mechanism that exchanges algorithms of generic loops for
+compile-time metaprograms (notably, when opportunity presents itself, the
+standard strives to improve this particular quality of ranges implementations,
+e.g. [@P1739R4] or [range.drop#overview-2]{.sref}).
 
 While modules offer an alternative to traditional header
 inclusion, templates might still necessitate exposing more details than desired,
