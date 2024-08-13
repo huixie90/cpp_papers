@@ -25,8 +25,8 @@ This paper proposes a new type-erased `view`: `any_view`.
 
 # Motivation and Examples
 
-From C++20, a lot of `view`s have been introduced into the standard library.
-With these `view`s, it is quite easy to create a range of objects. For example,
+Since being merged into C++20, the Ranges library has been enjoying a
+contribution of ever richer set of expressive `view`s. For example,
 
 ```cpp
 // in MyClass.hpp
@@ -42,48 +42,65 @@ public:
 };
 ```
 
-This works if one writes everything in the header. However, in practice,
-in user's non-templated code bases, headers usually contain the declarations,
-and implementation details are hidden in the implementation cpp files:
+While such use of ranges is exceedingly convenient, and indeed is the
+recommended and the intended use of the library, prudence is advisable when
+allowing such range definitions to "leak" away into the interface, such as the
+return type in this simple example.
 
-```cpp
-// in MyClass.hpp
-class MyClass{
-  std::unordered_map<Key, Widget> widgets_;
-public:
-  /* what should be the return type? */ getWidgets();
+Any client of `MyClass::getWidgets` must have its definition fully visible at
+the point of instantiation, which typically requires including the header files
+that contain the implementation along with all of its transitive dependencies.
+Template instantiation in every separate translation unit results in a separate
+copy of the code, causing increased compilation times, and potentially leading
+to code bloat. This is especially true for ranges and views, where they are
+basically a mechanism that exchanges algorithms of generic loops for
+compile-time metaprograms (notably, when opportunity presents itself, the
+standard strives to improve this particular quality of ranges implementations,
+e.g. [@P1739R4] or [range.drop#overview-2]{.sref}). While modules offer an
+alternative to traditional header inclusion, templates might still necessitate
+exposing more details than desired, affecting module encapsulation.
 
-  // other members
-};
+In large applications, such liberal use of `std::ranges` leads to increased
+header dependencies and potentially catastrophic compilation cascades, quickly
+rendering build-time cost a prohibitive factor against the convenience of the
+templated interfaces.
 
-// in MyClass.cpp
+Attempts to separate the implementation into its own translation unit, as is a
+common practice for non-templated code, is futile in this situation. The return
+type of the above definition of `getWidgets` is:
 
-/* what should be the return type? */ MyClass::getWidgets() {
-    return widgets_ | std::views::values
-                    | std::views::filter(myFilter);
-}
-```
+`ranges::value_view<ranges::filter_view<Widget, ... > > > >`
 
-However, it is almost impossible to spell the correct type of the return value.
-And in fact, to allow the flexibility of future changes, we don't actually
-want to spell that particular type of the `view`. We need some type-erased helper
-that can easily be written in the header and can accept any concrete type of `view`.
+<!-- TODO: fill in the blanks, perhaps modify the example towards fancy to exacerbate the effect -->
 
-There is precedent for something very similar: Lambdas are extremely useful but one cannot
-spell their types. When we need a type in the API boundary, we often use the type-erased
-type `std::function`.
+Already hard to spell once, this expression template type is even harder to
+maintain against any evolution of the implementation of its business logic.
 
-Prior to C++20, code would often use `std::vector<Widget>` for this use case, which enforces ownership.
-Unfortunately, this also forces the code to make a copy of all the `Widget`s, when in reality
-the caller may not care about the ownership and only wants to iterate over the sequence.
+Above challenges for templated interfaces are hardly unique to ranges: Numerous
+combinations of string types in the language, lambdas and other customizable
+functions and callbacks as arguments, wrappers for values of arbitrary types are
+some of the remarkably common examples, where naive use of templated interfaces
+would lead to similar set of problems as explained above.
 
-After C++20, such code can now use `std::span<Widget>`, which explicitly says the caller
-does not care about ownership. However, one major caveat is that this requires the
-underlying elements to be contiguous in memory. As a result, the above example where we
-use an arbitrary `view` pipeline doesn't actually work with `std::span<Widget>`.
+Type-erasure is a very popular technique to hide the concrete type of an object
+behind a common interface, allowing polymorphic use of objects of any type that
+model a given concept, but otherwise potentially unrelated by any type
+hierarchies or similar syntactic coupling. In fact, it is a technique commonly
+employed by the standard and other high quality libraries, elements of which are
+enthusiastically encouraged in many respectable coding standards.
+`std::string_view`, `std::function` and `std::function_ref`, and `std::any` are
+the type-erased facilities for the examples above, respectively.
 
-This paper proposes a new type-erased view called `std::ranges::any_view` wich would allow
-the above return type to be spelled as `any_view<Widget>`.
+`std::span<T>` is another type-erasure utility recently added to the standard;
+and is closely related to the ranges in fact, by allowing type-erased
+*reference* of any underlying *contiguous* range of objects.
+
+In this paper, we propose to extend the standard library with
+`std::ranges::any_view` adaptor, and provide a convenient and generalized type-
+erasure capability to own or reference any object of any type that satisfies the
+`ranges::range` concept itself, or any further refinement via customizable
+constraints on its traversal categories and other range characteristics.
+
 
 # Design Questions and Prior Art
 
@@ -185,7 +202,7 @@ enum class any_view_category
     move_only_view = 128
 };
 
-template <class Ref, 
+template <class Ref,
           any_view_category Cat = any_view_category::input,
           class Value = decay_t<Ref>,
           class RValueRef = add_rvalue_reference_t<remove_reference_t<Ref>>,
@@ -208,7 +225,7 @@ using MyView = std::ranges::any_view<Widget, std::ranges::any_view_category::bid
 If the first template parameter is `Ref`,
 
 ```cpp
-template <class Ref, 
+template <class Ref,
           any_view_category Cat = any_view_category::input,
           class Value = decay_t<Ref>>
 ```
@@ -239,7 +256,7 @@ reference type and they now make a copy of the `string` every time when the iter
 If the first template parameter is `Value`,
 
 ```cpp
-template <class Value, 
+template <class Value,
           any_view_category Cat = any_view_category::input,
           class Ref = Value&>
 ```
@@ -515,16 +532,16 @@ std::vector<std::string> UI::getWidgetNames() const {
 ```bash
 Benchmark                                                       Time      Time vector<string>    Time any_view
 --------------------------------------------------------------------------------------------------------------
-[BM_VectorCopy vs. BM_AnyViewPipeline]/1024                  -0.5376                   238558           110316 
-[BM_VectorCopy vs. BM_AnyViewPipeline]/2048                  -0.5110                   454350           222187 
-[BM_VectorCopy vs. BM_AnyViewPipeline]/4096                  -0.4868                   886121           454774 
-[BM_VectorCopy vs. BM_AnyViewPipeline]/8192                  -0.4766                  1729318           905041 
-[BM_VectorCopy vs. BM_AnyViewPipeline]/16384                 -0.4834                  3462454          1788737 
-[BM_VectorCopy vs. BM_AnyViewPipeline]/32768                 -0.4858                  7006102          3602475 
-[BM_VectorCopy vs. BM_AnyViewPipeline]/65536                 -0.4777                 13741174          7176723 
-[BM_VectorCopy vs. BM_AnyViewPipeline]/131072                -0.4792                 27501856         14321826 
-[BM_VectorCopy vs. BM_AnyViewPipeline]/262144                -0.4838                 55950048         28883803 
-OVERALL_GEOMEAN                                              -0.4917                        0                0 
+[BM_VectorCopy vs. BM_AnyViewPipeline]/1024                  -0.5376                   238558           110316
+[BM_VectorCopy vs. BM_AnyViewPipeline]/2048                  -0.5110                   454350           222187
+[BM_VectorCopy vs. BM_AnyViewPipeline]/4096                  -0.4868                   886121           454774
+[BM_VectorCopy vs. BM_AnyViewPipeline]/8192                  -0.4766                  1729318           905041
+[BM_VectorCopy vs. BM_AnyViewPipeline]/16384                 -0.4834                  3462454          1788737
+[BM_VectorCopy vs. BM_AnyViewPipeline]/32768                 -0.4858                  7006102          3602475
+[BM_VectorCopy vs. BM_AnyViewPipeline]/65536                 -0.4777                 13741174          7176723
+[BM_VectorCopy vs. BM_AnyViewPipeline]/131072                -0.4792                 27501856         14321826
+[BM_VectorCopy vs. BM_AnyViewPipeline]/262144                -0.4838                 55950048         28883803
+OVERALL_GEOMEAN                                              -0.4917                        0                0
 ```
 
 #### -O2
