@@ -591,22 +591,22 @@ business logic.</p>
 <p>Above arguments for templated interfaces are hardly unique to ranges:
 Numerous combination of string types in the language, customizable
 functions and callbacks as arguments, wrappers for values of arbitrary
-types, are some remarkable common examples. Naive use of templated
-interfaces for these use cases would lead to similar problems as
+types, are some remarkably common examples. Naive use of templated
+interfaces for these use-cases would lead to similar problems as
 explained above.</p>
 <p>Type-erasure is a very popular technique to hide the concrete type of
-an object behind a common interface, and allows polymorphic manipulation
-of objects of different and otherwise syntactically unrelated types. It
-is a technique commonly employed by the standard and other high quality
-libraries, use of which are is enthusiastically encouraged in many
+an object behind a common interface, and allows polymorphic use of
+objects of different and otherwise syntactically unrelated types. It is
+a technique commonly employed by the standard and other high quality
+libraries, elements of which are enthusiastically encouraged in many
 respectable coding standards.
 <code class="sourceCode default">std::string_view</code>,
 <code class="sourceCode default">std::function</code> and
 <code class="sourceCode default">std::function_ref</code>, and
 <code class="sourceCode default">std::any</code> are the type-erased
-facilities for the aforementioned examples, respectively.</p>
+facilities for the examples above, respectively.</p>
 <p><code class="sourceCode default">std::span&lt;T&gt;</code> is another
-type-erasure facility recently added to the standard; and is closely
+type-erasure utility recently added to the standard; and is closely
 related to the ranges in fact, by allowing type-erased
 <em>reference</em> of any underlying <em>contiguous</em> range of
 objects.</p>
@@ -614,7 +614,7 @@ objects.</p>
 <code class="sourceCode default">std::ranges::any_view</code> adaptor,
 and provide a convenient and generalized type- erasure capability to own
 or reference any object of any type that satisfies the
-<code class="sourceCode default">ranges::range</code> concept itself or
+<code class="sourceCode default">ranges::range</code> concept itself, or
 any further refinement via customizable constraints on its traversal
 categories and other range characteristics.</p>
 <h1 data-number="4" id="design-questions-and-prior-art"><span class="header-section-number">4</span> Design Questions and Prior Art<a href="#design-questions-and-prior-art" class="self-link"></a></h1>

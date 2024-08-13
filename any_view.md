@@ -76,25 +76,25 @@ maintain against any evolution of the implementation of its business logic.
 Above arguments for templated interfaces are hardly unique to ranges: Numerous
 combination of string types in the language, customizable functions and
 callbacks as arguments, wrappers for values of arbitrary types, are some
-remarkable common examples. Naive use of templated interfaces for these use
-cases would lead to similar problems as explained above.
+remarkably common examples. Naive use of templated interfaces for these
+use-cases would lead to similar problems as explained above.
 
 Type-erasure is a very popular technique to hide the concrete type of an object
-behind a common interface, and allows polymorphic manipulation of objects of
-different and otherwise syntactically unrelated types. It is a technique
-commonly employed by the standard and other high quality libraries, use of which
-are is enthusiastically encouraged in many respectable coding standards.
+behind a common interface, and allows polymorphic use of objects of different
+and otherwise syntactically unrelated types. It is a technique commonly employed
+by the standard and other high quality libraries, elements of which are
+enthusiastically encouraged in many respectable coding standards.
 `std::string_view`, `std::function` and `std::function_ref`, and `std::any` are
-the type-erased facilities for the aforementioned examples, respectively.
+the type-erased facilities for the examples above, respectively.
 
-`std::span<T>` is another type-erasure facility recently added to the standard;
+`std::span<T>` is another type-erasure utility recently added to the standard;
 and is closely related to the ranges in fact, by allowing type-erased
 *reference* of any underlying *contiguous* range of objects.
 
 In this paper, we propose to extend the standard library with
 `std::ranges::any_view` adaptor, and provide a convenient and generalized type-
 erasure capability to own or reference any object of any type that satisfies the
-`ranges::range` concept itself or any further refinement via customizable
+`ranges::range` concept itself, or any further refinement via customizable
 constraints on its traversal categories and other range characteristics.
 
 
