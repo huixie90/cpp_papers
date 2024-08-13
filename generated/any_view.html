@@ -542,7 +542,7 @@ Macro<span></span></a></li>
 <code class="sourceCode default">view</code>:
 <code class="sourceCode default">any_view</code>.</p>
 <h1 data-number="3" id="motivation-and-examples"><span class="header-section-number">3</span> Motivation and Examples<a href="#motivation-and-examples" class="self-link"></a></h1>
-<p>Since being merged into C++20, the Ranges library have been enjoying
+<p>Since being merged into C++20, the Ranges library has been enjoying
 the contribution of ever richer set of expressive
 <code class="sourceCode default">view</code>s. For example,</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// in MyClass.hpp</span></span>
@@ -749,7 +749,7 @@ range-v3.</p>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    move_only_view <span class="op">=</span> <span class="dv">128</span></span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
 <span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Ref, </span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Ref,</span>
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>          any_view_category Cat <span class="op">=</span> any_view_category<span class="op">::</span>input,</span>
 <span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Value <span class="op">=</span> decay_t<span class="op">&lt;</span>Ref<span class="op">&gt;</span>,</span>
 <span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> RValueRef <span class="op">=</span> add_rvalue_reference_t<span class="op">&lt;</span>remove_reference_t<span class="op">&lt;</span>Ref<span class="op">&gt;&gt;</span>,</span>
@@ -767,7 +767,7 @@ example:</p>
 <h3 data-number="6.1.1" id="option-1"><span class="header-section-number">6.1.1</span> Option 1<a href="#option-1" class="self-link"></a></h3>
 <p>If the first template parameter is
 <code class="sourceCode default">Ref</code>,</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Ref, </span>
+<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Ref,</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>          any_view_category Cat <span class="op">=</span> any_view_category<span class="op">::</span>input,</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Value <span class="op">=</span> decay_t<span class="op">&lt;</span>Ref<span class="op">&gt;&gt;</span></span></code></pre></div>
 <p>For a range with a reference to
@@ -789,7 +789,7 @@ when the iterator is dereferenced.</p>
 <h3 data-number="6.1.2" id="option-2"><span class="header-section-number">6.1.2</span> Option 2<a href="#option-2" class="self-link"></a></h3>
 <p>If the first template parameter is
 <code class="sourceCode default">Value</code>,</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Value, </span>
+<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Value,</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>          any_view_category Cat <span class="op">=</span> any_view_category<span class="op">::</span>input,</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Ref <span class="op">=</span> Value<span class="op">&amp;&gt;</span></span></code></pre></div>
 <p>For a range with a reference to
@@ -1129,16 +1129,16 @@ tool for lack of a better tool. Such code would look like this:</p>
 <h4 data-number="6.12.3.1" id="o0-2"><span class="header-section-number">6.12.3.1</span> -O0<a href="#o0-2" class="self-link"></a></h4>
 <div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Benchmark</span>                                                       Time      Time vector<span class="op">&lt;</span>string<span class="op">&gt;</span>    Time any_view</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">--------------------------------------------------------------------------------------------------------------</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/1024                  <span class="at">-0.5376</span>                   238558           110316 </span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/2048                  <span class="at">-0.5110</span>                   454350           222187 </span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/4096                  <span class="at">-0.4868</span>                   886121           454774 </span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/8192                  <span class="at">-0.4766</span>                  1729318           905041 </span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/16384                 <span class="at">-0.4834</span>                  3462454          1788737 </span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/32768                 <span class="at">-0.4858</span>                  7006102          3602475 </span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/65536                 <span class="at">-0.4777</span>                 13741174          7176723 </span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/131072                <span class="at">-0.4792</span>                 27501856         14321826 </span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/262144                <span class="at">-0.4838</span>                 55950048         28883803 </span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="ex">OVERALL_GEOMEAN</span>                                              <span class="at">-0.4917</span>                        0                0 </span></code></pre></div>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/1024                  <span class="at">-0.5376</span>                   238558           110316</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/2048                  <span class="at">-0.5110</span>                   454350           222187</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/4096                  <span class="at">-0.4868</span>                   886121           454774</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/8192                  <span class="at">-0.4766</span>                  1729318           905041</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/16384                 <span class="at">-0.4834</span>                  3462454          1788737</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/32768                 <span class="at">-0.4858</span>                  7006102          3602475</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/65536                 <span class="at">-0.4777</span>                 13741174          7176723</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/131072                <span class="at">-0.4792</span>                 27501856         14321826</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/262144                <span class="at">-0.4838</span>                 55950048         28883803</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="ex">OVERALL_GEOMEAN</span>                                              <span class="at">-0.4917</span>                        0                0</span></code></pre></div>
 <h4 data-number="6.12.3.2" id="o2-2"><span class="header-section-number">6.12.3.2</span> -O2<a href="#o2-2" class="self-link"></a></h4>
 <div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Benchmark</span>                                                       Time      Time vector<span class="op">&lt;</span>string<span class="op">&gt;</span>    Time any_view</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="ex">--------------------------------------------------------------------------------------------------------------</span></span>

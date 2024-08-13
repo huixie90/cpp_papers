@@ -25,7 +25,7 @@ This paper proposes a new type-erased `view`: `any_view`.
 
 # Motivation and Examples
 
-Since being merged into C++20, the Ranges library have been enjoying the
+Since being merged into C++20, the Ranges library has been enjoying the
 contribution of ever richer set of expressive `view`s. For example,
 
 ```cpp
@@ -200,7 +200,7 @@ enum class any_view_category
     move_only_view = 128
 };
 
-template <class Ref, 
+template <class Ref,
           any_view_category Cat = any_view_category::input,
           class Value = decay_t<Ref>,
           class RValueRef = add_rvalue_reference_t<remove_reference_t<Ref>>,
@@ -223,7 +223,7 @@ using MyView = std::ranges::any_view<Widget, std::ranges::any_view_category::bid
 If the first template parameter is `Ref`,
 
 ```cpp
-template <class Ref, 
+template <class Ref,
           any_view_category Cat = any_view_category::input,
           class Value = decay_t<Ref>>
 ```
@@ -254,7 +254,7 @@ reference type and they now make a copy of the `string` every time when the iter
 If the first template parameter is `Value`,
 
 ```cpp
-template <class Value, 
+template <class Value,
           any_view_category Cat = any_view_category::input,
           class Ref = Value&>
 ```
@@ -530,16 +530,16 @@ std::vector<std::string> UI::getWidgetNames() const {
 ```bash
 Benchmark                                                       Time      Time vector<string>    Time any_view
 --------------------------------------------------------------------------------------------------------------
-[BM_VectorCopy vs. BM_AnyViewPipeline]/1024                  -0.5376                   238558           110316 
-[BM_VectorCopy vs. BM_AnyViewPipeline]/2048                  -0.5110                   454350           222187 
-[BM_VectorCopy vs. BM_AnyViewPipeline]/4096                  -0.4868                   886121           454774 
-[BM_VectorCopy vs. BM_AnyViewPipeline]/8192                  -0.4766                  1729318           905041 
-[BM_VectorCopy vs. BM_AnyViewPipeline]/16384                 -0.4834                  3462454          1788737 
-[BM_VectorCopy vs. BM_AnyViewPipeline]/32768                 -0.4858                  7006102          3602475 
-[BM_VectorCopy vs. BM_AnyViewPipeline]/65536                 -0.4777                 13741174          7176723 
-[BM_VectorCopy vs. BM_AnyViewPipeline]/131072                -0.4792                 27501856         14321826 
-[BM_VectorCopy vs. BM_AnyViewPipeline]/262144                -0.4838                 55950048         28883803 
-OVERALL_GEOMEAN                                              -0.4917                        0                0 
+[BM_VectorCopy vs. BM_AnyViewPipeline]/1024                  -0.5376                   238558           110316
+[BM_VectorCopy vs. BM_AnyViewPipeline]/2048                  -0.5110                   454350           222187
+[BM_VectorCopy vs. BM_AnyViewPipeline]/4096                  -0.4868                   886121           454774
+[BM_VectorCopy vs. BM_AnyViewPipeline]/8192                  -0.4766                  1729318           905041
+[BM_VectorCopy vs. BM_AnyViewPipeline]/16384                 -0.4834                  3462454          1788737
+[BM_VectorCopy vs. BM_AnyViewPipeline]/32768                 -0.4858                  7006102          3602475
+[BM_VectorCopy vs. BM_AnyViewPipeline]/65536                 -0.4777                 13741174          7176723
+[BM_VectorCopy vs. BM_AnyViewPipeline]/131072                -0.4792                 27501856         14321826
+[BM_VectorCopy vs. BM_AnyViewPipeline]/262144                -0.4838                 55950048         28883803
+OVERALL_GEOMEAN                                              -0.4917                        0                0
 ```
 
 #### -O2
