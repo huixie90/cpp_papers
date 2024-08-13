@@ -42,48 +42,63 @@ public:
 };
 ```
 
-This works if one writes everything in the header. However, in practice,
-in user's non-templated code bases, headers usually contain the declarations,
-and implementation details are hidden in the implementation cpp files:
+While such use of ranges is exceedingly convenient, and indeed the recommended
+and intended use of the library for many implementation strategies, care must be
+taken when allowing such range definitions to "leak" as part of any interface
+element, such as the return type in this example:
 
-```cpp
-// in MyClass.hpp
-class MyClass{
-  std::unordered_map<Key, Widget> widgets_;
-public:
-  /* what should be the return type? */ getWidgets();
+Any client of `MyClass::getWidgets` must have its definition fully visible at
+the point of instantiation, which typically requires including the header files
+that contain the implementation along with all of its transitive dependencies.
+Template instantiation in every separate translation unit results in a separate
+copy of the code, causing increased compilation times, and potentially leading
+to code bloat. This is especially true for ranges and views, where they are
+basically a mechanism to exchange algorithms of generic loops for compile-time
+metaprograms (when opportunity presents itself, the standard strives to improve
+this particular quality of ranges implementations, e.g. [@P1739R4] or
+[range.drop#overview-2]{.sref}).
 
-  // other members
-};
+While modules offer an alternative to traditional header
+inclusion, templates might still necessitate exposing more details than desired,
+affecting module encapsulation.
 
-// in MyClass.cpp
+In large applications, such liberal use of `std::ranges` quickly leads to
+increased header dependencies and potential compilation cascades. In large
+applications, these attributes quickly render such template use prohibitive.
 
-/* what should be the return type? */ MyClass::getWidgets() {
-    return widgets_ | std::views::values
-                    | std::views::filter(myFilter);
-}
-```
+Attempts to separate the implementation into its own translation unit, as is a
+common practice for non-templated code, is futile in this situation. The return
+type of the above definition of `getWidgets` is:
 
-However, it is almost impossible to spell the correct type of the return value.
-And in fact, to allow the flexibility of future changes, we don't actually
-want to spell that particular type of the `view`. We need some type-erased helper
-that can easily be written in the header and can accept any concrete type of `view`.
+`ranges::value_view<ranges::filter_view<Widget, ... > > > >`
 
-There is precedent for something very similar: Lambdas are extremely useful but one cannot
-spell their types. When we need a type in the API boundary, we often use the type-erased
-type `std::function`.
+Already hard to spell once, this expression template type is even harder to
+maintain against any evolution of the implementation of its business logic.
 
-Prior to C++20, code would often use `std::vector<Widget>` for this use case, which enforces ownership.
-Unfortunately, this also forces the code to make a copy of all the `Widget`s, when in reality
-the caller may not care about the ownership and only wants to iterate over the sequence.
+Above arguments for templated interfaces are hardly unique to ranges: Numerous
+combination of string types in the language, customizable functions and
+callbacks as arguments, wrappers for values of arbitrary types, are some
+remarkable common examples. Naive use of templated interfaces for these use
+cases would lead to similar problems as explained above.
 
-After C++20, such code can now use `std::span<Widget>`, which explicitly says the caller
-does not care about ownership. However, one major caveat is that this requires the
-underlying elements to be contiguous in memory. As a result, the above example where we
-use an arbitrary `view` pipeline doesn't actually work with `std::span<Widget>`.
+Type-erasure is a very popular technique to hide the concrete type of an object
+behind a common interface, and allows polymorphic manipulation of objects of
+different and otherwise syntactically unrelated types. It is a technique
+commonly employed by the standard and other high quality libraries, use of which
+are is enthusiastically encouraged in many respectable coding standards.
+`std::string_view`, `std::function` and `std::function_ref`, and `std::any` are
+the type-erased facilities for the aforementioned examples, respectively.
 
-This paper proposes a new type-erased view called `std::ranges::any_view` wich would allow
-the above return type to be spelled as `any_view<Widget>`.
+`std::span<T>` is another type-erasure facility recently added to the standard;
+and is closely related to the ranges in fact, by allowing type-erased
+*reference* of any underlying *contiguous* range of objects.
+
+In this paper, we propose to extend the standard library with
+`std::ranges::any_view` adaptor, and provide a convenient and generalized type-
+erasure capability to own or reference any object of any type that satisfies the
+`ranges::range` concept itself or any further refinement via customizable
+constraints on its traversal categories and other range characteristics.
+
 
 # Design Questions and Prior Art
 

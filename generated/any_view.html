@@ -557,54 +557,68 @@ create a range of objects. For example,</p>
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">// other members</span></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span></code></pre></div>
-<p>This works if one writes everything in the header. However, in
-practice, in user’s non-templated code bases, headers usually contain
-the declarations, and implementation details are hidden in the
-implementation cpp files:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">// in MyClass.hpp</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MyClass<span class="op">{</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>unordered_map<span class="op">&lt;</span>Key, Widget<span class="op">&gt;</span> widgets_;</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">/* what should be the return type? */</span> getWidgets<span class="op">()</span>;</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="co">// other members</span></span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co">// in MyClass.cpp</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co">/* what should be the return type? */</span> MyClass<span class="op">::</span>getWidgets<span class="op">()</span> <span class="op">{</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>values</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>                    <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>filter<span class="op">(</span>myFilter<span class="op">)</span>;</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p>However, it is almost impossible to spell the correct type of the
-return value. And in fact, to allow the flexibility of future changes,
-we don’t actually want to spell that particular type of the
-<code class="sourceCode default">view</code>. We need some type-erased
-helper that can easily be written in the header and can accept any
-concrete type of <code class="sourceCode default">view</code>.</p>
-<p>There is precedent for something very similar: Lambdas are extremely
-useful but one cannot spell their types. When we need a type in the API
-boundary, we often use the type-erased type
-<code class="sourceCode default">std::function</code>.</p>
-<p>Prior to C++20, code would often use
-<code class="sourceCode default">std::vector&lt;Widget&gt;</code> for
-this use case, which enforces ownership. Unfortunately, this also forces
-the code to make a copy of all the
-<code class="sourceCode default">Widget</code>s, when in reality the
-caller may not care about the ownership and only wants to iterate over
-the sequence.</p>
-<p>After C++20, such code can now use
-<code class="sourceCode default">std::span&lt;Widget&gt;</code>, which
-explicitly says the caller does not care about ownership. However, one
-major caveat is that this requires the underlying elements to be
-contiguous in memory. As a result, the above example where we use an
-arbitrary <code class="sourceCode default">view</code> pipeline doesn’t
-actually work with
-<code class="sourceCode default">std::span&lt;Widget&gt;</code>.</p>
-<p>This paper proposes a new type-erased view called
-<code class="sourceCode default">std::ranges::any_view</code> wich would
-allow the above return type to be spelled as
-<code class="sourceCode default">any_view&lt;Widget&gt;</code>.</p>
+<p>While such use of ranges is exceedingly convenient, and indeed the
+recommended and intended use of the library for many implementation
+strategies, care must be taken when allowing such range definitions to
+“leak” as part of any interface element, such as the return type in this
+example:</p>
+<p>Any client of
+<code class="sourceCode default">MyClass::getWidgets</code> must have
+its definition fully visible at the point of instantiation, which
+typically requires including the header files that contain the
+implementation along with all of its transitive dependencies. Template
+instantiation in every separate translation unit results in a separate
+copy of the code, causing increased compilation times, and potentially
+leading to code bloat. This is especially true for ranges and views,
+where they are basically a mechanism to exchange algorithms of generic
+loops for compile-time metaprograms (when opportunity presents itself,
+the standard strives to improve this particular quality of ranges
+implementations, e.g. <span class="citation" data-cites="P1739R4">[<a href="#ref-P1739R4" role="doc-biblioref">P1739R4</a>]</span> or <a href="https://wg21.link/range.drop#overview-2">[range.drop#overview-2]</a>).</p>
+<p>While modules offer an alternative to traditional header inclusion,
+templates might still necessitate exposing more details than desired,
+affecting module encapsulation.</p>
+<p>In large applications, such liberal use of
+<code class="sourceCode default">std::ranges</code> quickly leads to
+increased header dependencies and potential compilation cascades. In
+large applications, these attributes quickly render such template use
+prohibitive.</p>
+<p>Attempts to separate the implementation into its own translation
+unit, as is a common practice for non-templated code, is futile in this
+situation. The return type of the above definition of
+<code class="sourceCode default">getWidgets</code> is:</p>
+<p><code class="sourceCode default">ranges::value_view&lt;ranges::filter_view&lt;Widget, ... &gt; &gt; &gt; &gt;</code></p>
+<p>Already hard to spell once, this expression template type is even
+harder to maintain against any evolution of the implementation of its
+business logic.</p>
+<p>Above arguments for templated interfaces are hardly unique to ranges:
+Numerous combination of string types in the language, customizable
+functions and callbacks as arguments, wrappers for values of arbitrary
+types, are some remarkable common examples. Naive use of templated
+interfaces for these use cases would lead to similar problems as
+explained above.</p>
+<p>Type-erasure is a very popular technique to hide the concrete type of
+an object behind a common interface, and allows polymorphic manipulation
+of objects of different and otherwise syntactically unrelated types. It
+is a technique commonly employed by the standard and other high quality
+libraries, use of which are is enthusiastically encouraged in many
+respectable coding standards.
+<code class="sourceCode default">std::string_view</code>,
+<code class="sourceCode default">std::function</code> and
+<code class="sourceCode default">std::function_ref</code>, and
+<code class="sourceCode default">std::any</code> are the type-erased
+facilities for the aforementioned examples, respectively.</p>
+<p><code class="sourceCode default">std::span&lt;T&gt;</code> is another
+type-erasure facility recently added to the standard; and is closely
+related to the ranges in fact, by allowing type-erased
+<em>reference</em> of any underlying <em>contiguous</em> range of
+objects.</p>
+<p>In this paper, we propose to extend the standard library with
+<code class="sourceCode default">std::ranges::any_view</code> adaptor,
+and provide a convenient and generalized type- erasure capability to own
+or reference any object of any type that satisfies the
+<code class="sourceCode default">ranges::range</code> concept itself or
+any further refinement via customizable constraints on its traversal
+categories and other range characteristics.</p>
 <h1 data-number="4" id="design-questions-and-prior-art"><span class="header-section-number">4</span> Design Questions and Prior Art<a href="#design-questions-and-prior-art" class="self-link"></a></h1>
 <p>Designing a type like
 <code class="sourceCode default">any_view</code> raises a lot of
@@ -669,14 +683,14 @@ there is prior art to help us guide the design.</p>
 <h2 data-number="4.1" id="boost.range-boostrangesany_range"><span class="header-section-number">4.1</span> Boost.Range
 <code class="sourceCode default">boost::ranges::any_range</code><a href="#boost.range-boostrangesany_range" class="self-link"></a></h2>
 <p>The type declaration is:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">class</span> Value</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  , <span class="kw">class</span> Traversal</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  , <span class="kw">class</span> Reference</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  , <span class="kw">class</span> Difference</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  , <span class="kw">class</span> Buffer <span class="op">=</span> any_iterator_default_buffer</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> any_range;</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">class</span> Value</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  , <span class="kw">class</span> Traversal</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  , <span class="kw">class</span> Reference</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  , <span class="kw">class</span> Difference</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  , <span class="kw">class</span> Buffer <span class="op">=</span> any_iterator_default_buffer</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> any_range;</span></code></pre></div>
 <p>It asks users to provide
 <code class="sourceCode default">range_reference_t</code>,
 <code class="sourceCode default">range_value_t</code> and
@@ -696,19 +710,19 @@ considered.</p>
 <h2 data-number="4.2" id="range-v3-rangesviewsany_view"><span class="header-section-number">4.2</span> range-v3
 <code class="sourceCode default">ranges::views::any_view</code><a href="#range-v3-rangesviewsany_view" class="self-link"></a></h2>
 <p>The type declaration is:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">enum</span> <span class="kw">class</span> category</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    none <span class="op">=</span> <span class="dv">0</span>,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    input <span class="op">=</span> <span class="dv">1</span>,</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    forward <span class="op">=</span> <span class="dv">3</span>,</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    bidirectional <span class="op">=</span> <span class="dv">7</span>,</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    random_access <span class="op">=</span> <span class="dv">15</span>,</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    mask <span class="op">=</span> random_access,</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    sized <span class="op">=</span> <span class="dv">16</span>,</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Ref, category Cat <span class="op">=</span> category<span class="op">::</span>input<span class="op">&gt;</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> any_view;</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="kw">enum</span> <span class="kw">class</span> category</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    none <span class="op">=</span> <span class="dv">0</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    input <span class="op">=</span> <span class="dv">1</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    forward <span class="op">=</span> <span class="dv">3</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    bidirectional <span class="op">=</span> <span class="dv">7</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    random_access <span class="op">=</span> <span class="dv">15</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    mask <span class="op">=</span> random_access,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    sized <span class="op">=</span> <span class="dv">16</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> Ref, category Cat <span class="op">=</span> category<span class="op">::</span>input<span class="op">&gt;</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> any_view;</span></code></pre></div>
 <p>Here <code class="sourceCode default">Cat</code> handles both the
 traversal category and
 <code class="sourceCode default">sized_range</code>.
@@ -723,31 +737,31 @@ allow users to configure the
 range-v3.</p>
 <h1 data-number="5" id="proposed-design"><span class="header-section-number">5</span> Proposed Design<a href="#proposed-design" class="self-link"></a></h1>
 <p>This paper proposes the following interface:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">enum</span> <span class="kw">class</span> any_view_category</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    none <span class="op">=</span> <span class="dv">0</span>,</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    input <span class="op">=</span> <span class="dv">1</span>,</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    forward <span class="op">=</span> <span class="dv">3</span>,</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    bidirectional <span class="op">=</span> <span class="dv">7</span>,</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    random_access <span class="op">=</span> <span class="dv">15</span>,</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    contiguous <span class="op">=</span> <span class="dv">31</span>,</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    mask <span class="op">=</span> contiguous,</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    sized <span class="op">=</span> <span class="dv">32</span>,</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    borrowed <span class="op">=</span> <span class="dv">64</span>,</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>    move_only_view <span class="op">=</span> <span class="dv">128</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Ref, </span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>          any_view_category Cat <span class="op">=</span> any_view_category<span class="op">::</span>input,</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Value <span class="op">=</span> decay_t<span class="op">&lt;</span>Ref<span class="op">&gt;</span>,</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> RValueRef <span class="op">=</span> add_rvalue_reference_t<span class="op">&lt;</span>remove_reference_t<span class="op">&lt;</span>Ref<span class="op">&gt;&gt;</span>,</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Diff <span class="op">=</span> <span class="dt">ptrdiff_t</span><span class="op">&gt;</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> any_view;</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">enum</span> <span class="kw">class</span> any_view_category</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    none <span class="op">=</span> <span class="dv">0</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    input <span class="op">=</span> <span class="dv">1</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    forward <span class="op">=</span> <span class="dv">3</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    bidirectional <span class="op">=</span> <span class="dv">7</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    random_access <span class="op">=</span> <span class="dv">15</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    contiguous <span class="op">=</span> <span class="dv">31</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>    mask <span class="op">=</span> contiguous,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    sized <span class="op">=</span> <span class="dv">32</span>,</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    borrowed <span class="op">=</span> <span class="dv">64</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    move_only_view <span class="op">=</span> <span class="dv">128</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Ref, </span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>          any_view_category Cat <span class="op">=</span> any_view_category<span class="op">::</span>input,</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Value <span class="op">=</span> decay_t<span class="op">&lt;</span>Ref<span class="op">&gt;</span>,</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> RValueRef <span class="op">=</span> add_rvalue_reference_t<span class="op">&lt;</span>remove_reference_t<span class="op">&lt;</span>Ref<span class="op">&gt;&gt;</span>,</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Diff <span class="op">=</span> <span class="dt">ptrdiff_t</span><span class="op">&gt;</span></span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> any_view;</span></code></pre></div>
 <p>The intent is that users can select various desired properties of the
 <code class="sourceCode default">any_view</code> by
 <code class="sourceCode default">bitwise-or</code>ing them. For
 example:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> MyView <span class="op">=</span> std<span class="op">::</span>ranges<span class="op">::</span>any_view<span class="op">&lt;</span>Widget, std<span class="op">::</span>ranges<span class="op">::</span>any_view_category<span class="op">::</span>bidirectional <span class="op">|</span> std<span class="op">::</span>ranges<span class="op">::</span>any_view_category<span class="op">::</span>sized<span class="op">&gt;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> MyView <span class="op">=</span> std<span class="op">::</span>ranges<span class="op">::</span>any_view<span class="op">&lt;</span>Widget, std<span class="op">::</span>ranges<span class="op">::</span>any_view_category<span class="op">::</span>bidirectional <span class="op">|</span> std<span class="op">::</span>ranges<span class="op">::</span>any_view_category<span class="op">::</span>sized<span class="op">&gt;</span>;</span></code></pre></div>
 <h1 data-number="6" id="design-considerations"><span class="header-section-number">6</span> Design Considerations<a href="#design-considerations" class="self-link"></a></h1>
 <h2 data-number="6.1" id="should-the-first-argument-be-ref-or-value"><span class="header-section-number">6.1</span> Should the first argument be
 <code class="sourceCode default">Ref</code> or
@@ -755,20 +769,20 @@ example:</p>
 <h3 data-number="6.1.1" id="option-1"><span class="header-section-number">6.1.1</span> Option 1<a href="#option-1" class="self-link"></a></h3>
 <p>If the first template parameter is
 <code class="sourceCode default">Ref</code>,</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Ref, </span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>          any_view_category Cat <span class="op">=</span> any_view_category<span class="op">::</span>input,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Value <span class="op">=</span> decay_t<span class="op">&lt;</span>Ref<span class="op">&gt;&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Ref, </span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>          any_view_category Cat <span class="op">=</span> any_view_category<span class="op">::</span>input,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Value <span class="op">=</span> decay_t<span class="op">&lt;</span>Ref<span class="op">&gt;&gt;</span></span></code></pre></div>
 <p>For a range with a reference to
 <code class="sourceCode default">int</code>, one would write</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>any_view<span class="op">&lt;</span><span class="dt">int</span><span class="op">&amp;&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>any_view<span class="op">&lt;</span><span class="dt">int</span><span class="op">&amp;&gt;</span></span></code></pre></div>
 <p>And for a <code class="sourceCode default">const</code> reference to
 <code class="sourceCode default">int</code>, one would write</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>any_view<span class="op">&lt;</span><span class="kw">const</span> <span class="dt">int</span><span class="op">&amp;&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>any_view<span class="op">&lt;</span><span class="kw">const</span> <span class="dt">int</span><span class="op">&amp;&gt;</span></span></code></pre></div>
 <p>In case of a generator range, e.g a
 <code class="sourceCode default">transform_view</code> which generates
 pr-value <code class="sourceCode default">int</code>, the usage would
 be</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>any_view<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>any_view<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;</span></span></code></pre></div>
 <p>However, it is possible that the user uses
 <code class="sourceCode default">any_view&lt;string&gt;</code> without
 realizing that they specified the reference type and they now make a
@@ -777,23 +791,23 @@ when the iterator is dereferenced.</p>
 <h3 data-number="6.1.2" id="option-2"><span class="header-section-number">6.1.2</span> Option 2<a href="#option-2" class="self-link"></a></h3>
 <p>If the first template parameter is
 <code class="sourceCode default">Value</code>,</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Value, </span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>          any_view_category Cat <span class="op">=</span> any_view_category<span class="op">::</span>input,</span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Ref <span class="op">=</span> Value<span class="op">&amp;&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Value, </span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>          any_view_category Cat <span class="op">=</span> any_view_category<span class="op">::</span>input,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Ref <span class="op">=</span> Value<span class="op">&amp;&gt;</span></span></code></pre></div>
 <p>For a range with a reference to
 <code class="sourceCode default">int</code>, it would be less
 verbose</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>any_view<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>any_view<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;</span></span></code></pre></div>
 <p>However, in order to have a
 <code class="sourceCode default">const</code> reference to
 <code class="sourceCode default">int</code>, one would have to
 explicitly specify the <code class="sourceCode default">Value</code>,
 the any_view_category and finally the
 <code class="sourceCode default">Ref</code>, i.e.</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>any_view<span class="op">&lt;</span><span class="dt">int</span>, any_view_category<span class="op">::</span>input, <span class="kw">const</span> <span class="dt">int</span><span class="op">&amp;&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>any_view<span class="op">&lt;</span><span class="dt">int</span>, any_view_category<span class="op">::</span>input, <span class="kw">const</span> <span class="dt">int</span><span class="op">&amp;&gt;</span></span></code></pre></div>
 <p>This is a bit verbose. In the case of a generator range, one would
 need to do the same:</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>any_view<span class="op">&lt;</span><span class="dt">int</span>, any_view_category<span class="op">::</span>input, <span class="dt">int</span><span class="op">&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>any_view<span class="op">&lt;</span><span class="dt">int</span>, any_view_category<span class="op">::</span>input, <span class="dt">int</span><span class="op">&gt;</span></span></code></pre></div>
 <h3 data-number="6.1.3" id="author-recommendation"><span class="header-section-number">6.1.3</span> Author Recommendation<a href="#author-recommendation" class="self-link"></a></h3>
 <p>Even though Option 1 is less verbose in few cases, it might create
 unnecessary copies without user realizing it. The author recommends that
@@ -941,9 +955,9 @@ cost of indirect function calls and their impact on the ability for the
 compiler to perform optimizations. With
 <code class="sourceCode default">any_view</code>, every iteration will
 have three indirect function calls:</p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="op">++</span>it;</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>it <span class="op">!=</span> last;</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span>it;</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="op">++</span>it;</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>it <span class="op">!=</span> last;</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="op">*</span>it;</span></code></pre></div>
 <p>While it may at first seem prohibitive, it is useful to remember the
 context in which <code class="sourceCode default">any_view</code> is
 used and what the alternatives to it are.</p>
@@ -955,20 +969,20 @@ a <code class="sourceCode default">std::vector</code> and to compare it
 with the cost of iterating over
 <code class="sourceCode default">any_view</code>. For example, the
 following code:</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector v <span class="op">=</span> std<span class="op">::</span>views<span class="op">::</span>iota<span class="op">(</span><span class="dv">0</span>, state<span class="op">.</span>range<span class="op">(</span><span class="dv">0</span><span class="op">))</span> <span class="op">|</span> std<span class="op">::</span>ranges<span class="op">::</span>to<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&gt;()</span>;</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> _ <span class="op">:</span> state<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> i <span class="op">:</span> v<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>      benchmark<span class="op">::</span>DoNotOptimize<span class="op">(</span>i<span class="op">)</span>;</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector v <span class="op">=</span> std<span class="op">::</span>views<span class="op">::</span>iota<span class="op">(</span><span class="dv">0</span>, state<span class="op">.</span>range<span class="op">(</span><span class="dv">0</span><span class="op">))</span> <span class="op">|</span> std<span class="op">::</span>ranges<span class="op">::</span>to<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&gt;()</span>;</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> _ <span class="op">:</span> state<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> i <span class="op">:</span> v<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>      benchmark<span class="op">::</span>DoNotOptimize<span class="op">(</span>i<span class="op">)</span>;</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code></pre></div>
 <p>vs</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector v <span class="op">=</span> std<span class="op">::</span>views<span class="op">::</span>iota<span class="op">(</span><span class="dv">0</span>, state<span class="op">.</span>range<span class="op">(</span><span class="dv">0</span><span class="op">))</span> <span class="op">|</span> std<span class="op">::</span>ranges<span class="op">::</span>to<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&gt;()</span>;</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>ranges<span class="op">::</span>any_view<span class="op">&lt;</span><span class="dt">int</span><span class="op">&amp;&gt;</span> av<span class="op">(</span>std<span class="op">::</span>views<span class="op">::</span>all<span class="op">(</span>v<span class="op">))</span>;</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> _ <span class="op">:</span> state<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> i <span class="op">:</span> av<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>      benchmark<span class="op">::</span>DoNotOptimize<span class="op">(</span>i<span class="op">)</span>;</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector v <span class="op">=</span> std<span class="op">::</span>views<span class="op">::</span>iota<span class="op">(</span><span class="dv">0</span>, state<span class="op">.</span>range<span class="op">(</span><span class="dv">0</span><span class="op">))</span> <span class="op">|</span> std<span class="op">::</span>ranges<span class="op">::</span>to<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&gt;()</span>;</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>ranges<span class="op">::</span>any_view<span class="op">&lt;</span><span class="dt">int</span><span class="op">&amp;&gt;</span> av<span class="op">(</span>std<span class="op">::</span>views<span class="op">::</span>all<span class="op">(</span>v<span class="op">))</span>;</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> _ <span class="op">:</span> state<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> i <span class="op">:</span> av<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>      benchmark<span class="op">::</span>DoNotOptimize<span class="op">(</span>i<span class="op">)</span>;</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code></pre></div>
 <h4 data-number="6.12.1.1" id="o0"><span class="header-section-number">6.12.1.1</span> -O0<a href="#o0" class="self-link"></a></h4>
 <div class="sourceCode" id="cb1"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Benchmark</span>                                           Time      Time vector         Time any_view</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">-----------------------------------------------------------------------------------------------</span></span>
@@ -1021,31 +1035,31 @@ smaller.</p>
 complex pipeline and pass it across an ABI boundary either with a
 <code class="sourceCode default">any_view</code> or with the pipeline’s
 actual type:</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">// header file</span></span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> Widget <span class="op">{</span></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>string name;</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> size;</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> UI <span class="op">{</span></span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;</span> widgets_;</span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>ranges<span class="op">::</span>transform_view<span class="op">&lt;</span>complicated<span class="op">...&gt;</span> getWidgetNames<span class="op">()</span>;</span>
-<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
-<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="co">// cpp file</span></span>
-<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>ranges<span class="op">::</span>transform_view<span class="op">&lt;</span>complicated<span class="op">...&gt;</span> UI<span class="op">::</span>getWidgetNames<span class="op">()</span> <span class="op">{</span></span>
-<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>filter<span class="op">([](</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>           <span class="cf">return</span> widget<span class="op">.</span>size <span class="op">&gt;</span> <span class="dv">10</span>;</span>
-<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>         <span class="op">})</span> <span class="op">|</span></span>
-<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(&amp;</span>Widget<span class="op">::</span>name<span class="op">)</span>;</span>
-<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co">// header file</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> Widget <span class="op">{</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>string name;</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> size;</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> UI <span class="op">{</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;</span> widgets_;</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>ranges<span class="op">::</span>transform_view<span class="op">&lt;</span>complicated<span class="op">...&gt;</span> getWidgetNames<span class="op">()</span>;</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="co">// cpp file</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>ranges<span class="op">::</span>transform_view<span class="op">&lt;</span>complicated<span class="op">...&gt;</span> UI<span class="op">::</span>getWidgetNames<span class="op">()</span> <span class="op">{</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>filter<span class="op">([](</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>           <span class="cf">return</span> widget<span class="op">.</span>size <span class="op">&gt;</span> <span class="dv">10</span>;</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>         <span class="op">})</span> <span class="op">|</span></span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(&amp;</span>Widget<span class="op">::</span>name<span class="op">)</span>;</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>And this is what we are going to measure:</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>  lib<span class="op">::</span>UI ui <span class="op">=</span> <span class="op">{...}</span>;</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> _ <span class="op">:</span> state<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span><span class="op">&amp;</span> name <span class="op">:</span> ui<span class="op">.</span>getWidgetNames<span class="op">())</span> <span class="op">{</span></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>      benchmark<span class="op">::</span>DoNotOptimize<span class="op">(</span>name<span class="op">)</span>;</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>  lib<span class="op">::</span>UI ui <span class="op">=</span> <span class="op">{...}</span>;</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> _ <span class="op">:</span> state<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span><span class="op">&amp;</span> name <span class="op">:</span> ui<span class="op">.</span>getWidgetNames<span class="op">())</span> <span class="op">{</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>      benchmark<span class="op">::</span>DoNotOptimize<span class="op">(</span>name<span class="op">)</span>;</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code></pre></div>
 <p>In the <code class="sourceCode default">any_view</code> case, we
 simply replace <code class="sourceCode default">std::ranges::transform_view&lt;complicated...&gt;</code>
 by <code class="sourceCode default">std::ranges::any_view</code> and we
@@ -1101,19 +1115,19 @@ benchmarks are not really representative of what happens in the real
 world. Instead, people in the wild tend to use owning containers like
 <code class="sourceCode default">std::vector</code> as a type erasure
 tool for lack of a better tool. Such code would look like this:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">// header file</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> UI <span class="op">{</span></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;</span> widgets_;</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>string<span class="op">&gt;</span> getWidgetNames<span class="op">()</span> <span class="kw">const</span>;</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co">// cpp file</span></span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>string<span class="op">&gt;</span> UI<span class="op">::</span>getWidgetNames<span class="op">()</span> <span class="kw">const</span> <span class="op">{</span></span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>filter<span class="op">([](</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>           <span class="cf">return</span> widget<span class="op">.</span>size <span class="op">&gt;</span> <span class="dv">10</span>;</span>
-<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>         <span class="op">})</span> <span class="op">|</span></span>
-<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(&amp;</span>Widget<span class="op">::</span>name<span class="op">)</span> <span class="op">|</span> std<span class="op">::</span>ranges<span class="op">::</span>to<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&gt;()</span>;</span>
-<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">// header file</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> UI <span class="op">{</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>Widget<span class="op">&gt;</span> widgets_;</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>string<span class="op">&gt;</span> getWidgetNames<span class="op">()</span> <span class="kw">const</span>;</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="co">// cpp file</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>string<span class="op">&gt;</span> UI<span class="op">::</span>getWidgetNames<span class="op">()</span> <span class="kw">const</span> <span class="op">{</span></span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>filter<span class="op">([](</span><span class="kw">const</span> Widget<span class="op">&amp;</span> widget<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>           <span class="cf">return</span> widget<span class="op">.</span>size <span class="op">&gt;</span> <span class="dv">10</span>;</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>         <span class="op">})</span> <span class="op">|</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>         std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(&amp;</span>Widget<span class="op">::</span>name<span class="op">)</span> <span class="op">|</span> std<span class="op">::</span>ranges<span class="op">::</span>to<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&gt;()</span>;</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <h4 data-number="6.12.3.1" id="o0-2"><span class="header-section-number">6.12.3.1</span> -O0<a href="#o0-2" class="self-link"></a></h4>
 <div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Benchmark</span>                                                       Time      Time vector<span class="op">&lt;</span>string<span class="op">&gt;</span>    Time any_view</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="ex">--------------------------------------------------------------------------------------------------------------</span></span>
@@ -1183,6 +1197,11 @@ follows the proposed wording below without any issue <span class="citation" data
 <div id="ref-ours" class="csl-entry" role="doc-biblioentry">
 [ours] Hui Xie, S. Levent Yilmaz, and Dionne Louis. A proof-of-concept
 implementation of <code class="sourceCode default">any_view</code>. <a href="https://github.com/huixie90/cpp_papers/tree/main/impl/any_view"><div class="csl-block">https://github.com/huixie90/cpp_papers/tree/main/impl/any_view</div></a>
+</div>
+<div id="ref-P1739R4" class="csl-entry" role="doc-biblioentry">
+[P1739R4] Hannes Hauswedell. 2020-03-01. Avoid template bloat for
+safe_ranges in combination with <span>“subrange-y”</span> view adaptors.
+<a href="https://wg21.link/p1739r4"><div class="csl-block">https://wg21.link/p1739r4</div></a>
 </div>
 <div id="ref-rangev3" class="csl-entry" role="doc-biblioentry">
 [range-v3] Eric Niebler. range-v3 library. <a href="https://github.com/ericniebler/range-v3"><div class="csl-block">https://github.com/ericniebler/range-v3</div></a>
