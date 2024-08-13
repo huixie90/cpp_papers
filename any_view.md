@@ -25,7 +25,7 @@ This paper proposes a new type-erased `view`: `any_view`.
 
 # Motivation and Examples
 
-Since being merged into C++20, the Ranges library has been enjoying the
+Since being merged into C++20, the Ranges library has been enjoying a
 contribution of ever richer set of expressive `view`s. For example,
 
 ```cpp
@@ -60,9 +60,10 @@ e.g. [@P1739R4] or [range.drop#overview-2]{.sref}). While modules offer an
 alternative to traditional header inclusion, templates might still necessitate
 exposing more details than desired, affecting module encapsulation.
 
-In large applications, such liberal use of `std::ranges` quickly leads to
-increased header dependencies and potential compilation cascades. In large
-applications, these attributes quickly render such template use prohibitive.
+In large applications, such liberal use of `std::ranges` leads to increased
+header dependencies and potentially catastrophic compilation cascades, quickly
+rendering build-time cost a prohibitive factor against the convenience of the
+templated interfaces.
 
 Attempts to separate the implementation into its own translation unit, as is a
 common practice for non-templated code, is futile in this situation. The return
@@ -70,19 +71,22 @@ type of the above definition of `getWidgets` is:
 
 `ranges::value_view<ranges::filter_view<Widget, ... > > > >`
 
+<!-- TODO: fill in the blanks, perhaps modify the example towards fancy to exacerbate the effect -->
+
 Already hard to spell once, this expression template type is even harder to
 maintain against any evolution of the implementation of its business logic.
 
 Above challenges for templated interfaces are hardly unique to ranges: Numerous
-combination of string types in the language, customizable functions and
-callbacks as arguments, wrappers for values of arbitrary types, are some
-remarkably common examples, where naive use of templated interfaces would lead
-to similar set of problems as explained above.
+combinations of string types in the language, lambdas and other customizable
+functions and callbacks as arguments, wrappers for values of arbitrary types are
+some of the remarkably common examples, where naive use of templated interfaces
+would lead to similar set of problems as explained above.
 
 Type-erasure is a very popular technique to hide the concrete type of an object
-behind a common interface, and allows polymorphic use of objects of different
-and otherwise syntactically unrelated types. It is a technique commonly employed
-by the standard and other high quality libraries, elements of which are
+behind a common interface, allowing polymorphic use of objects of any type that
+model a given concept, but otherwise potentially unrelated by any type
+hierarchies or similar syntactic coupling. In fact, it is a technique commonly
+employed by the standard and other high quality libraries, elements of which are
 enthusiastically encouraged in many respectable coding standards.
 `std::string_view`, `std::function` and `std::function_ref`, and `std::any` are
 the type-erased facilities for the examples above, respectively.

@@ -542,8 +542,8 @@ Macro<span></span></a></li>
 <code class="sourceCode default">view</code>:
 <code class="sourceCode default">any_view</code>.</p>
 <h1 data-number="3" id="motivation-and-examples"><span class="header-section-number">3</span> Motivation and Examples<a href="#motivation-and-examples" class="self-link"></a></h1>
-<p>Since being merged into C++20, the Ranges library has been enjoying
-the contribution of ever richer set of expressive
+<p>Since being merged into C++20, the Ranges library has been enjoying a
+contribution of ever richer set of expressive
 <code class="sourceCode default">view</code>s. For example,</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// in MyClass.hpp</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MyClass<span class="op">{</span></span>
@@ -576,30 +576,32 @@ While modules offer an alternative to traditional header inclusion,
 templates might still necessitate exposing more details than desired,
 affecting module encapsulation.</p>
 <p>In large applications, such liberal use of
-<code class="sourceCode default">std::ranges</code> quickly leads to
-increased header dependencies and potential compilation cascades. In
-large applications, these attributes quickly render such template use
-prohibitive.</p>
+<code class="sourceCode default">std::ranges</code> leads to increased
+header dependencies and potentially catastrophic compilation cascades,
+quickly rendering build-time cost a prohibitive factor against the
+convenience of the templated interfaces.</p>
 <p>Attempts to separate the implementation into its own translation
 unit, as is a common practice for non-templated code, is futile in this
 situation. The return type of the above definition of
 <code class="sourceCode default">getWidgets</code> is:</p>
 <p><code class="sourceCode default">ranges::value_view&lt;ranges::filter_view&lt;Widget, ... &gt; &gt; &gt; &gt;</code></p>
+<!-- TODO: fill in the blanks, perhaps modify the example towards fancy to exacerbate the effect -->
 <p>Already hard to spell once, this expression template type is even
 harder to maintain against any evolution of the implementation of its
 business logic.</p>
 <p>Above challenges for templated interfaces are hardly unique to
-ranges: Numerous combination of string types in the language,
-customizable functions and callbacks as arguments, wrappers for values
-of arbitrary types, are some remarkably common examples, where naive use
-of templated interfaces would lead to similar set of problems as
-explained above.</p>
+ranges: Numerous combinations of string types in the language, lambdas
+and other customizable functions and callbacks as arguments, wrappers
+for values of arbitrary types are some of the remarkably common
+examples, where naive use of templated interfaces would lead to similar
+set of problems as explained above.</p>
 <p>Type-erasure is a very popular technique to hide the concrete type of
-an object behind a common interface, and allows polymorphic use of
-objects of different and otherwise syntactically unrelated types. It is
-a technique commonly employed by the standard and other high quality
-libraries, elements of which are enthusiastically encouraged in many
-respectable coding standards.
+an object behind a common interface, allowing polymorphic use of objects
+of any type that model a given concept, but otherwise potentially
+unrelated by any type hierarchies or similar syntactic coupling. In
+fact, it is a technique commonly employed by the standard and other high
+quality libraries, elements of which are enthusiastically encouraged in
+many respectable coding standards.
 <code class="sourceCode default">std::string_view</code>,
 <code class="sourceCode default">std::function</code> and
 <code class="sourceCode default">std::function_ref</code>, and
