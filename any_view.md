@@ -56,11 +56,9 @@ to code bloat. This is especially true for ranges and views, where they are
 basically a mechanism that exchanges algorithms of generic loops for
 compile-time metaprograms (notably, when opportunity presents itself, the
 standard strives to improve this particular quality of ranges implementations,
-e.g. [@P1739R4] or [range.drop#overview-2]{.sref}).
-
-While modules offer an alternative to traditional header
-inclusion, templates might still necessitate exposing more details than desired,
-affecting module encapsulation.
+e.g. [@P1739R4] or [range.drop#overview-2]{.sref}). While modules offer an
+alternative to traditional header inclusion, templates might still necessitate
+exposing more details than desired, affecting module encapsulation.
 
 In large applications, such liberal use of `std::ranges` quickly leads to
 increased header dependencies and potential compilation cascades. In large
