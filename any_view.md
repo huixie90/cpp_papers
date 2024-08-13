@@ -73,11 +73,11 @@ type of the above definition of `getWidgets` is:
 Already hard to spell once, this expression template type is even harder to
 maintain against any evolution of the implementation of its business logic.
 
-Above arguments for templated interfaces are hardly unique to ranges: Numerous
+Above challenges for templated interfaces are hardly unique to ranges: Numerous
 combination of string types in the language, customizable functions and
 callbacks as arguments, wrappers for values of arbitrary types, are some
-remarkably common examples. Naive use of templated interfaces for these
-use-cases would lead to similar problems as explained above.
+remarkably common examples, where naive use of templated interfaces would lead
+to similar set of problems as explained above.
 
 Type-erasure is a very popular technique to hide the concrete type of an object
 behind a common interface, and allows polymorphic use of objects of different
