@@ -69,9 +69,13 @@ Attempts to separate the implementation into its own translation unit, as is a
 common practice for non-templated code, is futile in this situation. The return
 type of the above definition of `getWidgets` is:
 
-`ranges::value_view<ranges::filter_view<Widget, ... > > > >`
-
-<!-- TODO: fill in the blanks, perhaps modify the example towards fancy to exacerbate the effect -->
+```cpp
+std::ranges::filter_view<
+  std::ranges::elements_view<
+    std::ranges::ref_view<std::unordered_map<Key, Widget>>,
+    1>, 
+  MyClass::getWidgets()::<lambda(const auto:11&)> >
+```
 
 Already hard to spell once, this expression template type is even harder to
 maintain against any evolution of the implementation of its business logic.
@@ -100,7 +104,6 @@ In this paper, we propose to extend the standard library with
 erasure capability to own or reference any object of any type that satisfies the
 `ranges::range` concept itself, or any further refinement via customizable
 constraints on its traversal categories and other range characteristics.
-
 
 # Design Questions and Prior Art
 
