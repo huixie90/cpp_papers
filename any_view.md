@@ -21,19 +21,34 @@ toc: true
 
 # Abstract
 
-This paper proposes a new type-erased `view`: `any_view`.
+This paper proposes a new type-erased view: `std::ranges::any_view`.
+That type-erased view allows customizing the traversal category of the view,
+its value type and a few other properties. For example:
 
-# Motivation and Examples
+```cpp
+class MyClass {
+  std::unordered_map<Key, Widget> widgets_;
+public:
+  std::ranges::any_view<Widget> getWidgets();
+};
+
+std::ranges::any_view<Widget> MyClass::getWidgets() {
+  return widgets_ | std::views::values
+                  | std::views::filter(myFilter);
+}
+```
+
+# Motivation
 
 Since being merged into C++20, the Ranges library has been enjoying a
-contribution of ever richer set of expressive `view`s. For example,
+contribution of ever richer set of expressive views. For example,
 
 ```cpp
 // in MyClass.hpp
-class MyClass{
+class MyClass {
   std::unordered_map<Key, Widget> widgets_;
 public:
-  auto getWidgets () {
+  auto getWidgets() {
     return widgets_ | std::views::values
                     | std::views::filter(myFilter);
   }
@@ -105,7 +120,7 @@ erasure capability to own or reference any object of any type that satisfies the
 `ranges::range` concept itself, or any further refinement via customizable
 constraints on its traversal categories and other range characteristics.
 
-# Design Questions and Prior Art
+# Design Space and Prior Art
 
 Designing a type like `any_view` raises a lot of questions.
 
@@ -210,7 +225,17 @@ template <class Ref,
           class Value = decay_t<Ref>,
           class RValueRef = add_rvalue_reference_t<remove_reference_t<Ref>>,
           class Diff = ptrdiff_t>
-class any_view;
+class any_view {
+  // TODO: Include a rough synopsis for the class. Pseudo-code like `// only when sized_range` is OK.
+  // This part can be removed/simplified once you have actual wording.
+
+  size_t size() const; // only when Cat includes `any_view_category::sized`
+
+  using iterator = /* exposition-only */;
+  using sentinel = /* exposition-only */;
+
+  // etc...
+};
 ```
 
 The intent is that users can select various desired properties of the `any_view` by `bitwise-or`ing them. For example:
@@ -219,13 +244,11 @@ The intent is that users can select various desired properties of the `any_view`
 using MyView = std::ranges::any_view<Widget, std::ranges::any_view_category::bidirectional | std::ranges::any_view_category::sized>;
 ```
 
-# Design Considerations
+# Other Design Considerations
 
 ## Should the first argument be `Ref` or `Value`?
 
-### Option 1
-
-If the first template parameter is `Ref`,
+If the first template parameter is `Ref`, we have:
 
 ```cpp
 template <class Ref,
@@ -254,9 +277,7 @@ any_view<int>
 However, it is possible that the user uses `any_view<string>` without realizing that they specified the
 reference type and they now make a copy of the `string` every time when the iterator is dereferenced.
 
-### Option 2
-
-If the first template parameter is `Value`,
+Instead, if the first template parameter is `Value`, we have:
 
 ```cpp
 template <class Value,
@@ -282,9 +303,7 @@ This is a bit verbose. In the case of a generator range, one would need to do th
 any_view<int, any_view_category::input, int>
 ```
 
-### Author Recommendation
-
-Even though Option 1 is less verbose in few cases, it might create unnecessary copies without user realizing it. The author recommends that Option 2 is preferable.
+**Author Recommendation**: Even though the first option is less verbose in few cases, it might create unnecessary copies without user realizing it. The author recommends the second option.
 
 ## Name of the `any_view_category`
 
@@ -381,7 +400,7 @@ vs
   }
 ```
 
-#### -O0
+**-O0**
 
 ```bash
 Benchmark                                           Time      Time vector         Time any_view
@@ -399,7 +418,7 @@ OVERALL_GEOMEAN                                  +3.4278                0       
 
 ```
 
-#### -O2
+**-O2**
 
 ```bash
 Benchmark                                           Time     Time vector      Time any_view
@@ -464,7 +483,7 @@ And this is what we are going to measure:
 
 In the `any_view` case, we simply replace `std::ranges::transform_view<complicated...>` by `std::ranges::any_view` and we measure the same thing.
 
-#### -O0
+**-O0**
 
 ```bash
 Benchmark                                                        Time      Time complicated    Time any_view
@@ -481,7 +500,7 @@ Benchmark                                                        Time      Time 
 OVERALL_GEOMEAN                                               +0.4120                     0                0
 ```
 
-#### -O2
+**-O2**
 
 ```bash
 Benchmark                                                        Time      Time complicated    Time any_view
@@ -530,7 +549,7 @@ std::vector<std::string> UI::getWidgetNames() const {
 ```
 
 
-#### -O0
+**-O0**
 
 ```bash
 Benchmark                                                       Time      Time vector<string>    Time any_view
@@ -547,7 +566,7 @@ Benchmark                                                       Time      Time v
 OVERALL_GEOMEAN                                              -0.4917                        0                0
 ```
 
-#### -O2
+**-O2**
 
 ```bash
 Benchmark                                                       Time      Time vector<string>    Time any_view
