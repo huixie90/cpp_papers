@@ -757,22 +757,42 @@ range-v3.</p>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    move_only_view <span class="op">=</span> <span class="dv">128</span></span>
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
 <span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Ref,</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Value,</span>
 <span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>          any_view_category Cat <span class="op">=</span> any_view_category<span class="op">::</span>input,</span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Value <span class="op">=</span> decay_t<span class="op">&lt;</span>Ref<span class="op">&gt;</span>,</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Ref <span class="op">=</span> Value <span class="op">&amp;</span>,</span>
 <span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> RValueRef <span class="op">=</span> add_rvalue_reference_t<span class="op">&lt;</span>remove_reference_t<span class="op">&lt;</span>Ref<span class="op">&gt;&gt;</span>,</span>
 <span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Diff <span class="op">=</span> <span class="dt">ptrdiff_t</span><span class="op">&gt;</span></span>
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> any_view <span class="op">{</span></span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="co">// </span><span class="al">TODO</span><span class="co">: Include a rough synopsis for the class. Pseudo-code like `// only when sized_range` is OK.</span></span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="co">// This part can be removed/simplified once you have actual wording.</span></span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  <span class="kw">class</span> iterator; <span class="co">// exposition-only</span></span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  <span class="kw">class</span> sentinel; <span class="co">// exposition-only</span></span>
 <span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> size<span class="op">()</span> <span class="kw">const</span>; <span class="co">// only when Cat includes `any_view_category::sized`</span></span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>  <span class="kw">using</span> iterator <span class="op">=</span> <span class="co">/* exposition-only */</span>;</span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  <span class="kw">using</span> sentinel <span class="op">=</span> <span class="co">/* exposition-only */</span>;</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> View<span class="op">&gt;</span></span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span><span class="op">(!</span>std<span class="op">::</span>same_as<span class="op">&lt;</span>View, any_view<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> std<span class="op">::</span>ranges<span class="op">::</span>view<span class="op">&lt;</span>View<span class="op">&gt;</span> <span class="op">&amp;&amp;</span></span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>             view_category_constraint<span class="op">&lt;</span>View<span class="op">&gt;())</span></span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  any_view<span class="op">(</span>View view<span class="op">)</span>;</span>
 <span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  <span class="co">// etc...</span></span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span></code></pre></div>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  any_view<span class="op">(</span><span class="kw">const</span> any_view <span class="op">&amp;)</span> </span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <span class="op">((</span>Cat <span class="op">&amp;</span> any_view_category<span class="op">::</span>move_only_view<span class="op">)</span> <span class="op">==</span> any_view_category<span class="op">::</span>none<span class="op">)</span>;</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>  any_view<span class="op">(</span>any_view <span class="op">&amp;&amp;)</span> <span class="op">=</span> <span class="cf">default</span>;</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>  any_view <span class="op">&amp;</span><span class="kw">operator</span><span class="op">=(</span><span class="kw">const</span> any_view <span class="op">&amp;)</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <span class="op">((</span>Cat <span class="op">&amp;</span> any_view_category<span class="op">::</span>move_only_view<span class="op">)</span> <span class="op">==</span> any_view_category<span class="op">::</span>none<span class="op">)</span>;</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>  any_view <span class="op">&amp;</span><span class="kw">operator</span><span class="op">=(</span>any_view <span class="op">&amp;&amp;)</span>;</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>  iterator begin<span class="op">()</span>;</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>  sentinel end<span class="op">()</span>;</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>  <span class="dt">size_t</span> size<span class="op">()</span> <span class="kw">const</span></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span><span class="op">((</span>Cat <span class="op">&amp;</span> any_view_category<span class="op">::</span>sized<span class="op">)</span> <span class="op">!=</span> any_view_category<span class="op">::</span>none<span class="op">)</span>;</span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Value, any_view_category Cat, <span class="kw">class</span> Ref, <span class="kw">class</span> RValueRef,</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Diff<span class="op">&gt;</span></span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a><span class="kw">inline</span> <span class="kw">constexpr</span> <span class="dt">bool</span></span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>    enable_borrowed_range<span class="op">&lt;</span>any_view<span class="op">&lt;</span>Value, Cat, Ref, RValueRef, Diff<span class="op">&gt;&gt;</span> <span class="op">=</span></span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>        <span class="op">(</span>Cat <span class="op">&amp;</span> any_view_category<span class="op">::</span>borrowed<span class="op">)</span> <span class="op">!=</span> any_view_category<span class="op">::</span>none;</span></code></pre></div>
 <p>The intent is that users can select various desired properties of the
 <code class="sourceCode default">any_view</code> by
 <code class="sourceCode default">bitwise-or</code>ing them. For
