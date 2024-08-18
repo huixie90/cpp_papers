@@ -597,10 +597,10 @@ class any_view {
   view_storage view_;
 };
 
-template <class Ref, any_view_category Cat, class Value, class RValueRef,
+template <class Value, any_view_category Cat, class Ref, class RValueRef,
           class Diff>
 inline constexpr bool
-    enable_borrowed_range<any_view<Ref, Cat, Value, RValueRef, Diff>> =
+    enable_borrowed_range<any_view<Value, Cat, Ref, RValueRef, Diff>> =
         (Cat & any_view_category::borrowed) != any_view_category::none;
 
 }  // namespace std::ranges

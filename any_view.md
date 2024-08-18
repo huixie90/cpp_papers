@@ -220,22 +220,42 @@ enum class any_view_category
     move_only_view = 128
 };
 
-template <class Ref,
+template <class Value,
           any_view_category Cat = any_view_category::input,
-          class Value = decay_t<Ref>,
+          class Ref = Value &,
           class RValueRef = add_rvalue_reference_t<remove_reference_t<Ref>>,
           class Diff = ptrdiff_t>
 class any_view {
-  // TODO: Include a rough synopsis for the class. Pseudo-code like `// only when sized_range` is OK.
-  // This part can be removed/simplified once you have actual wording.
+  class iterator; // exposition-only
+  class sentinel; // exposition-only
 
-  size_t size() const; // only when Cat includes `any_view_category::sized`
+  template <class View>
+    requires(!std::same_as<View, any_view> && std::ranges::view<View> &&
+             view_category_constraint<View>())
+  any_view(View view);
 
-  using iterator = /* exposition-only */;
-  using sentinel = /* exposition-only */;
+  any_view(const any_view &) 
+    requires ((Cat & any_view_category::move_only_view) == any_view_category::none);
 
-  // etc...
+  any_view(any_view &&) = default;
+
+  any_view &operator=(const any_view &)
+    requires ((Cat & any_view_category::move_only_view) == any_view_category::none);
+
+  any_view &operator=(any_view &&);
+
+  iterator begin();
+  sentinel end();
+
+  size_t size() const
+    requires((Cat & any_view_category::sized) != any_view_category::none);
 };
+
+template <class Value, any_view_category Cat, class Ref, class RValueRef,
+          class Diff>
+inline constexpr bool
+    enable_borrowed_range<any_view<Value, Cat, Ref, RValueRef, Diff>> =
+        (Cat & any_view_category::borrowed) != any_view_category::none;
 ```
 
 The intent is that users can select various desired properties of the `any_view` by `bitwise-or`ing them. For example:
