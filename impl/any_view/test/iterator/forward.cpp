@@ -9,7 +9,7 @@
 namespace {
 
 using AnyView =
-    std::ranges::any_view<int, std::ranges::any_view_category::forward>;
+    std::ranges::any_view<int, std::ranges::any_view_options::forward>;
 using Iter = std::ranges::iterator_t<AnyView>;
 
 static_assert(std::forward_iterator<Iter>);

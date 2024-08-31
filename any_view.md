@@ -50,35 +50,17 @@ class MyClass {
 public:
   auto getWidgets() {
     return widgets_ | std::views::values
-                    | std::views::filter(myFilter);
+                    | std::views::filter([](const auto&){ /*...*/ });
   }
-
-  // other members
 };
 ```
 
-While such use of ranges is exceedingly convenient, and indeed is the
-recommended and the intended use of the library, prudence is advisable when
-allowing such range definitions to "leak" away into the interface, such as the
-return type in this simple example.
-
-Any client of `MyClass::getWidgets` must have its definition fully visible at
-the point of instantiation, which typically requires including the header files
-that contain the implementation along with all of its transitive dependencies.
-Template instantiation in every separate translation unit results in a separate
-copy of the code, causing increased compilation times, and potentially leading
-to code bloat. This is especially true for ranges and views, where they are
-basically a mechanism that exchanges algorithms of generic loops for
-compile-time metaprograms (notably, when opportunity presents itself, the
-standard strives to improve this particular quality of ranges implementations,
-e.g. [@P1739R4] or [range.drop#overview-2]{.sref}). While modules offer an
-alternative to traditional header inclusion, templates might still necessitate
-exposing more details than desired, affecting module encapsulation.
+While such use of ranges is exceedingly convenient, such range definitions
+are leaked into the interface, such as the return type and the implementations
+in this simple example.
 
 In large applications, such liberal use of `std::ranges` leads to increased
-header dependencies and potentially catastrophic compilation cascades, quickly
-rendering build-time cost a prohibitive factor against the convenience of the
-templated interfaces.
+header dependencies and potentially catastrophic compilation cascades.
 
 Attempts to separate the implementation into its own translation unit, as is a
 common practice for non-templated code, is futile in this situation. The return
@@ -96,18 +78,13 @@ Already hard to spell once, this expression template type is even harder to
 maintain against any evolution of the implementation of its business logic.
 
 Above challenges for templated interfaces are hardly unique to ranges: Numerous
-combinations of string types in the language, lambdas and other customizable
-functions and callbacks as arguments, wrappers for values of arbitrary types are
-some of the remarkably common examples, where naive use of templated interfaces
-would lead to similar set of problems as explained above.
+combinations of string types in the language, lambdas are some of the remarkably
+common examples.
 
 Type-erasure is a very popular technique to hide the concrete type of an object
 behind a common interface, allowing polymorphic use of objects of any type that
-model a given concept, but otherwise potentially unrelated by any type
-hierarchies or similar syntactic coupling. In fact, it is a technique commonly
-employed by the standard and other high quality libraries, elements of which are
-enthusiastically encouraged in many respectable coding standards.
-`std::string_view`, `std::function` and `std::function_ref`, and `std::any` are
+model a given concept. In fact, it is a technique commonly employed by the standard.
+`std::string_view` `std::function` and `std::function_ref`, and `std::any` are
 the type-erased facilities for the examples above, respectively.
 
 `std::span<T>` is another type-erasure utility recently added to the standard;
@@ -194,11 +171,11 @@ enum class category
     sized = 16,
 };
 
-template<typename Ref, category Cat = category::input>
+template<typename Ref, category Opts = category::input>
 struct any_view;
 ```
 
-Here `Cat` handles both the traversal category and `sized_range`. `Ref` is the `range_reference_t`. It
+Here `Opts` handles both the traversal category and `sized_range`. `Ref` is the `range_reference_t`. It
 does not allow users to configure the `range_value_t`, `range_difference_t`, `borrowed_range` and `common_range`. `copyable` is mandatory in range-v3.
 
 # Proposed Design
@@ -206,7 +183,7 @@ does not allow users to configure the `range_value_t`, `range_difference_t`, `bo
 This paper proposes the following interface:
 
 ```cpp
-enum class any_view_category
+enum class any_view_options
 {
     none = 0,
     input = 1,
@@ -214,14 +191,14 @@ enum class any_view_category
     bidirectional = 7,
     random_access = 15,
     contiguous = 31,
-    mask = contiguous,
+    category_mask = contiguous,
     sized = 32,
     borrowed = 64,
-    move_only_view = 128
+    move_only = 128
 };
 
 template <class Value,
-          any_view_category Cat = any_view_category::input,
+          any_view_options Opts = any_view_options::input,
           class Ref = Value &,
           class RValueRef = add_rvalue_reference_t<remove_reference_t<Ref>>,
           class Diff = ptrdiff_t>
@@ -231,37 +208,34 @@ class any_view {
 
   template <class View>
     requires(!std::same_as<View, any_view> && std::ranges::view<View> &&
-             view_category_constraint<View>())
+             view_options_constraint<View>())
   any_view(View view);
 
-  any_view(const any_view &) 
-    requires ((Cat & any_view_category::move_only_view) == any_view_category::none);
+  any_view(const any_view &) requires (Opts & any_view_options::move_only);
 
   any_view(any_view &&) = default;
 
-  any_view &operator=(const any_view &)
-    requires ((Cat & any_view_category::move_only_view) == any_view_category::none);
+  any_view &operator=(const any_view &) requires (Opts & any_view_options::move_only);
 
   any_view &operator=(any_view &&);
 
   iterator begin();
   sentinel end();
 
-  size_t size() const
-    requires((Cat & any_view_category::sized) != any_view_category::none);
+  size_t size() const requires(Opts & any_view_options::sized);
 };
 
-template <class Value, any_view_category Cat, class Ref, class RValueRef,
+template <class Value, any_view_options Opts, class Ref, class RValueRef,
           class Diff>
 inline constexpr bool
-    enable_borrowed_range<any_view<Value, Cat, Ref, RValueRef, Diff>> =
-        (Cat & any_view_category::borrowed) != any_view_category::none;
+    enable_borrowed_range<any_view<Value, Opts, Ref, RValueRef, Diff>> =
+        Opts & any_view_options::borrowed;
 ```
 
 The intent is that users can select various desired properties of the `any_view` by `bitwise-or`ing them. For example:
 
 ```cpp
-using MyView = std::ranges::any_view<Widget, std::ranges::any_view_category::bidirectional | std::ranges::any_view_category::sized>;
+using MyView = std::ranges::any_view<Widget, std::ranges::any_view_options::bidirectional | std::ranges::any_view_options::sized>;
 ```
 
 # Other Design Considerations
@@ -272,7 +246,7 @@ If the first template parameter is `Ref`, we have:
 
 ```cpp
 template <class Ref,
-          any_view_category Cat = any_view_category::input,
+          any_view_options Opts = any_view_options::input,
           class Value = decay_t<Ref>>
 ```
 
@@ -301,7 +275,7 @@ Instead, if the first template parameter is `Value`, we have:
 
 ```cpp
 template <class Value,
-          any_view_category Cat = any_view_category::input,
+          any_view_options Opts = any_view_options::input,
           class Ref = Value&>
 ```
 
@@ -311,24 +285,24 @@ For a range with a reference to `int`, it would be less verbose
 any_view<int>
 ```
 
-However, in order to have a `const` reference to `int`, one would have to explicitly specify the `Value`, the any_view_category and finally the `Ref`, i.e.
+However, in order to have a `const` reference to `int`, one would have to explicitly specify the `Value`, the any_view_options and finally the `Ref`, i.e.
 
 ```cpp
-any_view<int, any_view_category::input, const int&>
+any_view<int, any_view_options::input, const int&>
 ```
 
 This is a bit verbose. In the case of a generator range, one would need to do the same:
 
 ```cpp
-any_view<int, any_view_category::input, int>
+any_view<int, any_view_options::input, int>
 ```
 
 **Author Recommendation**: Even though the first option is less verbose in few cases, it might create unnecessary copies without user realizing it. The author recommends the second option.
 
-## Name of the `any_view_category`
+## Name of the `any_view_options`
 
 `range-v3` uses the name `category` for the category enumeration type. However, the authors believe that the name `std::ranges::category` is too general and it should be reserved for
-more general purpose utility in ranges library. Therefore, the authors recommend a more specific name: `any_view_category`.
+more general purpose utility in ranges library. Therefore, the authors recommend a more specific name: `any_view_options`.
 
 ## `constexpr` Support
 
@@ -336,16 +310,16 @@ We do not require `constexpr` in order to allow efficient implementations using 
 
 ## Move-only `view` Support
 
-Move-only `view` is worth supporting as we generally support them in `ranges`. We propose to have a configuration template parameter `any_view_category::move_only_view` to make the `any_view` conditionally move-only. This removes the need to have another type `move_only_any_view` as we did for `move_only_function`.
+Move-only `view` is worth supporting as we generally support them in `ranges`. We propose to have a configuration template parameter `any_view_options::move_only` to make the `any_view` conditionally move-only. This removes the need to have another type `move_only_any_view` as we did for `move_only_function`.
 
-We also propose that by default, `any_view` is copyable and to make it move-only, the user needs to explicitly provide this template parameter `any_view_category::move_only_view`.
+We also propose that by default, `any_view` is copyable and to make it move-only, the user needs to explicitly provide this template parameter `any_view_options::move_only`.
 
 ## Move-only `iterator` Support
 
 In this proposal, `any_view::iterator` is an exposition-only type. It is not worth making this `iterator` configurable. If the `iterator` is only `input_iterator`, we can also make it a
 move-only iterator. There is no need to make it copyable. Existing algorithms that take "input only" iterators already know that they cannot copy them.
 
-## Is `any_view_category::contiguous` Needed ?
+## Is `any_view_options::contiguous` Needed ?
 
 `contiguous_range` is still useful to support even though we have already `std::span`. But `span` is non-owning and `any_view` owns the underlying `view`.
 

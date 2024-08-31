@@ -10,8 +10,8 @@
 namespace {
 
 using AnyView =
-    std::ranges::any_view<int, std::ranges::any_view_category::input |
-                                   std::ranges::any_view_category::common>;
+    std::ranges::any_view<int, std::ranges::any_view_options::input |
+                                   std::ranges::any_view_options::common>;
 using Iter = std::ranges::iterator_t<AnyView>;
 
 static_assert(std::input_iterator<Iter>);
