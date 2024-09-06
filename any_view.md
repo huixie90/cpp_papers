@@ -40,8 +40,8 @@ std::ranges::any_view<Widget> MyClass::getWidgets() {
 
 # Motivation
 
-Since being merged into C++20, the Ranges library has been enjoying a
-contribution of ever richer set of expressive views. For example,
+Since being merged into C++20, the Ranges library has gained an increasingly
+rich and expressive set of views. For example,
 
 ```cpp
 // in MyClass.hpp
@@ -55,47 +55,46 @@ public:
 };
 ```
 
-While such use of ranges is exceedingly convenient, such range definitions
-are leaked into the interface, such as the return type and the implementations
-in this simple example.
+While such use of ranges is exceedingly convenient, it has the drawback of leaking
+implementation details into the interface. In this example, the return type of
+the function essentially bakes the implementation of the function into the interface.
 
-In large applications, such liberal use of `std::ranges` leads to increased
-header dependencies and potentially catastrophic compilation cascades.
+In large applications, such liberal use of `std::ranges` can lead to increased
+header dependencies and often a significant compilation time penalty.
 
 Attempts to separate the implementation into its own translation unit, as is a
-common practice for non-templated code, is futile in this situation. The return
+common practice for non-templated code, are futile in this situation. The return
 type of the above definition of `getWidgets` is:
 
 ```cpp
 std::ranges::filter_view<
   std::ranges::elements_view<
     std::ranges::ref_view<std::unordered_map<Key, Widget>>,
-    1>, 
+    1>,
   MyClass::getWidgets()::<lambda(const auto:11&)> >
 ```
 
-Already hard to spell once, this expression template type is even harder to
-maintain against any evolution of the implementation of its business logic.
-
-Above challenges for templated interfaces are hardly unique to ranges: Numerous
-combinations of string types in the language, lambdas are some of the remarkably
-common examples.
+While this type is already difficult to spell once, it is much harder and more
+brittle to maintain it as the implementation or the business logic evolves.
+These challenges for templated interfaces are hardly unique to ranges: the numerous
+string types in the language and lambdas are some common examples that lead to
+similar challenges.
 
 Type-erasure is a very popular technique to hide the concrete type of an object
 behind a common interface, allowing polymorphic use of objects of any type that
 model a given concept. In fact, it is a technique commonly employed by the standard.
 `std::string_view` `std::function` and `std::function_ref`, and `std::any` are
-the type-erased facilities for the examples above, respectively.
+the type-erased facilities for the examples above.
 
 `std::span<T>` is another type-erasure utility recently added to the standard;
-and is closely related to the ranges in fact, by allowing type-erased
-*reference* of any underlying *contiguous* range of objects.
+and is closely related to ranges in fact, by allowing type-erased *reference*
+of any underlying *contiguous* range of objects.
 
-In this paper, we propose to extend the standard library with
-`std::ranges::any_view` adaptor, and provide a convenient and generalized type-
-erasure capability to own or reference any object of any type that satisfies the
-`ranges::range` concept itself, or any further refinement via customizable
-constraints on its traversal categories and other range characteristics.
+In this paper, we propose to extend the standard library with `std::ranges::any_view`,
+which provides a convenient and generalized type-erasure facility to hold any object of
+any type that satisfies the `ranges::view` concept itself. `std::ranges::any_view`
+also allows further refinement via customizable constraints on its traversal categories
+and other range characteristics.
 
 # Design Space and Prior Art
 
@@ -191,7 +190,6 @@ enum class any_view_options
     bidirectional = 7,
     random_access = 15,
     contiguous = 31,
-    category_mask = contiguous,
     sized = 32,
     borrowed = 64,
     move_only = 128
