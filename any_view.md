@@ -105,7 +105,7 @@ it provides `operator()` and users only need to configure the return type and ar
 types of the function. In reality, `std::function` makes many other decisions for the
 user:
 
-- Is `std::function` and the callable it contains `copyable`?
+- Are `std::function` and the callable it contains `copyable`?
 - Does `std::function` own the callable it contains?
 - Does `std::function` propagate const-ness?
 
@@ -150,9 +150,9 @@ template<
 class any_range;
 ```
 
-It asks users to provide `range_reference_t`, `range_value_t` and `range_difference_t`. `Traversal` is equivalent to `iterator_concept` so it decides the traversal category of the range. Users don't need
-to specify `copyable`, `borrowed_range` and `common_range` because all Boost.Range ranges are `copyable`, `borrowed_range` and `common_range`. `sized_range` and `range_rvalue_reference_t` are not
-considered.
+Users will need to provide `range_reference_t`, `range_value_t` and `range_difference_t`. `Traversal` is equivalent to `iterator_concept`, which decides the traversal category of the range. Users don't need
+to specify `copyable`, `borrowed_range` and `common_range`, because all Boost.Range ranges are `copyable`, `borrowed_range` and `common_range`. `sized_range` and `range_rvalue_reference_t` are not
+considered in the design.
 
 ## range-v3 `ranges::views::any_view`
 
@@ -170,11 +170,11 @@ enum class category
     sized = 16,
 };
 
-template<typename Ref, category Opts = category::input>
+template<typename Ref, category Cat = category::input>
 struct any_view;
 ```
 
-Here `Opts` handles both the traversal category and `sized_range`. `Ref` is the `range_reference_t`. It
+Here `Cat` handles both the traversal category and `sized_range`. `Ref` is the `range_reference_t`. It
 does not allow users to configure the `range_value_t`, `range_difference_t`, `borrowed_range` and `common_range`. `copyable` is mandatory in range-v3.
 
 # Proposed Design
@@ -184,7 +184,6 @@ This paper proposes the following interface:
 ```cpp
 enum class any_view_options
 {
-    none = 0,
     input = 1,
     forward = 3,
     bidirectional = 7,
