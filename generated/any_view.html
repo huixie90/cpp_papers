@@ -744,11 +744,11 @@ range-v3.</p>
 <span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>             view_options_constraint<span class="op">&lt;</span>View<span class="op">&gt;())</span></span>
 <span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  any_view<span class="op">(</span>View view<span class="op">)</span>;</span>
 <span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  any_view<span class="op">(</span><span class="kw">const</span> any_view <span class="op">&amp;)</span> <span class="kw">requires</span> <span class="op">(</span>Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>move_only<span class="op">)</span>;</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>  any_view<span class="op">(</span><span class="kw">const</span> any_view <span class="op">&amp;)</span> <span class="kw">requires</span> <span class="op">(!(</span>Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>move_only<span class="op">))</span>;</span>
 <span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  any_view<span class="op">(</span>any_view <span class="op">&amp;&amp;)</span> <span class="op">=</span> <span class="cf">default</span>;</span>
 <span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>  any_view <span class="op">&amp;</span><span class="kw">operator</span><span class="op">=(</span><span class="kw">const</span> any_view <span class="op">&amp;)</span> <span class="kw">requires</span> <span class="op">(</span>Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>move_only<span class="op">)</span>;</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>  any_view <span class="op">&amp;</span><span class="kw">operator</span><span class="op">=(</span><span class="kw">const</span> any_view <span class="op">&amp;)</span> <span class="kw">requires</span> <span class="op">(!(</span>Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>move_only<span class="op">))</span>;</span>
 <span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>  any_view <span class="op">&amp;</span><span class="kw">operator</span><span class="op">=(</span>any_view <span class="op">&amp;&amp;)</span>;</span>
 <span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a></span>

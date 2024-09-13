@@ -208,11 +208,11 @@ class any_view {
              view_options_constraint<View>())
   any_view(View view);
 
-  any_view(const any_view &) requires (Opts & any_view_options::move_only);
+  any_view(const any_view &) requires (!(Opts & any_view_options::move_only));
 
   any_view(any_view &&) = default;
 
-  any_view &operator=(const any_view &) requires (Opts & any_view_options::move_only);
+  any_view &operator=(const any_view &) requires (!(Opts & any_view_options::move_only));
 
   any_view &operator=(any_view &&);
 
