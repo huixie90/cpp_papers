@@ -1,5 +1,7 @@
 #include "widget.hpp"
 
+#include <ranges>
+
 namespace lib {
 
 std::ranges::any_view<std::string> UI1::getWidgetNames() {
@@ -27,9 +29,30 @@ UI2::getWidgetNames() {
 }
 
 std::vector<std::string> UI3::getWidgetNames() const {
-  return widgets_ | std::views::filter([](const Widget& widget) {
-           return widget.size > 10;
-         }) |
+  std::vector<std::string> results;
+  // todo reserve? but how many?
+  for (const Widget& widget : widgets_) {
+    if (widget.size > 10) {
+      results.push_back(widget.name);
+    }
+  }
+  return results;
+}
+
+std::vector<std::string> UI3B::getWidgetNames() const {
+  std::vector<std::string> results;
+  results.reserve(widgets_.size());
+  for (const Widget& widget : widgets_) {
+    if (widget.size > 10) {
+      results.push_back(widget.name);
+    }
+  }
+  return results;
+}
+
+std::vector<std::string> UI3C::getWidgetNames() const {
+  return widgets_ |
+         std::views::filter([](const Widget& w) { return w.size > 10; }) |
          std::views::transform(&Widget::name) | std::ranges::to<std::vector>();
 }
 
