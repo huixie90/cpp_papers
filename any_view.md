@@ -1,7 +1,7 @@
 ---
 title: "`any_view`"
-document: P3411R0
-date: 2024-07-06
+document: P3411R1
+date: 2024-12-05
 audience: SG9, LEWG
 author:
   - name: Hui Xie
@@ -14,6 +14,10 @@ toc: true
 ---
 
 # Revision History
+
+## R1
+
+- Performance tests update
 
 ## R0
 
@@ -365,6 +369,9 @@ it != last;
 
 While it may at first seem prohibitive, it is useful to remember the context in which `any_view` is used and what the alternatives to it are.
 
+The following benchmarks were compiled with clang 20 with libc++, with -O3, run on APPLE M4 MAX CPU with 16 cores.
+We have done the same benchmarks on a 8 core Intel CPU and they have very similar results.
+
 ### A naive micro benchmark: iteration over `vector` vs `any_view`
 
 Naively, one would be tempted to benchmark the cost of iterating over a `std::vector` and to compare it with the cost of iterating over `any_view`.
@@ -391,42 +398,22 @@ vs
   }
 ```
 
-**-O0**
-
 ```bash
-Benchmark                                           Time      Time vector         Time any_view
------------------------------------------------------------------------------------------------
-[BM_vector vs. BM_AnyView]/1024                  +3.4488            10423                 46371
-[BM_vector vs. BM_AnyView]/2048                  +3.3358            21318                 92432
-[BM_vector vs. BM_AnyView]/4096                  +3.4224            41864                185137
-[BM_vector vs. BM_AnyView]/8192                  +3.4665            83019                370802
-[BM_vector vs. BM_AnyView]/16384                 +3.4586           166596                742785
-[BM_vector vs. BM_AnyView]/32768                 +3.4413           333311               1480349
-[BM_vector vs. BM_AnyView]/65536                 +3.4166           667125               2946432
-[BM_vector vs. BM_AnyView]/131072                +3.4295          1335405               5915230
-[BM_vector vs. BM_AnyView]/262144                +3.4320          2665004              11811264
-OVERALL_GEOMEAN                                  +3.4278                0                     0
-
+Benchmark                                           Time      Time vector   Time any_view
+-----------------------------------------------------------------------------------------
+[BM_vector vs. BM_AnyView]/1024                  +7.3364              237            1975
+[BM_vector vs. BM_AnyView]/2048                  +7.7186              464            4042
+[BM_vector vs. BM_AnyView]/4096                  +7.7098              920            8011
+[BM_vector vs. BM_AnyView]/8192                  +7.6034             1835           15790
+[BM_vector vs. BM_AnyView]/16384                 +7.7470             3654           31966
+[BM_vector vs. BM_AnyView]/32768                 +8.1498             7300           66796
+[BM_vector vs. BM_AnyView]/65536                 +8.0808            14602          132599
+[BM_vector vs. BM_AnyView]/131072                +8.0281            29189          263523
+[BM_vector vs. BM_AnyView]/262144                +7.4773            58497          495899
+OVERALL_GEOMEAN                                  +8.6630                0               0
 ```
 
-**-O2**
-
-```bash
-Benchmark                                           Time     Time vector      Time any_view
--------------------------------------------------------------------------------------------
-[BM_vector vs. BM_AnyView]/1024                 +14.8383             315               4991
-[BM_vector vs. BM_AnyView]/2048                 +14.9416             632              10075
-[BM_vector vs. BM_AnyView]/4096                 +15.1943            1231              19942
-[BM_vector vs. BM_AnyView]/8192                 +15.1609            2465              39835
-[BM_vector vs. BM_AnyView]/16384                +13.8958            5386              80235
-[BM_vector vs. BM_AnyView]/32768                +13.8638           10720             159341
-[BM_vector vs. BM_AnyView]/65536                +13.6891           21772             319807
-[BM_vector vs. BM_AnyView]/131072               +13.5340           44363             644768
-[BM_vector vs. BM_AnyView]/262144               +13.5374           87600            1273476
-OVERALL_GEOMEAN                                 +16.0765               0                  0
-```
-
-We can see that `any_view` is 3 to 16 times slower on iteration than `std::vector`. However, this benchmark
+We can see that `any_view` is 8.6 times slower on iteration than `std::vector`. However, this benchmark
 is not a realistic use case. No one would create a `vector`, immediately create a type erased wrapper `any_view`
 that wraps it and then iterate through it. Similarly, no one would create a lambda, immediately create a
 `std::function` and then call it.
@@ -474,44 +461,24 @@ And this is what we are going to measure:
 
 In the `any_view` case, we simply replace `std::ranges::transform_view<complicated...>` by `std::ranges::any_view` and we measure the same thing.
 
-**-O0**
-
 ```bash
-Benchmark                                                        Time      Time complicated    Time any_view
-------------------------------------------------------------------------------------------------------------
-[BM_RawPipeline vs. BM_AnyViewPipeline]/1024                  +0.4290                 78469           112130
-[BM_RawPipeline vs. BM_AnyViewPipeline]/2048                  +0.4051                159225           223729
-[BM_RawPipeline vs. BM_AnyViewPipeline]/4096                  +0.3568                331276           449466
-[BM_RawPipeline vs. BM_AnyViewPipeline]/8192                  +0.4022                639566           896817
-[BM_RawPipeline vs. BM_AnyViewPipeline]/16384                 +0.4148               1267196          1792804
-[BM_RawPipeline vs. BM_AnyViewPipeline]/32768                 +0.4293               2522849          3606022
-[BM_RawPipeline vs. BM_AnyViewPipeline]/65536                 +0.4199               5078713          7211428
-[BM_RawPipeline vs. BM_AnyViewPipeline]/131072                +0.4170              10142694         14372118
-[BM_RawPipeline vs. BM_AnyViewPipeline]/262144                +0.4358              20386564         29270816
-OVERALL_GEOMEAN                                               +0.4120                     0                0
+Benchmark                                                 Time    Time complicated      Time any_view
+-----------------------------------------------------------------------------------------------------
+[BM_RawPipeline vs. BM_AnyViewPipeline]/1024           +0.8536                1315               2438
+[BM_RawPipeline vs. BM_AnyViewPipeline]/2048           +0.8162                2713               4928
+[BM_RawPipeline vs. BM_AnyViewPipeline]/4096           +0.6976                5637               9570
+[BM_RawPipeline vs. BM_AnyViewPipeline]/8192           +0.7154               11539              19795
+[BM_RawPipeline vs. BM_AnyViewPipeline]/16384          +0.6611               23475              38994
+[BM_RawPipeline vs. BM_AnyViewPipeline]/32768          +0.6379               47792              78278
+[BM_RawPipeline vs. BM_AnyViewPipeline]/65536          +0.6174               96976             156851
+[BM_RawPipeline vs. BM_AnyViewPipeline]/131072         +0.6087              197407             317560
+[BM_RawPipeline vs. BM_AnyViewPipeline]/262144         +0.5882              399623             634694
+OVERALL_GEOMEAN                                        +0.6862                   0                  0
+
 ```
 
-**-O2**
-
-```bash
-Benchmark                                                        Time      Time complicated    Time any_view
-------------------------------------------------------------------------------------------------------------
-[BM_RawPipeline vs. BM_AnyViewPipeline]/1024                  +0.8066                  3504             6330
-[BM_RawPipeline vs. BM_AnyViewPipeline]/2048                  +0.7136                  7339            12576
-[BM_RawPipeline vs. BM_AnyViewPipeline]/4096                  +0.6746                 14841            24853
-[BM_RawPipeline vs. BM_AnyViewPipeline]/8192                  +0.6424                 30177            49563
-[BM_RawPipeline vs. BM_AnyViewPipeline]/16384                 +0.6538                 60751           100468
-[BM_RawPipeline vs. BM_AnyViewPipeline]/32768                 +0.6524                121345           200514
-[BM_RawPipeline vs. BM_AnyViewPipeline]/65536                 +0.6582                240378           398604
-[BM_RawPipeline vs. BM_AnyViewPipeline]/131072                +0.6861                484220           816458
-[BM_RawPipeline vs. BM_AnyViewPipeline]/262144                +0.6234                991733          1609940
-OVERALL_GEOMEAN                                               +0.6782                     0                0
-```
-
-This benchmark shows that `any_view` is about 40% - 70% slower on iteration, which is much better than the previous naive benchmark.
-However, note that this benchmark is still not very realistic. First, the type of the view pipeline is in fact so difficult to write
-that nobody would do it. Second, writing down the type of the view pipeline causes an implementation detail (how the pipeline is
-implemented) to leak into the API and the ABI of this class, which is undesirable.
+This benchmark shows that `any_view` is about 68% slower on iteration, which is much better than the previous naive benchmark.
+However, note that this benchmark is still not very realistic. Writing down the type of the view pipeline causes an implementation detail (how the pipeline is implemented) to leak into the API and the ABI of this class, and increases header dependencies, which defeats the purpose of hiding implementation into a separate translation unit.
 
 As a result, most people would instead copy the results of the pipeline into a container and return that from `getWidgetNames()`,
 for example as a `std::vector<std::string>`. This leads us to our last benchmark, which we believe is much more representative
@@ -532,49 +499,33 @@ struct UI {
 
 // cpp file
 std::vector<std::string> UI::getWidgetNames() const {
-  return widgets_ | std::views::filter([](const Widget& widget) {
-           return widget.size > 10;
-         }) |
-         std::views::transform(&Widget::name) | std::ranges::to<std::vector>();
+  std::vector<std::string> results;
+  for (const Widget& widget : widgets_) {
+    if (widget.size > 10) {
+      results.push_back(widget.name);
+    }
+  }
+  return results;
 }
 ```
 
-
-**-O0**
-
 ```bash
-Benchmark                                                       Time      Time vector<string>    Time any_view
---------------------------------------------------------------------------------------------------------------
-[BM_VectorCopy vs. BM_AnyViewPipeline]/1024                  -0.5376                   238558           110316
-[BM_VectorCopy vs. BM_AnyViewPipeline]/2048                  -0.5110                   454350           222187
-[BM_VectorCopy vs. BM_AnyViewPipeline]/4096                  -0.4868                   886121           454774
-[BM_VectorCopy vs. BM_AnyViewPipeline]/8192                  -0.4766                  1729318           905041
-[BM_VectorCopy vs. BM_AnyViewPipeline]/16384                 -0.4834                  3462454          1788737
-[BM_VectorCopy vs. BM_AnyViewPipeline]/32768                 -0.4858                  7006102          3602475
-[BM_VectorCopy vs. BM_AnyViewPipeline]/65536                 -0.4777                 13741174          7176723
-[BM_VectorCopy vs. BM_AnyViewPipeline]/131072                -0.4792                 27501856         14321826
-[BM_VectorCopy vs. BM_AnyViewPipeline]/262144                -0.4838                 55950048         28883803
-OVERALL_GEOMEAN                                              -0.4917                        0                0
+Benchmark                                                       Time      Time vector Time any_view
+---------------------------------------------------------------------------------------------------
+[BM_VectorCopy vs. BM_AnyViewPipeline]/1024                  -0.7042             8243          2438
+[BM_VectorCopy vs. BM_AnyViewPipeline]/2048                  -0.7226            17764          4928
+[BM_VectorCopy vs. BM_AnyViewPipeline]/4096                  -0.7379            36516          9570
+[BM_VectorCopy vs. BM_AnyViewPipeline]/8192                  -0.7927            95467         19795
+[BM_VectorCopy vs. BM_AnyViewPipeline]/16384                 -0.7893           185104         38994
+[BM_VectorCopy vs. BM_AnyViewPipeline]/32768                 -0.7890           371035         78278
+[BM_VectorCopy vs. BM_AnyViewPipeline]/65536                 -0.8079           816621        156851
+[BM_VectorCopy vs. BM_AnyViewPipeline]/131072                -0.8121          1690305        317560
+[BM_VectorCopy vs. BM_AnyViewPipeline]/262144                -0.8228          3581632        634694
+OVERALL_GEOMEAN                                              -0.7723                0             0
+
 ```
 
-**-O2**
-
-```bash
-Benchmark                                                       Time      Time vector<string>    Time any_view
---------------------------------------------------------------------------------------------------------------
-[BM_VectorCopy vs. BM_AnyViewPipeline]/1024                  -0.8228                    35350             6264
-[BM_VectorCopy vs. BM_AnyViewPipeline]/2048                  -0.8250                    71983            12596
-[BM_VectorCopy vs. BM_AnyViewPipeline]/4096                  -0.8320                   148942            25018
-[BM_VectorCopy vs. BM_AnyViewPipeline]/8192                  -0.8276                   291307            50234
-[BM_VectorCopy vs. BM_AnyViewPipeline]/16384                 -0.8304                   590026           100058
-[BM_VectorCopy vs. BM_AnyViewPipeline]/32768                 -0.8301                  1175121           199685
-[BM_VectorCopy vs. BM_AnyViewPipeline]/65536                 -0.8297                  2363963           402634
-[BM_VectorCopy vs. BM_AnyViewPipeline]/131072                -0.8340                  4841300           803467
-[BM_VectorCopy vs. BM_AnyViewPipeline]/262144                -0.8463                 10412999          1600341
-OVERALL_GEOMEAN                                              -0.8310                        0                0
-```
-
-With this more realistic use case, we can see that `any_view` is 50% - 80% faster. In our benchmark, 10% of the `Widget`s were filtered out by the filter pipeline and the
+With this more realistic use case, we can see that `any_view` is 77% faster. For the returning `vector` case, we have some variations of the implementations to produce the vector, including `reserve` the maximum possible size, or use the range pipelines with `ranges::to`. They all have extreamely similar results. In our benchmark, 10% of the `Widget`s were filtered out by the filter pipeline and the
 `name` string's length is randomly 0-30. So some of `string`s are in the SBO and some are allocated on the heap. We maintain that this code pattern is very common in the wild:
 making the code simple and clean at the cost of copying data, even though most of the callers don't actually need a copy of the data at all.
 

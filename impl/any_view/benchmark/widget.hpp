@@ -42,6 +42,19 @@ struct UI3 {
   std::vector<std::string> getWidgetNames() const;
 };
 
+struct UI3B {
+  std::vector<Widget> widgets_;
+
+  std::vector<std::string> getWidgetNames() const;
+};
+
+struct UI3C {
+  std::vector<Widget> widgets_;
+
+  std::vector<std::string> getWidgetNames() const;
+};
+
+
 struct UI4 {
   std::vector<Widget> widgets_;
 

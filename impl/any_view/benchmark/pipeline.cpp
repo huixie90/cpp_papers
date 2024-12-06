@@ -92,6 +92,30 @@ static void BM_VectorCopy(benchmark::State& state) {
 // Register the function as a benchmark
 BENCHMARK(BM_VectorCopy)->RangeMultiplier(2)->Range(1 << 10, 1 << 18);
 
+static void BM_VectorCopyReserve(benchmark::State& state) {
+  lib::UI3B ui3b{global_widgets | std::views::take(state.range(0)) |
+               std::ranges::to<std::vector>()};
+  for (auto _ : state) {
+    for (const auto& name : ui3b.getWidgetNames()) {
+      benchmark::DoNotOptimize(const_cast<std::string&>(name));
+    }
+  }
+}
+// Register the function as a benchmark
+BENCHMARK(BM_VectorCopyReserve)->RangeMultiplier(2)->Range(1 << 10, 1 << 18);
+
+static void BM_VectorCopyRanges(benchmark::State& state) {
+  lib::UI3C ui3c{global_widgets | std::views::take(state.range(0)) |
+               std::ranges::to<std::vector>()};
+  for (auto _ : state) {
+    for (const auto& name : ui3c.getWidgetNames()) {
+      benchmark::DoNotOptimize(const_cast<std::string&>(name));
+    }
+  }
+}
+// Register the function as a benchmark
+BENCHMARK(BM_VectorCopyRanges)->RangeMultiplier(2)->Range(1 << 10, 1 << 18);
+
 static void BM_VectorRefWrapper(benchmark::State& state) {
   lib::UI4 ui4{global_widgets | std::views::take(state.range(0)) |
                std::ranges::to<std::vector>()};
