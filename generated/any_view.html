@@ -1128,7 +1128,8 @@ tool for lack of a better tool. Such code would look like this:</p>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/262144                <span class="at">-0.8228</span>          3581632        634694</span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="ex">OVERALL_GEOMEAN</span>                                              <span class="at">-0.7723</span>                0             0</span></code></pre></div>
 <p>With this more realistic use case, we can see that
-<code class="sourceCode default">any_view</code> is 77% faster. We have
+<code class="sourceCode default">any_view</code> is 77% faster. For the
+returning <code class="sourceCode default">vector</code> case, we have
 some variations of the implementations to produce the vector, including
 <code class="sourceCode default">reserve</code> the maximum possible
 size, or use the range pipelines with

@@ -525,7 +525,7 @@ OVERALL_GEOMEAN                                              -0.7723            
 
 ```
 
-With this more realistic use case, we can see that `any_view` is 77% faster. We have some variations of the implementations to produce the vector, including `reserve` the maximum possible size, or use the range pipelines with `ranges::to`. They all have extreamely similar results. In our benchmark, 10% of the `Widget`s were filtered out by the filter pipeline and the
+With this more realistic use case, we can see that `any_view` is 77% faster. For the returning `vector` case, we have some variations of the implementations to produce the vector, including `reserve` the maximum possible size, or use the range pipelines with `ranges::to`. They all have extreamely similar results. In our benchmark, 10% of the `Widget`s were filtered out by the filter pipeline and the
 `name` string's length is randomly 0-30. So some of `string`s are in the SBO and some are allocated on the heap. We maintain that this code pattern is very common in the wild:
 making the code simple and clean at the cost of copying data, even though most of the callers don't actually need a copy of the data at all.
 
