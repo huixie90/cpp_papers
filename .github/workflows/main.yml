@@ -32,6 +32,7 @@ jobs:
 
       - name: Build pages
         run: |
+          make flat_map.html
           make any_view.html
           make concat.html
           make P2483R0.html
