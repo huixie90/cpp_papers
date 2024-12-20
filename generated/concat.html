@@ -419,7 +419,7 @@ code.sourceCode > span { display: inline; }
 <body>
 <div class="wrapper">
 <header id="title-block-header">
-<h1 class="title" style="text-align:center"><code class="sourceCode default">views::concat</code></h1>
+<h1 class="title" style="text-align:center"><code class="sourceCode cpp">views<span class="op">::</span>concat</code></h1>
 <table style="border:none;float:right">
   <tr>
     <td>Document #:</td>
@@ -469,17 +469,17 @@ Examples<span></span></a></li>
 <li><a href="#design" id="toc-design"><span class="toc-section-number">4</span> Design<span></span></a>
 <ul>
 <li><a href="#concatable-ity-of-ranges" id="toc-concatable-ity-of-ranges"><span class="toc-section-number">4.1</span>
-<code class="sourceCode default">concatable</code>-ity of
+<code class="sourceCode cpp">concatable</code>-ity of
 ranges<span></span></a>
 <ul>
 <li><a href="#reference" id="toc-reference"><span class="toc-section-number">4.1.1</span>
-<code class="sourceCode default">reference</code><span></span></a></li>
+<code class="sourceCode cpp">reference</code><span></span></a></li>
 <li><a href="#value_type" id="toc-value_type"><span class="toc-section-number">4.1.2</span>
-<code class="sourceCode default">value_type</code><span></span></a></li>
+<code class="sourceCode cpp">value_type</code><span></span></a></li>
 <li><a href="#range_rvalue_reference_t" id="toc-range_rvalue_reference_t"><span class="toc-section-number">4.1.3</span>
-<code class="sourceCode default">range_rvalue_reference_t</code><span></span></a></li>
+<code class="sourceCode cpp">range_rvalue_reference_t</code><span></span></a></li>
 <li><a href="#indirectly_readable" id="toc-indirectly_readable"><span class="toc-section-number">4.1.4</span>
-<code class="sourceCode default">indirectly_readable</code><span></span></a></li>
+<code class="sourceCode cpp">indirectly_readable</code><span></span></a></li>
 <li><a href="#mixing-ranges-of-references-with-ranges-of-prvalues" id="toc-mixing-ranges-of-references-with-ranges-of-prvalues"><span class="toc-section-number">4.1.5</span> Mixing ranges of references with
 ranges of prvalues<span></span></a></li>
 <li><a href="#unsupported-cases-and-potential-extensions-for-the-future" id="toc-unsupported-cases-and-potential-extensions-for-the-future"><span class="toc-section-number">4.1.6</span> Unsupported Cases and Potential
@@ -494,36 +494,35 @@ Iterator<span></span></a></li>
 <li><a href="#common-range" id="toc-common-range"><span class="toc-section-number">4.5</span> Common Range<span></span></a>
 <ul>
 <li><a href="#discussion-consolidate-with-cartesian_product_view" id="toc-discussion-consolidate-with-cartesian_product_view"><span class="toc-section-number">4.5.1</span> Discussion: Consolidate with
-<code class="sourceCode default">cartesian_product_view</code><span></span></a></li>
-<li><a href="#common_range-random_accessed_range-sized_range" id="toc-common_range-random_accessed_range-sized_range"><span class="toc-section-number">4.5.2</span> <code class="sourceCode default">!common_range &amp;&amp; (random_accessed_range &amp;&amp; sized_range)</code><span></span></a></li>
+<code class="sourceCode cpp">cartesian_product_view</code><span></span></a></li>
+<li><a href="#common_range-random_accessed_range-sized_range" id="toc-common_range-random_accessed_range-sized_range"><span class="toc-section-number">4.5.2</span> <code class="sourceCode cpp"><span class="op">!</span>common_range <span class="op">&amp;&amp;</span> <span class="op">(</span>random_accessed_range <span class="op">&amp;&amp;</span> sized_range<span class="op">)</span></code><span></span></a></li>
 </ul></li>
 <li><a href="#random-access-range" id="toc-random-access-range"><span class="toc-section-number">4.6</span> Random Access
 Range<span></span></a></li>
 <li><a href="#sized-range" id="toc-sized-range"><span class="toc-section-number">4.7</span> Sized Range<span></span></a></li>
 <li><a href="#iter_swap-customizations" id="toc-iter_swap-customizations"><span class="toc-section-number">4.8</span>
-<code class="sourceCode default">iter_swap</code>
+<code class="sourceCode cpp">iter_swap</code>
 Customizations<span></span></a>
 <ul>
 <li><a href="#option-1-delegate-to-the-underlying-iter_swap" id="toc-option-1-delegate-to-the-underlying-iter_swap"><span class="toc-section-number">4.8.1</span> Option 1: Delegate to the
 Underlying
-<code class="sourceCode default">iter_swap</code><span></span></a></li>
+<code class="sourceCode cpp">iter_swap</code><span></span></a></li>
 <li><a href="#option-2-do-not-provide-the-customization" id="toc-option-2-do-not-provide-the-customization"><span class="toc-section-number">4.8.2</span> Option 2: Do not Provide the
 Customization<span></span></a></li>
 <li><a href="#option-3-delegate-to-the-underlying-iter_swap-only-if-they-have-the-same-type" id="toc-option-3-delegate-to-the-underlying-iter_swap-only-if-they-have-the-same-type"><span class="toc-section-number">4.8.3</span> Option 3: Delegate to the
-Underlying <code class="sourceCode default">iter_swap</code> Only If
-They Have the Same Type<span></span></a></li>
+Underlying <code class="sourceCode cpp">iter_swap</code> Only If They
+Have the Same Type<span></span></a></li>
 </ul></li>
 <li><a href="#implementation-experience" id="toc-implementation-experience"><span class="toc-section-number">4.9</span> Implementation
 Experience<span></span></a></li>
 </ul></li>
 <li><a href="#wording" id="toc-wording"><span class="toc-section-number">5</span> Wording<span></span></a>
 <ul>
-<li><a href="#addition-to-ranges" id="toc-addition-to-ranges"><span class="toc-section-number">5.1</span> Addition to
-<code class="sourceCode default">&lt;ranges&gt;</code><span></span></a></li>
+<li><a href="#addition-to-ranges" id="toc-addition-to-ranges"><span class="toc-section-number">5.1</span> Addition to <code class="sourceCode cpp"><span class="op">&lt;</span>ranges<span class="op">&gt;</span></code><span></span></a></li>
 <li><a href="#move-exposition-only-utilities" id="toc-move-exposition-only-utilities"><span class="toc-section-number">5.2</span> Move exposition-only
 utilities<span></span></a></li>
 <li><a href="#concat" id="toc-concat"><span class="toc-section-number">5.3</span>
-<code class="sourceCode default">concat</code><span></span></a>
+<code class="sourceCode cpp">concat</code><span></span></a>
 <ul>
 <li><a href="#concat-view-range.concat" id="toc-concat-view-range.concat">?.?.? Concat view
 [range.concat]<span></span></a></li>
@@ -537,63 +536,59 @@ Macro<span></span></a></li>
 <h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
 <h2 data-number="1.1" id="r8"><span class="header-section-number">1.1</span> R8<a href="#r8" class="self-link"></a></h2>
 <ul>
-<li>requires expression update in
-<code class="sourceCode default">operator-(it, default_sentinel)</code></li>
+<li>requires expression update in <code class="sourceCode cpp"><span class="kw">operator</span><span class="op">-(</span>it, default_sentinel<span class="op">)</span></code></li>
 <li>Various minor wording fixes</li>
 </ul>
 <h2 data-number="1.2" id="r7"><span class="header-section-number">1.2</span> R7<a href="#r7" class="self-link"></a></h2>
 <ul>
-<li>update wording w.r.t <code class="sourceCode default">!common_range &amp;&amp; random_access_range &amp;&amp; sized_range</code>
+<li>update wording w.r.t <code class="sourceCode cpp"><span class="op">!</span>common_range <span class="op">&amp;&amp;</span> random_access_range <span class="op">&amp;&amp;</span> sized_range</code>
 changes</li>
 <li>fix const-conversion constructor</li>
 <li>Various wording fixes</li>
 </ul>
 <h2 data-number="1.3" id="r6"><span class="header-section-number">1.3</span> R6<a href="#r6" class="self-link"></a></h2>
 <ul>
-<li>Added a section <code class="sourceCode default">!common_range &amp;&amp; random_access_range &amp;&amp; sized_range</code></li>
+<li>Added a section <code class="sourceCode cpp"><span class="op">!</span>common_range <span class="op">&amp;&amp;</span> random_access_range <span class="op">&amp;&amp;</span> sized_range</code></li>
 </ul>
 <h2 data-number="1.4" id="r5"><span class="header-section-number">1.4</span> R5<a href="#r5" class="self-link"></a></h2>
 <ul>
-<li>Removed <code class="sourceCode default">concat_expert</code>
-(reverting to R3) per SG9 poll.</li>
-<li>Fix <code class="sourceCode default">static_cast&lt;difference_type&gt;</code></li>
+<li>Removed <code class="sourceCode cpp">concat_expert</code> (reverting
+to R3) per SG9 poll.</li>
+<li>Fix <code class="sourceCode cpp"><span class="kw">static_cast</span><span class="op">&lt;</span>difference_type<span class="op">&gt;</span></code></li>
 <li>Reuse utilities in
-<code class="sourceCode default">cartesian_product_view</code> to define
-<code class="sourceCode default">concat-is-bidirectional</code></li>
+<code class="sourceCode cpp">cartesian_product_view</code> to define
+<code class="sourceCode cpp">concat<span class="op">-</span>is<span class="op">-</span>bidirectional</code></li>
 <li>Various wording fixes</li>
 </ul>
 <h2 data-number="1.5" id="r4"><span class="header-section-number">1.5</span> R4<a href="#r4" class="self-link"></a></h2>
 <ul>
-<li>Add <code class="sourceCode default">concat_expert</code></li>
+<li>Add <code class="sourceCode cpp">concat_expert</code></li>
 </ul>
 <h2 data-number="1.6" id="r3"><span class="header-section-number">1.6</span> R3<a href="#r3" class="self-link"></a></h2>
 <ul>
-<li>Redesigned <code class="sourceCode default">iter_swap</code></li>
-<li>Relaxed <code class="sourceCode default">random_access_range</code>
+<li>Redesigned <code class="sourceCode cpp">iter_swap</code></li>
+<li>Relaxed <code class="sourceCode cpp">random_access_range</code>
 constraints</li>
-<li>Fixed conversions of
-<code class="sourceCode default">difference</code> types</li>
+<li>Fixed conversions of <code class="sourceCode cpp">difference</code>
+types</li>
 <li>Various wording fixes</li>
 </ul>
 <h2 data-number="1.7" id="r2"><span class="header-section-number">1.7</span> R2<a href="#r2" class="self-link"></a></h2>
 <ul>
-<li>Adding extra semantic constraints in the concept
-<code class="sourceCode default">concat-indirectly-readable</code> to
-prevent non-equality-preserving behaviour of
-<code class="sourceCode default">operator*</code> and
-<code class="sourceCode default">iter_move</code>.</li>
+<li>Adding extra semantic constraints in the concept <code class="sourceCode cpp">concat<span class="op">-</span>indirectly<span class="op">-</span>readable</code>
+to prevent non-equality-preserving behaviour of <code class="sourceCode cpp"><span class="kw">operator</span><span class="op">*</span></code>
+and <code class="sourceCode cpp">iter_move</code>.</li>
 </ul>
 <h2 data-number="1.8" id="r1"><span class="header-section-number">1.8</span> R1<a href="#r1" class="self-link"></a></h2>
 <ul>
-<li><p>Removed the <code class="sourceCode default">common_range</code>
-support for underlying ranges that are <code class="sourceCode default">!common_range &amp;&amp; random_access_range &amp;&amp; sized_range</code>.</p></li>
+<li><p>Removed the <code class="sourceCode cpp">common_range</code>
+support for underlying ranges that are <code class="sourceCode cpp"><span class="op">!</span>common_range <span class="op">&amp;&amp;</span> random_access_range <span class="op">&amp;&amp;</span> sized_range</code>.</p></li>
 <li><p>Introduced extra exposition concepts to simplify the wording that
-defines <code class="sourceCode default">concatable</code>.</p></li>
+defines <code class="sourceCode cpp">concatable</code>.</p></li>
 </ul>
 <h1 data-number="2" id="abstract"><span class="header-section-number">2</span> Abstract<a href="#abstract" class="self-link"></a></h1>
-<p>This paper proposes
-<code class="sourceCode default">views::concat</code> as very briefly
-introduced in Section 4.7 of <span class="citation" data-cites="P2214R1">[<a href="#ref-P2214R1" role="doc-biblioref">P2214R1</a>]</span>. It is a view factory that
+<p>This paper proposes <code class="sourceCode cpp">views<span class="op">::</span>concat</code> as
+very briefly introduced in Section 4.7 of <span class="citation" data-cites="P2214R1">[<a href="https://wg21.link/p2214r1" role="doc-biblioref">P2214R1</a>]</span>. It is a view factory that
 takes an arbitrary number of ranges as an argument list, and provides a
 view that starts at the first element of the first range, ends at the
 last element of the last range, with all range elements sequenced in
@@ -702,7 +697,7 @@ concatenating, or chaining together the argument ranges.</p>
 care even in the simplest of cases: The “Before” version manually
 concatenates all the ranges in a formatting string, but empty ranges
 aren’t handled and the result contains an extra comma and a space. With
-<code class="sourceCode default">concat_view</code>, empty ranges are
+<code class="sourceCode cpp">concat_view</code>, empty ranges are
 handled per design, and the construct expresses the intent cleanly and
 directly.</p>
 <p>In the second example, the user has a class composed of fragmented
@@ -711,81 +706,77 @@ provides a range-like view to all this data sequenced together in some
 order, and without creating any copies. The “Before” implementation is
 needlessly complex and creates a temporary container with a potentially
 problematic indirection in its value type.
-<code class="sourceCode default">concat_view</code> based implementation
-is a neat one-liner.</p>
+<code class="sourceCode cpp">concat_view</code> based implementation is
+a neat one-liner.</p>
 <h1 data-number="4" id="design"><span class="header-section-number">4</span> Design<a href="#design" class="self-link"></a></h1>
-<p>This is a generator factory as described in <span class="citation" data-cites="P2214R1">[<a href="#ref-P2214R1" role="doc-biblioref">P2214R1</a>]</span> Section 4.7. As such, it can
+<p>This is a generator factory as described in <span class="citation" data-cites="P2214R1">[<a href="https://wg21.link/p2214r1" role="doc-biblioref">P2214R1</a>]</span> Section 4.7. As such, it can
 not be piped to. It takes the list of ranges to concatenate as arguments
-to <code class="sourceCode default">ranges::concat_view</code>
-constructor, or to
-<code class="sourceCode default">ranges::views::concat</code>
+to <code class="sourceCode cpp">ranges<span class="op">::</span>concat_view</code>
+constructor, or to <code class="sourceCode cpp">ranges<span class="op">::</span>views<span class="op">::</span>concat</code>
 customization point object.</p>
 <h2 data-number="4.1" id="concatable-ity-of-ranges"><span class="header-section-number">4.1</span>
-<code class="sourceCode default">concatable</code>-ity of ranges<a href="#concatable-ity-of-ranges" class="self-link"></a></h2>
+<code class="sourceCode cpp">concatable</code>-ity of ranges<a href="#concatable-ity-of-ranges" class="self-link"></a></h2>
 <p>Adaptability of any given two or more distinct
-<code class="sourceCode default">range</code>s into a sequence that
-itself models a <code class="sourceCode default">range</code>, depends
-on the compatibility of the reference and the value types of these
-ranges. A precise formulation is made in terms of
-<code class="sourceCode default">std::common_reference_t</code> and
-<code class="sourceCode default">std::common_type_t</code>, and is
-captured by the exposition only concept
-<code class="sourceCode default">concatable</code>. See <a href="#concatable-definition">Wording</a>. Proposed
-<code class="sourceCode default">concat_view</code> is then additionally
+<code class="sourceCode cpp">range</code>s into a sequence that itself
+models a <code class="sourceCode cpp">range</code>, depends on the
+compatibility of the reference and the value types of these ranges. A
+precise formulation is made in terms of <code class="sourceCode cpp">std<span class="op">::</span>common_reference_t</code>
+and <code class="sourceCode cpp">std<span class="op">::</span>common_type_t</code>,
+and is captured by the exposition only concept
+<code class="sourceCode cpp">concatable</code>. See <a href="#concatable-definition">Wording</a>. Proposed
+<code class="sourceCode cpp">concat_view</code> is then additionally
 constrained by this concept. (Note that, this is an improvement over
-<span class="citation" data-cites="rangev3">[<a href="#ref-rangev3" role="doc-biblioref">range-v3</a>]</span>
-<code class="sourceCode default">concat_view</code> which lacks such
+<span class="citation" data-cites="rangev3">[<a href="https://github.com/ericniebler/range-v3" role="doc-biblioref">range-v3</a>]</span>
+<code class="sourceCode cpp">concat_view</code> which lacks such
 constraints, and fails with hard errors instead.)</p>
 <h3 data-number="4.1.1" id="reference"><span class="header-section-number">4.1.1</span>
-<code class="sourceCode default">reference</code><a href="#reference" class="self-link"></a></h3>
-<p>The <code class="sourceCode default">reference</code> type is the
-<code class="sourceCode default">common_reference_t</code> of all
-underlying range’s
-<code class="sourceCode default">range_reference_t</code>. In addition,
-as the result of
-<code class="sourceCode default">common_reference_t</code> is not
+<code class="sourceCode cpp">reference</code><a href="#reference" class="self-link"></a></h3>
+<p>The <code class="sourceCode cpp">reference</code> type is the
+<code class="sourceCode cpp">common_reference_t</code> of all underlying
+range’s <code class="sourceCode cpp">range_reference_t</code>. In
+addition, as the result of
+<code class="sourceCode cpp">common_reference_t</code> is not
 necessarily a reference type, an extra constraint is needed to make sure
 that each underlying range’s
-<code class="sourceCode default">range_reference_t</code> is convertible
-to that common reference.</p>
+<code class="sourceCode cpp">range_reference_t</code> is convertible to
+that common reference.</p>
 <h3 data-number="4.1.2" id="value_type"><span class="header-section-number">4.1.2</span>
-<code class="sourceCode default">value_type</code><a href="#value_type" class="self-link"></a></h3>
+<code class="sourceCode cpp">value_type</code><a href="#value_type" class="self-link"></a></h3>
 <p>To support the cases where underlying ranges have proxy iterators,
-such as <code class="sourceCode default">zip_view</code>, the
-<code class="sourceCode default">value_type</code> cannot simply be the
-<code class="sourceCode default">remove_cvref_t</code> of the
-<code class="sourceCode default">reference</code> type, and it needs to
+such as <code class="sourceCode cpp">zip_view</code>, the
+<code class="sourceCode cpp">value_type</code> cannot simply be the
+<code class="sourceCode cpp">remove_cvref_t</code> of the
+<code class="sourceCode cpp">reference</code> type, and it needs to
 respect underlying ranges’
-<code class="sourceCode default">value_type</code>. Therefore, in this
-proposal the <code class="sourceCode default">value_type</code> is
-defined as the <code class="sourceCode default">common_type_t</code> of
-all underlying range’s
-<code class="sourceCode default">range_value_t</code>.</p>
+<code class="sourceCode cpp">value_type</code>. Therefore, in this
+proposal the <code class="sourceCode cpp">value_type</code> is defined
+as the <code class="sourceCode cpp">common_type_t</code> of all
+underlying range’s
+<code class="sourceCode cpp">range_value_t</code>.</p>
 <h3 data-number="4.1.3" id="range_rvalue_reference_t"><span class="header-section-number">4.1.3</span>
-<code class="sourceCode default">range_rvalue_reference_t</code><a href="#range_rvalue_reference_t" class="self-link"></a></h3>
-<p>To make <code class="sourceCode default">concat_view</code>’s
-iterator’s <code class="sourceCode default">iter_move</code> behave
-correctly for the cases where underlying iterators customise
-<code class="sourceCode default">iter_move</code>, such as
-<code class="sourceCode default">zip_view</code>,
-<code class="sourceCode default">concat_view</code> has to respect those
+<code class="sourceCode cpp">range_rvalue_reference_t</code><a href="#range_rvalue_reference_t" class="self-link"></a></h3>
+<p>To make <code class="sourceCode cpp">concat_view</code>’s iterator’s
+<code class="sourceCode cpp">iter_move</code> behave correctly for the
+cases where underlying iterators customise
+<code class="sourceCode cpp">iter_move</code>, such as
+<code class="sourceCode cpp">zip_view</code>,
+<code class="sourceCode cpp">concat_view</code> has to respect those
 customizations. Therefore,
-<code class="sourceCode default">concat_view</code> requires
-<code class="sourceCode default">common_reference_t</code> of all
-underlying ranges’s
-<code class="sourceCode default">range_rvalue_reference_t</code> exist
-and can be converted to from each underlying range’s
-<code class="sourceCode default">range_rvalue_reference_t</code>.</p>
+<code class="sourceCode cpp">concat_view</code> requires
+<code class="sourceCode cpp">common_reference_t</code> of all underlying
+ranges’s <code class="sourceCode cpp">range_rvalue_reference_t</code>
+exist and can be converted to from each underlying range’s
+<code class="sourceCode cpp">range_rvalue_reference_t</code>.</p>
 <h3 data-number="4.1.4" id="indirectly_readable"><span class="header-section-number">4.1.4</span>
-<code class="sourceCode default">indirectly_readable</code><a href="#indirectly_readable" class="self-link"></a></h3>
-<p>In order to make <code class="sourceCode default">concat_view</code>
-model <code class="sourceCode default">input_range</code>,
-<code class="sourceCode default">reference</code>,
-<code class="sourceCode default">value_type</code>, and
-<code class="sourceCode default">range_rvalue_reference_t</code> have to
-be constrained so that the iterator of the
-<code class="sourceCode default">concat_view</code> models
-<code class="sourceCode default">indirectly_readable</code>.</p>
+<code class="sourceCode cpp">indirectly_readable</code><a href="#indirectly_readable" class="self-link"></a></h3>
+<p>In order to make <code class="sourceCode cpp">concat_view</code>
+model <code class="sourceCode cpp">input_range</code>,
+<code class="sourceCode cpp">reference</code>,
+<code class="sourceCode cpp">value_type</code>, and
+<code class="sourceCode cpp">range_rvalue_reference_t</code> have to be
+constrained so that the iterator of the
+<code class="sourceCode cpp">concat_view</code> models
+<code class="sourceCode cpp">indirectly_readable</code>.</p>
 <h3 data-number="4.1.5" id="mixing-ranges-of-references-with-ranges-of-prvalues"><span class="header-section-number">4.1.5</span> Mixing ranges of references
 with ranges of prvalues<a href="#mixing-ranges-of-references-with-ranges-of-prvalues" class="self-link"></a></h3>
 <p>In the following example,</p>
@@ -797,29 +788,31 @@ with ranges of prvalues<a href="#mixing-ranges-of-references-with-ranges-of-prva
 <span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> it <span class="op">=</span> cv<span class="op">.</span>begin<span class="op">()</span>;</span>
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="op">*</span>it; <span class="co">// first deref</span></span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="op">*</span>it; <span class="co">// second deref</span></span></code></pre></div>
-<p><code class="sourceCode default">r1</code> is a range of which
-<code class="sourceCode default">range_reference_t</code> is
-<code class="sourceCode default">std::string&amp;&amp;</code>, while
-<code class="sourceCode default">r2</code>’s
-<code class="sourceCode default">range_reference_t</code> is
-<code class="sourceCode default">std::string</code>. The
-<code class="sourceCode default">common_reference_t</code> between these
-two <code class="sourceCode default">reference</code>s would be
-<code class="sourceCode default">std::string</code>. After the “first
-deref”, even though the result is unused, there is a conversion from
-<code class="sourceCode default">std::string&amp;&amp;</code> to
-<code class="sourceCode default">std::string</code> when the result of
-underlying iterator’s <code class="sourceCode default">operator*</code>
+<p><code class="sourceCode cpp">r1</code> is a range of which
+<code class="sourceCode cpp">range_reference_t</code> is <code class="sourceCode cpp">std<span class="op">::</span>string<span class="op">&amp;&amp;</span></code>,
+while <code class="sourceCode cpp">r2</code>’s
+<code class="sourceCode cpp">range_reference_t</code> is
+<code class="sourceCode cpp">std<span class="op">::</span>string</code>.
+The <code class="sourceCode cpp">common_reference_t</code> between these
+two <code class="sourceCode cpp">reference</code>s would be
+<code class="sourceCode cpp">std<span class="op">::</span>string</code>.
+After the “first deref”, even though the result is unused, there is a
+conversion from <code class="sourceCode cpp">std<span class="op">::</span>string<span class="op">&amp;&amp;</span></code>
+to
+<code class="sourceCode cpp">std<span class="op">::</span>string</code>
+when the result of underlying iterator’s <code class="sourceCode cpp"><span class="kw">operator</span><span class="op">*</span></code>
 is converted to the
-<code class="sourceCode default">common_reference_t</code>. This is a
-move construction and the underlying
-<code class="sourceCode default">vector</code>’s element is modified to
-a moved-from state. Later when the “second deref” is called, the result
-is a moved-from <code class="sourceCode default">std::string</code>.
+<code class="sourceCode cpp">common_reference_t</code>. This is a move
+construction and the underlying
+<code class="sourceCode cpp">vector</code>’s element is modified to a
+moved-from state. Later when the “second deref” is called, the result is
+a moved-from
+<code class="sourceCode cpp">std<span class="op">::</span>string</code>.
 This breaks the “equality preserving” requirements.</p>
-<p>Similar to <code class="sourceCode default">operator*</code>,
-<code class="sourceCode default">ranges::iter_move</code> has this same
-issue, and it is more common to run into this problem. For example,</p>
+<p>Similar to <code class="sourceCode cpp"><span class="kw">operator</span><span class="op">*</span></code>,
+<code class="sourceCode cpp">ranges<span class="op">::</span>iter_move</code>
+has this same issue, and it is more common to run into this problem. For
+example,</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>string<span class="op">&gt;</span> v <span class="op">=</span> <span class="op">...</span>;</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> r <span class="op">=</span> std<span class="op">::</span>views<span class="op">::</span>iota<span class="op">(</span><span class="dv">0</span>, <span class="dv">2</span><span class="op">)</span></span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>           <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">([](</span><span class="kw">auto</span> i<span class="op">){</span><span class="cf">return</span> std<span class="op">::</span>to_string<span class="op">(</span>i<span class="op">)})</span>;</span>
@@ -827,140 +820,133 @@ issue, and it is more common to run into this problem. For example,</p>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> it <span class="op">=</span> cv<span class="op">.</span>begin<span class="op">()</span>;</span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>ranges<span class="op">::</span>iter_move<span class="op">(</span>it<span class="op">)</span>; <span class="co">// first iter_move</span></span>
 <span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>ranges<span class="op">::</span>iter_move<span class="op">(</span>it<span class="op">)</span>; <span class="co">// second iter_move</span></span></code></pre></div>
-<p><code class="sourceCode default">v</code>’s
-<code class="sourceCode default">range_rvalue_reference_t</code> is
-<code class="sourceCode default">std::string&amp;&amp;</code>, and
-<code class="sourceCode default">r</code>’s
-<code class="sourceCode default">range_rvalue_reference_t</code> is
-<code class="sourceCode default">std::string</code>, the
-<code class="sourceCode default">common_reference_t</code> between them
-is <code class="sourceCode default">std::string</code>. After the first
-<code class="sourceCode default">iter_move</code>, the underlying
-<code class="sourceCode default">vector</code>’s first element is moved
-to construct the temporary
-<code class="sourceCode default">common_reference_t</code>, aka
-<code class="sourceCode default">std::string</code>. As a result, the
-second <code class="sourceCode default">iter_move</code> results in a
-moved-from state <code class="sourceCode default">std::string</code>.
+<p><code class="sourceCode cpp">v</code>’s
+<code class="sourceCode cpp">range_rvalue_reference_t</code> is <code class="sourceCode cpp">std<span class="op">::</span>string<span class="op">&amp;&amp;</span></code>,
+and <code class="sourceCode cpp">r</code>’s
+<code class="sourceCode cpp">range_rvalue_reference_t</code> is
+<code class="sourceCode cpp">std<span class="op">::</span>string</code>,
+the <code class="sourceCode cpp">common_reference_t</code> between them
+is
+<code class="sourceCode cpp">std<span class="op">::</span>string</code>.
+After the first <code class="sourceCode cpp">iter_move</code>, the
+underlying <code class="sourceCode cpp">vector</code>’s first element is
+moved to construct the temporary
+<code class="sourceCode cpp">common_reference_t</code>, aka
+<code class="sourceCode cpp">std<span class="op">::</span>string</code>.
+As a result, the second <code class="sourceCode cpp">iter_move</code>
+results in a moved-from state
+<code class="sourceCode cpp">std<span class="op">::</span>string</code>.
 This breaks the “non-modifying” equality-preserving contract in
-<code class="sourceCode default">indirectly_readable</code> concept.</p>
+<code class="sourceCode cpp">indirectly_readable</code> concept.</p>
 <p>A naive solution for this problem is to ban all the usages of mixing
 ranges of references with ranges of prvalues. However, not all of this
 kind of mixing are problematic. For example,
-<code class="sourceCode default">concat</code>ing a range of
-<code class="sourceCode default">std::string&amp;&amp;</code> with a
-range of prvalue
-<code class="sourceCode default">std::string_view</code> is OK, because
-converting <code class="sourceCode default">std::string&amp;&amp;</code>
-to <code class="sourceCode default">std::string_view</code> does not
-modify the
-<code class="sourceCode default">std::string&amp;&amp;</code>. In
-general, it is not possible to detect whether the conversion from
-<code class="sourceCode default">T&amp;&amp;</code> to
-<code class="sourceCode default">U</code> modifies
-<code class="sourceCode default">T&amp;&amp;</code> through syntactic
-requirements. Therefore, the authors of this paper propose to use the
-“equality-preserving” semantic requirements of the requires-expression
-and the notational convention that constant lvalues shall not be
-modified in a manner observable to equality-preserving as defined in
-<span>18.2
+<code class="sourceCode cpp">concat</code>ing a range of <code class="sourceCode cpp">std<span class="op">::</span>string<span class="op">&amp;&amp;</span></code>
+with a range of prvalue <code class="sourceCode cpp">std<span class="op">::</span>string_view</code>
+is OK, because converting <code class="sourceCode cpp">std<span class="op">::</span>string<span class="op">&amp;&amp;</span></code>
+to <code class="sourceCode cpp">std<span class="op">::</span>string_view</code>
+does not modify the <code class="sourceCode cpp">std<span class="op">::</span>string<span class="op">&amp;&amp;</span></code>.
+In general, it is not possible to detect whether the conversion from
+<code class="sourceCode cpp">T<span class="op">&amp;&amp;</span></code>
+to <code class="sourceCode cpp">U</code> modifies
+<code class="sourceCode cpp">T<span class="op">&amp;&amp;</span></code>
+through syntactic requirements. Therefore, the authors of this paper
+propose to use the “equality-preserving” semantic requirements of the
+requires-expression and the notational convention that constant lvalues
+shall not be modified in a manner observable to equality-preserving as
+defined in <span>18.2
 <a href="https://wg21.link/concepts.equality">[concepts.equality]</a></span>.
 See <a href="#concat-indirectly-readable-definition">Wording</a>.</p>
 <h3 data-number="4.1.6" id="unsupported-cases-and-potential-extensions-for-the-future"><span class="header-section-number">4.1.6</span> Unsupported Cases and
 Potential Extensions for the Future<a href="#unsupported-cases-and-potential-extensions-for-the-future" class="self-link"></a></h3>
 <p>Common type and reference based
-<code class="sourceCode default">concatable</code> logic is a practical
-and convenient solution that satisfies the motivation as outlined, and
-is what the authors propose in this paper. However, there are several
+<code class="sourceCode cpp">concatable</code> logic is a practical and
+convenient solution that satisfies the motivation as outlined, and is
+what the authors propose in this paper. However, there are several
 potentially important use cases that get left out:</p>
 <ol type="1">
 <li>Concatenating ranges of different subclasses, into a range of their
 common base.</li>
 <li>Concatenating ranges of unrelated types into a range of a
 user-determined common type, e.g. a
-<code class="sourceCode default">std::variant</code>.</li>
+<code class="sourceCode cpp">std<span class="op">::</span>variant</code>.</li>
 </ol>
 <p>Here is an example of the first case where
-<code class="sourceCode default">common_reference</code> formulation can
+<code class="sourceCode cpp">common_reference</code> formulation can
 manifest a rather counter-intuitive behavior: Let
-<code class="sourceCode default">D1</code> and
-<code class="sourceCode default">D2</code> be two types only related by
-their common base <code class="sourceCode default">B</code>, and
-<code class="sourceCode default">d1</code>,
-<code class="sourceCode default">d2</code>, and
-<code class="sourceCode default">b</code> be some range of these types,
-respectively. <code class="sourceCode default">concat(b, d1, d2)</code>
-is a well-formed range of <code class="sourceCode default">B</code> by
-the current formulation, suggesting such usage is supported. However, a
-mere reordering of the sequence, say to
-<code class="sourceCode default">concat(d1, d2, b)</code>, yields one
-that is not.</p>
+<code class="sourceCode cpp">D1</code> and
+<code class="sourceCode cpp">D2</code> be two types only related by
+their common base <code class="sourceCode cpp">B</code>, and
+<code class="sourceCode cpp">d1</code>,
+<code class="sourceCode cpp">d2</code>, and
+<code class="sourceCode cpp">b</code> be some range of these types,
+respectively. <code class="sourceCode cpp">concat<span class="op">(</span>b, d1, d2<span class="op">)</span></code>
+is a well-formed range of <code class="sourceCode cpp">B</code> by the
+current formulation, suggesting such usage is supported. However, a mere
+reordering of the sequence, say to <code class="sourceCode cpp">concat<span class="op">(</span>d1, d2, b<span class="op">)</span></code>,
+yields one that is not.</p>
 <p>The authors believe that such cases should be supported, but can only
 be done so via an adaptor that needs at least one explicit type argument
 at its interface. A future extension may satisfy these use cases, for
-example a <code class="sourceCode default">concat_as</code> view, or by
-even generally via an <code class="sourceCode default">as</code> view
-that is a type-generalized version of the
-<code class="sourceCode default">as_const</code> view of <span class="citation" data-cites="P2278R1">[<a href="#ref-P2278R1" role="doc-biblioref">P2278R1</a>]</span>.</p>
+example a <code class="sourceCode cpp">concat_as</code> view, or by even
+generally via an <code class="sourceCode cpp">as</code> view that is a
+type-generalized version of the
+<code class="sourceCode cpp">as_const</code> view of <span class="citation" data-cites="P2278R1">[<a href="https://wg21.link/p2278r1" role="doc-biblioref">P2278R1</a>]</span>.</p>
 <h2 data-number="4.2" id="zero-or-one-view"><span class="header-section-number">4.2</span> Zero or one view<a href="#zero-or-one-view" class="self-link"></a></h2>
 <ul>
-<li>No argument <code class="sourceCode default">views::concat()</code>
-is ill-formed. It can not be a
-<code class="sourceCode default">views::empty&lt;T&gt;</code> because
-there is no reasonable way to determine an element type
-<code class="sourceCode default">T</code>.</li>
-<li>Single argument
-<code class="sourceCode default">views::concat(r)</code> is expression
-equivalent to <code class="sourceCode default">views::all(r)</code>,
+<li>No argument <code class="sourceCode cpp">views<span class="op">::</span>concat<span class="op">()</span></code>
+is ill-formed. It can not be a <code class="sourceCode cpp">views<span class="op">::</span>empty<span class="op">&lt;</span>T<span class="op">&gt;</span></code>
+because there is no reasonable way to determine an element type
+<code class="sourceCode cpp">T</code>.</li>
+<li>Single argument <code class="sourceCode cpp">views<span class="op">::</span>concat<span class="op">(</span>r<span class="op">)</span></code>
+is expression equivalent to <code class="sourceCode cpp">views<span class="op">::</span>all<span class="op">(</span>r<span class="op">)</span></code>,
 which intuitively follows.</li>
 </ul>
 <h2 data-number="4.3" id="hidden-on-time-complexity-for-n-adapted-ranges"><span class="header-section-number">4.3</span> Hidden <em>O(N)</em> time
 complexity for <em>N</em> adapted ranges<a href="#hidden-on-time-complexity-for-n-adapted-ranges" class="self-link"></a></h2>
 <p>Time complexities as required by the
-<code class="sourceCode default">ranges</code> concepts are formally
+<code class="sourceCode cpp">ranges</code> concepts are formally
 expressed with respect to the total number of elements (the size) of a
 given range, and not to the statically known parameters of that range.
-Hence, the complexity of
-<code class="sourceCode default">concat_view</code> or its iterators’
-operations are documented to be constant time, even though some of these
-are a linear function of the number of ranges it concatenates which is a
-statically known parameter of this view.</p>
+Hence, the complexity of <code class="sourceCode cpp">concat_view</code>
+or its iterators’ operations are documented to be constant time, even
+though some of these are a linear function of the number of ranges it
+concatenates which is a statically known parameter of this view.</p>
 <p>Some examples of these operations for
-<code class="sourceCode default">concat_view</code> are copy,
-<code class="sourceCode default">begin</code> and
-<code class="sourceCode default">size</code>, and its iterators’
-increment, decrement, advance, distance. This characteristic (but not
-necessarily the specifics) are very much similar to the other n-ary
-adaptors like <code class="sourceCode default">zip_view</code> <span class="citation" data-cites="P2321R2">[<a href="#ref-P2321R2" role="doc-biblioref">P2321R2</a>]</span> and
-<code class="sourceCode default">cartesian_view</code> <span class="citation" data-cites="P2374R3">[<a href="#ref-P2374R3" role="doc-biblioref">P2374R3</a>]</span>.</p>
+<code class="sourceCode cpp">concat_view</code> are copy,
+<code class="sourceCode cpp">begin</code> and
+<code class="sourceCode cpp">size</code>, and its iterators’ increment,
+decrement, advance, distance. This characteristic (but not necessarily
+the specifics) are very much similar to the other n-ary adaptors like
+<code class="sourceCode cpp">zip_view</code> <span class="citation" data-cites="P2321R2">[<a href="https://wg21.link/p2321r2" role="doc-biblioref">P2321R2</a>]</span> and
+<code class="sourceCode cpp">cartesian_view</code> <span class="citation" data-cites="P2374R3">[<a href="https://wg21.link/p2374r3" role="doc-biblioref">P2374R3</a>]</span>.</p>
 <h2 data-number="4.4" id="borrowed-vs-cheap-iterator"><span class="header-section-number">4.4</span> Borrowed vs Cheap Iterator<a href="#borrowed-vs-cheap-iterator" class="self-link"></a></h2>
-<p><code class="sourceCode default">concat_view</code> can be designed
-to be a <code class="sourceCode default">borrowed_range</code>, if all
-the underlying ranges are. However, this requires the iterator
+<p><code class="sourceCode cpp">concat_view</code> can be designed to be
+a <code class="sourceCode cpp">borrowed_range</code>, if all the
+underlying ranges are. However, this requires the iterator
 implementation to contain a copy of all iterators and sentinels of all
 underlying ranges at all times (just like that of
-<code class="sourceCode default">views::zip</code> <span class="citation" data-cites="P2321R2">[<a href="#ref-P2321R2" role="doc-biblioref">P2321R2</a>]</span>). On the other hand (unlike
-<code class="sourceCode default">views::zip</code>), a much cheaper
-implementation can satisfy all the proposed functionality provided it is
-permitted to be unconditionally not borrowed. This implementation would
-maintain only a single active iterator at a time and simply refers to
-the parent view for the bounds.</p>
+<code class="sourceCode cpp">views<span class="op">::</span>zip</code>
+<span class="citation" data-cites="P2321R2">[<a href="https://wg21.link/p2321r2" role="doc-biblioref">P2321R2</a>]</span>). On the other hand (unlike
+<code class="sourceCode cpp">views<span class="op">::</span>zip</code>),
+a much cheaper implementation can satisfy all the proposed functionality
+provided it is permitted to be unconditionally not borrowed. This
+implementation would maintain only a single active iterator at a time
+and simply refers to the parent view for the bounds.</p>
 <p>Experience shows the borrowed-ness of
-<code class="sourceCode default">concat</code> is not a major
-requirement; and the existing implementation in <span class="citation" data-cites="rangev3">[<a href="#ref-rangev3" role="doc-biblioref">range-v3</a>]</span> seems to have picked the
+<code class="sourceCode cpp">concat</code> is not a major requirement;
+and the existing implementation in <span class="citation" data-cites="rangev3">[<a href="https://github.com/ericniebler/range-v3" role="doc-biblioref">range-v3</a>]</span> seems to have picked the
 cheaper alternative. This paper proposes the same.</p>
 <h2 data-number="4.5" id="common-range"><span class="header-section-number">4.5</span> Common Range<a href="#common-range" class="self-link"></a></h2>
-<p><code class="sourceCode default">concat_view</code> can be
-<code class="sourceCode default">common_range</code> if the last
-underlying range models
-<code class="sourceCode default">common_range</code></p>
+<p><code class="sourceCode cpp">concat_view</code> can be
+<code class="sourceCode cpp">common_range</code> if the last underlying
+range models <code class="sourceCode cpp">common_range</code></p>
 <h3 data-number="4.5.1" id="discussion-consolidate-with-cartesian_product_view"><span class="header-section-number">4.5.1</span> Discussion: Consolidate with
-<code class="sourceCode default">cartesian_product_view</code><a href="#discussion-consolidate-with-cartesian_product_view" class="self-link"></a></h3>
-<p>In the R0 version,
-<code class="sourceCode default">concat_view</code> can be
-<code class="sourceCode default">common_range</code> if the last
-underlying range models <code class="sourceCode default">common_range || (random_access_range &amp;&amp; sized_range)</code></p>
-<p>The <code class="sourceCode default">end</code> function was defined
+<code class="sourceCode cpp">cartesian_product_view</code><a href="#discussion-consolidate-with-cartesian_product_view" class="self-link"></a></h3>
+<p>In the R0 version, <code class="sourceCode cpp">concat_view</code>
+can be <code class="sourceCode cpp">common_range</code> if the last
+underlying range models <code class="sourceCode cpp">common_range <span class="op">||</span> <span class="op">(</span>random_access_range <span class="op">&amp;&amp;</span> sized_range<span class="op">)</span></code></p>
+<p>The <code class="sourceCode cpp">end</code> function was defined
 as</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">constexpr</span> <span class="op">(</span>common_range<span class="op">&lt;</span>last<span class="op">-</span>view<span class="op">&gt;)</span> <span class="op">{</span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">auto</span> N <span class="op">=</span> <span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">)</span>;</span>
@@ -974,7 +960,7 @@ as</p>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> default_sentinel;</span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p>Following SG9’s direction, the <code class="sourceCode default">random_access_range &amp;&amp; sized_range</code>
+<p>Following SG9’s direction, the <code class="sourceCode cpp">random_access_range <span class="op">&amp;&amp;</span> sized_range</code>
 was removed in R1 version for simplicity</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">constexpr</span> <span class="op">(</span>common_range<span class="op">&lt;</span>last<span class="op">-</span>view<span class="op">&gt;)</span> <span class="op">{</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">auto</span> N <span class="op">=</span> <span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">)</span>;</span>
@@ -983,13 +969,12 @@ was removed in R1 version for simplicity</p>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> default_sentinel;</span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
-<p>However,
-<code class="sourceCode default">cartesian_product_view</code>
+<p>However, <code class="sourceCode cpp">cartesian_product_view</code>
 <span>25.7.33.2
 <a href="https://wg21.link/range.cartesian.view">[range.cartesian.view]</a></span>
-defines its <code class="sourceCode default">end</code> function in a
-way that is very similar to
-<code class="sourceCode default">concat_view</code>’s R0 version.</p>
+defines its <code class="sourceCode cpp">end</code> function in a way
+that is very similar to
+<code class="sourceCode cpp">concat_view</code>’s R0 version.</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> R<span class="op">&gt;</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">concept</span> cartesian<span class="op">-</span>product<span class="op">-</span>common<span class="op">-</span>arg <span class="op">=</span>                <span class="co">// exposition only</span></span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    common_range<span class="op">&lt;</span>R<span class="op">&gt;</span> <span class="op">||</span> <span class="op">(</span>sized_range<span class="op">&lt;</span>R<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> random_access_range<span class="op">&lt;</span>R<span class="op">&gt;)</span>;</span>
@@ -1015,160 +1000,148 @@ way that is very similar to
 <span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> default_sentinel_t end<span class="op">()</span> <span class="kw">const</span> <span class="kw">noexcept</span>;</span></code></pre></div>
 <p>For consistency between
-<code class="sourceCode default">cartesian_product_view</code> and
-<code class="sourceCode default">concat_view</code>, it would be good to
-add back the support of <code class="sourceCode default">random_access_range &amp;&amp; size_range</code>.
+<code class="sourceCode cpp">cartesian_product_view</code> and
+<code class="sourceCode cpp">concat_view</code>, it would be good to add
+back the support of <code class="sourceCode cpp">random_access_range <span class="op">&amp;&amp;</span> size_range</code>.
 Those exposition only concepts and functions can be reused for both of
 the views, and their definitions of
-<code class="sourceCode default">end</code> function would be very
-similar, except that
-<code class="sourceCode default">cartesian_product_view</code> checks
-the first underlying range and
-<code class="sourceCode default">concat_view</code> checks the last
+<code class="sourceCode cpp">end</code> function would be very similar,
+except that <code class="sourceCode cpp">cartesian_product_view</code>
+checks the first underlying range and
+<code class="sourceCode cpp">concat_view</code> checks the last
 underlying range.</p>
 <p>As per SG9 direction, this section is dropped.</p>
-<h3 data-number="4.5.2" id="common_range-random_accessed_range-sized_range"><span class="header-section-number">4.5.2</span> <code class="sourceCode default">!common_range &amp;&amp; (random_accessed_range &amp;&amp; sized_range)</code><a href="#common_range-random_accessed_range-sized_range" class="self-link"></a></h3>
-<p>In R0 version, <code class="sourceCode default">concat_view</code> is
-a <code class="sourceCode default">common_range</code> if the last range
-satisfies <code class="sourceCode default">common_range || (random_accessed_range &amp;&amp; sized_range)</code></p>
+<h3 data-number="4.5.2" id="common_range-random_accessed_range-sized_range"><span class="header-section-number">4.5.2</span> <code class="sourceCode cpp"><span class="op">!</span>common_range <span class="op">&amp;&amp;</span> <span class="op">(</span>random_accessed_range <span class="op">&amp;&amp;</span> sized_range<span class="op">)</span></code><a href="#common_range-random_accessed_range-sized_range" class="self-link"></a></h3>
+<p>In R0 version, <code class="sourceCode cpp">concat_view</code> is a
+<code class="sourceCode cpp">common_range</code> if the last range
+satisfies <code class="sourceCode cpp">common_range <span class="op">||</span> <span class="op">(</span>random_accessed_range <span class="op">&amp;&amp;</span> sized_range<span class="op">)</span></code></p>
 <p>As per SG9’s direction,
-<code class="sourceCode default">concat_view</code> should not pretend
-to be a <code class="sourceCode default">common_range</code>, when the
-last underlying range is a <code class="sourceCode default">!common_range &amp;&amp; random_accessed_range &amp;&amp; sized_range</code>,
-even though the end iterator could be computed from <code class="sourceCode default">ranges::begin(r) + ranges::size(r)</code>.</p>
+<code class="sourceCode cpp">concat_view</code> should not pretend to be
+a <code class="sourceCode cpp">common_range</code>, when the last
+underlying range is a <code class="sourceCode cpp"><span class="op">!</span>common_range <span class="op">&amp;&amp;</span> random_accessed_range <span class="op">&amp;&amp;</span> sized_range</code>,
+even though the end iterator could be computed from <code class="sourceCode cpp">ranges<span class="op">::</span>begin<span class="op">(</span>r<span class="op">)</span> <span class="op">+</span> ranges<span class="op">::</span>size<span class="op">(</span>r<span class="op">)</span></code>.</p>
 <p>Therefore in the current version the
-<code class="sourceCode default">common_range</code> is simplified
-to,</p>
+<code class="sourceCode cpp">common_range</code> is simplified to,</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>concat<span class="op">-</span>is<span class="op">-</span>common <span class="op">=</span> common_range<span class="op">&lt;</span>last<span class="op">-</span>view<span class="op">&gt;</span></span></code></pre></div>
 <p>However, the current design of
-<code class="sourceCode default">concat_view</code>’s bidirectional
-behaviour does use <code class="sourceCode default">ranges::begin(r) + ranges::size(r) - 1</code>
+<code class="sourceCode cpp">concat_view</code>’s bidirectional
+behaviour does use <code class="sourceCode cpp">ranges<span class="op">::</span>begin<span class="op">(</span>r<span class="op">)</span> <span class="op">+</span> ranges<span class="op">::</span>size<span class="op">(</span>r<span class="op">)</span> <span class="op">-</span> <span class="dv">1</span></code>
 to get to the previous range’s last iterator, when the previous range is
-<code class="sourceCode default">!common_range &amp;&amp; random_accessed_range &amp;&amp; sized_range</code>.
-Its <code class="sourceCode default">bidirectional_range</code>
-requirement is designed as follows</p>
+<code class="sourceCode cpp"><span class="op">!</span>common_range <span class="op">&amp;&amp;</span> random_accessed_range <span class="op">&amp;&amp;</span> sized_range</code>.
+Its <code class="sourceCode cpp">bidirectional_range</code> requirement
+is designed as follows</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> R<span class="op">&gt;</span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">concept</span> common<span class="op">-</span>ish <span class="op">=</span> common_range<span class="op">&lt;</span>R<span class="op">&gt;</span> <span class="op">||</span> <span class="op">(</span>random_accessed_range<span class="op">&lt;</span>R<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> sized_range<span class="op">&lt;</span>R<span class="op">&gt;)</span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>concat<span class="op">-</span>is<span class="op">-</span>bidi <span class="op">=</span> <span class="op">(</span>bidirectional_range<span class="op">&lt;</span>all<span class="op">-</span>views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span>common<span class="op">-</span>ish<span class="op">&lt;</span>all<span class="op">-</span>but<span class="op">-</span>last<span class="op">-</span>views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span></span></code></pre></div>
 <p>In the LWG wording review on 2023-09-13, it was suggested that
-<code class="sourceCode default">concat_view</code>’s
-<code class="sourceCode default">bidirectional_range</code> behaviour
-should be consistent with its
-<code class="sourceCode default">common_range</code> behaviour, i.e, do
-not support <code class="sourceCode default">!common_range &amp;&amp; random_accessed_range &amp;&amp; sized_range</code>
+<code class="sourceCode cpp">concat_view</code>’s
+<code class="sourceCode cpp">bidirectional_range</code> behaviour should
+be consistent with its <code class="sourceCode cpp">common_range</code>
+behaviour, i.e, do not support <code class="sourceCode cpp"><span class="op">!</span>common_range <span class="op">&amp;&amp;</span> random_accessed_range <span class="op">&amp;&amp;</span> sized_range</code>
 ranges. This would simplify the wording, so that to get to the end of
-the previous range,
-<code class="sourceCode default">--ranges::end(r)</code> would always
-work.</p>
+the previous range, <code class="sourceCode cpp"><span class="op">--</span>ranges<span class="op">::</span>end<span class="op">(</span>r<span class="op">)</span></code>
+would always work.</p>
 <p>So,</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>concat<span class="op">-</span>is<span class="op">-</span>bidi <span class="op">=</span> <span class="op">(</span>bidirectional_range<span class="op">&lt;</span>all<span class="op">-</span>views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span>common_range<span class="op">&lt;</span>all<span class="op">-</span>but<span class="op">-</span>last<span class="op">-</span>views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span></span></code></pre></div>
-<p>Similarly,
-<code class="sourceCode default">random_access_range</code> could follow
-the same design. To implement
-<code class="sourceCode default">it + n</code>, it is necessary to know
-if <code class="sourceCode default">n</code> is larger than the distance
-from <code class="sourceCode default">it</code> to the end of the
-current underlying range. If the underlying range is <code class="sourceCode default">!common_range &amp;&amp; random_accessed_range &amp;&amp; sized_range</code>,
-to compute the distance from <code class="sourceCode default">it</code>
-to the end of the range, an implementation must do <code class="sourceCode default">ranges::size(r) - (it - ranges::begin(r))</code>.
-If it is <code class="sourceCode default">common_range</code>, the
-distance is simply <code class="sourceCode default">ranges::distance(it, ranges::end(r))</code>.</p>
-<p>If the support of <code class="sourceCode default">!common_range &amp;&amp; random_accessed_range &amp;&amp; sized_range</code>
+<p>Similarly, <code class="sourceCode cpp">random_access_range</code>
+could follow the same design. To implement
+<code class="sourceCode cpp">it <span class="op">+</span> n</code>, it
+is necessary to know if <code class="sourceCode cpp">n</code> is larger
+than the distance from <code class="sourceCode cpp">it</code> to the end
+of the current underlying range. If the underlying range is <code class="sourceCode cpp"><span class="op">!</span>common_range <span class="op">&amp;&amp;</span> random_accessed_range <span class="op">&amp;&amp;</span> sized_range</code>,
+to compute the distance from <code class="sourceCode cpp">it</code> to
+the end of the range, an implementation must do <code class="sourceCode cpp">ranges<span class="op">::</span>size<span class="op">(</span>r<span class="op">)</span> <span class="op">-</span> <span class="op">(</span>it <span class="op">-</span> ranges<span class="op">::</span>begin<span class="op">(</span>r<span class="op">))</span></code>.
+If it is <code class="sourceCode cpp">common_range</code>, the distance
+is simply <code class="sourceCode cpp">ranges<span class="op">::</span>distance<span class="op">(</span>it, ranges<span class="op">::</span>end<span class="op">(</span>r<span class="op">))</span></code>.</p>
+<p>If the support of <code class="sourceCode cpp"><span class="op">!</span>common_range <span class="op">&amp;&amp;</span> random_accessed_range <span class="op">&amp;&amp;</span> sized_range</code>
 is dropped, it would simplify the exposition only helper functions
-<code class="sourceCode default">advance_fwd</code>,
-<code class="sourceCode default">advance_bwd</code> and all other random
+<code class="sourceCode cpp">advance_fwd</code>,
+<code class="sourceCode cpp">advance_bwd</code> and all other random
 access related functions.</p>
 <p>So change</p>
 <div class="sourceCode" id="cb13"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>concat<span class="op">-</span>is<span class="op">-</span>random<span class="op">-</span>access <span class="op">=</span> <span class="op">(</span>random_access_range<span class="op">&lt;</span>all<span class="op">-</span>views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span>sized_range<span class="op">&lt;</span>all<span class="op">-</span>but<span class="op">-</span>last<span class="op">-</span>views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span></span></code></pre></div>
 <p>to</p>
 <div class="sourceCode" id="cb14"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>concat<span class="op">-</span>is<span class="op">-</span>random<span class="op">-</span>access <span class="op">=</span> <span class="op">(</span>random_access_range<span class="op">&lt;</span>all<span class="op">-</span>views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span> <span class="op">&amp;&amp;</span> <span class="op">(</span>common_range<span class="op">&lt;</span>all<span class="op">-</span>but<span class="op">-</span>last<span class="op">-</span>views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span></span></code></pre></div>
-<p>Ranges that are <code class="sourceCode default">!common_range &amp;&amp; random_accessed_range &amp;&amp; sized_range</code>
+<p>Ranges that are <code class="sourceCode cpp"><span class="op">!</span>common_range <span class="op">&amp;&amp;</span> random_accessed_range <span class="op">&amp;&amp;</span> sized_range</code>
 are rare, and if the user does have one of these ranges and would like
 to have common, bidirectional or random access support in the
-<code class="sourceCode default">concat_view</code>, they can do</p>
+<code class="sourceCode cpp">concat_view</code>, they can do</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> cv <span class="op">=</span> views<span class="op">::</span>concat<span class="op">(</span>r <span class="op">|</span> views<span class="op">::</span>common, other_views<span class="op">...)</span></span></code></pre></div>
 <p>As per LEWG direction, the change proposed in this section is adopted
 ## Bidirectional Range</p>
-<p><code class="sourceCode default">concat_view</code> can model
-<code class="sourceCode default">bidirectional_range</code> if the
+<p><code class="sourceCode cpp">concat_view</code> can model
+<code class="sourceCode cpp">bidirectional_range</code> if the
 underlying ranges satisfy the following conditions:</p>
 <ul>
 <li>Every underlying range models
-<code class="sourceCode default">bidirectional_range</code><br />
+<code class="sourceCode cpp">bidirectional_range</code><br />
 </li>
-<li>If the iterator is at nth range’s begin position, after
-<code class="sourceCode default">operator--</code> it should go to
-(n-1)th’s range’s end-1 position. This means, the (n-1)th range has to
-support either
+<li>If the iterator is at nth range’s begin position, after <code class="sourceCode cpp"><span class="kw">operator</span><span class="op">--</span></code>
+it should go to (n-1)th’s range’s end-1 position. This means, the
+(n-1)th range has to support either
 <ul>
-<li><code class="sourceCode default">common_range &amp;&amp; bidirectional_range</code>,
-so the position can be reached by
-<code class="sourceCode default">--ranges::end(n-1th range)</code>,
+<li><code class="sourceCode cpp">common_range <span class="op">&amp;&amp;</span> bidirectional_range</code>,
+so the position can be reached by <code class="sourceCode cpp"><span class="op">--</span>ranges<span class="op">::</span>end<span class="op">(</span>n<span class="op">-</span><span class="dv">1</span><span class="er">th</span> range<span class="op">)</span></code>,
 assuming n-1th range is not empty, or</li>
-<li><code class="sourceCode default">random_access_range &amp;&amp; sized_range</code>,
-so the position can be reached by <code class="sourceCode default">ranges::begin(n-1th range) + (ranges::size(n-1th range) - 1)</code>
+<li><code class="sourceCode cpp">random_access_range <span class="op">&amp;&amp;</span> sized_range</code>,
+so the position can be reached by <code class="sourceCode cpp">ranges<span class="op">::</span>begin<span class="op">(</span>n<span class="op">-</span><span class="dv">1</span><span class="er">th</span> range<span class="op">)</span> <span class="op">+</span> <span class="op">(</span>ranges<span class="op">::</span>size<span class="op">(</span>n<span class="op">-</span><span class="dv">1</span><span class="er">th</span> range<span class="op">)</span> <span class="op">-</span> <span class="dv">1</span><span class="op">)</span></code>
 in constant time, assuming n-1th range is not empty. However, as per
-LEWG’s direction,<code class="sourceCode default">!common_range &amp;&amp; random_access_range &amp;&amp; sized_range</code>
+LEWG’s direction,<code class="sourceCode cpp"><span class="op">!</span>common_range <span class="op">&amp;&amp;</span> random_access_range <span class="op">&amp;&amp;</span> sized_range</code>
 is removed</li>
 </ul>
 Note that the last underlying range does not have to satisfy this
 constraint because n-1 can never be the last underlying range. If
 neither of the two constraints is satisfied, in theory we can cache the
 end-1 position for every single underlying range inside the
-<code class="sourceCode default">concat_view</code> itself. But the
-authors do not consider this type of ranges as worth supporting
+<code class="sourceCode cpp">concat_view</code> itself. But the authors
+do not consider this type of ranges as worth supporting
 bidirectional</li>
 </ul>
-<p>In the <code class="sourceCode default">concat</code> implementation
-in <span class="citation" data-cites="rangev3">[<a href="#ref-rangev3" role="doc-biblioref">range-v3</a>]</span>,
-<code class="sourceCode default">operator--</code> is only constrained
-on all underlying ranges being
-<code class="sourceCode default">bidirectional_range</code> on the
-declaration, but its implementation is using <code class="sourceCode default">ranges::next(ranges::begin(r), ranges::end(r))</code>
+<p>In the <code class="sourceCode cpp">concat</code> implementation in
+<span class="citation" data-cites="rangev3">[<a href="https://github.com/ericniebler/range-v3" role="doc-biblioref">range-v3</a>]</span>, <code class="sourceCode cpp"><span class="kw">operator</span><span class="op">--</span></code>
+is only constrained on all underlying ranges being
+<code class="sourceCode cpp">bidirectional_range</code> on the
+declaration, but its implementation is using <code class="sourceCode cpp">ranges<span class="op">::</span>next<span class="op">(</span>ranges<span class="op">::</span>begin<span class="op">(</span>r<span class="op">)</span>, ranges<span class="op">::</span>end<span class="op">(</span>r<span class="op">))</span></code>
 which implicitly requires random access to make the operation constant
 time. So it went with the second constraint.</p>
 <h2 data-number="4.6" id="random-access-range"><span class="header-section-number">4.6</span> Random Access Range<a href="#random-access-range" class="self-link"></a></h2>
-<p><code class="sourceCode default">concat_view</code> can model
-<code class="sourceCode default">random_access_range</code> if the
+<p><code class="sourceCode cpp">concat_view</code> can model
+<code class="sourceCode cpp">random_access_range</code> if the
 underlying ranges satisfy the following conditions:</p>
 <ul>
 <li>Every underlying range models
-<code class="sourceCode default">random_access_range</code><br />
+<code class="sourceCode cpp">random_access_range</code><br />
 </li>
 <li>All except the last range model
-<code class="sourceCode default">common_range</code></li>
+<code class="sourceCode cpp">common_range</code></li>
 </ul>
 <h2 data-number="4.7" id="sized-range"><span class="header-section-number">4.7</span> Sized Range<a href="#sized-range" class="self-link"></a></h2>
-<p><code class="sourceCode default">concat_view</code> can be
-<code class="sourceCode default">sized_range</code> if all the
-underlying ranges model
-<code class="sourceCode default">sized_range</code></p>
+<p><code class="sourceCode cpp">concat_view</code> can be
+<code class="sourceCode cpp">sized_range</code> if all the underlying
+ranges model <code class="sourceCode cpp">sized_range</code></p>
 <h2 data-number="4.8" id="iter_swap-customizations"><span class="header-section-number">4.8</span>
-<code class="sourceCode default">iter_swap</code> Customizations<a href="#iter_swap-customizations" class="self-link"></a></h2>
+<code class="sourceCode cpp">iter_swap</code> Customizations<a href="#iter_swap-customizations" class="self-link"></a></h2>
 <h3 data-number="4.8.1" id="option-1-delegate-to-the-underlying-iter_swap"><span class="header-section-number">4.8.1</span> Option 1: Delegate to the
-Underlying <code class="sourceCode default">iter_swap</code><a href="#option-1-delegate-to-the-underlying-iter_swap" class="self-link"></a></h3>
+Underlying <code class="sourceCode cpp">iter_swap</code><a href="#option-1-delegate-to-the-underlying-iter_swap" class="self-link"></a></h3>
 <p>This option was originally adopted in the paper. If all the
 combinations of the underlying iterators model
-<code class="sourceCode default">indirectly_swappable</code>, then
-<code class="sourceCode default">ranges::iter_swap(x, y)</code> could
-delegate to the underlying iterators</p>
+<code class="sourceCode cpp">indirectly_swappable</code>, then <code class="sourceCode cpp">ranges<span class="op">::</span>iter_swap<span class="op">(</span>x, y<span class="op">)</span></code>
+could delegate to the underlying iterators</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>visit<span class="op">(</span>ranges<span class="op">::</span>iter_swap, x<span class="op">.</span>it_, y<span class="op">.</span>it_<span class="op">)</span>;</span></code></pre></div>
 <p>This would allow swapping elements across heterogeneous ranges, which
-is very powerful. However,
-<code class="sourceCode default">ranges::iter_swap</code> is too
-permissive. Consider the following example:</p>
+is very powerful. However, <code class="sourceCode cpp">ranges<span class="op">::</span>iter_swap</code>
+is too permissive. Consider the following example:</p>
 <div class="sourceCode" id="cb17"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> v1<span class="op">[]</span> <span class="op">=</span> <span class="op">{</span><span class="dv">1</span>, <span class="dv">2</span><span class="op">}</span>;</span>
 <span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="dt">long</span> v2<span class="op">[]</span> <span class="op">=</span> <span class="op">{</span><span class="dv">2147483649</span>, <span class="dv">4</span><span class="op">}</span>;</span>
 <span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> cv <span class="op">=</span> std<span class="op">::</span>views<span class="op">::</span>concat<span class="op">(</span>v1, v2<span class="op">)</span>;</span>
 <span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> it1 <span class="op">=</span> cv<span class="op">.</span>begin<span class="op">()</span>;</span>
 <span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> it2 <span class="op">=</span> cv<span class="op">.</span>begin<span class="op">()</span> <span class="op">+</span> <span class="dv">2</span>;</span>
 <span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>ranges<span class="op">::</span>iter_swap<span class="op">(</span>it1, it2<span class="op">)</span>;</span></code></pre></div>
-<p>Delegating <code class="sourceCode default">ranges::iter_swap(const concat_view::iterator&amp;, const concat_view::iterator&amp;)</code>
-to
-<code class="sourceCode default">ranges::iter_swap(int*, long*)</code>
-in this case would result in a tripple-move and leave
-<code class="sourceCode default">v1[0]</code> overflowed.</p>
+<p>Delegating <code class="sourceCode cpp">ranges<span class="op">::</span>iter_swap<span class="op">(</span><span class="kw">const</span> concat_view<span class="op">::</span>iterator<span class="op">&amp;</span>, <span class="kw">const</span> concat_view<span class="op">::</span>iterator<span class="op">&amp;)</span></code>
+to <code class="sourceCode cpp">ranges<span class="op">::</span>iter_swap<span class="op">(</span><span class="dt">int</span><span class="op">*</span>, <span class="dt">long</span><span class="op">*)</span></code>
+in this case would result in a tripple-move and leave <code class="sourceCode cpp">v1<span class="op">[</span><span class="dv">0</span><span class="op">]</span></code>
+overflowed.</p>
 <p>Another example discussed in SG9 mailing list is</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>string_view v1<span class="op">[]</span> <span class="op">=</span> <span class="op">{</span><span class="st">&quot;aa&quot;</span><span class="op">}</span>;</span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>string v2<span class="op">[]</span> <span class="op">=</span> <span class="op">{</span><span class="st">&quot;bbb&quot;</span><span class="op">}</span>;</span>
@@ -1176,7 +1149,7 @@ in this case would result in a tripple-move and leave
 <span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> it1 <span class="op">=</span> cv<span class="op">.</span>begin<span class="op">()</span>;</span>
 <span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> it2 <span class="op">=</span> cv<span class="op">.</span>begin<span class="op">()+</span><span class="dv">1</span>;</span>
 <span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>ranges<span class="op">::</span>iter_swap<span class="op">(</span>it1, it2<span class="op">)</span>;</span></code></pre></div>
-<p><code class="sourceCode default">ranges::iter_swap(string_view*, string*)</code>
+<p><code class="sourceCode cpp">ranges<span class="op">::</span>iter_swap<span class="op">(</span>string_view<span class="op">*</span>, string<span class="op">*)</span></code>
 in this case would result in dangling reference due to the tripple move,
 which is effectively</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> iter_swap_impl<span class="op">(</span>string_view<span class="op">*</span> x, string<span class="op">*</span> y<span class="op">)</span></span>
@@ -1189,56 +1162,50 @@ which is effectively</p>
 ranges could result in lots of undesired behaviours.</p>
 <h3 data-number="4.8.2" id="option-2-do-not-provide-the-customization"><span class="header-section-number">4.8.2</span> Option 2: Do not Provide the
 Customization<a href="#option-2-do-not-provide-the-customization" class="self-link"></a></h3>
-<p>If the <code class="sourceCode default">iter_swap</code>
-customization is removed, the above examples are no longer an issue
-because <code class="sourceCode default">ranges::iter_swap</code> would
-be ill-formed. This is because <code class="sourceCode default">iter_reference_t&lt;concat_view::iterator&gt;</code>
+<p>If the <code class="sourceCode cpp">iter_swap</code> customization is
+removed, the above examples are no longer an issue because <code class="sourceCode cpp">ranges<span class="op">::</span>iter_swap</code>
+would be ill-formed. This is because <code class="sourceCode cpp">iter_reference_t<span class="op">&lt;</span>concat_view<span class="op">::</span>iterator<span class="op">&gt;</span></code>
 are prvalues in those cases.</p>
 <p>For the trivial cases where underlying ranges share the same
-<code class="sourceCode default">iter_reference_t</code>,
-<code class="sourceCode default">iter_value_t</code> and
-<code class="sourceCode default">iter_rvalue_reference_t</code>, the
+<code class="sourceCode cpp">iter_reference_t</code>,
+<code class="sourceCode cpp">iter_value_t</code> and
+<code class="sourceCode cpp">iter_rvalue_reference_t</code>, the
 genereated tripple-move swap would just work.</p>
-<p>However, all the user
-<code class="sourceCode default">iter_swap</code> customizations will be
-ignored, even if the user tries to
-<code class="sourceCode default">concat</code> the same type of ranges
-with <code class="sourceCode default">iter_swap</code>
-customizations.</p>
+<p>However, all the user <code class="sourceCode cpp">iter_swap</code>
+customizations will be ignored, even if the user tries to
+<code class="sourceCode cpp">concat</code> the same type of ranges with
+<code class="sourceCode cpp">iter_swap</code> customizations.</p>
 <h3 data-number="4.8.3" id="option-3-delegate-to-the-underlying-iter_swap-only-if-they-have-the-same-type"><span class="header-section-number">4.8.3</span> Option 3: Delegate to the
-Underlying <code class="sourceCode default">iter_swap</code> Only If
-They Have the Same Type<a href="#option-3-delegate-to-the-underlying-iter_swap-only-if-they-have-the-same-type" class="self-link"></a></h3>
+Underlying <code class="sourceCode cpp">iter_swap</code> Only If They
+Have the Same Type<a href="#option-3-delegate-to-the-underlying-iter_swap-only-if-they-have-the-same-type" class="self-link"></a></h3>
 <p>This option was suggested by Tomasz in the SG9 mailing list. The idea
 is to</p>
 <ul>
 <li><ol type="1">
-<li>use
-<code class="sourceCode default">ranges::iter_swap(x.it_, y.it_)</code>
+<li>use <code class="sourceCode cpp">ranges<span class="op">::</span>iter_swap<span class="op">(</span>x<span class="op">.</span>it_, y<span class="op">.</span>it_<span class="op">)</span></code>
 if they have the same underlying iterator type</li>
 </ol></li>
 <li><ol start="2" type="1">
-<li>otherwise,
-<code class="sourceCode default">ranges::swap(*x, *y)</code> if it is
-valid</li>
+<li>otherwise, <code class="sourceCode cpp">ranges<span class="op">::</span>swap<span class="op">(*</span>x, <span class="op">*</span>y<span class="op">)</span></code>
+if it is valid</li>
 </ol></li>
 </ul>
 <p>The issues decribed in Option 1 are avoided because we only delegate
-to underlying <code class="sourceCode default">iter_swap</code> if they
-have the same underlying iterators.</p>
+to underlying <code class="sourceCode cpp">iter_swap</code> if they have
+the same underlying iterators.</p>
 <p>The authors believe that this apporach is a good compromise thus it
 is adopted in this revision.</p>
 <h2 data-number="4.9" id="implementation-experience"><span class="header-section-number">4.9</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h2>
-<p><code class="sourceCode default">views::concat</code> has been
-implemented in <span class="citation" data-cites="rangev3">[<a href="#ref-rangev3" role="doc-biblioref">range-v3</a>]</span>, with
-equivalent semantics as proposed here. The authors also implemented a
-version that directly follows the proposed wording below without any
-issue <span class="citation" data-cites="ours">[<a href="#ref-ours" role="doc-biblioref">ours</a>]</span>.</p>
+<p><code class="sourceCode cpp">views<span class="op">::</span>concat</code> has
+been implemented in <span class="citation" data-cites="rangev3">[<a href="https://github.com/ericniebler/range-v3" role="doc-biblioref">range-v3</a>]</span>, with equivalent semantics as
+proposed here. The authors also implemented a version that directly
+follows the proposed wording below without any issue <span class="citation" data-cites="ours">[<a href="https://github.com/huixie90/cpp_papers/tree/main/impl/concat" role="doc-biblioref">ours</a>]</span>.</p>
 <h1 data-number="5" id="wording"><span class="header-section-number">5</span> Wording<a href="#wording" class="self-link"></a></h1>
-<h2 data-number="5.1" id="addition-to-ranges"><span class="header-section-number">5.1</span> Addition to
-<code class="sourceCode default">&lt;ranges&gt;</code><a href="#addition-to-ranges" class="self-link"></a></h2>
+<h2 data-number="5.1" id="addition-to-ranges"><span class="header-section-number">5.1</span> Addition to <code class="sourceCode cpp"><span class="op">&lt;</span>ranges<span class="op">&gt;</span></code><a href="#addition-to-ranges" class="self-link"></a></h2>
 <p>Add the following to <span>25.2
 <a href="https://wg21.link/ranges.syn">[ranges.syn]</a></span>, header
-<code class="sourceCode default">&lt;ranges&gt;</code> synopsis:</p>
+<code class="sourceCode cpp"><span class="op">&lt;</span>ranges<span class="op">&gt;</span></code>
+synopsis:</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">// [...]</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> std<span class="op">::</span>ranges <span class="op">{</span></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">// [...]</span></span>
@@ -1255,10 +1222,9 @@ issue <span class="citation" data-cites="ours">[<a href="#ref-ours" role="doc-bi
 <span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <h2 data-number="5.2" id="move-exposition-only-utilities"><span class="header-section-number">5.2</span> Move exposition-only
 utilities<a href="#move-exposition-only-utilities" class="self-link"></a></h2>
-<p>Move
-<code class="sourceCode default"><em>all-random-access</em></code>,
-<code class="sourceCode default"><em>all-bidirectional</em></code>, and
-<code class="sourceCode default"><em>all-forward</em></code> from
+<p>Move <code class="sourceCode cpp"><em>all-random-access</em></code>,
+<code class="sourceCode cpp"><em>all-bidirectional</em></code>, and
+<code class="sourceCode cpp"><em>all-forward</em></code> from
 <span>25.7.25.3
 <a href="https://wg21.link/range.zip.iterator">[range.zip.iterator]</a></span>
 to <span>25.7.5
@@ -1297,7 +1263,7 @@ to <span>25.7.5
 <span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 </div>
 <h2 data-number="5.3" id="concat"><span class="header-section-number">5.3</span>
-<code class="sourceCode default">concat</code><a href="#concat" class="self-link"></a></h2>
+<code class="sourceCode cpp">concat</code><a href="#concat" class="self-link"></a></h2>
 <p>Add the following subclause to <span>25.7
 <a href="https://wg21.link/range.adaptors">[range.adaptors]</a></span>.</p>
 <h3 class="unnumbered" id="concat-view-range.concat">?.?.? Concat view
@@ -1305,25 +1271,24 @@ to <span>25.7.5
 <h4 class="unnumbered" id="overview-range.concat.overview">?.?.?.1
 Overview [range.concat.overview]<a href="#overview-range.concat.overview" class="self-link"></a></h4>
 <p><span class="marginalizedparent"><a class="marginalized">1</a></span>
-<code class="sourceCode default">concat_view</code> presents a
-<code class="sourceCode default">view</code> that concatenates all the
+<code class="sourceCode cpp">concat_view</code> presents a
+<code class="sourceCode cpp">view</code> that concatenates all the
 underlying ranges.</p>
 <p><span class="marginalizedparent"><a class="marginalized">2</a></span>
-The name <code class="sourceCode default">views::concat</code> denotes a
-customization point object (<span>16.3.3.3.5
+The name <code class="sourceCode cpp">views<span class="op">::</span>concat</code>
+denotes a customization point object (<span>16.3.3.3.5
 <a href="https://wg21.link/customization.point.object">[customization.point.object]</a></span>).
 Given a pack of subexpressions
-<code class="sourceCode default">Es...</code>, the expression
-<code class="sourceCode default">views::concat(Es...)</code> is
-expression-equivalent to</p>
+<code class="sourceCode cpp">Es<span class="op">...</span></code>, the
+expression <code class="sourceCode cpp">views<span class="op">::</span>concat<span class="op">(</span>Es<span class="op">...)</span></code>
+is expression-equivalent to</p>
 <ul>
 <li><span class="marginalizedparent"><a class="marginalized">(2.1)</a></span>
-<code class="sourceCode default">views::all(Es...)</code> if
-<code class="sourceCode default">Es</code> is a pack with only one
+<code class="sourceCode cpp">views<span class="op">::</span>all<span class="op">(</span>Es<span class="op">...)</span></code>
+if <code class="sourceCode cpp">Es</code> is a pack with only one
 element,</li>
 <li><span class="marginalizedparent"><a class="marginalized">(2.2)</a></span>
-otherwise,
-<code class="sourceCode default">concat_view(Es...)</code></li>
+otherwise, <code class="sourceCode cpp">concat_view<span class="op">(</span>Es<span class="op">...)</span></code></li>
 </ul>
 <p>[<em>Example:</em></p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>vector<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;</span> v1<span class="op">{</span><span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">3</span><span class="op">}</span>, v2<span class="op">{</span><span class="dv">4</span>,<span class="dv">5</span><span class="op">}</span>, v3<span class="op">{}</span>;</span>
@@ -1336,8 +1301,7 @@ otherwise,
 <li><em>end example</em>]</li>
 </ul>
 <h4 class="unnumbered" id="class-template-concat_view-range.concat.view">?.?.?.2 Class template
-<code class="sourceCode default">concat_view</code>
-[range.concat.view]<a href="#class-template-concat_view-range.concat.view" class="self-link"></a></h4>
+<code class="sourceCode cpp">concat_view</code> [range.concat.view]<a href="#class-template-concat_view-range.concat.view" class="self-link"></a></h4>
 <div class="sourceCode" id="cb24"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> std<span class="op">::</span>ranges <span class="op">{</span></span>
 <span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
@@ -1399,7 +1363,7 @@ otherwise,
 <p><span class="marginalizedparent"><a class="marginalized">1</a></span>
 <span id="concat-indirectly-readable-definition"></span> The
 exposition-only
-<code class="sourceCode default"><em>concat-indirectly-readable</em></code>
+<code class="sourceCode cpp"><em>concat-indirectly-readable</em></code>
 concept is equivalent to:</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Ref, <span class="kw">class</span> RRef, <span class="kw">class</span> It<span class="op">&gt;</span></span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="kw">concept</span> <em>concat-indirectly-readable-impl</em> <span class="op">=</span>  <span class="co">// exposition only</span></span>
@@ -1425,7 +1389,7 @@ concept is equivalent to:</p>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">2</a></span>
 <span id="concatable-definition"></span> The exposition-only
-<code class="sourceCode default"><em>concatable</em></code> concept is
+<code class="sourceCode cpp"><em>concatable</em></code> concept is
 equivalent to:</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="kw">concept</span> <em>concatable</em> <span class="op">=</span> <span class="kw">requires</span> <span class="op">{</span> <span class="co">// exposition only</span></span>
@@ -1438,11 +1402,11 @@ equivalent to:</p>
 <span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="kw">concept</span> <em>concat-is-random-access</em> <span class="op">=</span> <em>see below</em>; <span class="co">// exposition only</span></span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">3</a></span>
-Let <code class="sourceCode default">Fs</code> be the pack that consists
-of all elements of <code class="sourceCode default">Rs</code> except the
-last element, then
-<code class="sourceCode default"><em>concat-is-random-access</em></code>
-is equivalent to:</p>
+Let <code class="sourceCode cpp">Fs</code> be the pack that consists of
+all elements of <code class="sourceCode cpp">Rs</code> except the last
+element, then
+<code class="sourceCode cpp"><em>concat-is-random-access</em></code> is
+equivalent to:</p>
 <div class="sourceCode" id="cb30"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="dt">bool</span> Const, <span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="kw">concept</span> <em>concat-is-random-access</em> <span class="op">=</span> <span class="co">// exposition only</span></span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>   <em>all-random-access</em><span class="op">&lt;</span>Const, Rs<span class="op">...&gt;</span> <span class="op">&amp;&amp;</span></span>
@@ -1452,11 +1416,11 @@ is equivalent to:</p>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="kw">concept</span> <em>concat-is-bidirectional</em> <span class="op">=</span> <em>see below</em>; <span class="co">// exposition only</span></span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">4</a></span>
-Let <code class="sourceCode default">Fs</code> be the pack that consists
-of all elements of <code class="sourceCode default">Rs</code> except the
-last element, then
-<code class="sourceCode default"><em>concat-is-bidirectional</em></code>
-is equivalent to:</p>
+Let <code class="sourceCode cpp">Fs</code> be the pack that consists of
+all elements of <code class="sourceCode cpp">Rs</code> except the last
+element, then
+<code class="sourceCode cpp"><em>concat-is-bidirectional</em></code> is
+equivalent to:</p>
 <div class="sourceCode" id="cb32"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="dt">bool</span> Const, <span class="kw">class</span><span class="op">...</span> Rs<span class="op">&gt;</span></span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="kw">concept</span> <em>concat-is-bidirectional</em> <span class="op">=</span> <span class="co">// exposition only</span></span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <em>all-bidirectional</em><span class="op">&lt;</span>Const, Rs<span class="op">...&gt;</span> <span class="op">&amp;&amp;</span></span>
@@ -1466,8 +1430,7 @@ is equivalent to:</p>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">5</a></span>
 <em>Effects</em>: Initializes
-<code class="sourceCode default"><em>views_</em></code> with
-<code class="sourceCode default">std::move(views)...</code>.</p>
+<code class="sourceCode cpp"><em>views_</em></code> with <code class="sourceCode cpp">std<span class="op">::</span>move<span class="op">(</span>views<span class="op">)...</span></code>.</p>
 </div>
 <div class="sourceCode" id="cb34"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">&lt;</span><span class="kw">false</span><span class="op">&gt;</span> begin<span class="op">()</span> <span class="kw">requires</span><span class="op">(!(</span><em>simple-view</em><span class="op">&lt;</span>Views<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...))</span>;</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">&lt;</span><span class="kw">true</span><span class="op">&gt;</span> begin<span class="op">()</span> <span class="kw">const</span></span>
@@ -1475,10 +1438,11 @@ is equivalent to:</p>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">6</a></span>
 <em>Effects</em>: Let
-<code class="sourceCode default"><em>is-const</em></code> be
-<code class="sourceCode default">true</code> for the const-qualified
-overload, and <code class="sourceCode default">false</code> otherwise.
-Equivalent to:</p>
+<code class="sourceCode cpp"><em>is-const</em></code> be
+<code class="sourceCode cpp"><span class="kw">true</span></code> for the
+const-qualified overload, and
+<code class="sourceCode cpp"><span class="kw">false</span></code>
+otherwise. Equivalent to:</p>
 <div class="sourceCode" id="cb35"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><em>iterator</em><span class="op">&lt;</span><em>is-const</em><span class="op">&gt;</span> it<span class="op">(</span><span class="kw">this</span>, in_place_index<span class="op">&lt;</span><span class="dv">0</span><span class="op">&gt;</span>, ranges<span class="op">::</span>begin<span class="op">(</span>std<span class="op">::</span>get<span class="op">&lt;</span><span class="dv">0</span><span class="op">&gt;(</span><em>views_</em><span class="op">)))</span>;</span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>it<span class="op">.</span><span class="kw">template</span> <em>satisfy</em><span class="op">&lt;</span><span class="dv">0</span><span class="op">&gt;()</span>;</span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> it;</span></code></pre></div>
@@ -1489,10 +1453,11 @@ Equivalent to:</p>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">7</a></span>
 <em>Effects</em>: Let
-<code class="sourceCode default"><em>is-const</em></code> be
-<code class="sourceCode default">true</code> for the const-qualified
-overload, and <code class="sourceCode default">false</code> otherwise.
-Equivalent to:</p>
+<code class="sourceCode cpp"><em>is-const</em></code> be
+<code class="sourceCode cpp"><span class="kw">true</span></code> for the
+const-qualified overload, and
+<code class="sourceCode cpp"><span class="kw">false</span></code>
+otherwise. Equivalent to:</p>
 <div class="sourceCode" id="cb37"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="kw">auto</span> N <span class="op">=</span> <span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">)</span>;</span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="kw">constexpr</span> <span class="op">(</span>common_range<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span><em>is-const</em>, Views<span class="op">...[</span>N<span class="op">-</span><span class="dv">1</span><span class="op">]&gt;&gt;)</span> <span class="op">{</span></span>
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <em>iterator</em><span class="op">&lt;</span><em>is-const</em><span class="op">&gt;(</span><span class="kw">this</span>, in_place_index<span class="op">&lt;</span>N <span class="op">-</span> <span class="dv">1</span><span class="op">&gt;</span>, </span>
@@ -1630,63 +1595,58 @@ concat_view::iterator [range.concat.iterator]<a href="#class-concat_viewiterator
 <span id="cb40-113"><a href="#cb40-113" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb40-114"><a href="#cb40-114" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p><span class="marginalizedparent"><a class="marginalized">1</a></span>
-<code class="sourceCode default"><em>iterator</em>::iterator_concept</code>
+<code class="sourceCode cpp"><em>iterator</em><span class="op">::</span>iterator_concept</code>
 is defined as follows:</p>
 <ul>
 <li><span class="marginalizedparent"><a class="marginalized">(1.1)</a></span> If
-<code class="sourceCode default"><em>concat-is-random-access</em>&lt;Const, Views...&gt;</code>
-is modeled, then
-<code class="sourceCode default">iterator_concept</code> denotes
-<code class="sourceCode default">random_access_iterator_tag</code>.</li>
+<code class="sourceCode cpp"><em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span></code>
+is modeled, then <code class="sourceCode cpp">iterator_concept</code>
+denotes
+<code class="sourceCode cpp">random_access_iterator_tag</code>.</li>
 <li><span class="marginalizedparent"><a class="marginalized">(1.2)</a></span>
-Otherwise, if <code class="sourceCode default"><em>concat-is-bidirectional</em>&lt;Const, Views...&gt;</code>
-is modeled, then
-<code class="sourceCode default">iterator_concept</code> denotes
-<code class="sourceCode default">bidirectional_iterator_tag</code>.</li>
+Otherwise, if <code class="sourceCode cpp"><em>concat-is-bidirectional</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span></code>
+is modeled, then <code class="sourceCode cpp">iterator_concept</code>
+denotes
+<code class="sourceCode cpp">bidirectional_iterator_tag</code>.</li>
 <li><span class="marginalizedparent"><a class="marginalized">(1.3)</a></span>
-Otherwise, if <code class="sourceCode default"><em>all-forward</em>&lt;Const, Views...&gt;</code>
-is modeled, then
-<code class="sourceCode default">iterator_concept</code> denotes
-<code class="sourceCode default">forward_iterator_tag</code>.</li>
+Otherwise, if <code class="sourceCode cpp"><em>all-forward</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span></code>
+is modeled, then <code class="sourceCode cpp">iterator_concept</code>
+denotes <code class="sourceCode cpp">forward_iterator_tag</code>.</li>
 <li><span class="marginalizedparent"><a class="marginalized">(1.4)</a></span>
-Otherwise, <code class="sourceCode default">iterator_concept</code>
-denotes <code class="sourceCode default">input_iterator_tag</code>.</li>
+Otherwise, <code class="sourceCode cpp">iterator_concept</code> denotes
+<code class="sourceCode cpp">input_iterator_tag</code>.</li>
 </ul>
 <p><span class="marginalizedparent"><a class="marginalized">2</a></span>
 The member typedef-name
-<code class="sourceCode default">iterator_category</code> is defined if
-and only if <code class="sourceCode default"><em>all-forward</em>&lt;Const, Views...&gt;</code>
-is modeled. In that case,
-<code class="sourceCode default">iterator::iterator_category</code> is
-defined as follows:</p>
+<code class="sourceCode cpp">iterator_category</code> is defined if and
+only if <code class="sourceCode cpp"><em>all-forward</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span></code>
+is modeled. In that case, <code class="sourceCode cpp">iterator<span class="op">::</span>iterator_category</code>
+is defined as follows:</p>
 <ul>
 <li><span class="marginalizedparent"><a class="marginalized">(2.1)</a></span> If
-<code class="sourceCode default">is_reference_v&lt;<em>concat-reference-t</em>&lt;<em>maybe-const</em>&lt;Const, Views&gt;...&gt;&gt;</code>
-is <code class="sourceCode default">false</code>, then
-<code class="sourceCode default">iterator_category</code> denotes
-<code class="sourceCode default">input_iterator_tag</code></li>
+<code class="sourceCode cpp">is_reference_v<span class="op">&lt;</span><em>concat-reference-t</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;&gt;</span></code>
+is <code class="sourceCode cpp"><span class="kw">false</span></code>,
+then <code class="sourceCode cpp">iterator_category</code> denotes
+<code class="sourceCode cpp">input_iterator_tag</code></li>
 <li><span class="marginalizedparent"><a class="marginalized">(2.2)</a></span>
-Otherwise, let <code class="sourceCode default">Cs</code> denote the
-pack of types <code class="sourceCode default">iterator_traits&lt;iterator_t&lt;<em>maybe-const</em>&lt;Const, Views&gt;&gt;&gt;::iterator_category...</code>.
+Otherwise, let <code class="sourceCode cpp">Cs</code> denote the pack of
+types <code class="sourceCode cpp">iterator_traits<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&gt;::</span>iterator_category<span class="op">...</span></code>.
 <ul>
 <li><span class="marginalizedparent"><a class="marginalized">(2.2.1)</a></span> If
-<code class="sourceCode default">(derived_from&lt;Cs, random_access_iterator_tag&gt; &amp;&amp; ...) &amp;&amp; <em>concat-is-random-access</em>&lt;Const, Views...&gt;</code>
-is true, <code class="sourceCode default">iterator_category</code>
-denotes
-<code class="sourceCode default">random_access_iterator_tag</code>.</li>
+<code class="sourceCode cpp"><span class="op">(</span>derived_from<span class="op">&lt;</span>Cs, random_access_iterator_tag<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span> <span class="op">&amp;&amp;</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span></code>
+is true, <code class="sourceCode cpp">iterator_category</code> denotes
+<code class="sourceCode cpp">random_access_iterator_tag</code>.</li>
 <li><span class="marginalizedparent"><a class="marginalized">(2.2.2)</a></span>
-Otherwise, if <code class="sourceCode default">(derived_from&lt;Cs, bidirectional_iterator_tag&gt; &amp;&amp; ...) &amp;&amp; <em>concat-is-bidirectional</em>&lt;Const, Views...&gt;</code>
-is true, <code class="sourceCode default">iterator_category</code>
-denotes
-<code class="sourceCode default">bidirectional_iterator_tag</code>.</li>
+Otherwise, if <code class="sourceCode cpp"><span class="op">(</span>derived_from<span class="op">&lt;</span>Cs, bidirectional_iterator_tag<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span> <span class="op">&amp;&amp;</span> <em>concat-is-bidirectional</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span></code>
+is true, <code class="sourceCode cpp">iterator_category</code> denotes
+<code class="sourceCode cpp">bidirectional_iterator_tag</code>.</li>
 <li><span class="marginalizedparent"><a class="marginalized">(2.2.3)</a></span>
-Otherwise, If <code class="sourceCode default">(derived_from&lt;Cs, forward_iterator_tag&gt; &amp;&amp; ...)</code>
-is true, <code class="sourceCode default">iterator_category</code>
-denotes
-<code class="sourceCode default">forward_iterator_tag</code>.</li>
+Otherwise, If <code class="sourceCode cpp"><span class="op">(</span>derived_from<span class="op">&lt;</span>Cs, forward_iterator_tag<span class="op">&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span></code>
+is true, <code class="sourceCode cpp">iterator_category</code> denotes
+<code class="sourceCode cpp">forward_iterator_tag</code>.</li>
 <li><span class="marginalizedparent"><a class="marginalized">(2.2.4)</a></span>
-Otherwise, <code class="sourceCode default">iterator_category</code>
-denotes <code class="sourceCode default">input_iterator_tag</code>.</li>
+Otherwise, <code class="sourceCode cpp">iterator_category</code> denotes
+<code class="sourceCode cpp">input_iterator_tag</code>.</li>
 </ul></li>
 </ul>
 <div class="sourceCode" id="cb41"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="dt">size_t</span> N<span class="op">&gt;</span></span>
@@ -1761,9 +1721,9 @@ denotes <code class="sourceCode default">input_iterator_tag</code>.</li>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">7</a></span>
 <em>Effects</em>: Initializes
-<code class="sourceCode default"><em>parent_</em></code> with
-<code class="sourceCode default">parent</code>, and initializes
-<code class="sourceCode default"><em>it_</em></code> with <code class="sourceCode default">std::forward&lt;Args&gt;(args)...</code>.</p>
+<code class="sourceCode cpp"><em>parent_</em></code> with
+<code class="sourceCode cpp">parent</code>, and initializes
+<code class="sourceCode cpp"><em>it_</em></code> with <code class="sourceCode cpp">std<span class="op">::</span>forward<span class="op">&lt;</span>Args<span class="op">&gt;(</span>args<span class="op">)...</span></code>.</p>
 </div>
 <div class="sourceCode" id="cb50"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">(</span><em>iterator</em><span class="op">&lt;!</span>Const<span class="op">&gt;</span> it<span class="op">)</span> </span>
 <span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> Const <span class="op">&amp;&amp;</span></span>
@@ -1771,19 +1731,16 @@ denotes <code class="sourceCode default">input_iterator_tag</code>.</li>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">8</a></span>
 <em>Effects</em>: Initializes
-<code class="sourceCode default"><em>parent_</em></code> with
-<code class="sourceCode default">it.<em>parent_</em></code>, and let
-<code class="sourceCode default"><em>i</em></code> be
-<code class="sourceCode default">it.<em>it_</em>.index()</code>,
-initializes <code class="sourceCode default"><em>it_</em></code> with
-<code class="sourceCode default"><em>base-iter</em>(in_place_index&lt;<em>i</em>&gt;, std::get&lt;<em>i</em>&gt;(std::move(it.<em>it_</em>)))</code></p>
+<code class="sourceCode cpp"><em>parent_</em></code> with <code class="sourceCode cpp">it<span class="op">.</span><em>parent_</em></code>,
+and let <code class="sourceCode cpp"><em>i</em></code> be <code class="sourceCode cpp">it<span class="op">.</span><em>it_</em><span class="op">.</span>index<span class="op">()</span></code>,
+initializes <code class="sourceCode cpp"><em>it_</em></code> with <code class="sourceCode cpp"><em>base-iter</em><span class="op">(</span>in_place_index<span class="op">&lt;</span><em>i</em><span class="op">&gt;</span>, std<span class="op">::</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span>std<span class="op">::</span>move<span class="op">(</span>it<span class="op">.</span><em>it_</em><span class="op">)))</span></code></p>
 </div>
 <div class="sourceCode" id="cb51"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">auto</span><span class="op">)</span> <span class="kw">operator</span><span class="op">*()</span> <span class="kw">const</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">9</a></span>
-<em>Preconditions</em>:
-<code class="sourceCode default"><em>it_</em>.valueless_by_exception()</code>
-is <code class="sourceCode default">false</code>.</p>
+<em>Preconditions</em>: <code class="sourceCode cpp"><em>it_</em><span class="op">.</span>valueless_by_exception<span class="op">()</span></code>
+is
+<code class="sourceCode cpp"><span class="kw">false</span></code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">10</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb52"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> reference <span class="op">=</span> <em>concat-reference-t</em><span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;...&gt;</span>;</span>
@@ -1793,12 +1750,12 @@ is <code class="sourceCode default">false</code>.</p>
 <div class="sourceCode" id="cb53"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">++()</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">11</a></span>
-<em>Preconditions</em>:
-<code class="sourceCode default"><em>it_</em>.valueless_by_exception()</code>
-is <code class="sourceCode default">false</code>.</p>
+<em>Preconditions</em>: <code class="sourceCode cpp"><em>it_</em><span class="op">.</span>valueless_by_exception<span class="op">()</span></code>
+is
+<code class="sourceCode cpp"><span class="kw">false</span></code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">12</a></span>
-<em>Effects</em>: Let <code class="sourceCode default"><em>i</em></code>
-be <code class="sourceCode default"><em>it_</em>.index()</code>.
+<em>Effects</em>: Let <code class="sourceCode cpp"><em>i</em></code> be
+<code class="sourceCode cpp"><em>it_</em><span class="op">.</span>index<span class="op">()</span></code>.
 Equivalent to:</p>
 <div class="sourceCode" id="cb54"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="op">++</span>std<span class="op">::</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>it_</em><span class="op">)</span>;</span>
 <span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><em>satisfy</em><span class="op">&lt;</span><em>i</em><span class="op">&gt;()</span>;</span>
@@ -1823,12 +1780,12 @@ Equivalent to:</p>
 <span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-bidirectional</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">15</a></span>
-<em>Preconditions</em>:
-<code class="sourceCode default"><em>it_</em>.valueless_by_exception()</code>
-is <code class="sourceCode default">false</code>.</p>
+<em>Preconditions</em>: <code class="sourceCode cpp"><em>it_</em><span class="op">.</span>valueless_by_exception<span class="op">()</span></code>
+is
+<code class="sourceCode cpp"><span class="kw">false</span></code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">16</a></span>
-<em>Effects</em>: Let <code class="sourceCode default"><em>i</em></code>
-be <code class="sourceCode default"><em>it_</em>.index()</code>.
+<em>Effects</em>: Let <code class="sourceCode cpp"><em>i</em></code> be
+<code class="sourceCode cpp"><em>it_</em><span class="op">.</span>index<span class="op">()</span></code>.
 Equivalent to:</p>
 <div class="sourceCode" id="cb60"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><em>prev</em><span class="op">&lt;</span><em>i</em><span class="op">&gt;()</span>;</span>
 <span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">*</span><span class="kw">this</span>;</span></code></pre></div>
@@ -1846,12 +1803,12 @@ Equivalent to:</p>
 <span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">18</a></span>
-<em>Preconditions</em>:
-<code class="sourceCode default"><em>it_</em>.valueless_by_exception()</code>
-is <code class="sourceCode default">false</code>.</p>
+<em>Preconditions</em>: <code class="sourceCode cpp"><em>it_</em><span class="op">.</span>valueless_by_exception<span class="op">()</span></code>
+is
+<code class="sourceCode cpp"><span class="kw">false</span></code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">19</a></span>
-<em>Effects</em>: Let <code class="sourceCode default"><em>i</em></code>
-be <code class="sourceCode default"><em>it_</em>.index()</code>.
+<em>Effects</em>: Let <code class="sourceCode cpp"><em>i</em></code> be
+<code class="sourceCode cpp"><em>it_</em><span class="op">.</span>index<span class="op">()</span></code>.
 Equivalent to:</p>
 <div class="sourceCode" id="cb64"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span><span class="op">(</span>n <span class="op">&gt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
 <span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>  <em>advance-fwd</em><span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span>std<span class="op">::</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>it_</em><span class="op">)</span> <span class="op">-</span> ranges<span class="op">::</span>begin<span class="op">(</span>std<span class="op">::</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))</span>, n<span class="op">)</span>;</span>
@@ -1879,9 +1836,10 @@ Equivalent to:</p>
 <span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span><span class="op">(</span>equality_comparable<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&gt;&amp;&amp;...)</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">22</a></span>
-<em>Preconditions</em>: <code class="sourceCode default">x.<em>it_</em>.valueless_by_exception()</code>
-and <code class="sourceCode default">y.<em>it_</em>.valueless_by_exception()</code>
-are each <code class="sourceCode default">false</code>.</p>
+<em>Preconditions</em>: <code class="sourceCode cpp">x<span class="op">.</span><em>it_</em><span class="op">.</span>valueless_by_exception<span class="op">()</span></code>
+and <code class="sourceCode cpp">y<span class="op">.</span><em>it_</em><span class="op">.</span>valueless_by_exception<span class="op">()</span></code>
+are each
+<code class="sourceCode cpp"><span class="kw">false</span></code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">23</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb70"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> x<span class="op">.</span><em>it_</em> <span class="op">==</span> y<span class="op">.</span><em>it_</em>;</span></code></pre></div>
@@ -1889,8 +1847,9 @@ are each <code class="sourceCode default">false</code>.</p>
 <div class="sourceCode" id="cb71"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">==(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it, default_sentinel_t<span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">24</a></span>
-<em>Preconditions</em>: <code class="sourceCode default">it.<em>it_</em>.valueless_by_exception()</code>
-is <code class="sourceCode default">false</code>.</p>
+<em>Preconditions</em>: <code class="sourceCode cpp">it<span class="op">.</span><em>it_</em><span class="op">.</span>valueless_by_exception<span class="op">()</span></code>
+is
+<code class="sourceCode cpp"><span class="kw">false</span></code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">25</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb72"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="kw">auto</span> last_idx <span class="op">=</span> <span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">)</span> <span class="op">-</span> <span class="dv">1</span>;</span>
@@ -1910,11 +1869,12 @@ is <code class="sourceCode default">false</code>.</p>
 <span id="cb73-11"><a href="#cb73-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">(</span>three_way_comparable<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...))</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">26</a></span>
-<em>Preconditions</em>: <code class="sourceCode default">x.<em>it_</em>.valueless_by_exception()</code>
-and <code class="sourceCode default">y.<em>it_</em>.valueless_by_exception()</code>
-are each <code class="sourceCode default">false</code>.</p>
+<em>Preconditions</em>: <code class="sourceCode cpp">x<span class="op">.</span><em>it_</em><span class="op">.</span>valueless_by_exception<span class="op">()</span></code>
+and <code class="sourceCode cpp">y<span class="op">.</span><em>it_</em><span class="op">.</span>valueless_by_exception<span class="op">()</span></code>
+are each
+<code class="sourceCode cpp"><span class="kw">false</span></code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">27</a></span> Let
-<code class="sourceCode default"><em>op</em></code> be the operator.</p>
+<code class="sourceCode cpp"><em>op</em></code> be the operator.</p>
 <p><span class="marginalizedparent"><a class="marginalized">28</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb74"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> x<span class="op">.</span><em>it_</em> <em>op</em> y<span class="op">.</span><em>it_</em>;</span></code></pre></div>
@@ -1948,34 +1908,31 @@ are each <code class="sourceCode default">false</code>.</p>
 <span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>concat-is-random-access</em><span class="op">&lt;</span>Const, Views<span class="op">...&gt;</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">32</a></span>
-<em>Preconditions</em>: <code class="sourceCode default">x.<em>it_</em>.valueless_by_exception()</code>
-and <code class="sourceCode default">y.<em>it_</em>.valueless_by_exception()</code>
-are each <code class="sourceCode default">false</code>.</p>
+<em>Preconditions</em>: <code class="sourceCode cpp">x<span class="op">.</span><em>it_</em><span class="op">.</span>valueless_by_exception<span class="op">()</span></code>
+and <code class="sourceCode cpp">y<span class="op">.</span><em>it_</em><span class="op">.</span>valueless_by_exception<span class="op">()</span></code>
+are each
+<code class="sourceCode cpp"><span class="kw">false</span></code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">33</a></span>
 <em>Effects</em>: Let
-<code class="sourceCode default"><em>i<sub>x</sub></em></code> denote
-<code class="sourceCode default">x.<em>it_</em>.index()</code> and
-<code class="sourceCode default"><em>i<sub>y</sub></em></code> denote
-<code class="sourceCode default">y.<em>it_</em>.index()</code></p>
+<code class="sourceCode cpp"><em>i<sub>x</sub></em></code> denote <code class="sourceCode cpp">x<span class="op">.</span><em>it_</em><span class="op">.</span>index<span class="op">()</span></code>
+and <code class="sourceCode cpp"><em>i<sub>y</sub></em></code> denote
+<code class="sourceCode cpp">y<span class="op">.</span><em>it_</em><span class="op">.</span>index<span class="op">()</span></code></p>
 <ul>
 <li><p><span class="marginalizedparent"><a class="marginalized">(33.1)</a></span> if
-<code class="sourceCode default"><em>i<sub>x</sub></em> &gt; <em>i<sub>y</sub></em></code>,
-let <code class="sourceCode default"><em>d<sub>y</sub></em></code> be
-<code class="sourceCode default">ranges::distance(std::get&lt;<em>i<sub>y</sub></em>&gt;(y.<em>it_</em>), ranges::end(std::get&lt;<em>i<sub>y</sub></em>&gt;(y.<em>parent_</em>-&gt;<em>views_</em>)))</code>,
-<code class="sourceCode default"><em>d<sub>x</sub></em></code> be <code class="sourceCode default">ranges::distance(ranges::begin(std::get&lt;<em>i<sub>x</sub></em>&gt;(x.<em>parent_</em>-&gt;<em>views_</em>)), std::get&lt;<em>i<sub>x</sub></em>&gt;(x.<em>it_</em>))</code>.
-Let <code class="sourceCode default">s</code> denote the sum of the
-sizes of all the ranges <code class="sourceCode default">std::get&lt;<em>i</em>&gt;(x.<em>parent_</em>-&gt;<em>views_</em>)</code>
-for every integer <code class="sourceCode default"><em>i</em></code> in
-the range
-<code class="sourceCode default">[<em>i<sub>y</sub></em> + 1, <em>i<sub>x</sub></em>)</code>
-if there is any, and <code class="sourceCode default">0</code>
-otherwise, of type
-<code class="sourceCode default">difference_type</code>, equivalent
+<code class="sourceCode cpp"><em>i<sub>x</sub></em> <span class="op">&gt;</span> <em>i<sub>y</sub></em></code>,
+let <code class="sourceCode cpp"><em>d<sub>y</sub></em></code> be <code class="sourceCode cpp">ranges<span class="op">::</span>distance<span class="op">(</span>std<span class="op">::</span>get<span class="op">&lt;</span><em>i<sub>y</sub></em><span class="op">&gt;(</span>y<span class="op">.</span><em>it_</em><span class="op">)</span>, ranges<span class="op">::</span>end<span class="op">(</span>std<span class="op">::</span>get<span class="op">&lt;</span><em>i<sub>y</sub></em><span class="op">&gt;(</span>y<span class="op">.</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">)))</span></code>,
+<code class="sourceCode cpp"><em>d<sub>x</sub></em></code> be <code class="sourceCode cpp">ranges<span class="op">::</span>distance<span class="op">(</span>ranges<span class="op">::</span>begin<span class="op">(</span>std<span class="op">::</span>get<span class="op">&lt;</span><em>i<sub>x</sub></em><span class="op">&gt;(</span>x<span class="op">.</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">))</span>, std<span class="op">::</span>get<span class="op">&lt;</span><em>i<sub>x</sub></em><span class="op">&gt;(</span>x<span class="op">.</span><em>it_</em><span class="op">))</span></code>.
+Let <code class="sourceCode cpp">s</code> denote the sum of the sizes of
+all the ranges <code class="sourceCode cpp">std<span class="op">::</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span>x<span class="op">.</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">)</span></code>
+for every integer <code class="sourceCode cpp"><em>i</em></code> in the
+range <code class="sourceCode cpp"><span class="op">[</span><em>i<sub>y</sub></em> <span class="op">+</span> <span class="dv">1</span>, <em>i<sub>x</sub></em><span class="op">)</span></code>
+if there is any, and
+<code class="sourceCode cpp"><span class="dv">0</span></code> otherwise,
+of type <code class="sourceCode cpp">difference_type</code>, equivalent
 to</p>
 <div class="sourceCode" id="cb82"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <em>d<sub>y</sub></em> <span class="op">+</span> s <span class="op">+</span> <em>d<sub>x</sub></em>;</span></code></pre></div></li>
 <li><p><span class="marginalizedparent"><a class="marginalized">(33.2)</a></span>
-otherwise, if
-<code class="sourceCode default"><em>i<sub>x</sub></em> &lt; <em>i<sub>y</sub></em></code>,
+otherwise, if <code class="sourceCode cpp"><em>i<sub>x</sub></em> <span class="op">&lt;</span> <em>i<sub>y</sub></em></code>,
 equivalent to:</p>
 <div class="sourceCode" id="cb83"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">-(</span>y <span class="op">-</span> x<span class="op">)</span>;</span></code></pre></div></li>
 <li><p><span class="marginalizedparent"><a class="marginalized">(33.3)</a></span>
@@ -1987,28 +1944,27 @@ otherwise, equivalent to:</p>
 <span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>see below</em>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">34</a></span>
-<em>Preconditions</em>: <code class="sourceCode default">x.<em>it_</em>.valueless_by_exception()</code>
-is <code class="sourceCode default">false</code>.</p>
+<em>Preconditions</em>: <code class="sourceCode cpp">x<span class="op">.</span><em>it_</em><span class="op">.</span>valueless_by_exception<span class="op">()</span></code>
+is
+<code class="sourceCode cpp"><span class="kw">false</span></code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">35</a></span>
 <em>Effects</em>: Let
-<code class="sourceCode default"><em>i<sub>x</sub></em></code> denote
-<code class="sourceCode default">x.<em>it_</em>.index()</code>,
-<code class="sourceCode default"><em>d<sub>x</sub></em></code> be <code class="sourceCode default">ranges::distance(std::get&lt;<em>i<sub>x</sub></em>&gt;(x.<em>it_</em>), ranges::end(std::get&lt;<em>i<sub>x</sub></em>&gt;(x.<em>parent_</em>-&gt;<em>views_</em>)))</code>.
-Let <code class="sourceCode default">s</code> denote the sum of the
-sizes of all the ranges <code class="sourceCode default">std::get&lt;<em>i</em>&gt;(x.<em>parent_</em>-&gt;<em>views_</em>)</code>
-for every integer <code class="sourceCode default"><em>i</em></code> in
-the range
-<code class="sourceCode default">[<em>i<sub>x</sub></em> + 1, sizeof...(Views))</code>
-if there is any, and <code class="sourceCode default">0</code>
-otherwise, of type
-<code class="sourceCode default">difference_type</code>, equivalent
+<code class="sourceCode cpp"><em>i<sub>x</sub></em></code> denote <code class="sourceCode cpp">x<span class="op">.</span><em>it_</em><span class="op">.</span>index<span class="op">()</span></code>,
+<code class="sourceCode cpp"><em>d<sub>x</sub></em></code> be <code class="sourceCode cpp">ranges<span class="op">::</span>distance<span class="op">(</span>std<span class="op">::</span>get<span class="op">&lt;</span><em>i<sub>x</sub></em><span class="op">&gt;(</span>x<span class="op">.</span><em>it_</em><span class="op">)</span>, ranges<span class="op">::</span>end<span class="op">(</span>std<span class="op">::</span>get<span class="op">&lt;</span><em>i<sub>x</sub></em><span class="op">&gt;(</span>x<span class="op">.</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">)))</span></code>.
+Let <code class="sourceCode cpp">s</code> denote the sum of the sizes of
+all the ranges <code class="sourceCode cpp">std<span class="op">::</span>get<span class="op">&lt;</span><em>i</em><span class="op">&gt;(</span>x<span class="op">.</span><em>parent_</em><span class="op">-&gt;</span><em>views_</em><span class="op">)</span></code>
+for every integer <code class="sourceCode cpp"><em>i</em></code> in the
+range <code class="sourceCode cpp"><span class="op">[</span><em>i<sub>x</sub></em> <span class="op">+</span> <span class="dv">1</span>, <span class="kw">sizeof</span><span class="op">...(</span>Views<span class="op">))</span></code>
+if there is any, and
+<code class="sourceCode cpp"><span class="dv">0</span></code> otherwise,
+of type <code class="sourceCode cpp">difference_type</code>, equivalent
 to</p>
 <div class="sourceCode" id="cb86"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">-(</span><em>d<sub>x</sub></em> <span class="op">+</span> s<span class="op">)</span>;</span></code></pre></div>
 <p><span class="marginalizedparent"><a class="marginalized">36</a></span>
-<em>Remarks</em>: Let <code class="sourceCode default">Fs</code> be the
-pack that consists of all elements of
-<code class="sourceCode default">Views</code> except the first element,
-the expression in the requires-clause is equivalent to:</p>
+<em>Remarks</em>: Let <code class="sourceCode cpp">Fs</code> be the pack
+that consists of all elements of
+<code class="sourceCode cpp">Views</code> except the first element, the
+expression in the requires-clause is equivalent to:</p>
 <div class="sourceCode" id="cb87"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="op">(</span>sized_sentinel_for<span class="op">&lt;</span>sentinel_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;</span>, </span>
 <span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>                    iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span></span>
 <span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">&amp;&amp;</span> <span class="op">(</span>sized_range<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Fs<span class="op">&gt;&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span></span></code></pre></div>
@@ -2020,10 +1976,10 @@ the expression in the requires-clause is equivalent to:</p>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb89"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">-(</span>x <span class="op">-</span> default_sentinel<span class="op">)</span>;</span></code></pre></div>
 <p><span class="marginalizedparent"><a class="marginalized">38</a></span>
-<em>Remarks</em>: Let <code class="sourceCode default">Fs</code> be the
-pack that consists of all elements of
-<code class="sourceCode default">Views</code> except the first element,
-the expression in the requires-clause is equivalent to:</p>
+<em>Remarks</em>: Let <code class="sourceCode cpp">Fs</code> be the pack
+that consists of all elements of
+<code class="sourceCode cpp">Views</code> except the first element, the
+expression in the requires-clause is equivalent to:</p>
 <div class="sourceCode" id="cb90"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="op">(</span>sized_sentinel_for<span class="op">&lt;</span>sentinel_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;</span>, </span>
 <span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a>                    iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span></span>
 <span id="cb90-3"><a href="#cb90-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">&amp;&amp;</span> <span class="op">(</span>sized_range<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Fs<span class="op">&gt;&gt;</span> <span class="op">&amp;&amp;</span> <span class="op">...)</span></span></code></pre></div>
@@ -2031,8 +1987,9 @@ the expression in the requires-clause is equivalent to:</p>
 <div class="sourceCode" id="cb91"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="kw">decltype</span><span class="op">(</span><span class="kw">auto</span><span class="op">)</span> iter_move<span class="op">(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> it<span class="op">)</span> <span class="kw">noexcept</span><span class="op">(</span><em>see below</em><span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">39</a></span>
-<em>Preconditions</em>: <code class="sourceCode default">it.<em>it_</em>.valueless_by_exception()</code>
-is <code class="sourceCode default">false</code>.</p>
+<em>Preconditions</em>: <code class="sourceCode cpp">it<span class="op">.</span><em>it_</em><span class="op">.</span>valueless_by_exception<span class="op">()</span></code>
+is
+<code class="sourceCode cpp"><span class="kw">false</span></code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">40</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb92"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> std<span class="op">::</span>visit<span class="op">(</span></span>
@@ -2052,9 +2009,10 @@ is <code class="sourceCode default">false</code>.</p>
 <span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> <em>see below</em>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">42</a></span>
-<em>Preconditions</em>: <code class="sourceCode default">x.<em>it_</em>.valueless_by_exception()</code>
-and <code class="sourceCode default">y.<em>it_</em>.valueless_by_exception()</code>
-are each <code class="sourceCode default">false</code>.</p>
+<em>Preconditions</em>: <code class="sourceCode cpp">x<span class="op">.</span><em>it_</em><span class="op">.</span>valueless_by_exception<span class="op">()</span></code>
+and <code class="sourceCode cpp">y<span class="op">.</span><em>it_</em><span class="op">.</span>valueless_by_exception<span class="op">()</span></code>
+are each
+<code class="sourceCode cpp"><span class="kw">false</span></code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">43</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb95"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>visit<span class="op">(</span></span>
@@ -2069,8 +2027,8 @@ are each <code class="sourceCode default">false</code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">44</a></span>
 <em>Remarks</em>: The exception specification is equivalent to</p>
 <div class="sourceCode" id="cb96"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="op">(</span><span class="kw">noexcept</span><span class="op">(</span>ranges<span class="op">::</span>swap<span class="op">(*</span>x, <span class="op">*</span>y<span class="op">))</span> <span class="op">&amp;&amp;</span> <span class="op">...</span> <span class="op">&amp;&amp;</span> <span class="kw">noexcept</span><span class="op">(</span>ranges<span class="op">::</span>iter_swap<span class="op">(</span>its, its<span class="op">)))</span></span></code></pre></div>
-<p>where <code class="sourceCode default">its</code> is a pack of
-lvalues of type <code class="sourceCode default">const iterator_t&lt;<em>maybe-const</em>&lt;Const, Views&gt;&gt;</code>
+<p>where <code class="sourceCode cpp">its</code> is a pack of lvalues of
+type <code class="sourceCode cpp"><span class="kw">const</span> iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;</span></code>
 respectively.</p>
 <p><span class="marginalizedparent"><a class="marginalized">45</a></span>
 <em>Remarks</em>: The expression in the requires-clause is equivalent
@@ -2081,9 +2039,9 @@ to</p>
 <h2 data-number="5.4" id="feature-test-macro"><span class="header-section-number">5.4</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
 <p>Add the following macro definition to <span>17.3.2
 <a href="https://wg21.link/version.syn">[version.syn]</a></span>, header
-<code class="sourceCode default">&lt;version&gt;</code> synopsis, with
-the value selected by the editor to reflect the date of adoption of this
-paper:</p>
+<code class="sourceCode cpp"><span class="op">&lt;</span>version<span class="op">&gt;</span></code>
+synopsis, with the value selected by the editor to reflect the date of
+adoption of this paper:</p>
 <div class="sourceCode" id="cb98"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define __cpp_lib_ranges_concat  </span><span class="dv">20</span><span class="er">XXXXL</span><span class="pp"> </span><span class="co">// also in &lt;ranges&gt;</span></span></code></pre></div>
 <style>
 .bq{
@@ -2095,7 +2053,7 @@ paper:</p>
 }
 </style>
 <h1 data-number="6" id="bibliography"><span class="header-section-number">6</span> References<a href="#bibliography" class="self-link"></a></h1>
-<div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="1" role="doc-bibliography">
 <div id="ref-ours" class="csl-entry" role="doc-biblioentry">
 [ours] Hui Xie and S. Levent Yilmaz. A proof-of-concept implementation
 of views::concat. <a href="https://github.com/huixie90/cpp_papers/tree/main/impl/concat"><div class="csl-block">https://github.com/huixie90/cpp_papers/tree/main/impl/concat</div></a>

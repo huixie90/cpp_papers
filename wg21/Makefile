@@ -28,7 +28,7 @@ override DATADIR := $(ROOTDIR)data
 
 override define PANDOC
 $(eval override FILE := $(filter %.md, $^))
-$(eval override CMD := pandoc $(FILE) -o $@ -d $(DATADIR)/defaults.yaml)
+$(eval override CMD := pandoc $(FILE) -o $@ --mathjax -d $(DATADIR)/defaults.yaml)
 $(eval $(and $(DEFAULTS), override CMD += -d $(DEFAULTS)))
 $(eval $(and $(METADATA), override CMD += --metadata-file $(METADATA)))
 $(if $(filter %.html, $@),
@@ -37,7 +37,7 @@ $(if $(filter %.html, $@),
 $(CMD)
 endef
 
-override DEPS += $(addprefix $(DATADIR)/, defaults.yaml csl.json annex-f)
+override DEPS += $(addprefix $(DATADIR)/, defaults.yaml csl.json annex-f filters/wg21.py)
 $(eval $(and $(DEFAULTS), override DEPS += $(DEFAULTS)))
 $(eval $(and $(METADATA), override DEPS += $(METADATA)))
 

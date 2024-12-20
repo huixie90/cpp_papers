@@ -420,7 +420,7 @@ code.sourceCode > span { display: inline; }
 <div class="wrapper">
 <header id="title-block-header">
 <h1 class="title" style="text-align:center">Support Non-copyable Types
-for <code class="sourceCode default">single_view</code></h1>
+for <code class="sourceCode cpp">single_view</code></h1>
 <table style="border:none;float:right">
   <tr>
     <td>Document #:</td>
@@ -451,31 +451,29 @@ for <code class="sourceCode default">single_view</code></h1>
 <div style="clear:both">
 <h1 data-number="1" id="introduction"><span class="header-section-number">1</span> Introduction<a href="#introduction" class="self-link"></a></h1>
 <p>This paper proposes allowing
-<code class="sourceCode default">single_view</code> to hold non-copyable
+<code class="sourceCode cpp">single_view</code> to hold non-copyable
 types.</p>
 <h1 data-number="2" id="motivation-and-scope"><span class="header-section-number">2</span> Motivation and Scope<a href="#motivation-and-scope" class="self-link"></a></h1>
-<p>Currently, <code class="sourceCode default">single_view</code>
-requires the object that it holds to satisfy
-<code class="sourceCode default">std::copy_constructible</code> concept.
-This makes the <code class="sourceCode default">single_view</code> not
-usable with move only types. For example, the following code is
+<p>Currently, <code class="sourceCode cpp">single_view</code> requires
+the object that it holds to satisfy <code class="sourceCode cpp">std<span class="op">::</span>copy_constructible</code>
+concept. This makes the <code class="sourceCode cpp">single_view</code>
+not usable with move only types. For example, the following code is
 invalid</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">// foo is move only type</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>foo make_foo<span class="op">()</span>;</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>views<span class="op">::</span>single<span class="op">(</span>make_foo<span class="op">())</span> <span class="co">// | more_pipe_lines</span></span></code></pre></div>
 <p>In the original c++ 20 ranges proposal, the
-<code class="sourceCode default">view</code> concept requires
-<code class="sourceCode default">semiregular</code>, thus all
-<code class="sourceCode default">view</code> implementations have to be
-copyable. However, after <span class="citation" data-cites="P1456R1">[<a href="#ref-P1456R1" role="doc-biblioref">P1456R1</a>]</span>,
-<code class="sourceCode default">view</code> no long requires
-implementations to be <code class="sourceCode default">copyable</code>
-but only <code class="sourceCode default">movable</code>, so technically
-the <code class="sourceCode default">std::copy_constructible</code>
-constraint can be relaxed to
-<code class="sourceCode default">std::move_constructible</code> for the
-types that <code class="sourceCode default">single_view</code>
+<code class="sourceCode cpp">view</code> concept requires
+<code class="sourceCode cpp">semiregular</code>, thus all
+<code class="sourceCode cpp">view</code> implementations have to be
+copyable. However, after <span class="citation" data-cites="P1456R1">[<a href="https://wg21.link/p1456r1" role="doc-biblioref">P1456R1</a>]</span>,
+<code class="sourceCode cpp">view</code> no long requires
+implementations to be <code class="sourceCode cpp">copyable</code> but
+only <code class="sourceCode cpp">movable</code>, so technically the
+<code class="sourceCode cpp">std<span class="op">::</span>copy_constructible</code>
+constraint can be relaxed to <code class="sourceCode cpp">std<span class="op">::</span>move_constructible</code>
+for the types that <code class="sourceCode cpp">single_view</code>
 holds.</p>
 <table>
 <thead>
@@ -537,9 +535,8 @@ holds.</p>
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="kw">explicit</span> single_view<span class="op">(</span>T<span class="op">&amp;&amp;</span> t<span class="op">)</span>;</span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>constexpr explicit single_view(const T&amp; t) <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">requires copy_constructible&lt;T&gt;</code></span></ins></span>;</span></code></pre></div>
 <p><span class="marginalizedparent"><a class="marginalized">1</a></span>
-<em>Effects</em>: Initializes
-<code class="sourceCode default">value_­</code> with
-<code class="sourceCode default">t</code>.</p>
+<em>Effects</em>: Initializes <code class="sourceCode cpp">value_­</code>
+with <code class="sourceCode cpp">t</code>.</p>
 <p>Add a new section <strong>[range.move.wrap]</strong> under <span>25.7
 <a href="https://wg21.link/range.adaptors">[range.adaptors]</a></span></p>
 <div class="add" style="color: #006e28">
@@ -589,40 +586,36 @@ is <code class="sourceCode default">true</code>.</p>
 </div>
 <h1 data-number="5" id="design-decisions"><span class="header-section-number">5</span> Design Decisions<a href="#design-decisions" class="self-link"></a></h1>
 <p>An alternative approach is to not have the
-<code class="sourceCode default"><em>movable-box</em></code> wrapper.
+<code class="sourceCode cpp"><em>movable-box</em></code> wrapper.
 Instead, we can just constrain
-<code class="sourceCode default">single_view</code> to only accept
-<code class="sourceCode default">movable T</code>. However, this is
+<code class="sourceCode cpp">single_view</code> to only accept
+<code class="sourceCode cpp">movable T</code>. However, this is
 inconsistent with the rest of the range library.</p>
 <h1 data-number="6" id="future-work"><span class="header-section-number">6</span> Future Work<a href="#future-work" class="self-link"></a></h1>
-<p><code class="sourceCode default"><em>copyable-box</em></code> is not
-only used in <code class="sourceCode default">single_view</code>, but
-also used in lots of <code class="sourceCode default">view</code>s that
-hold a function object. For example,
-<code class="sourceCode default">transform_view</code> stores the
-function inside
-<code class="sourceCode default"><em>copyable-box</em>&lt;F&gt;</code>.
-I think as <code class="sourceCode default">view</code> is no long
-required to be <code class="sourceCode default">copyable</code>, there
-should be no constraint for the function object
-<code class="sourceCode default">F</code> being
-<code class="sourceCode default">copyable</code>. And in fact,
-<code class="sourceCode default">transform_view</code> stores a base
-<code class="sourceCode default">view</code>:
-<code class="sourceCode default">V base_</code>. If
-<code class="sourceCode default">base_</code> is not
-<code class="sourceCode default">copyable</code>, there is no point to
-have
-<code class="sourceCode default"><em>copyable-box</em>&lt;F&gt;</code>.
-This is the case for all other
-<code class="sourceCode default">view</code>s that store the function
-objects. Potentially, the
-<code class="sourceCode default"><em>copyable-box</em></code> can be
-removed and replaced by the
-<code class="sourceCode default"><em>movable-box</em></code> that is
+<p><code class="sourceCode cpp"><em>copyable-box</em></code> is not only
+used in <code class="sourceCode cpp">single_view</code>, but also used
+in lots of <code class="sourceCode cpp">view</code>s that hold a
+function object. For example,
+<code class="sourceCode cpp">transform_view</code> stores the function
+inside <code class="sourceCode cpp"><em>copyable-box</em><span class="op">&lt;</span>F<span class="op">&gt;</span></code>.
+I think as <code class="sourceCode cpp">view</code> is no long required
+to be <code class="sourceCode cpp">copyable</code>, there should be no
+constraint for the function object <code class="sourceCode cpp">F</code>
+being <code class="sourceCode cpp">copyable</code>. And in fact,
+<code class="sourceCode cpp">transform_view</code> stores a base
+<code class="sourceCode cpp">view</code>:
+<code class="sourceCode cpp">V base_</code>. If
+<code class="sourceCode cpp">base_</code> is not
+<code class="sourceCode cpp">copyable</code>, there is no point to have
+<code class="sourceCode cpp"><em>copyable-box</em><span class="op">&lt;</span>F<span class="op">&gt;</span></code>.
+This is the case for all other <code class="sourceCode cpp">view</code>s
+that store the function objects. Potentially, the
+<code class="sourceCode cpp"><em>copyable-box</em></code> can be removed
+and replaced by the
+<code class="sourceCode cpp"><em>movable-box</em></code> that is
 proposed in this paper.</p>
 <h1 data-number="7" id="bibliography"><span class="header-section-number">7</span> References<a href="#bibliography" class="self-link"></a></h1>
-<div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="1" role="doc-bibliography">
 <div id="ref-P1456R1" class="csl-entry" role="doc-biblioentry">
 [P1456R1] Casey Carter. 2019-11-12. Move-only views. <a href="https://wg21.link/p1456r1"><div class="csl-block">https://wg21.link/p1456r1</div></a>
 </div>

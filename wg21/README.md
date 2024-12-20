@@ -1,39 +1,39 @@
-# WG21: C++ Standards Committee Papers
+# Framework for Writing C++ Committee Papers
 
 ## Introduction
 
-The top-level of this repository contains the source code for various proposals
-and the `generated/` directory contains the generated proposals (HTML or PDF).
+This is a paper-writing framework designed to ease the pain of authoring papers
+for WG21, built on top of [Pandoc].
 
-This repository also includes a paper-writing framework using [Pandoc].
+In short, you write your papers in Markdown and the framework produces the paper
+either in HTML or PDF.
 
 [Pandoc]: https://pandoc.org
 
-## Status
+## Requirements
 
-- [P1371]: Pattern Matching
-- [P1469]: Disallow `_` Usage in C++20 for Pattern Matching in C++23
-- [P1260]: Pattern Matching - Requested to unify with [P1308]
-- [P0655]: `visit<R>`: Explicit Return Type for `visit` - Accepted in C++20
-- [D0080]: Tweaks to the Kona Variant - Encouraged to return with `P`-papers
-- [P0080]: Variant: Discriminated Union with Value Semantics - Not presented
-- [N3887]: Consistent Metafunction Aliases - Accepted in C++14
+  - `python3`
+  - `xelatex` (Only for PDF papers)
 
-[P1371]: https://wg21.link/p1371
-[P1469]: https://wg21.link/p1469
-[P1308]: https://wg21.link/p1308
-[P1260]: https://wg21.link/p1260
-[P0655]: https://wg21.link/p0655
-[D0080]: generated/D0080R1.pdf
-[P0080]: https://wg21.link/p0080
-[N3887]: https://wg21.link/n3887
-
-## Generation
+### OS X
 
 ```bash
-make <paper>.pdf  # `<paper>.md` -> `generated/<paper>.pdf`
-make <paper>.html # `<paper>.md` -> `generated/<paper>.html`
+brew install mactex # Only for PDF papers
 ```
+
+### Ubuntu
+
+```bash
+sudo apt-get install texlive-latex-base # Only for PDF papers
+```
+
+### Debian
+
+Debian installation may require these additional packages:
+
+  - `texlive-fonts-recommended`
+  - `texlive-latex-recommended`
+  - `texlive-latex-extra`
 
 ## Integration
 
@@ -42,6 +42,17 @@ git submodule add https://github.com/mpark/wg21.git
 
 echo "include wg21/Makefile" > Makefile
 
+make <paper>.pdf  # `<paper>.md` -> `generated/<paper>.pdf`
+make <paper>.html # `<paper>.md` -> `generated/<paper>.html`
+```
+
+See [mpark/wg21-papers] for an example use of this project.
+
+[mpark/wg21-papers]: https://github.com/mpark/wg21-papers
+
+## Generation
+
+```bash
 make <paper>.pdf  # `<paper>.md` -> `generated/<paper>.pdf`
 make <paper>.html # `<paper>.md` -> `generated/<paper>.html`
 ```
@@ -358,6 +369,10 @@ The `sizeof...` operator yields the number of [arguments provided for]{.rm}
 
 ![](img/sref.png)
 
+You may can also add a class `-` or `.unnumbered` to omit the section number.
+
+For example, `[expr.sizeof]{- .sref}` or `[expr.sizeof]{.unnumbered .sref}`
+
 > Run `make update` to update the local cache of `annex-f`.
 
 ### Citations
@@ -453,31 +468,6 @@ If you want the list of available fonts on your system, most supported systems w
 
 [P1361]: https://wg21.link/p1361
 [P1390]: https://wg21.link/p1390
-
-## Requirements
-
-  - `python3`
-  - `xelatex`
-
-### OS X
-
-```bash
-brew cask install mactex
-```
-
-### Ubuntu
-
-```bash
-sudo apt-get install texlive-latex-base
-```
-
-### Debian
-
-Debian installation may require these additional packages:
-
-  - `texlive-fonts-recommended`
-  - `texlive-latex-recommended`
-  - `texlive-latex-extra`
 
 ## License
 
