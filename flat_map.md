@@ -22,11 +22,11 @@ toc: true
 # Abstract
 
 This paper proposes a subset of the fixes in [@P2767R2] to `flat_map`, `flat_multimap`, 
-`flat_set`, and `flat_multiset` based on the libc++'s implementation.
+`flat_set`, and `flat_multiset` based on libc++'s implementation.
 
 # Introduction
 
-[@P2767R2] proposed a set of fixes to `flat_map`, `flat_multimap`, `flat_set`, and `flat_multiset`,  based on the author's
+[@P2767R2] proposed a set of changes to `flat_map`, `flat_multimap`, `flat_set`, and `flat_multiset`,  based on the author's
 implementation experience. However, the paper contains not only some straight forward
 fixes, but also some design changes, which did not get consensus in previous meetings.
 We (libc++) have recently released the `flat_map` implementation. After consulting the
@@ -39,6 +39,8 @@ a subset of the non-controversial fixes based on our implementation experience.
 
 As stated in [@LWG4000], `flat_map::insert_range` has an obvious bug. But for some reason,
 this LWG issue was not moved forward even with lots of P0 vote, possibly due to the existence of [@P2767R2].
+The fix is twofold: first, we use `value_type` explicitly to make sure that `e` is a `std::pair`,
+and we move to `ranges::for_each` for consistency with the rest of the `flat_map` specification.
 
 ## Wording
 
@@ -75,13 +77,15 @@ c.values.erase(c.values.begin() + dist, c.values.end());
 
 # `swap` Should be Conditionally `noexcept`
 
-`flat_meow::swap` is currently specified as unconditionally `noexcept`. In case underlying container's `swap`
+`flat_meow::swap` is currently specified as unconditionally `noexcept`. In case the underlying container's `swap`
 throws an exception, implementations have to either
 
 1. Swallow the exception and restore invariants. Practically speaking, this means clearing both containers.
 2. `std::terminate`
 
-1 is extremely bad because users can silently get empty containers after a `swap` without knowing it. 2 is extremely harsh.
+The first option is extremely bad because users will silently get an empty `flat_meow` after a failed `swap`. The second option is extremely harsh.
+
+Instead, making `swap` conditionally-`noexcept` allows us to propagate the exception (after restoring invariants).
 
 ## Wording
 
@@ -208,10 +212,10 @@ ranges::swap(c, y.c);
 
 # Missing `insert_range(sorted_unique, rg)`
 
-The multi-element insertion API consists of two sets of the overloads:
+The multi-element insertion API consists of two sets of overloads:
 
-- A set of overloads that take any ranges
-- A set of overloads that take `sorted_unique` ranges
+- A set of overloads that take a potentially-unsorted range
+- A set of overloads that take a `sorted_unique` range
 
 ```cpp
 insert(first, last);                 // 1a
@@ -229,6 +233,8 @@ Similarly, in `flat_multiset` and `flat_multimap`, the overload
 `insert_range(sorted_equivalent, rg)` is also missing.
 
 ## Wording
+
+### `flat_map`
 
 Change [flat.map.defn]{.sref} as follows:
 
@@ -277,6 +283,8 @@ c.values.erase(c.values.begin() + dist, c.values.end());
 
 :::
 
+### `flat_multimap`
+
 Change [flat.multimap.defn]{.sref} as follows:
 
 ```cpp
@@ -289,6 +297,8 @@ template<container-compatible-range<value_type> R>
 @[`template<container-compatible-range<value_type> R>`]{.add}@
   @[`void insert_range(sorted_equivalent_t, R&& rg);`]{.add}@
 ```
+
+### `flat_set`
 
 Change [flat.set.defn]{.sref} as follows:
 
@@ -318,6 +328,8 @@ template<container-compatible-range<value_type> R>
 
 :::
 
+### `flat_multiset`
+
 Change [flat.multiset.defn]{.sref} as follows:
 
 ```cpp
@@ -335,27 +347,55 @@ template<container-compatible-range<value_type> R>
 
 [link to P2767](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2767r2.html#wording-set-insert-range)
 
-Lots of the wording is optimizations QOI?
+The current specification for `flat_set::insert_range` seems to unnecessarily pessimize by forcing
+copies of the elements:
 
-# Move from comparators
+```cpp
+template<container-compatible-range<value_type> R>
+  void insert_range(R&& rg);
 
-[link to P2767](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2767r2.html#move-from-comparator)
+# Effects: Adds elements to c as if by:
+for (const auto& e : rg) {
+  c.insert(c.end(), e); // COPYING HERE
+}
+```
 
-I found it very confusing and leads to implementation weirdness
-[godbolt](https://godbolt.org/z/vernPe7xx)
+We should allow implementations to move when they can.
 
-# Stable sorting
+## Wording
 
-[link to P2767](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2767r2.html#stable-sorting)
+```cpp
+template<container-compatible-range<value_type> R>
+  void insert_range(R&& rg);
 
-I asked MSVC STL , they said they just use plain `sort`, which makes me think maybe
-we should do the same (that being said, it is not an obvious thing which might involve design discussions)
+# Effects: Adds elements to c as if by:
+for (auto&& e : rg) {
+  c.insert(c.end(), std::forward<decltype(e)>(e));
+}
+```
 
-# zero initialization
+# Underspecified special member functions
 
-[link to P2767](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2767r2.html#zero-initialization)
+The special member functions for `flat_meow` are currently not specified explicitly. This means that an implementation
+using e.g. `flat_map(flat_map&&) = default` would be conforming. However, such an implementation would not be correct
+with respect to exception handling. Indeed, if an exception is thrown while moving from the incoming map, the incoming
+map would be left in a potentially invalid state with respect to its invariants.
 
-to consider
+> Note that <LINK TO BLANKET WORDING FOR INVARIANTS> does not apply here, since we're concerned with the incoming map's
+> invariants, not `*this`'s invariants.
+
+We believe that the behavior of these special member functions must be specified explicitly, otherwise these constructors
+are useless in any context where an exception can be thrown.
+
+## Wording
+
+```cpp
+TODO: Basically add the synopsis elements and specify their effects
+```
+
+Note: We purposefully do not add `noexcept` specifiers to any of these member functions. Doing so is a complicated subject
+that is the target of [LWG2227](http://wg21.link/LWG2227) and we would prefer to solve that problem separately. In practice,
+implementations are free to strengthen `noexcept` specifications if they so desire.
 
 # Implementation Experience
 

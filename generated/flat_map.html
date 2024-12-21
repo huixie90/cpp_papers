@@ -472,21 +472,34 @@ Fix<span></span></a>
 </ul></li>
 <li><a href="#missing-insert_rangesorted_unique-rg" id="toc-missing-insert_rangesorted_unique-rg"><span class="toc-section-number">6</span> Missing <code class="sourceCode cpp">insert_range<span class="op">(</span>sorted_unique, rg<span class="op">)</span></code><span></span></a>
 <ul>
-<li><a href="#wording-2" id="toc-wording-2"><span class="toc-section-number">6.1</span> Wording<span></span></a></li>
+<li><a href="#wording-2" id="toc-wording-2"><span class="toc-section-number">6.1</span> Wording<span></span></a>
+<ul>
+<li><a href="#flat_map" id="toc-flat_map"><span class="toc-section-number">6.1.1</span>
+<code class="sourceCode cpp">flat_map</code><span></span></a></li>
+<li><a href="#flat_multimap" id="toc-flat_multimap"><span class="toc-section-number">6.1.2</span>
+<code class="sourceCode cpp">flat_multimap</code><span></span></a></li>
+<li><a href="#flat_set" id="toc-flat_set"><span class="toc-section-number">6.1.3</span>
+<code class="sourceCode cpp">flat_set</code><span></span></a></li>
+<li><a href="#flat_multiset" id="toc-flat_multiset"><span class="toc-section-number">6.1.4</span>
+<code class="sourceCode cpp">flat_multiset</code><span></span></a></li>
 </ul></li>
-<li><a href="#flat_setinsert_range" id="toc-flat_setinsert_range"><span class="toc-section-number">7</span> <code class="sourceCode cpp">flat_set<span class="op">::</span>insert_range</code><span></span></a></li>
-<li><a href="#move-from-comparators" id="toc-move-from-comparators"><span class="toc-section-number">8</span>
-Move from comparators<span></span></a></li>
-<li><a href="#stable-sorting" id="toc-stable-sorting"><span class="toc-section-number">9</span> Stable sorting<span></span></a></li>
-<li><a href="#zero-initialization" id="toc-zero-initialization"><span class="toc-section-number">10</span> zero
-initialization<span></span></a></li>
-<li><a href="#implementation-experience" id="toc-implementation-experience"><span class="toc-section-number">11</span> Implementation
+</ul></li>
+<li><a href="#flat_setinsert_range" id="toc-flat_setinsert_range"><span class="toc-section-number">7</span> <code class="sourceCode cpp">flat_set<span class="op">::</span>insert_range</code><span></span></a>
+<ul>
+<li><a href="#wording-3" id="toc-wording-3"><span class="toc-section-number">7.1</span> Wording<span></span></a></li>
+</ul></li>
+<li><a href="#underspecified-special-member-functions" id="toc-underspecified-special-member-functions"><span class="toc-section-number">8</span> Underspecified special member
+functions<span></span></a>
+<ul>
+<li><a href="#wording-4" id="toc-wording-4"><span class="toc-section-number">8.1</span> Wording<span></span></a></li>
+</ul></li>
+<li><a href="#implementation-experience" id="toc-implementation-experience"><span class="toc-section-number">9</span> Implementation
 Experience<span></span></a>
 <ul>
-<li><a href="#feature-test-macro" id="toc-feature-test-macro"><span class="toc-section-number">11.1</span> Feature Test
+<li><a href="#feature-test-macro" id="toc-feature-test-macro"><span class="toc-section-number">9.1</span> Feature Test
 Macro<span></span></a></li>
 </ul></li>
-<li><a href="#bibliography" id="toc-bibliography"><span class="toc-section-number">12</span> References<span></span></a></li>
+<li><a href="#bibliography" id="toc-bibliography"><span class="toc-section-number">10</span> References<span></span></a></li>
 </ul>
 </div>
 <h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
@@ -499,10 +512,10 @@ Macro<span></span></a></li>
 <code class="sourceCode cpp">flat_map</code>,
 <code class="sourceCode cpp">flat_multimap</code>,
 <code class="sourceCode cpp">flat_set</code>, and
-<code class="sourceCode cpp">flat_multiset</code> based on the libc++’s
+<code class="sourceCode cpp">flat_multiset</code> based on libc++’s
 implementation.</p>
 <h1 data-number="3" id="introduction"><span class="header-section-number">3</span> Introduction<a href="#introduction" class="self-link"></a></h1>
-<p><span class="citation" data-cites="P2767R2">[<a href="https://wg21.link/p2767r2" role="doc-biblioref">P2767R2</a>]</span> proposed a set of fixes to
+<p><span class="citation" data-cites="P2767R2">[<a href="https://wg21.link/p2767r2" role="doc-biblioref">P2767R2</a>]</span> proposed a set of changes to
 <code class="sourceCode cpp">flat_map</code>,
 <code class="sourceCode cpp">flat_multimap</code>,
 <code class="sourceCode cpp">flat_set</code>, and
@@ -519,7 +532,13 @@ Fix<a href="#lwg-4000-flat_mapinsert_range-fix" class="self-link"></a></h1>
 <p>As stated in <span class="citation" data-cites="LWG4000">[<a href="https://wg21.link/lwg4000" role="doc-biblioref">LWG4000</a>]</span>, <code class="sourceCode cpp">flat_map<span class="op">::</span>insert_range</code>
 has an obvious bug. But for some reason, this LWG issue was not moved
 forward even with lots of P0 vote, possibly due to the existence of
-<span class="citation" data-cites="P2767R2">[<a href="https://wg21.link/p2767r2" role="doc-biblioref">P2767R2</a>]</span>.</p>
+<span class="citation" data-cites="P2767R2">[<a href="https://wg21.link/p2767r2" role="doc-biblioref">P2767R2</a>]</span>. The fix is twofold: first, we
+use <code class="sourceCode cpp">value_type</code> explicitly to make
+sure that <code class="sourceCode cpp">e</code> is a
+<code class="sourceCode cpp">std<span class="op">::</span>pair</code>,
+and we move to <code class="sourceCode cpp">ranges<span class="op">::</span>for_each</code>
+for consistency with the rest of the
+<code class="sourceCode cpp">flat_map</code> specification.</p>
 <h2 data-number="4.1" id="wording"><span class="header-section-number">4.1</span> Wording<a href="#wording" class="self-link"></a></h2>
 <p>Change <span>23.6.8.7
 <a href="https://wg21.link/flat.map.modifiers">[flat.map.modifiers]</a></span>
@@ -552,16 +571,20 @@ elements as if by:</p>
 <p><code class="sourceCode cpp">flat_meow<span class="op">::</span>swap</code> is
 currently specified as unconditionally
 <code class="sourceCode cpp"><span class="kw">noexcept</span></code>. In
-case underlying container’s <code class="sourceCode cpp">swap</code>
+case the underlying container’s <code class="sourceCode cpp">swap</code>
 throws an exception, implementations have to either</p>
 <ol type="1">
 <li>Swallow the exception and restore invariants. Practically speaking,
 this means clearing both containers.</li>
 <li><code class="sourceCode cpp">std<span class="op">::</span>terminate</code></li>
 </ol>
-<p>1 is extremely bad because users can silently get empty containers
-after a <code class="sourceCode cpp">swap</code> without knowing it. 2
-is extremely harsh.</p>
+<p>The first option is extremely bad because users will silently get an
+empty <code class="sourceCode cpp">flat_meow</code> after a failed
+<code class="sourceCode cpp">swap</code>. The second option is extremely
+harsh.</p>
+<p>Instead, making <code class="sourceCode cpp">swap</code>
+conditionally-<code class="sourceCode cpp"><span class="kw">noexcept</span></code>
+allows us to propagate the exception (after restoring invariants).</p>
 <h2 data-number="5.1" id="wording-1"><span class="header-section-number">5.1</span> Wording<a href="#wording-1" class="self-link"></a></h2>
 <p>Change <span>23.6.8.2
 <a href="https://wg21.link/flat.map.defn">[flat.map.defn]</a></span> as
@@ -658,12 +681,12 @@ paragraph 9:</p>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>ranges<span class="op">::</span>swap<span class="op">(</span>c, y<span class="op">.</span>c<span class="op">)</span>;</span></code></pre></div>
 </div>
 <h1 data-number="6" id="missing-insert_rangesorted_unique-rg"><span class="header-section-number">6</span> Missing <code class="sourceCode cpp">insert_range<span class="op">(</span>sorted_unique, rg<span class="op">)</span></code><a href="#missing-insert_rangesorted_unique-rg" class="self-link"></a></h1>
-<p>The multi-element insertion API consists of two sets of the
+<p>The multi-element insertion API consists of two sets of
 overloads:</p>
 <ul>
-<li>A set of overloads that take any ranges</li>
-<li>A set of overloads that take
-<code class="sourceCode cpp">sorted_unique</code> ranges</li>
+<li>A set of overloads that take a potentially-unsorted range</li>
+<li>A set of overloads that take a
+<code class="sourceCode cpp">sorted_unique</code> range</li>
 </ul>
 <div class="sourceCode" id="cb14"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>insert<span class="op">(</span>first, last<span class="op">)</span>;                 <span class="co">// 1a</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>insert<span class="op">(</span>il<span class="op">)</span>;                          <span class="co">// 2a</span></span>
@@ -680,6 +703,8 @@ true for <code class="sourceCode cpp">flat_set</code> and
 <code class="sourceCode cpp">flat_multimap</code>, the overload <code class="sourceCode cpp">insert_range<span class="op">(</span>sorted_equivalent, rg<span class="op">)</span></code>
 is also missing.</p>
 <h2 data-number="6.1" id="wording-2"><span class="header-section-number">6.1</span> Wording<a href="#wording-2" class="self-link"></a></h2>
+<h3 data-number="6.1.1" id="flat_map"><span class="header-section-number">6.1.1</span>
+<code class="sourceCode cpp">flat_map</code><a href="#flat_map" class="self-link"></a></h3>
 <p>Change <span>23.6.8.2
 <a href="https://wg21.link/flat.map.defn">[flat.map.defn]</a></span> as
 follows:</p>
@@ -720,6 +745,8 @@ the operation.</p>
 <em>Remarks</em>: Since this operation performs an in-place merge, it
 may allocate memory.</p>
 </div>
+<h3 data-number="6.1.2" id="flat_multimap"><span class="header-section-number">6.1.2</span>
+<code class="sourceCode cpp">flat_multimap</code><a href="#flat_multimap" class="self-link"></a></h3>
 <p>Change <span>23.6.9.2
 <a href="https://wg21.link/flat.multimap.defn">[flat.multimap.defn]</a></span>
 as follows:</p>
@@ -731,6 +758,8 @@ as follows:</p>
 <span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> insert_range<span class="op">(</span>R<span class="op">&amp;&amp;</span> rg<span class="op">)</span>;</span>
 <span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">template&lt;container-compatible-range&lt;value_type&gt; R&gt;</code></span></ins></span></span>
 <span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">void insert_range(sorted_equivalent_t, R&amp;&amp; rg);</code></span></ins></span></span></code></pre></div>
+<h3 data-number="6.1.3" id="flat_set"><span class="header-section-number">6.1.3</span>
+<code class="sourceCode cpp">flat_set</code><a href="#flat_set" class="self-link"></a></h3>
 <p>Change <span>23.6.11.2
 <a href="https://wg21.link/flat.set.defn">[flat.set.defn]</a></span> as
 follows:</p>
@@ -755,6 +784,8 @@ after paragraph 12:</p>
 <code class="sourceCode cpp">size<span class="op">()</span></code> after
 the operation.</p>
 </div>
+<h3 data-number="6.1.4" id="flat_multiset"><span class="header-section-number">6.1.4</span>
+<code class="sourceCode cpp">flat_multiset</code><a href="#flat_multiset" class="self-link"></a></h3>
 <p>Change <span>23.6.12.2
 <a href="https://wg21.link/flat.multiset.defn">[flat.multiset.defn]</a></span>
 as follows:</p>
@@ -769,25 +800,55 @@ as follows:</p>
 <h1 data-number="7" id="flat_setinsert_range"><span class="header-section-number">7</span> <code class="sourceCode cpp">flat_set<span class="op">::</span>insert_range</code><a href="#flat_setinsert_range" class="self-link"></a></h1>
 <p><a href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2767r2.html#wording-set-insert-range">link
 to P2767</a></p>
-<p>Lots of the wording is optimizations QOI?</p>
-<h1 data-number="8" id="move-from-comparators"><span class="header-section-number">8</span> Move from comparators<a href="#move-from-comparators" class="self-link"></a></h1>
-<p><a href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2767r2.html#move-from-comparator">link
-to P2767</a></p>
-<p>I found it very confusing and leads to implementation weirdness <a href="https://godbolt.org/z/vernPe7xx">godbolt</a></p>
-<h1 data-number="9" id="stable-sorting"><span class="header-section-number">9</span> Stable sorting<a href="#stable-sorting" class="self-link"></a></h1>
-<p><a href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2767r2.html#stable-sorting">link
-to P2767</a></p>
-<p>I asked MSVC STL , they said they just use plain
-<code class="sourceCode cpp">sort</code>, which makes me think maybe we
-should do the same (that being said, it is not an obvious thing which
-might involve design discussions)</p>
-<h1 data-number="10" id="zero-initialization"><span class="header-section-number">10</span> zero initialization<a href="#zero-initialization" class="self-link"></a></h1>
-<p><a href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2767r2.html#zero-initialization">link
-to P2767</a></p>
-<p>to consider</p>
-<h1 data-number="11" id="implementation-experience"><span class="header-section-number">11</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
+<p>The current specification for <code class="sourceCode cpp">flat_set<span class="op">::</span>insert_range</code>
+seems to unnecessarily pessimize by forcing copies of the elements:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span>container<span class="op">-</span>compatible<span class="op">-</span>range<span class="op">&lt;</span>value_type<span class="op">&gt;</span> R<span class="op">&gt;</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> insert_range<span class="op">(</span>R<span class="op">&amp;&amp;</span> rg<span class="op">)</span>;</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="pp"># </span><span class="er">Effects: Adds elements to c as if by:</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> e <span class="op">:</span> rg<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  c<span class="op">.</span>insert<span class="op">(</span>c<span class="op">.</span>end<span class="op">()</span>, e<span class="op">)</span>; <span class="co">// COPYING HERE</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>We should allow implementations to move when they can.</p>
+<h2 data-number="7.1" id="wording-3"><span class="header-section-number">7.1</span> Wording<a href="#wording-3" class="self-link"></a></h2>
+<div class="sourceCode" id="cb24"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span>container<span class="op">-</span>compatible<span class="op">-</span>range<span class="op">&lt;</span>value_type<span class="op">&gt;</span> R<span class="op">&gt;</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> insert_range<span class="op">(</span>R<span class="op">&amp;&amp;</span> rg<span class="op">)</span>;</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="pp"># </span><span class="er">Effects: Adds elements to c as if by:</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span><span class="op">&amp;&amp;</span> e <span class="op">:</span> rg<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  c<span class="op">.</span>insert<span class="op">(</span>c<span class="op">.</span>end<span class="op">()</span>, std<span class="op">::</span>forward<span class="op">&lt;</span><span class="kw">decltype</span><span class="op">(</span>e<span class="op">)&gt;(</span>e<span class="op">))</span>;</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h1 data-number="8" id="underspecified-special-member-functions"><span class="header-section-number">8</span> Underspecified special member
+functions<a href="#underspecified-special-member-functions" class="self-link"></a></h1>
+<p>The special member functions for
+<code class="sourceCode cpp">flat_meow</code> are currently not
+specified explicitly. This means that an implementation using e.g. <code class="sourceCode cpp">flat_map<span class="op">(</span>flat_map<span class="op">&amp;&amp;)</span> <span class="op">=</span> <span class="cf">default</span></code>
+would be conforming. However, such an implementation would not be
+correct with respect to exception handling. Indeed, if an exception is
+thrown while moving from the incoming map, the incoming map would be
+left in a potentially invalid state with respect to its invariants.</p>
+<blockquote>
+<p>Note that <LINK TO BLANKET WORDING FOR INVARIANTS> does not apply
+here, since we’re concerned with the incoming map’s invariants, not
+<code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code>’s
+invariants.</p>
+</blockquote>
+<p>We believe that the behavior of these special member functions must
+be specified explicitly, otherwise these constructors are useless in any
+context where an exception can be thrown.</p>
+<h2 data-number="8.1" id="wording-4"><span class="header-section-number">8.1</span> Wording<a href="#wording-4" class="self-link"></a></h2>
+<div class="sourceCode" id="cb25"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>TODO<span class="op">:</span> Basically add the synopsis elements <span class="kw">and</span> specify their effects</span></code></pre></div>
+<p>Note: We purposefully do not add
+<code class="sourceCode cpp"><span class="kw">noexcept</span></code>
+specifiers to any of these member functions. Doing so is a complicated
+subject that is the target of <a href="http://wg21.link/LWG2227">LWG2227</a> and we would prefer to solve
+that problem separately. In practice, implementations are free to
+strengthen
+<code class="sourceCode cpp"><span class="kw">noexcept</span></code>
+specifications if they so desire.</p>
+<h1 data-number="9" id="implementation-experience"><span class="header-section-number">9</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
 <p>This paper is based on our implementation in libc++.</p>
-<h2 data-number="11.1" id="feature-test-macro"><span class="header-section-number">11.1</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
+<h2 data-number="9.1" id="feature-test-macro"><span class="header-section-number">9.1</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
 <p>```</p>
 <style>
 .bq{
@@ -798,7 +859,7 @@ to P2767</a></p>
     margin-inline-end: 40px;
 }
 </style>
-<h1 data-number="12" id="bibliography"><span class="header-section-number">12</span> References<a href="#bibliography" class="self-link"></a></h1>
+<h1 data-number="10" id="bibliography"><span class="header-section-number">10</span> References<a href="#bibliography" class="self-link"></a></h1>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="1" role="doc-bibliography">
 <div id="ref-LWG4000" class="csl-entry" role="doc-biblioentry">
 [LWG4000] Hewill Kang. flat_map::insert_range’s Effects is not quite
