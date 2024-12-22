@@ -491,15 +491,18 @@ Fix<span></span></a>
 <li><a href="#underspecified-special-member-functions" id="toc-underspecified-special-member-functions"><span class="toc-section-number">8</span> Underspecified special member
 functions<span></span></a>
 <ul>
-<li><a href="#wording-4" id="toc-wording-4"><span class="toc-section-number">8.1</span> Wording<span></span></a></li>
+<li><a href="#wording-4" id="toc-wording-4"><span class="toc-section-number">8.1</span> Wording<span></span></a>
+<ul>
+<li><a href="#flat_map-wording" id="toc-flat_map-wording"><span class="toc-section-number">8.1.1</span>
+<code class="sourceCode cpp">flat_map</code>
+Wording<span></span></a></li>
+</ul></li>
 </ul></li>
 <li><a href="#implementation-experience" id="toc-implementation-experience"><span class="toc-section-number">9</span> Implementation
-Experience<span></span></a>
-<ul>
-<li><a href="#feature-test-macro" id="toc-feature-test-macro"><span class="toc-section-number">9.1</span> Feature Test
+Experience<span></span></a></li>
+<li><a href="#feature-test-macro" id="toc-feature-test-macro"><span class="toc-section-number">10</span> Feature Test
 Macro<span></span></a></li>
-</ul></li>
-<li><a href="#bibliography" id="toc-bibliography"><span class="toc-section-number">10</span> References<span></span></a></li>
+<li><a href="#bibliography" id="toc-bibliography"><span class="toc-section-number">11</span> References<span></span></a></li>
 </ul>
 </div>
 <h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
@@ -798,26 +801,38 @@ as follows:</p>
 <span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">template&lt;container-compatible-range&lt;value_type&gt; R&gt;</code></span></ins></span></span>
 <span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">void insert_range(sorted_equivalent_t, R&amp;&amp; rg);</code></span></ins></span></span></code></pre></div>
 <h1 data-number="7" id="flat_setinsert_range"><span class="header-section-number">7</span> <code class="sourceCode cpp">flat_set<span class="op">::</span>insert_range</code><a href="#flat_setinsert_range" class="self-link"></a></h1>
-<p><a href="https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2767r2.html#wording-set-insert-range">link
-to P2767</a></p>
 <p>The current specification for <code class="sourceCode cpp">flat_set<span class="op">::</span>insert_range</code>
 seems to unnecessarily pessimize by forcing copies of the elements:</p>
 <div class="sourceCode" id="cb23"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span>container<span class="op">-</span>compatible<span class="op">-</span>range<span class="op">&lt;</span>value_type<span class="op">&gt;</span> R<span class="op">&gt;</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> insert_range<span class="op">(</span>R<span class="op">&amp;&amp;</span> rg<span class="op">)</span>;</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="pp"># </span><span class="er">Effects: Adds elements to c as if by:</span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> e <span class="op">:</span> rg<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  c<span class="op">.</span>insert<span class="op">(</span>c<span class="op">.</span>end<span class="op">()</span>, e<span class="op">)</span>; <span class="co">// COPYING HERE</span></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> insert_range<span class="op">(</span>R<span class="op">&amp;&amp;</span> rg<span class="op">)</span>;</span></code></pre></div>
+<div class="bq">
+<p><span class="marginalizedparent"><a class="marginalized">10</a></span>
+<em>Effects</em>: Adds elements to <code class="sourceCode cpp">c</code>
+as if by:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> e <span class="op">:</span> rg<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  c<span class="op">.</span>insert<span class="op">(</span>c<span class="op">.</span>end<span class="op">()</span>, e<span class="op">)</span>; <span class="co">// COPYING HERE</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+</div>
 <p>We should allow implementations to move when they can.</p>
 <h2 data-number="7.1" id="wording-3"><span class="header-section-number">7.1</span> Wording<a href="#wording-3" class="self-link"></a></h2>
-<div class="sourceCode" id="cb24"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span>container<span class="op">-</span>compatible<span class="op">-</span>range<span class="op">&lt;</span>value_type<span class="op">&gt;</span> R<span class="op">&gt;</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> insert_range<span class="op">(</span>R<span class="op">&amp;&amp;</span> rg<span class="op">)</span>;</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="pp"># </span><span class="er">Effects: Adds elements to c as if by:</span></span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span><span class="op">&amp;&amp;</span> e <span class="op">:</span> rg<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  c<span class="op">.</span>insert<span class="op">(</span>c<span class="op">.</span>end<span class="op">()</span>, std<span class="op">::</span>forward<span class="op">&lt;</span><span class="kw">decltype</span><span class="op">(</span>e<span class="op">)&gt;(</span>e<span class="op">))</span>;</span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>Change <span>23.6.11.5
+<a href="https://wg21.link/flat.set.modifiers">[flat.set.modifiers]</a></span>
+paragraph 10 as follows:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span>container<span class="op">-</span>compatible<span class="op">-</span>range<span class="op">&lt;</span>value_type<span class="op">&gt;</span> R<span class="op">&gt;</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> insert_range<span class="op">(</span>R<span class="op">&amp;&amp;</span> rg<span class="op">)</span>;</span></code></pre></div>
+<div class="bq">
+<p><span class="marginalizedparent"><a class="marginalized">10</a></span>
+<em>Effects</em>: Adds elements to <code class="sourceCode cpp">c</code>
+as if by:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="rm" style="color: #bf0303"><del><span><code class="sourceCode default">const auto&amp;</code></span></del></span> <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">auto&amp;&amp;</code></span></ins></span> e <span class="op">:</span> rg<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  c<span class="op">.</span>insert<span class="op">(</span>c<span class="op">.</span>end<span class="op">()</span>, <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">std::forward&lt;decltype(e)&gt;(</code></span></ins></span>e<span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">)</code></span></ins></span><span class="op">)</span>;</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>Then, sorts the range of newly inserted elements with respect to
+compare; merges the resulting sorted range and the sorted range of
+pre-existing elements into a single sorted range; and finally erases all
+but the first element from each group of consecutive equivalent
+elements.</p>
+</div>
 <h1 data-number="8" id="underspecified-special-member-functions"><span class="header-section-number">8</span> Underspecified special member
 functions<a href="#underspecified-special-member-functions" class="self-link"></a></h1>
 <p>The special member functions for
@@ -828,8 +843,9 @@ correct with respect to exception handling. Indeed, if an exception is
 thrown while moving from the incoming map, the incoming map would be
 left in a potentially invalid state with respect to its invariants.</p>
 <blockquote>
-<p>Note that <LINK TO BLANKET WORDING FOR INVARIANTS> does not apply
-here, since we’re concerned with the incoming map’s invariants, not
+<p>Note that the <a href="http://eel.is/c++draft/container.adaptors#flat.map.overview-6">blanket
+paragraph</a> does not apply here, since we’re concerned with the
+incoming <code class="sourceCode cpp">flat_map</code>’s invariants, not
 <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code>’s
 invariants.</p>
 </blockquote>
@@ -837,7 +853,37 @@ invariants.</p>
 be specified explicitly, otherwise these constructors are useless in any
 context where an exception can be thrown.</p>
 <h2 data-number="8.1" id="wording-4"><span class="header-section-number">8.1</span> Wording<a href="#wording-4" class="self-link"></a></h2>
-<div class="sourceCode" id="cb25"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>TODO<span class="op">:</span> Basically add the synopsis elements <span class="kw">and</span> specify their effects</span></code></pre></div>
+<h3 data-number="8.1.1" id="flat_map-wording"><span class="header-section-number">8.1.1</span>
+<code class="sourceCode cpp">flat_map</code> Wording<a href="#flat_map-wording" class="self-link"></a></h3>
+<p>Change <span>23.6.8.2
+<a href="https://wg21.link/flat.map.defn">[flat.map.defn]</a></span> as
+follows:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">// [flat.map.cons], constructors</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>flat_map<span class="op">()</span> <span class="op">:</span> flat_map<span class="op">(</span>key_compare<span class="op">())</span> <span class="op">{</span> <span class="op">}</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">flat_map(const flat_map&amp;);</code></span></ins></span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">flat_map(flat_map&amp;&amp;);</code></span></ins></span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">flat_map&amp; operator=(const flat_map&amp;);</code></span></ins></span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">flat_map&amp; operator=(flat_map&amp;&amp;);</code></span></ins></span></span></code></pre></div>
+<p>Add a new entry to <span>23.6.8.3
+<a href="https://wg21.link/flat.map.cons">[flat.map.cons]</a></span> at
+the beginning:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>flat_map<span class="op">(</span>flat_map<span class="op">&amp;&amp;</span> o<span class="op">)</span>;</span></code></pre></div>
+<div class="bq">
+<p><span class="marginalizedparent"><a class="marginalized">1</a></span>
+<em>Effects</em>: Initialize
+<code class="sourceCode cpp"><em>c</em></code> with <code class="sourceCode cpp">std<span class="op">::</span>move<span class="op">(</span>o<span class="op">.</span><em>c</em><span class="op">)</span></code>
+and <code class="sourceCode cpp"><em>compare</em></code> with <code class="sourceCode cpp">std<span class="op">::</span>move<span class="op">(</span>o<span class="op">.</span><em>compare</em><span class="op">)</span></code>.
+If the function exits via an exception, the invariants of
+<code class="sourceCode cpp">o</code> is restored.</p>
+</div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>flat_map<span class="op">&amp;</span> <span class="kw">operator</span><span class="op">=(</span>flat_map<span class="op">&amp;&amp;</span> o<span class="op">)</span>;</span></code></pre></div>
+<div class="bq">
+<p><span class="marginalizedparent"><a class="marginalized">2</a></span>
+<em>Effects</em>: Equivalent to:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>flat_map<span class="op">(</span>std<span class="op">::</span>move<span class="op">(</span>o<span class="op">)).</span>swap<span class="op">(*</span><span class="kw">this</span><span class="op">)</span>;</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">*</span><span class="kw">this</span>;</span></code></pre></div>
+</div>
 <p>Note: We purposefully do not add
 <code class="sourceCode cpp"><span class="kw">noexcept</span></code>
 specifiers to any of these member functions. Doing so is a complicated
@@ -848,8 +894,7 @@ strengthen
 specifications if they so desire.</p>
 <h1 data-number="9" id="implementation-experience"><span class="header-section-number">9</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
 <p>This paper is based on our implementation in libc++.</p>
-<h2 data-number="9.1" id="feature-test-macro"><span class="header-section-number">9.1</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
-<p>```</p>
+<h1 data-number="10" id="feature-test-macro"><span class="header-section-number">10</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h1>
 <style>
 .bq{
     display: block;
@@ -859,7 +904,7 @@ specifications if they so desire.</p>
     margin-inline-end: 40px;
 }
 </style>
-<h1 data-number="10" id="bibliography"><span class="header-section-number">10</span> References<a href="#bibliography" class="self-link"></a></h1>
+<h1 data-number="11" id="bibliography"><span class="header-section-number">11</span> References<a href="#bibliography" class="self-link"></a></h1>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="1" role="doc-bibliography">
 <div id="ref-LWG4000" class="csl-entry" role="doc-biblioentry">
 [LWG4000] Hewill Kang. flat_map::insert_range’s Effects is not quite
