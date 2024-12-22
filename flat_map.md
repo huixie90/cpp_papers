@@ -345,34 +345,51 @@ template<container-compatible-range<value_type> R>
 
 # `flat_set::insert_range`
 
-[link to P2767](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2023/p2767r2.html#wording-set-insert-range)
-
 The current specification for `flat_set::insert_range` seems to unnecessarily pessimize by forcing
 copies of the elements:
 
 ```cpp
 template<container-compatible-range<value_type> R>
   void insert_range(R&& rg);
+```
 
-# Effects: Adds elements to c as if by:
+:::bq
+
+[10]{.pnum} *Effects*: Adds elements to `c` as if by:
+
+```cpp
 for (const auto& e : rg) {
   c.insert(c.end(), e); // COPYING HERE
 }
 ```
 
+:::
+
 We should allow implementations to move when they can.
 
 ## Wording
 
+Change [flat.set.modifiers]{.sref} paragraph 10 as follows:
+
 ```cpp
 template<container-compatible-range<value_type> R>
   void insert_range(R&& rg);
+```
 
-# Effects: Adds elements to c as if by:
-for (auto&& e : rg) {
-  c.insert(c.end(), std::forward<decltype(e)>(e));
+:::bq
+
+[10]{.pnum} *Effects*: Adds elements to `c` as if by:
+
+```cpp
+for (@[`const auto&`]{.rm}@ @[`auto&&`]{.add}@ e : rg) {
+  c.insert(c.end(), @[`std::forward<decltype(e)>(`]{.add}@e@[`)`]{.add}@);
 }
 ```
+
+Then, sorts the range of newly inserted elements with respect to compare; merges the resulting sorted range and the sorted range of pre-existing elements into a single sorted range; and finally erases all but the first element from each group of consecutive equivalent elements.
+
+:::
+
 
 # Underspecified special member functions
 
@@ -381,7 +398,7 @@ using e.g. `flat_map(flat_map&&) = default` would be conforming. However, such a
 with respect to exception handling. Indeed, if an exception is thrown while moving from the incoming map, the incoming
 map would be left in a potentially invalid state with respect to its invariants.
 
-> Note that <LINK TO BLANKET WORDING FOR INVARIANTS> does not apply here, since we're concerned with the incoming map's
+> Note that the [blanket paragraph](http://eel.is/c++draft/container.adaptors#flat.map.overview-6) does not apply here, since we're concerned with the incoming `flat_map`'s
 > invariants, not `*this`'s invariants.
 
 We believe that the behavior of these special member functions must be specified explicitly, otherwise these constructors
@@ -389,9 +406,46 @@ are useless in any context where an exception can be thrown.
 
 ## Wording
 
+### `flat_map` Wording
+
+Change [flat.map.defn]{.sref} as follows:
+
 ```cpp
-TODO: Basically add the synopsis elements and specify their effects
+// [flat.map.cons], constructors
+flat_map() : flat_map(key_compare()) { }
+
+@[`flat_map(const flat_map&);`]{.add}@
+@[`flat_map(flat_map&&);`]{.add}@
+@[`flat_map& operator=(const flat_map&);`]{.add}@
+@[`flat_map& operator=(flat_map&&);`]{.add}@
 ```
+
+Add a new entry to [flat.map.cons]{.sref} at the beginning:
+
+```cpp
+flat_map(flat_map&& o);
+```
+
+:::bq
+
+[1]{.pnum} *Effects*: Initialize `@*c*@` with `std::move(o.@*c*@)` and `@*compare*@` with `std::move(o.@*compare*@)`. If the function exits via an exception, the invariants of `o` is restored.
+
+:::
+
+```cpp
+flat_map& operator=(flat_map&& o);
+```
+
+:::bq
+
+[2]{.pnum} *Effects*: Equivalent to:
+
+```cpp
+flat_map(std::move(o)).swap(*this);
+return *this;
+```
+
+:::
 
 Note: We purposefully do not add `noexcept` specifiers to any of these member functions. Doing so is a complicated subject
 that is the target of [LWG2227](http://wg21.link/LWG2227) and we would prefer to solve that problem separately. In practice,
@@ -401,9 +455,8 @@ implementations are free to strengthen `noexcept` specifications if they so desi
 
 This paper is based on our implementation in libc++.
 
-## Feature Test Macro
+# Feature Test Macro
 
-```
 
 ---
 references:
