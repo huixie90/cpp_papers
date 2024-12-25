@@ -38,7 +38,7 @@ a subset of the non-controversial fixes based on our implementation experience.
 # LWG 4000: `flat_map::insert_range` Fix
 
 As stated in [@LWG4000], `flat_map::insert_range` has an obvious bug. But for some reason,
-this LWG issue was not moved forward even with lots of P0 vote, possibly due to the existence of [@P2767R2].
+this LWG issue was not moved forward, possibly due to the existence of [@P2767R2].
 The fix is twofold: first, we use `value_type` explicitly to make sure that `e` is a `std::pair`,
 and we move to `ranges::for_each` for consistency with the rest of the `flat_map` specification.
 
@@ -428,7 +428,8 @@ flat_map(flat_map&& o);
 
 :::bq
 
-[1]{.pnum} *Effects*: Initialize `@*c*@` with `std::move(o.@*c*@)` and `@*compare*@` with `std::move(o.@*compare*@)`. If the function exits via an exception, the invariants of `o` is restored.
+[1]{.pnum} *Effects*: Initialize `@*c*@` with `std::move(o.@*c*@)` and `@*compare*@` with `std::move(o.@*compare*@)`.
+If the function exits via an exception, the invariants of `o` are restored.
 
 :::
 
@@ -438,12 +439,122 @@ flat_map& operator=(flat_map&& o);
 
 :::bq
 
-[2]{.pnum} *Effects*: Equivalent to:
+[2]{.pnum} *Effects*: Assigns `std::move(o.@*c*@)` to `@*c*@` and `std::move(o.@*compare*@)` to `@*compare*@`.
+If the function exits via an exception, the invariants of `o` and `*this` are restored.
+
+:::
+
+### `flat_multimap` Wording
+
+Change [flat.multimap.defn]{.sref} as follows:
 
 ```cpp
-flat_map(std::move(o)).swap(*this);
-return *this;
+// [flat.multimap.cons], constructors
+flat_multimap() : flat_multimap(key_compare()) { }
+
+@[`flat_multimap(const flat_multimap&);`]{.add}@
+@[`flat_multimap(flat_multimap&&);`]{.add}@
+@[`flat_multimap& operator=(const flat_multimap&);`]{.add}@
+@[`flat_multimap& operator=(flat_multimap&&);`]{.add}@
 ```
+
+Add a new entry to [flat.multimap.cons]{.sref} at the beginning:
+
+```cpp
+flat_multimap(flat_multimap&& o);
+```
+
+:::bq
+
+[1]{.pnum} *Effects*: Initialize `@*c*@` with `std::move(o.@*c*@)` and `@*compare*@` with `std::move(o.@*compare*@)`.
+If the function exits via an exception, the invariants of `o` are restored.
+
+:::
+
+```cpp
+flat_multimap& operator=(flat_multimap&& o);
+```
+
+:::bq
+
+[2]{.pnum} *Effects*: Assigns `std::move(o.@*c*@)` to `@*c*@` and `std::move(o.@*compare*@)` to `@*compare*@`.
+If the function exits via an exception, the invariants of `o` and `*this` are restored.
+
+:::
+
+### `flat_set` Wording
+
+Change [flat.set.defn]{.sref} as follows:
+
+```cpp
+// [flat.set.cons], constructors
+flat_set() : flat_set(key_compare()) { }
+
+@[`flat_set(const flat_set&);`]{.add}@
+@[`flat_set(flat_set&&);`]{.add}@
+@[`flat_set& operator=(const flat_set&);`]{.add}@
+@[`flat_set& operator=(flat_set&&);`]{.add}@
+```
+
+Add a new entry to [flat.set.cons]{.sref} at the beginning:
+
+```cpp
+flat_set(flat_set&& o);
+```
+
+:::bq
+
+[1]{.pnum} *Effects*: Initialize `@*c*@` with `std::move(o.@*c*@)` and `@*compare*@` with `std::move(o.@*compare*@)`.
+If the function exits via an exception, the invariants of `o` are restored.
+
+:::
+
+```cpp
+flat_set& operator=(flat_set&& o);
+```
+
+:::bq
+
+[2]{.pnum} *Effects*: Assigns `std::move(o.@*c*@)` to `@*c*@` and `std::move(o.@*compare*@)` to `@*compare*@`.
+If the function exits via an exception, the invariants of `o` and `*this` are restored.
+
+:::
+
+### `flat_multiset` Wording
+
+Change [flat.multiset.defn]{.sref} as follows:
+
+```cpp
+// [flat.multiset.cons], constructors
+flat_multiset() : flat_multiset(key_compare()) { }
+
+@[`flat_multiset(const flat_multiset&);`]{.add}@
+@[`flat_multiset(flat_multiset&&);`]{.add}@
+@[`flat_multiset& operator=(const flat_multiset&);`]{.add}@
+@[`flat_multiset& operator=(flat_multiset&&);`]{.add}@
+```
+
+Add a new entry to [flat.multiset.cons]{.sref} at the beginning:
+
+```cpp
+flat_multiset(flat_multiset&& o);
+```
+
+:::bq
+
+[1]{.pnum} *Effects*: Initialize `@*c*@` with `std::move(o.@*c*@)` and `@*compare*@` with `std::move(o.@*compare*@)`.
+If the function exits via an exception, the invariants of `o` are restored.
+
+:::
+
+```cpp
+flat_multiset& operator=(flat_multiset&& o);
+```
+
+:::bq
+
+[2]{.pnum} *Effects*: Assigns `std::move(o.@*c*@)` to `@*c*@` and `std::move(o.@*compare*@)` to `@*compare*@`.
+If the function exits via an exception, the invariants of `o` and `*this` are restored.
 
 :::
 
