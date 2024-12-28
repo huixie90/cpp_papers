@@ -198,9 +198,10 @@ enum class any_view_options
     move_only = 128
 };
 
-template <class Value,
+template <class Element,
           any_view_options Opts = any_view_options::input,
-          class Ref = Value &,
+          class Ref =  Element&,
+          class Value = remove_cvref_t<Element>,
           class RValueRef = add_rvalue_reference_t<remove_reference_t<Ref>>,
           class Diff = ptrdiff_t>
 class any_view {
@@ -226,7 +227,7 @@ class any_view {
   size_t size() const requires(Opts & any_view_options::sized);
 };
 
-template <class Value, any_view_options Opts, class Ref, class RValueRef,
+template <class Element, any_view_options Opts, class Ref, class Value, class RValueRef,
           class Diff>
 inline constexpr bool
     enable_borrowed_range<any_view<Value, Opts, Ref, RValueRef, Diff>> =
@@ -239,66 +240,97 @@ The intent is that users can select various desired properties of the `any_view`
 using MyView = std::ranges::any_view<Widget, std::ranges::any_view_options::bidirectional | std::ranges::any_view_options::sized>;
 ```
 
+# Alternative Design for Template Parameters
+
+In Wrocław meeting, one important point was made: The majority of the use case of `any_view`
+is to use it as a function parameter in the API boundary.
+
+```cpp
+Bar algo(any_view<Foo>);
+```
+
+And in most of cases, the implementation of `algo` only iterate over the range once. The design should make
+it easy to specify an "`input_range` only" `view`, and sometimes "read-only" access to the elements
+(a `const` reference element type). That is,
+
+```cpp
+any_view<Foo>; // should be an input_range where the range_reference_t is Foo&
+any_view<const Foo>; // should be an input_range where the range_reference_t is const Foo&
+```
+
+With the proposed design, the above two use cases would work.
+Even though there are lots of template parameters, we do not expect users to specify them
+often because the default would work for majority of the use cases.
+
+## Alternative Design 1
+
+```cpp
+namespace any_view_options {
+
+template <class> struct iterator_concept;
+template <class> struct reference_type;
+template <class> struct value_type;
+template <class> struct difference_type;
+template <class> struct rvalue_reference_type;
+template <bool> struct sized;
+template <bool> struct move_only;
+template <bool> struct borrowed;
+
+} // any_view_options
+
+template <class Element, class... Options>
+class any_view;
+```
+
+With this design, the two main use cases would still work
+
+```cpp
+any_view<Foo>; // should be an input_range where the range_reference_t is Foo&
+any_view<const Foo>; // should be an input_range where the range_reference_t is const Foo&
+```
+
+If the default options do not work, users can specify the options in this way:
+
+```cpp
+using MyView = any_view<Foo, iterator_concept<std::contiguous_iterator_tag>, reference_type<Foo>, sized<true>, borrowed<true>>;
+```
+
+The benefits of this approach are
+
+- Template parameters are named
+- Users do not need to specify the template parameters in a specific order
+- Users can skip few template parameters if they need to customize the "last" template option
+
+An implementation of this approach would look like this: [link](https://godbolt.org/z/qdnoE7Mb9)
+
+However, we believe that this over complicates the design.
+
 # Other Design Considerations
 
-## Should the first argument be `Ref` or `Value`?
+## Why don't follow range-v3's design where first template parameter is `range_reference_t`?
 
 If the first template parameter is `Ref`, we have:
 
 ```cpp
 template <class Ref,
           any_view_options Opts = any_view_options::input,
-          class Value = decay_t<Ref>>
+          class Value = remove_cvref_t<Ref>>
 ```
 
-For a range with a reference to `int`, one would write
+For a range with a reference to `T`, one would write
 
 ```cpp
-any_view<int&>
+any_view<T&>
 ```
 
-And for a `const` reference to `int`, one would write
+And for a `const` reference to `T`, one would write
 
 ```cpp
-any_view<const int&>
-```
-
-In case of a generator range, e.g a `transform_view` which generates pr-value `int`, the usage would be
-
-```cpp
-any_view<int>
+any_view<const T&>
 ```
 
 However, it is possible that the user uses `any_view<string>` without realizing that they specified the
 reference type and they now make a copy of the `string` every time when the iterator is dereferenced.
-
-Instead, if the first template parameter is `Value`, we have:
-
-```cpp
-template <class Value,
-          any_view_options Opts = any_view_options::input,
-          class Ref = Value&>
-```
-
-For a range with a reference to `int`, it would be less verbose
-
-```cpp
-any_view<int>
-```
-
-However, in order to have a `const` reference to `int`, one would have to explicitly specify the `Value`, the any_view_options and finally the `Ref`, i.e.
-
-```cpp
-any_view<int, any_view_options::input, const int&>
-```
-
-This is a bit verbose. In the case of a generator range, one would need to do the same:
-
-```cpp
-any_view<int, any_view_options::input, int>
-```
-
-**Author Recommendation**: Even though the first option is less verbose in few cases, it might create unnecessary copies without user realizing it. The author recommends the second option.
 
 ## Name of the `any_view_options`
 
