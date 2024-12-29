@@ -262,7 +262,7 @@ With the proposed design, the above two use cases would work.
 Even though there are lots of template parameters, we do not expect users to specify them
 often because the default would work for majority of the use cases.
 
-## Alternative Design 1
+## Alternative Design 1: Variadic Named Template Parameters
 
 ```cpp
 namespace any_view_options {
@@ -297,13 +297,110 @@ using MyView = any_view<Foo, iterator_concept<std::contiguous_iterator_tag>, ref
 
 The benefits of this approach are
 
-- Template parameters are named
+- Each parameter is named
 - Users do not need to specify the template parameters in a specific order
 - Users can skip few template parameters if they need to customize the "last" template option
 
 An implementation of this approach would look like this: [link](https://godbolt.org/z/qdnoE7Mb9)
 
 However, we believe that this over complicates the design.
+
+## Alternative Design 2: Single Template Parameter: RangeTraits
+
+In Wrocław meeting, one feedback we had was to explore the options to have
+"single expansion point", i.e not to have too many template parameters
+
+```cpp
+struct default_range_traits {};
+
+template <class Element, class RangeTraits = default_range_traits>
+class any_view;
+```
+
+In the `RangeTraits`, the user can define aliases to customize `iterator_concept`, `reference_type` etc,
+and define `static constexpr bool` variables to customize `sized`, `move_only` etc. If an alias or
+`static constexpr bool` variable is missing, the default type or value will be used.
+
+With this design, the two main use cases would still work
+
+```cpp
+any_view<Foo>; // should be an input_range where the range_reference_t is Foo&
+any_view<const Foo>; // should be an input_range where the range_reference_t is const Foo&
+```
+
+If the default options do not work, users can specify the options in this way:
+```cpp
+struct MyTraits {
+  using iterator_concept = std::contiguous_iterator_tag;
+  using reference = int;
+  static constexpr bool sized = true;
+  static constexpr move_only = true;
+};
+
+using MyView = any_view<int, MyTraits>;
+```
+
+The benefits of this approach are
+
+- Each option is named
+- Users do not need to specify the template parameters in a specific order
+- Users can skip any options if they can use the default values
+
+An implementation of this approach would look like this: [link](https://godbolt.org/z/596avP8T5)
+
+However, every time an user needs to customize anything, they need to
+define a `struct`, which is verbose and inconvenient.
+
+## Alternative Design 3: Detect Traits from a `Range`
+
+In addition to Alternative Design 2, we can have a utility trait class to deduce the traits
+from a given range. This solves the problem of user having to define a `struct`.
+
+```cpp
+struct default_range_traits {};
+
+template <class Range>
+struct range_traits {
+    using iterator_concept = /* see-below */;
+    using reference_type = range_reference_t<Range>;
+    using value_type = range_value_t<Range>;
+    using rvalue_reference_type = range_rvalue_reference_t<Range>;
+    using difference_type = range_difference_t<Range>;
+
+    static constexpr bool sized = sized_range<Range>;
+    static constexpr bool move_only = !copyable<decay_t<Range>>;
+    static constexpr bool borrowed = borrowed_range<Range>;
+};
+
+template <class Element, class RangeTraits = default_range_traits>
+class any_view;
+```
+
+The Alternative Design 2's user code would still work
+
+
+```cpp
+using MyView1 = any_view<Foo>; // should be an input_range where the range_reference_t is Foo&
+using MyView2 = any_view<const Foo>; // should be an input_range where the range_reference_t is const Foo&
+
+struct MyTraits {
+  using iterator_concept = std::contiguous_iterator_tag;
+  using reference = int;
+  static constexpr bool sized = true;
+  static constexpr move_only = true;
+};
+
+using MyView3 = any_view<int, MyTraits>;
+```
+
+And user can also make uses of the `range_traits` to deduce the properties.
+
+```cpp
+using MyView4 = any_view<int, range_traits<std::vector<int>>>; // MyView4 is a contiguous, sized, copyable, non-borrowed int& range 
+using MyView5 = any_view<const int, range_traits<const std::vector<int>>>; // MyView4 is a contiguous, sized, copyable, non-borrowed const int& range 
+```
+
+An implementation of this approach would look like this: [link](https://godbolt.org/z/co1Kdsra3)
 
 # Other Design Considerations
 
