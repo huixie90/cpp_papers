@@ -523,6 +523,9 @@ benchmark: A view pipeline vs
 <li><a href="#a-realistic-benchmark-a-copy-of-vectorstring-vs-any_view" id="toc-a-realistic-benchmark-a-copy-of-vectorstring-vs-any_view"><span class="toc-section-number">8.12.3</span> A realistic benchmark: A copy
 of <code class="sourceCode cpp">vector<span class="op">&lt;</span>string<span class="op">&gt;</span></code>
 vs <code class="sourceCode cpp">any_view</code><span></span></a></li>
+<li><a href="#another-common-use-case-function-arguments-vector-vs-any_view" id="toc-another-common-use-case-function-arguments-vector-vs-any_view"><span class="toc-section-number">8.12.4</span> Another Common Use Case:
+Function Arguments <code class="sourceCode cpp">vector</code> vs
+<code class="sourceCode cpp">any_view</code><span></span></a></li>
 </ul></li>
 </ul></li>
 <li><a href="#implementation-experience" id="toc-implementation-experience"><span class="toc-section-number">9</span> Implementation
@@ -1283,7 +1286,7 @@ variations of the implementations to produce the vector, including
 <code class="sourceCode cpp">reserve</code> the maximum possible size,
 or use the range pipelines with
 <code class="sourceCode cpp">ranges<span class="op">::</span>to</code>.
-They all have extreamely similar results. In our benchmark, 10% of the
+They all have extremely similar results. In our benchmark, 10% of the
 <code class="sourceCode cpp">Widget</code>s were filtered out by the
 filter pipeline and the <code class="sourceCode cpp">name</code>
 string’s length is randomly 0-30. So some of
@@ -1298,10 +1301,82 @@ performance-wise, in reality this type can often lead to better
 performance by sidestepping the need to own the data being iterated
 over.</p>
 <p>Furthermore, by putting this type in the Standard library, we would
-make it possible for implementers to use optimziations like selective
+make it possible for implementers to use optimizations like selective
 devirtualization of some common operations like
 <code class="sourceCode cpp">for_each</code> to achieve large
 performance gains in specific cases.</p>
+<h3 data-number="8.12.4" id="another-common-use-case-function-arguments-vector-vs-any_view"><span class="header-section-number">8.12.4</span> Another Common Use Case:
+Function Arguments <code class="sourceCode cpp">vector</code> vs
+<code class="sourceCode cpp">any_view</code><a href="#another-common-use-case-function-arguments-vector-vs-any_view" class="self-link"></a></h3>
+<p>Another very common use case is that library authors provide an API
+that takes a range of elements. The library authors would like to hide
+implementation details in its own library to reduce the header
+dependencies and avoid leaking implementation details. Due to the lack
+of type erasure utilities, typically the API takes a
+<code class="sourceCode cpp">vector</code>, even though the
+implementation only needs to iterate once over the elements.</p>
+<p>This is the benchmark we are measuring.</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co">// algo.hpp</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> algo1<span class="op">(</span><span class="kw">const</span> std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>string<span class="op">&gt;&amp;</span> strings<span class="op">)</span>;</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> algo2<span class="op">(</span>std<span class="op">::</span>ranges<span class="op">::</span>any_view<span class="op">&lt;</span>std<span class="op">::</span>string<span class="op">&gt;</span> strings<span class="op">)</span>;</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="co">// algo.cpp</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> algo1<span class="op">(</span><span class="kw">const</span> std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>string<span class="op">&gt;&amp;</span> strings<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> result <span class="op">=</span> <span class="dv">0</span>;</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> str <span class="op">:</span> strings<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>str<span class="op">.</span>size<span class="op">()</span> <span class="op">&gt;</span> <span class="dv">6</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>      result <span class="op">+=</span> str<span class="op">.</span>size<span class="op">()</span>;</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> result;</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> algo2<span class="op">(</span>std<span class="op">::</span>ranges<span class="op">::</span>any_view<span class="op">&lt;</span>std<span class="op">::</span>string<span class="op">&gt;</span> strings<span class="op">)</span></span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> result <span class="op">=</span> <span class="dv">0</span>;</span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> str <span class="op">:</span> strings<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>str<span class="op">.</span>size<span class="op">()</span> <span class="op">&gt;</span> <span class="dv">6</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>      result <span class="op">+=</span> str<span class="op">.</span>size<span class="op">()</span>;</span>
+<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> result;</span>
+<span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>With the <code class="sourceCode cpp">vector</code> version, the user
+needs to create a temporary <code class="sourceCode cpp">vector</code>
+if they do not have it at the first place. So in our benchmark, we are
+measuring</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> _ <span class="op">:</span> state<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>string<span class="op">&gt;</span> widget_names;</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  widget_names<span class="op">.</span>reserve<span class="op">(</span>ui<span class="op">.</span>widgets_<span class="op">.</span>size<span class="op">())</span>;</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span><span class="op">(</span><span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> widget <span class="op">:</span> ui<span class="op">.</span>widgets_<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    widget_names<span class="op">.</span>push_back<span class="op">(</span>widget<span class="op">.</span>name<span class="op">)</span>;</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">auto</span> res <span class="op">=</span> lib<span class="op">::</span>algo1<span class="op">(</span>widget_names<span class="op">)</span>;</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  benchmark<span class="op">::</span>DoNotOptimize<span class="op">(</span>res<span class="op">)</span>;</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>With the <code class="sourceCode cpp">any_view</code>, we can simply
+pass in a <code class="sourceCode cpp">transform_view</code></p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> _ <span class="op">:</span> state<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">auto</span> res <span class="op">=</span> lib<span class="op">::</span>algo2<span class="op">(</span>ui<span class="op">.</span>widgets_ <span class="op">|</span> std<span class="op">::</span>views<span class="op">::</span>transform<span class="op">(&amp;</span>Widget<span class="op">::</span>name<span class="op">))</span>;</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  benchmark<span class="op">::</span>DoNotOptimize<span class="op">(</span>res<span class="op">)</span>;</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>And here is the result:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Benchmark</span>                                                     Time        Time vector Time any_view</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">---------------------------------------------------------------------------------------------------</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/1024                  <span class="at">-0.3447</span>              39450         25852</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/2048                  <span class="at">-0.3557</span>              79879         51467</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/4096                  <span class="at">-0.3587</span>             161257        103416</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/8192                  <span class="at">-0.3467</span>             319904        208983</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/16384                 <span class="at">-0.3457</span>             639910        418671</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/32768                 <span class="at">-0.3450</span>            1281663        839452</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/65536                 <span class="at">-0.3459</span>            2562996       1676395</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/131072                <span class="at">-0.3599</span>            5213571       3337175</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/262144                <span class="at">-0.3674</span>           10577365       6691345</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="ex">OVERALL_GEOMEAN</span>                                            <span class="at">-0.3522</span>                  0             0</span></code></pre></div>
+<p>We can see the <code class="sourceCode cpp">any_view</code> version
+is 35% faster. This is a very common pattern in the real world code.
+<code class="sourceCode cpp">vector</code> has been used in API
+boundaries as a type-erasure tool.</p>
 <h1 data-number="9" id="implementation-experience"><span class="header-section-number">9</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
 <p><code class="sourceCode cpp">any_view</code> has been implemented in
 <span class="citation" data-cites="rangev3">[<a href="https://github.com/ericniebler/range-v3" role="doc-biblioref">range-v3</a>]</span>, with equivalent semantics as

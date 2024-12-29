@@ -708,15 +708,96 @@ OVERALL_GEOMEAN                                              -0.7723            
 
 ```
 
-With this more realistic use case, we can see that `any_view` is 77% faster. For the returning `vector` case, we have some variations of the implementations to produce the vector, including `reserve` the maximum possible size, or use the range pipelines with `ranges::to`. They all have extreamely similar results. In our benchmark, 10% of the `Widget`s were filtered out by the filter pipeline and the
+With this more realistic use case, we can see that `any_view` is 77% faster. For the returning `vector` case, we have some variations of the implementations to produce the vector, including `reserve` the maximum possible size, or use the range pipelines with `ranges::to`. They all have extremely similar results. In our benchmark, 10% of the `Widget`s were filtered out by the filter pipeline and the
 `name` string's length is randomly 0-30. So some of `string`s are in the SBO and some are allocated on the heap. We maintain that this code pattern is very common in the wild:
 making the code simple and clean at the cost of copying data, even though most of the callers don't actually need a copy of the data at all.
 
 In conclusion, we believe that while it's easy to craft benchmarks that make `any_view` look bad performance-wise, in reality this type can often lead to
 better performance by sidestepping the need to own the data being iterated over.
 
-Furthermore, by putting this type in the Standard library, we would make it possible for implementers to use optimziations like selective devirtualization of some common
+Furthermore, by putting this type in the Standard library, we would make it possible for implementers to use optimizations like selective devirtualization of some common
 operations like `for_each` to achieve large performance gains in specific cases.
+
+### Another Common Use Case: Function Arguments `vector` vs `any_view`
+
+Another very common use case is that library authors provide an API that takes a range of elements.
+The library authors would like to hide implementation details in its own library to reduce the header
+dependencies and avoid leaking implementation details. Due to the lack of type erasure utilities, typically
+the API takes a `vector`, even though the implementation only needs to iterate once over the elements.
+
+This is the benchmark we are measuring.
+
+```cpp
+// algo.hpp
+int algo1(const std::vector<std::string>& strings);
+int algo2(std::ranges::any_view<std::string> strings);
+
+// algo.cpp
+int algo1(const std::vector<std::string>& strings) {
+  int result = 0;
+  for (const auto& str : strings) {
+    if (str.size() > 6) {
+      result += str.size();
+    }
+  }
+  return result;
+}
+
+int algo2(std::ranges::any_view<std::string> strings)
+{
+  int result = 0;
+  for (const auto& str : strings) {
+    if (str.size() > 6) {
+      result += str.size();
+    }
+  }
+  return result;
+}
+```
+
+With the `vector` version, the user needs to create a temporary `vector` if they do not have it at
+the first place. So in our benchmark, we are measuring
+
+```cpp
+for (auto _ : state) {
+  std::vector<std::string> widget_names;
+  widget_names.reserve(ui.widgets_.size());
+  for(const auto& widget : ui.widgets_) {
+    widget_names.push_back(widget.name);
+  }
+  auto res = lib::algo1(widget_names);
+  benchmark::DoNotOptimize(res);
+}
+```
+
+With the `any_view`, we can simply pass in a `transform_view`
+
+```cpp
+for (auto _ : state) {
+  auto res = lib::algo2(ui.widgets_ | std::views::transform(&Widget::name));
+  benchmark::DoNotOptimize(res);
+}
+```
+
+And here is the result:
+
+```bash
+Benchmark                                                     Time        Time vector Time any_view
+---------------------------------------------------------------------------------------------------
+[BM_algo_vector vs. BM_algo_AnyView]/1024                  -0.3447              39450         25852
+[BM_algo_vector vs. BM_algo_AnyView]/2048                  -0.3557              79879         51467
+[BM_algo_vector vs. BM_algo_AnyView]/4096                  -0.3587             161257        103416
+[BM_algo_vector vs. BM_algo_AnyView]/8192                  -0.3467             319904        208983
+[BM_algo_vector vs. BM_algo_AnyView]/16384                 -0.3457             639910        418671
+[BM_algo_vector vs. BM_algo_AnyView]/32768                 -0.3450            1281663        839452
+[BM_algo_vector vs. BM_algo_AnyView]/65536                 -0.3459            2562996       1676395
+[BM_algo_vector vs. BM_algo_AnyView]/131072                -0.3599            5213571       3337175
+[BM_algo_vector vs. BM_algo_AnyView]/262144                -0.3674           10577365       6691345
+OVERALL_GEOMEAN                                            -0.3522                  0             0
+```
+
+We can see the `any_view` version is 35% faster. This is a very common pattern in the real world code.
+`vector` has been used in API boundaries as a type-erasure tool.
 
 # Implementation Experience
 
