@@ -1,7 +1,7 @@
 ---
 title: "`any_view`"
 document: P3411R1
-date: 2024-12-05
+date: 2024-12-29
 audience: SG9, LEWG
 author:
   - name: Hui Xie
@@ -401,6 +401,60 @@ using MyView5 = any_view<const int, range_traits<const std::vector<int>>>; // My
 ```
 
 An implementation of this approach would look like this: [link](https://godbolt.org/z/co1Kdsra3)
+
+# Alternative Design 4: Barry's Named Template Argument Approach
+
+```cpp
+template <typename T>
+struct type_t {
+    using type = T;
+};
+
+template <typename T>
+inline constexpr type_t<T> type{};
+
+template <class Ref,
+          class IterConcept = input_iterator_tag,
+          class Value = decay_t<Ref>,
+          class RValueRef = remove_reference_t<Ref>&&,
+          class Difference = ptrdiff_t>
+struct any_view_options {
+    type_t<Ref> reference_type;
+    type_t<IterConcept> iterator_concept = {};
+    bool sized = false;
+    bool move_only = false;
+    bool borrowed = false;
+    type_t<Value> value_type;
+    type_t<RValueRef> rvalue_reference_type;
+    type_t<Difference> difference_type;
+};
+
+template <class Element, any_view_options options = {.reference_type = type<Element&>}>
+class any_view;
+```
+
+This is inspired by Barry's [blog post](https://brevzin.github.io/c++/2019/12/02/named-arguments/).
+Thanks to designated initializers and generated CTAD, the user code is extremely readable
+
+```cpp
+using MyView1 = any_view<Foo>; // should be an input_range where the range_reference_t is Foo&
+using MyView2 = any_view<const Foo>; // should be an input_range where the range_reference_t is const Foo&
+
+using MyView3 = any_view<int, {.reference_type = type<int&>,
+                               .iterator_concept = type<std::contiguous_iterator_tag>,
+                               .value_type = type<long>}>;
+
+using MyView4 = any_view<int, {.reference_type = type<int&>,
+                               .iterator_concept = type<std::contiguous_iterator_tag>,
+                               .sized = true,
+                               .borrowed = true,
+                               .value_type = type<long>}>;                        
+```
+
+Each option is named and user can skip parameters if they want to use the default. However, the
+user has to follow the same order of the options that are defined in `any_view_options`.
+
+An implementation of this approach would look like this: [link](https://godbolt.org/z/4dGYneWxx)
 
 # Other Design Considerations
 
