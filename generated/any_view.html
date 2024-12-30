@@ -1280,7 +1280,7 @@ like this:</p>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_VectorCopy</span> vs. BM_AnyViewPipeline]/262144                <span class="at">-0.8228</span>          3581632        634694</span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="ex">OVERALL_GEOMEAN</span>                                              <span class="at">-0.7723</span>                0             0</span></code></pre></div>
 <p>With this more realistic use case, we can see that
-<code class="sourceCode cpp">any_view</code> is 77% faster. For the
+<code class="sourceCode cpp">any_view</code> is 3 times faster. For the
 returning <code class="sourceCode cpp">vector</code> case, we have some
 variations of the implementations to produce the vector, including
 <code class="sourceCode cpp">reserve</code> the maximum possible size,
@@ -1348,7 +1348,7 @@ measuring</p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> _ <span class="op">:</span> state<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>string<span class="op">&gt;</span> widget_names;</span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  widget_names<span class="op">.</span>reserve<span class="op">(</span>ui<span class="op">.</span>widgets_<span class="op">.</span>size<span class="op">())</span>;</span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span><span class="op">(</span><span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> widget <span class="op">:</span> ui<span class="op">.</span>widgets_<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="kw">const</span> <span class="kw">auto</span><span class="op">&amp;</span> widget <span class="op">:</span> ui<span class="op">.</span>widgets_<span class="op">)</span> <span class="op">{</span></span>
 <span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    widget_names<span class="op">.</span>push_back<span class="op">(</span>widget<span class="op">.</span>name<span class="op">)</span>;</span>
 <span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
 <span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">auto</span> res <span class="op">=</span> lib<span class="op">::</span>algo1<span class="op">(</span>widget_names<span class="op">)</span>;</span>
@@ -1361,20 +1361,20 @@ pass in a <code class="sourceCode cpp">transform_view</code></p>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  benchmark<span class="op">::</span>DoNotOptimize<span class="op">(</span>res<span class="op">)</span>;</span>
 <span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>And here is the result:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Benchmark</span>                                                     Time        Time vector Time any_view</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">---------------------------------------------------------------------------------------------------</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/1024                  <span class="at">-0.3447</span>              39450         25852</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/2048                  <span class="at">-0.3557</span>              79879         51467</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/4096                  <span class="at">-0.3587</span>             161257        103416</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/8192                  <span class="at">-0.3467</span>             319904        208983</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/16384                 <span class="at">-0.3457</span>             639910        418671</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/32768                 <span class="at">-0.3450</span>            1281663        839452</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/65536                 <span class="at">-0.3459</span>            2562996       1676395</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/131072                <span class="at">-0.3599</span>            5213571       3337175</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/262144                <span class="at">-0.3674</span>           10577365       6691345</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="ex">OVERALL_GEOMEAN</span>                                            <span class="at">-0.3522</span>                  0             0</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="ex">Benchmark</span>                                                     Time   Time vector Time any_view</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="ex">----------------------------------------------------------------------------------------------</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/1024                  <span class="at">-0.8098</span>          9615          1829</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/2048                  <span class="at">-0.8169</span>         20651          3782</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/4096                  <span class="at">-0.8188</span>         41035          7436</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/8192                  <span class="at">-0.8275</span>         87227         15044</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/16384                 <span class="at">-0.8315</span>        182922         30818</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/32768                 <span class="at">-0.8407</span>        381383         60771</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/65536                 <span class="at">-0.8425</span>        793920        125004</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/131072                <span class="at">-0.8656</span>       1733654        232982</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="ex">[BM_algo_vector</span> vs. BM_algo_AnyView]/262144                <span class="at">-0.8640</span>       3592842        488714</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a><span class="ex">OVERALL_GEOMEAN</span>                                            <span class="at">-0.8364</span>             0             0</span></code></pre></div>
 <p>We can see the <code class="sourceCode cpp">any_view</code> version
-is 35% faster. This is a very common pattern in the real world code.
+is 4 times faster. This is a very common pattern in the real world code.
 <code class="sourceCode cpp">vector</code> has been used in API
 boundaries as a type-erasure tool.</p>
 <h1 data-number="9" id="implementation-experience"><span class="header-section-number">9</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>

@@ -708,7 +708,7 @@ OVERALL_GEOMEAN                                              -0.7723            
 
 ```
 
-With this more realistic use case, we can see that `any_view` is 77% faster. For the returning `vector` case, we have some variations of the implementations to produce the vector, including `reserve` the maximum possible size, or use the range pipelines with `ranges::to`. They all have extremely similar results. In our benchmark, 10% of the `Widget`s were filtered out by the filter pipeline and the
+With this more realistic use case, we can see that `any_view` is 3 times faster. For the returning `vector` case, we have some variations of the implementations to produce the vector, including `reserve` the maximum possible size, or use the range pipelines with `ranges::to`. They all have extremely similar results. In our benchmark, 10% of the `Widget`s were filtered out by the filter pipeline and the
 `name` string's length is randomly 0-30. So some of `string`s are in the SBO and some are allocated on the heap. We maintain that this code pattern is very common in the wild:
 making the code simple and clean at the cost of copying data, even though most of the callers don't actually need a copy of the data at all.
 
@@ -762,7 +762,7 @@ the first place. So in our benchmark, we are measuring
 for (auto _ : state) {
   std::vector<std::string> widget_names;
   widget_names.reserve(ui.widgets_.size());
-  for(const auto& widget : ui.widgets_) {
+  for (const auto& widget : ui.widgets_) {
     widget_names.push_back(widget.name);
   }
   auto res = lib::algo1(widget_names);
@@ -782,21 +782,22 @@ for (auto _ : state) {
 And here is the result:
 
 ```bash
-Benchmark                                                     Time        Time vector Time any_view
----------------------------------------------------------------------------------------------------
-[BM_algo_vector vs. BM_algo_AnyView]/1024                  -0.3447              39450         25852
-[BM_algo_vector vs. BM_algo_AnyView]/2048                  -0.3557              79879         51467
-[BM_algo_vector vs. BM_algo_AnyView]/4096                  -0.3587             161257        103416
-[BM_algo_vector vs. BM_algo_AnyView]/8192                  -0.3467             319904        208983
-[BM_algo_vector vs. BM_algo_AnyView]/16384                 -0.3457             639910        418671
-[BM_algo_vector vs. BM_algo_AnyView]/32768                 -0.3450            1281663        839452
-[BM_algo_vector vs. BM_algo_AnyView]/65536                 -0.3459            2562996       1676395
-[BM_algo_vector vs. BM_algo_AnyView]/131072                -0.3599            5213571       3337175
-[BM_algo_vector vs. BM_algo_AnyView]/262144                -0.3674           10577365       6691345
-OVERALL_GEOMEAN                                            -0.3522                  0             0
+Benchmark                                                     Time   Time vector Time any_view
+----------------------------------------------------------------------------------------------
+[BM_algo_vector vs. BM_algo_AnyView]/1024                  -0.8098          9615          1829
+[BM_algo_vector vs. BM_algo_AnyView]/2048                  -0.8169         20651          3782
+[BM_algo_vector vs. BM_algo_AnyView]/4096                  -0.8188         41035          7436
+[BM_algo_vector vs. BM_algo_AnyView]/8192                  -0.8275         87227         15044
+[BM_algo_vector vs. BM_algo_AnyView]/16384                 -0.8315        182922         30818
+[BM_algo_vector vs. BM_algo_AnyView]/32768                 -0.8407        381383         60771
+[BM_algo_vector vs. BM_algo_AnyView]/65536                 -0.8425        793920        125004
+[BM_algo_vector vs. BM_algo_AnyView]/131072                -0.8656       1733654        232982
+[BM_algo_vector vs. BM_algo_AnyView]/262144                -0.8640       3592842        488714
+OVERALL_GEOMEAN                                            -0.8364             0             0
+
 ```
 
-We can see the `any_view` version is 35% faster. This is a very common pattern in the real world code.
+We can see the `any_view` version is 4 times faster. This is a very common pattern in the real world code.
 `vector` has been used in API boundaries as a type-erasure tool.
 
 # Implementation Experience
