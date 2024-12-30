@@ -6,10 +6,10 @@ audience: SG9, LEWG
 author:
   - name: Hui Xie
     email: <hui.xie1990@gmail.com>
-  - name: S. Levent Yilmaz
-    email: <levent.yilmaz@gmail.com>
   - name: Louis Dionne
     email: <ldionne.2@gmail.com>
+  - name: S. Levent Yilmaz
+    email: <levent.yilmaz@gmail.com>
 toc: true
 ---
 
@@ -237,7 +237,9 @@ inline constexpr bool
 The intent is that users can select various desired properties of the `any_view` by `bitwise-or`ing them. For example:
 
 ```cpp
-using MyView = std::ranges::any_view<Widget, std::ranges::any_view_options::bidirectional | std::ranges::any_view_options::sized>;
+using MyView = std::ranges::any_view<Widget, 
+                                    std::ranges::any_view_options::bidirectional | 
+                                    std::ranges::any_view_options::sized>;
 ```
 
 # Alternative Design for Template Parameters
@@ -292,7 +294,11 @@ any_view<const Foo>; // should be an input_range where the range_reference_t is 
 If the default options do not work, users can specify the options in this way:
 
 ```cpp
-using MyView = any_view<Foo, iterator_concept<std::contiguous_iterator_tag>, reference_type<Foo>, sized<true>, borrowed<true>>;
+using MyView = any_view<Foo, 
+                        iterator_concept<std::contiguous_iterator_tag>,
+                        reference_type<Foo>,
+                        sized<true>,
+                        borrowed<true>>;
 ```
 
 The benefits of this approach are

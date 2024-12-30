@@ -443,8 +443,8 @@ code.sourceCode > span { display: inline; }
     <td style="vertical-align:top">Reply-to:</td>
     <td>
       Hui Xie<br>&lt;<a href="mailto:hui.xie1990@gmail.com" class="email">hui.xie1990@gmail.com</a>&gt;<br>
-      S. Levent Yilmaz<br>&lt;<a href="mailto:levent.yilmaz@gmail.com" class="email">levent.yilmaz@gmail.com</a>&gt;<br>
       Louis Dionne<br>&lt;<a href="mailto:ldionne.2@gmail.com" class="email">ldionne.2@gmail.com</a>&gt;<br>
+      S. Levent Yilmaz<br>&lt;<a href="mailto:levent.yilmaz@gmail.com" class="email">levent.yilmaz@gmail.com</a>&gt;<br>
     </td>
   </tr>
 </table>
@@ -774,7 +774,9 @@ range-v3.</p>
 <p>The intent is that users can select various desired properties of the
 <code class="sourceCode cpp">any_view</code> by <code class="sourceCode cpp">bitwise<span class="op">-</span><span class="kw">or</span></code>ing
 them. For example:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> MyView <span class="op">=</span> std<span class="op">::</span>ranges<span class="op">::</span>any_view<span class="op">&lt;</span>Widget, std<span class="op">::</span>ranges<span class="op">::</span>any_view_options<span class="op">::</span>bidirectional <span class="op">|</span> std<span class="op">::</span>ranges<span class="op">::</span>any_view_options<span class="op">::</span>sized<span class="op">&gt;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> MyView <span class="op">=</span> std<span class="op">::</span>ranges<span class="op">::</span>any_view<span class="op">&lt;</span>Widget, </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                                    std<span class="op">::</span>ranges<span class="op">::</span>any_view_options<span class="op">::</span>bidirectional <span class="op">|</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>                                    std<span class="op">::</span>ranges<span class="op">::</span>any_view_options<span class="op">::</span>sized<span class="op">&gt;</span>;</span></code></pre></div>
 <h1 data-number="6" id="alternative-design-for-template-parameters"><span class="header-section-number">6</span> Alternative Design for Template
 Parameters<a href="#alternative-design-for-template-parameters" class="self-link"></a></h1>
 <p>In Wrocław meeting, one important point was made: The majority of the
@@ -817,7 +819,11 @@ Named Template Parameters<a href="#alternative-design-1-variadic-named-template-
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>any_view<span class="op">&lt;</span><span class="kw">const</span> Foo<span class="op">&gt;</span>; <span class="co">// should be an input_range where the range_reference_t is const Foo&amp;</span></span></code></pre></div>
 <p>If the default options do not work, users can specify the options in
 this way:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> MyView <span class="op">=</span> any_view<span class="op">&lt;</span>Foo, iterator_concept<span class="op">&lt;</span>std<span class="op">::</span>contiguous_iterator_tag<span class="op">&gt;</span>, reference_type<span class="op">&lt;</span>Foo<span class="op">&gt;</span>, sized<span class="op">&lt;</span><span class="kw">true</span><span class="op">&gt;</span>, borrowed<span class="op">&lt;</span><span class="kw">true</span><span class="op">&gt;&gt;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> MyView <span class="op">=</span> any_view<span class="op">&lt;</span>Foo, </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                        iterator_concept<span class="op">&lt;</span>std<span class="op">::</span>contiguous_iterator_tag<span class="op">&gt;</span>,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                        reference_type<span class="op">&lt;</span>Foo<span class="op">&gt;</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                        sized<span class="op">&lt;</span><span class="kw">true</span><span class="op">&gt;</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                        borrowed<span class="op">&lt;</span><span class="kw">true</span><span class="op">&gt;&gt;</span>;</span></code></pre></div>
 <p>The benefits of this approach are</p>
 <ul>
 <li>Each parameter is named</li>
