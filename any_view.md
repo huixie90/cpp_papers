@@ -416,7 +416,7 @@ using MyView5 = any_view<const int, range_traits<const std::vector<int>>>; // My
 
 An implementation of this approach would look like this: [link](https://godbolt.org/z/co1Kdsra3)
 
-# Alternative Design 4: Barry's Named Template Argument Approach
+## Alternative Design 4: Barry's Named Template Argument Approach
 
 ```cpp
 template <typename T>
