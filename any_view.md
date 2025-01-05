@@ -18,6 +18,14 @@ toc: true
 ## R1
 
 - Performance tests update
+  - All benchmarks use -O3 (as requested in Wrocław)
+  - For eager algorithms, do not use ranges at all (as requested in Wrocław)
+  - Add a new benchmark test case where `vector` vs `any_view` used in function arguments
+
+- Template parameters redesign
+  - `any_view<Foo>` and `any_view<const Foo>` should just work
+  - 4 Different alternative designs
+
 
 ## R0
 
