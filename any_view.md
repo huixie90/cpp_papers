@@ -295,18 +295,18 @@ class any_view;
 With this design, the two main use cases would still work
 
 ```cpp
-any_view<Foo>; // should be an input_range where the range_reference_t is Foo&
-any_view<const Foo>; // should be an input_range where the range_reference_t is const Foo&
+using MyView1 = any_view<Foo>; // should be an input_range where the range_reference_t is Foo&
+using MyView2 = any_view<const Foo>; // should be an input_range where the range_reference_t is const Foo&
 ```
 
 If the default options do not work, users can specify the options in this way:
 
 ```cpp
-using MyView = any_view<Foo, 
-                        iterator_concept<std::contiguous_iterator_tag>,
-                        reference_type<Foo>,
-                        sized<true>,
-                        borrowed<true>>;
+using MyView3 = any_view<Foo, 
+                         iterator_concept<std::contiguous_iterator_tag>,
+                         reference_type<Foo>,
+                         sized<true>,
+                         borrowed<true>>;
 ```
 
 The benefits of this approach are
@@ -338,8 +338,8 @@ and define `static constexpr bool` variables to customize `sized`, `move_only` e
 With this design, the two main use cases would still work
 
 ```cpp
-any_view<Foo>; // should be an input_range where the range_reference_t is Foo&
-any_view<const Foo>; // should be an input_range where the range_reference_t is const Foo&
+using MyView1 = any_view<Foo>; // should be an input_range where the range_reference_t is Foo&
+using MyView2 = any_view<const Foo>; // should be an input_range where the range_reference_t is const Foo&
 ```
 
 If the default options do not work, users can specify the options in this way:
@@ -351,7 +351,7 @@ struct MyTraits {
   static constexpr move_only = true;
 };
 
-using MyView = any_view<int, MyTraits>;
+using MyView3 = any_view<int, MyTraits>;
 ```
 
 The benefits of this approach are
