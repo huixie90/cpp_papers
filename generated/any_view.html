@@ -478,64 +478,64 @@ Template Parameter: RangeTraits<span></span></a></li>
 <li><a href="#alternative-design-3-detect-traits-from-a-range" id="toc-alternative-design-3-detect-traits-from-a-range"><span class="toc-section-number">6.3</span> Alternative Design 3: Detect
 Traits from a
 <code class="sourceCode cpp">Range</code><span></span></a></li>
+<li><a href="#alternative-design-4-barrys-named-template-argument-approach" id="toc-alternative-design-4-barrys-named-template-argument-approach"><span class="toc-section-number">6.4</span> Alternative Design 4: Barry’s
+Named Template Argument Approach<span></span></a></li>
 </ul></li>
-<li><a href="#alternative-design-4-barrys-named-template-argument-approach" id="toc-alternative-design-4-barrys-named-template-argument-approach"><span class="toc-section-number">7</span> Alternative Design 4: Barry’s Named
-Template Argument Approach<span></span></a></li>
-<li><a href="#other-design-considerations" id="toc-other-design-considerations"><span class="toc-section-number">8</span> Other Design
+<li><a href="#other-design-considerations" id="toc-other-design-considerations"><span class="toc-section-number">7</span> Other Design
 Considerations<span></span></a>
 <ul>
-<li><a href="#why-dont-follow-range-v3s-design-where-first-template-parameter-is-range_reference_t" id="toc-why-dont-follow-range-v3s-design-where-first-template-parameter-is-range_reference_t"><span class="toc-section-number">8.1</span> Why don’t follow range-v3’s design
+<li><a href="#why-dont-follow-range-v3s-design-where-first-template-parameter-is-range_reference_t" id="toc-why-dont-follow-range-v3s-design-where-first-template-parameter-is-range_reference_t"><span class="toc-section-number">7.1</span> Why don’t follow range-v3’s design
 where first template parameter is
 <code class="sourceCode cpp">range_reference_t</code>?<span></span></a></li>
-<li><a href="#name-of-the-any_view_options" id="toc-name-of-the-any_view_options"><span class="toc-section-number">8.2</span> Name of the
+<li><a href="#name-of-the-any_view_options" id="toc-name-of-the-any_view_options"><span class="toc-section-number">7.2</span> Name of the
 <code class="sourceCode cpp">any_view_options</code><span></span></a></li>
-<li><a href="#constexpr-support" id="toc-constexpr-support"><span class="toc-section-number">8.3</span>
+<li><a href="#constexpr-support" id="toc-constexpr-support"><span class="toc-section-number">7.3</span>
 <code class="sourceCode cpp"><span class="kw">constexpr</span></code>
 Support<span></span></a></li>
-<li><a href="#move-only-view-support" id="toc-move-only-view-support"><span class="toc-section-number">8.4</span> Move-only
+<li><a href="#move-only-view-support" id="toc-move-only-view-support"><span class="toc-section-number">7.4</span> Move-only
 <code class="sourceCode cpp">view</code> Support<span></span></a></li>
-<li><a href="#move-only-iterator-support" id="toc-move-only-iterator-support"><span class="toc-section-number">8.5</span> Move-only
+<li><a href="#move-only-iterator-support" id="toc-move-only-iterator-support"><span class="toc-section-number">7.5</span> Move-only
 <code class="sourceCode cpp">iterator</code>
 Support<span></span></a></li>
-<li><a href="#is-any_view_optionscontiguous-needed" id="toc-is-any_view_optionscontiguous-needed"><span class="toc-section-number">8.6</span> Is <code class="sourceCode cpp">any_view_options<span class="op">::</span>contiguous</code>
+<li><a href="#is-any_view_optionscontiguous-needed" id="toc-is-any_view_optionscontiguous-needed"><span class="toc-section-number">7.6</span> Is <code class="sourceCode cpp">any_view_options<span class="op">::</span>contiguous</code>
 Needed ?<span></span></a></li>
-<li><a href="#is-any_view-const-iterable" id="toc-is-any_view-const-iterable"><span class="toc-section-number">8.7</span> Is
+<li><a href="#is-any_view-const-iterable" id="toc-is-any_view-const-iterable"><span class="toc-section-number">7.7</span> Is
 <code class="sourceCode cpp">any_view</code>
 const-iterable?<span></span></a></li>
-<li><a href="#common_range-support" id="toc-common_range-support"><span class="toc-section-number">8.8</span>
+<li><a href="#common_range-support" id="toc-common_range-support"><span class="toc-section-number">7.8</span>
 <code class="sourceCode cpp">common_range</code>
 support<span></span></a></li>
-<li><a href="#borrowed_range-support" id="toc-borrowed_range-support"><span class="toc-section-number">8.9</span>
+<li><a href="#borrowed_range-support" id="toc-borrowed_range-support"><span class="toc-section-number">7.9</span>
 <code class="sourceCode cpp">borrowed_range</code>
 support<span></span></a></li>
-<li><a href="#valueless-state-of-any_view" id="toc-valueless-state-of-any_view"><span class="toc-section-number">8.10</span> Valueless state of
+<li><a href="#valueless-state-of-any_view" id="toc-valueless-state-of-any_view"><span class="toc-section-number">7.10</span> Valueless state of
 <code class="sourceCode cpp">any_view</code><span></span></a></li>
-<li><a href="#abi-stability" id="toc-abi-stability"><span class="toc-section-number">8.11</span> ABI
+<li><a href="#abi-stability" id="toc-abi-stability"><span class="toc-section-number">7.11</span> ABI
 Stability<span></span></a></li>
-<li><a href="#performance" id="toc-performance"><span class="toc-section-number">8.12</span> Performance<span></span></a>
+<li><a href="#performance" id="toc-performance"><span class="toc-section-number">7.12</span> Performance<span></span></a>
 <ul>
-<li><a href="#a-naive-micro-benchmark-iteration-over-vector-vs-any_view" id="toc-a-naive-micro-benchmark-iteration-over-vector-vs-any_view"><span class="toc-section-number">8.12.1</span> A naive micro benchmark:
+<li><a href="#a-naive-micro-benchmark-iteration-over-vector-vs-any_view" id="toc-a-naive-micro-benchmark-iteration-over-vector-vs-any_view"><span class="toc-section-number">7.12.1</span> A naive micro benchmark:
 iteration over <code class="sourceCode cpp">vector</code> vs
 <code class="sourceCode cpp">any_view</code><span></span></a></li>
-<li><a href="#a-slightly-more-realistic-benchmark-a-view-pipeline-vs-any_view" id="toc-a-slightly-more-realistic-benchmark-a-view-pipeline-vs-any_view"><span class="toc-section-number">8.12.2</span> A slightly more realistic
+<li><a href="#a-slightly-more-realistic-benchmark-a-view-pipeline-vs-any_view" id="toc-a-slightly-more-realistic-benchmark-a-view-pipeline-vs-any_view"><span class="toc-section-number">7.12.2</span> A slightly more realistic
 benchmark: A view pipeline vs
 <code class="sourceCode cpp">any_view</code><span></span></a></li>
-<li><a href="#a-realistic-benchmark-a-copy-of-vectorstring-vs-any_view" id="toc-a-realistic-benchmark-a-copy-of-vectorstring-vs-any_view"><span class="toc-section-number">8.12.3</span> A realistic benchmark: A copy
+<li><a href="#a-realistic-benchmark-a-copy-of-vectorstring-vs-any_view" id="toc-a-realistic-benchmark-a-copy-of-vectorstring-vs-any_view"><span class="toc-section-number">7.12.3</span> A realistic benchmark: A copy
 of <code class="sourceCode cpp">vector<span class="op">&lt;</span>string<span class="op">&gt;</span></code>
 vs <code class="sourceCode cpp">any_view</code><span></span></a></li>
-<li><a href="#another-common-use-case-function-arguments-vector-vs-any_view" id="toc-another-common-use-case-function-arguments-vector-vs-any_view"><span class="toc-section-number">8.12.4</span> Another Common Use Case:
+<li><a href="#another-common-use-case-function-arguments-vector-vs-any_view" id="toc-another-common-use-case-function-arguments-vector-vs-any_view"><span class="toc-section-number">7.12.4</span> Another Common Use Case:
 Function Arguments <code class="sourceCode cpp">vector</code> vs
 <code class="sourceCode cpp">any_view</code><span></span></a></li>
 </ul></li>
 </ul></li>
-<li><a href="#implementation-experience" id="toc-implementation-experience"><span class="toc-section-number">9</span> Implementation
+<li><a href="#implementation-experience" id="toc-implementation-experience"><span class="toc-section-number">8</span> Implementation
 Experience<span></span></a></li>
-<li><a href="#wording" id="toc-wording"><span class="toc-section-number">10</span> Wording<span></span></a>
+<li><a href="#wording" id="toc-wording"><span class="toc-section-number">9</span> Wording<span></span></a>
 <ul>
-<li><a href="#feature-test-macro" id="toc-feature-test-macro"><span class="toc-section-number">10.1</span> Feature Test
+<li><a href="#feature-test-macro" id="toc-feature-test-macro"><span class="toc-section-number">9.1</span> Feature Test
 Macro<span></span></a></li>
 </ul></li>
-<li><a href="#bibliography" id="toc-bibliography"><span class="toc-section-number">11</span> References<span></span></a></li>
+<li><a href="#bibliography" id="toc-bibliography"><span class="toc-section-number">10</span> References<span></span></a></li>
 </ul>
 </div>
 <h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
@@ -831,15 +831,15 @@ Named Template Parameters<a href="#alternative-design-1-variadic-named-template-
 <span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Element, <span class="kw">class</span><span class="op">...</span> Options<span class="op">&gt;</span></span>
 <span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> any_view;</span></code></pre></div>
 <p>With this design, the two main use cases would still work</p>
-<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>any_view<span class="op">&lt;</span>Foo<span class="op">&gt;</span>; <span class="co">// should be an input_range where the range_reference_t is Foo&amp;</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>any_view<span class="op">&lt;</span><span class="kw">const</span> Foo<span class="op">&gt;</span>; <span class="co">// should be an input_range where the range_reference_t is const Foo&amp;</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> MyView1 <span class="op">=</span> any_view<span class="op">&lt;</span>Foo<span class="op">&gt;</span>; <span class="co">// should be an input_range where the range_reference_t is Foo&amp;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> MyView2 <span class="op">=</span> any_view<span class="op">&lt;</span><span class="kw">const</span> Foo<span class="op">&gt;</span>; <span class="co">// should be an input_range where the range_reference_t is const Foo&amp;</span></span></code></pre></div>
 <p>If the default options do not work, users can specify the options in
 this way:</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> MyView <span class="op">=</span> any_view<span class="op">&lt;</span>Foo, </span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                        iterator_concept<span class="op">&lt;</span>std<span class="op">::</span>contiguous_iterator_tag<span class="op">&gt;</span>,</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                        reference_type<span class="op">&lt;</span>Foo<span class="op">&gt;</span>,</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                        sized<span class="op">&lt;</span><span class="kw">true</span><span class="op">&gt;</span>,</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                        borrowed<span class="op">&lt;</span><span class="kw">true</span><span class="op">&gt;&gt;</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> MyView3 <span class="op">=</span> any_view<span class="op">&lt;</span>Foo, </span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                         iterator_concept<span class="op">&lt;</span>std<span class="op">::</span>contiguous_iterator_tag<span class="op">&gt;</span>,</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                         reference_type<span class="op">&lt;</span>Foo<span class="op">&gt;</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>                         sized<span class="op">&lt;</span><span class="kw">true</span><span class="op">&gt;</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>                         borrowed<span class="op">&lt;</span><span class="kw">true</span><span class="op">&gt;&gt;</span>;</span></code></pre></div>
 <p>The benefits of this approach are</p>
 <ul>
 <li>Each parameter is named</li>
@@ -867,8 +867,8 @@ variables to customize <code class="sourceCode cpp">sized</code>,
 <code class="sourceCode cpp">move_only</code> etc. If an alias or <code class="sourceCode cpp"><span class="kw">static</span> <span class="kw">constexpr</span> <span class="dt">bool</span></code>
 variable is missing, the default type or value will be used.</p>
 <p>With this design, the two main use cases would still work</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>any_view<span class="op">&lt;</span>Foo<span class="op">&gt;</span>; <span class="co">// should be an input_range where the range_reference_t is Foo&amp;</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>any_view<span class="op">&lt;</span><span class="kw">const</span> Foo<span class="op">&gt;</span>; <span class="co">// should be an input_range where the range_reference_t is const Foo&amp;</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> MyView1 <span class="op">=</span> any_view<span class="op">&lt;</span>Foo<span class="op">&gt;</span>; <span class="co">// should be an input_range where the range_reference_t is Foo&amp;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> MyView2 <span class="op">=</span> any_view<span class="op">&lt;</span><span class="kw">const</span> Foo<span class="op">&gt;</span>; <span class="co">// should be an input_range where the range_reference_t is const Foo&amp;</span></span></code></pre></div>
 <p>If the default options do not work, users can specify the options in
 this way:</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> MyTraits <span class="op">{</span></span>
@@ -878,7 +878,7 @@ this way:</p>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="kw">static</span> <span class="kw">constexpr</span> move_only <span class="op">=</span> <span class="kw">true</span>;</span>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> MyView <span class="op">=</span> any_view<span class="op">&lt;</span><span class="dt">int</span>, MyTraits<span class="op">&gt;</span>;</span></code></pre></div>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> MyView3 <span class="op">=</span> any_view<span class="op">&lt;</span><span class="dt">int</span>, MyTraits<span class="op">&gt;</span>;</span></code></pre></div>
 <p>The benefits of this approach are</p>
 <ul>
 <li>Each option is named</li>
@@ -932,8 +932,8 @@ properties.</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> MyView4 <span class="op">=</span> any_view<span class="op">&lt;</span><span class="dt">int</span>, range_traits<span class="op">&lt;</span>std<span class="op">::</span>vector<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;&gt;&gt;</span>; <span class="co">// MyView4 is a contiguous, sized, copyable, non-borrowed int&amp; range </span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> MyView5 <span class="op">=</span> any_view<span class="op">&lt;</span><span class="kw">const</span> <span class="dt">int</span>, range_traits<span class="op">&lt;</span><span class="kw">const</span> std<span class="op">::</span>vector<span class="op">&lt;</span><span class="dt">int</span><span class="op">&gt;&gt;&gt;</span>; <span class="co">// MyView4 is a contiguous, sized, copyable, non-borrowed const int&amp; range </span></span></code></pre></div>
 <p>An implementation of this approach would look like this: <a href="https://godbolt.org/z/co1Kdsra3">link</a></p>
-<h1 data-number="7" id="alternative-design-4-barrys-named-template-argument-approach"><span class="header-section-number">7</span> Alternative Design 4: Barry’s
-Named Template Argument Approach<a href="#alternative-design-4-barrys-named-template-argument-approach" class="self-link"></a></h1>
+<h2 data-number="6.4" id="alternative-design-4-barrys-named-template-argument-approach"><span class="header-section-number">6.4</span> Alternative Design 4: Barry’s
+Named Template Argument Approach<a href="#alternative-design-4-barrys-named-template-argument-approach" class="self-link"></a></h2>
 <div class="sourceCode" id="cb19"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">typename</span> T<span class="op">&gt;</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> type_t <span class="op">{</span></span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> type <span class="op">=</span> T;</span>
@@ -980,8 +980,8 @@ the default. However, the user has to follow the same order of the
 options that are defined in
 <code class="sourceCode cpp">any_view_options</code>.</p>
 <p>An implementation of this approach would look like this: <a href="https://godbolt.org/z/4dGYneWxx">link</a></p>
-<h1 data-number="8" id="other-design-considerations"><span class="header-section-number">8</span> Other Design Considerations<a href="#other-design-considerations" class="self-link"></a></h1>
-<h2 data-number="8.1" id="why-dont-follow-range-v3s-design-where-first-template-parameter-is-range_reference_t"><span class="header-section-number">8.1</span> Why don’t follow range-v3’s
+<h1 data-number="7" id="other-design-considerations"><span class="header-section-number">7</span> Other Design Considerations<a href="#other-design-considerations" class="self-link"></a></h1>
+<h2 data-number="7.1" id="why-dont-follow-range-v3s-design-where-first-template-parameter-is-range_reference_t"><span class="header-section-number">7.1</span> Why don’t follow range-v3’s
 design where first template parameter is
 <code class="sourceCode cpp">range_reference_t</code>?<a href="#why-dont-follow-range-v3s-design-where-first-template-parameter-is-range_reference_t" class="self-link"></a></h2>
 <p>If the first template parameter is
@@ -1000,7 +1000,7 @@ reference to <code class="sourceCode cpp">T</code>, one would write</p>
 without realizing that they specified the reference type and they now
 make a copy of the <code class="sourceCode cpp">string</code> every time
 when the iterator is dereferenced.</p>
-<h2 data-number="8.2" id="name-of-the-any_view_options"><span class="header-section-number">8.2</span> Name of the
+<h2 data-number="7.2" id="name-of-the-any_view_options"><span class="header-section-number">7.2</span> Name of the
 <code class="sourceCode cpp">any_view_options</code><a href="#name-of-the-any_view_options" class="self-link"></a></h2>
 <p><code class="sourceCode cpp">range<span class="op">-</span>v3</code>
 uses the name <code class="sourceCode cpp">category</code> for the
@@ -1009,7 +1009,7 @@ category enumeration type. However, the authors believe that the name
 is too general and it should be reserved for more general purpose
 utility in ranges library. Therefore, the authors recommend a more
 specific name: <code class="sourceCode cpp">any_view_options</code>.</p>
-<h2 data-number="8.3" id="constexpr-support"><span class="header-section-number">8.3</span>
+<h2 data-number="7.3" id="constexpr-support"><span class="header-section-number">7.3</span>
 <code class="sourceCode cpp"><span class="kw">constexpr</span></code>
 Support<a href="#constexpr-support" class="self-link"></a></h2>
 <p>We do not require
@@ -1021,7 +1021,7 @@ or <code class="sourceCode cpp">std<span class="op">::</span>byte<span class="op
 buffer in
 <code class="sourceCode cpp"><span class="kw">constexpr</span></code>
 context.</p>
-<h2 data-number="8.4" id="move-only-view-support"><span class="header-section-number">8.4</span> Move-only
+<h2 data-number="7.4" id="move-only-view-support"><span class="header-section-number">7.4</span> Move-only
 <code class="sourceCode cpp">view</code> Support<a href="#move-only-view-support" class="self-link"></a></h2>
 <p>Move-only <code class="sourceCode cpp">view</code> is worth
 supporting as we generally support them in
@@ -1035,7 +1035,7 @@ move-only. This removes the need to have another type
 <code class="sourceCode cpp">any_view</code> is copyable and to make it
 move-only, the user needs to explicitly provide this template parameter
 <code class="sourceCode cpp">any_view_options<span class="op">::</span>move_only</code>.</p>
-<h2 data-number="8.5" id="move-only-iterator-support"><span class="header-section-number">8.5</span> Move-only
+<h2 data-number="7.5" id="move-only-iterator-support"><span class="header-section-number">7.5</span> Move-only
 <code class="sourceCode cpp">iterator</code> Support<a href="#move-only-iterator-support" class="self-link"></a></h2>
 <p>In this proposal, <code class="sourceCode cpp">any_view<span class="op">::</span>iterator</code>
 is an exposition-only type. It is not worth making this
@@ -1045,7 +1045,7 @@ is an exposition-only type. It is not worth making this
 a move-only iterator. There is no need to make it copyable. Existing
 algorithms that take “input only” iterators already know that they
 cannot copy them.</p>
-<h2 data-number="8.6" id="is-any_view_optionscontiguous-needed"><span class="header-section-number">8.6</span> Is <code class="sourceCode cpp">any_view_options<span class="op">::</span>contiguous</code>
+<h2 data-number="7.6" id="is-any_view_optionscontiguous-needed"><span class="header-section-number">7.6</span> Is <code class="sourceCode cpp">any_view_options<span class="op">::</span>contiguous</code>
 Needed ?<a href="#is-any_view_optionscontiguous-needed" class="self-link"></a></h2>
 <p><code class="sourceCode cpp">contiguous_range</code> is still useful
 to support even though we have already
@@ -1053,7 +1053,7 @@ to support even though we have already
 But <code class="sourceCode cpp">span</code> is non-owning and
 <code class="sourceCode cpp">any_view</code> owns the underlying
 <code class="sourceCode cpp">view</code>.</p>
-<h2 data-number="8.7" id="is-any_view-const-iterable"><span class="header-section-number">8.7</span> Is
+<h2 data-number="7.7" id="is-any_view-const-iterable"><span class="header-section-number">7.7</span> Is
 <code class="sourceCode cpp">any_view</code> const-iterable?<a href="#is-any_view-const-iterable" class="self-link"></a></h2>
 <p>We cannot make <code class="sourceCode cpp">any_view</code>
 unconditionally const-iterable. If we did,
@@ -1074,7 +1074,7 @@ iterators.</p>
 <p>For simplicity, the authors propose to make
 <code class="sourceCode cpp">any_view</code> unconditionally
 non-const-iterable.</p>
-<h2 data-number="8.8" id="common_range-support"><span class="header-section-number">8.8</span>
+<h2 data-number="7.8" id="common_range-support"><span class="header-section-number">7.8</span>
 <code class="sourceCode cpp">common_range</code> support<a href="#common_range-support" class="self-link"></a></h2>
 <p>Unconditionally making <code class="sourceCode cpp">any_view</code> a
 <code class="sourceCode cpp">common_range</code> is not an option. This
@@ -1088,7 +1088,7 @@ Furthermore, supporting this turns out to add substantial complexity in
 the implementation. The authors believe that adding
 <code class="sourceCode cpp">common_range</code> support is not worth
 the added complexity.</p>
-<h2 data-number="8.9" id="borrowed_range-support"><span class="header-section-number">8.9</span>
+<h2 data-number="7.9" id="borrowed_range-support"><span class="header-section-number">7.9</span>
 <code class="sourceCode cpp">borrowed_range</code> support<a href="#borrowed_range-support" class="self-link"></a></h2>
 <p>Having support for <code class="sourceCode cpp">borrowed_range</code>
 is simple enough:</p>
@@ -1107,7 +1107,7 @@ template parameter is set to
 <code class="sourceCode cpp">borrowed_range</code>. However, since
 <code class="sourceCode cpp">borrowed_range</code> is not a very useful
 concept in general, this design point is open for discussion.</p>
-<h2 data-number="8.10" id="valueless-state-of-any_view"><span class="header-section-number">8.10</span> Valueless state of
+<h2 data-number="7.10" id="valueless-state-of-any_view"><span class="header-section-number">7.10</span> Valueless state of
 <code class="sourceCode cpp">any_view</code><a href="#valueless-state-of-any_view" class="self-link"></a></h2>
 <p>We propose providing the strong exception safety guarantee in the
 following operations: swap, copy-assignment, move-assignment and
@@ -1124,7 +1124,7 @@ pointers. This means that any implementation of
 <code class="sourceCode cpp">any_view</code> will have an empty state,
 and a “moved-from” <code class="sourceCode cpp">any_view</code> will be
 in that state.</p>
-<h2 data-number="8.11" id="abi-stability"><span class="header-section-number">8.11</span> ABI Stability<a href="#abi-stability" class="self-link"></a></h2>
+<h2 data-number="7.11" id="abi-stability"><span class="header-section-number">7.11</span> ABI Stability<a href="#abi-stability" class="self-link"></a></h2>
 <p>As a type intended to exist at ABI boundaries, ensuring the ABI
 stability of <code class="sourceCode cpp">any_view</code> is extremely
 important. However, since almost any change to the API of
@@ -1134,7 +1134,7 @@ somewhat fragile to incremental evolution. This drawback is shared by
 all C++ types that live at ABI boundaries, and while we don’t think this
 impacts the livelihood of <code class="sourceCode cpp">any_view</code>,
 this evolutionary challenge should be kept in mind by WG21.</p>
-<h2 data-number="8.12" id="performance"><span class="header-section-number">8.12</span> Performance<a href="#performance" class="self-link"></a></h2>
+<h2 data-number="7.12" id="performance"><span class="header-section-number">7.12</span> Performance<a href="#performance" class="self-link"></a></h2>
 <p>One of the major concerns of using type erasure is the performance
 cost of indirect function calls and their impact on the ability for the
 compiler to perform optimizations. With
@@ -1149,7 +1149,7 @@ and what the alternatives to it are.</p>
 <p>The following benchmarks were compiled with clang 20 with libc++,
 with -O3, run on APPLE M4 MAX CPU with 16 cores. We have done the same
 benchmarks on a 8 core Intel CPU and they have very similar results.</p>
-<h3 data-number="8.12.1" id="a-naive-micro-benchmark-iteration-over-vector-vs-any_view"><span class="header-section-number">8.12.1</span> A naive micro benchmark:
+<h3 data-number="7.12.1" id="a-naive-micro-benchmark-iteration-over-vector-vs-any_view"><span class="header-section-number">7.12.1</span> A naive micro benchmark:
 iteration over <code class="sourceCode cpp">vector</code> vs
 <code class="sourceCode cpp">any_view</code><a href="#a-naive-micro-benchmark-iteration-over-vector-vs-any_view" class="self-link"></a></h3>
 <p>Naively, one would be tempted to benchmark the cost of iterating over
@@ -1193,7 +1193,7 @@ erased wrapper <code class="sourceCode cpp">any_view</code> that wraps
 it and then iterate through it. Similarly, no one would create a lambda,
 immediately create a <code class="sourceCode cpp">std<span class="op">::</span>function</code> and
 then call it.</p>
-<h3 data-number="8.12.2" id="a-slightly-more-realistic-benchmark-a-view-pipeline-vs-any_view"><span class="header-section-number">8.12.2</span> A slightly more realistic
+<h3 data-number="7.12.2" id="a-slightly-more-realistic-benchmark-a-view-pipeline-vs-any_view"><span class="header-section-number">7.12.2</span> A slightly more realistic
 benchmark: A view pipeline vs
 <code class="sourceCode cpp">any_view</code><a href="#a-slightly-more-realistic-benchmark-a-view-pipeline-vs-any_view" class="self-link"></a></h3>
 <p>Since <code class="sourceCode cpp">any_view</code> is intended to be
@@ -1263,7 +1263,7 @@ pipeline into a container and return that from <code class="sourceCode cpp">getW
 for example as a <code class="sourceCode cpp">std<span class="op">::</span>vector<span class="op">&lt;</span>std<span class="op">::</span>string<span class="op">&gt;</span></code>.
 This leads us to our last benchmark, which we believe is much more
 representative of what people would do in the wild.</p>
-<h3 data-number="8.12.3" id="a-realistic-benchmark-a-copy-of-vectorstring-vs-any_view"><span class="header-section-number">8.12.3</span> A realistic benchmark: A
+<h3 data-number="7.12.3" id="a-realistic-benchmark-a-copy-of-vectorstring-vs-any_view"><span class="header-section-number">7.12.3</span> A realistic benchmark: A
 copy of <code class="sourceCode cpp">vector<span class="op">&lt;</span>string<span class="op">&gt;</span></code>
 vs <code class="sourceCode cpp">any_view</code><a href="#a-realistic-benchmark-a-copy-of-vectorstring-vs-any_view" class="self-link"></a></h3>
 <p>As mentioned above, various concerns that are not related to
@@ -1327,7 +1327,7 @@ make it possible for implementers to use optimizations like selective
 devirtualization of some common operations like
 <code class="sourceCode cpp">for_each</code> to achieve large
 performance gains in specific cases.</p>
-<h3 data-number="8.12.4" id="another-common-use-case-function-arguments-vector-vs-any_view"><span class="header-section-number">8.12.4</span> Another Common Use Case:
+<h3 data-number="7.12.4" id="another-common-use-case-function-arguments-vector-vs-any_view"><span class="header-section-number">7.12.4</span> Another Common Use Case:
 Function Arguments <code class="sourceCode cpp">vector</code> vs
 <code class="sourceCode cpp">any_view</code><a href="#another-common-use-case-function-arguments-vector-vs-any_view" class="self-link"></a></h3>
 <p>Another very common use case is that library authors provide an API
@@ -1399,13 +1399,13 @@ pass in a <code class="sourceCode cpp">transform_view</code></p>
 is 4 times faster. This is a very common pattern in the real world code.
 <code class="sourceCode cpp">vector</code> has been used in API
 boundaries as a type-erasure tool.</p>
-<h1 data-number="9" id="implementation-experience"><span class="header-section-number">9</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
+<h1 data-number="8" id="implementation-experience"><span class="header-section-number">8</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
 <p><code class="sourceCode cpp">any_view</code> has been implemented in
 <span class="citation" data-cites="rangev3">[<a href="https://github.com/ericniebler/range-v3" role="doc-biblioref">range-v3</a>]</span>, with equivalent semantics as
 proposed here. The authors also implemented a version that directly
 follows the proposed wording below without any issue <span class="citation" data-cites="ours">[<a href="https://github.com/huixie90/cpp_papers/tree/main/impl/any_view" role="doc-biblioref">ours</a>]</span>.</p>
-<h1 data-number="10" id="wording"><span class="header-section-number">10</span> Wording<a href="#wording" class="self-link"></a></h1>
-<h2 data-number="10.1" id="feature-test-macro"><span class="header-section-number">10.1</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
+<h1 data-number="9" id="wording"><span class="header-section-number">9</span> Wording<a href="#wording" class="self-link"></a></h1>
+<h2 data-number="9.1" id="feature-test-macro"><span class="header-section-number">9.1</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
 <p>```</p>
 <style>
 .bq{
@@ -1416,7 +1416,7 @@ follows the proposed wording below without any issue <span class="citation" data
     margin-inline-end: 40px;
 }
 </style>
-<h1 data-number="11" id="bibliography"><span class="header-section-number">11</span> References<a href="#bibliography" class="self-link"></a></h1>
+<h1 data-number="10" id="bibliography"><span class="header-section-number">10</span> References<a href="#bibliography" class="self-link"></a></h1>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="1" role="doc-bibliography">
 <div id="ref-ours" class="csl-entry" role="doc-biblioentry">
 [ours] Hui Xie, S. Levent Yilmaz, and Dionne Louis. A proof-of-concept
