@@ -541,7 +541,23 @@ Macro<span></span></a></li>
 <h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
 <h2 data-number="1.1" id="r1"><span class="header-section-number">1.1</span> R1<a href="#r1" class="self-link"></a></h2>
 <ul>
-<li>Performance tests update</li>
+<li>Performance tests update
+<ul>
+<li>All benchmarks use -O3 (as requested in Wrocław)</li>
+<li>For eager algorithms, do not use ranges at all (as requested in
+Wrocław)</li>
+<li>Add a new benchmark test case where
+<code class="sourceCode cpp">vector</code> vs
+<code class="sourceCode cpp">any_view</code> used in function
+arguments</li>
+</ul></li>
+<li>Template parameters redesign
+<ul>
+<li><code class="sourceCode cpp">any_view<span class="op">&lt;</span>Foo<span class="op">&gt;</span></code>
+and <code class="sourceCode cpp">any_view<span class="op">&lt;</span><span class="kw">const</span> Foo<span class="op">&gt;</span></code>
+should just work</li>
+<li>4 Different alternative designs</li>
+</ul></li>
 </ul>
 <h2 data-number="1.2" id="r0"><span class="header-section-number">1.2</span> R0<a href="#r0" class="self-link"></a></h2>
 <ul>
