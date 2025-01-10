@@ -13,12 +13,6 @@ author:
 toc: true
 ---
 
-# Revision History
-
-## R0
-
-- Initial revision.
-
 # Abstract
 
 This paper proposes a subset of the fixes in [@P2767R2] to `flat_map`, `flat_multimap`, 
@@ -398,10 +392,8 @@ using e.g. `flat_map(flat_map&&) = default` would be conforming. However, such a
 with respect to exception handling. Indeed, if an exception is thrown while moving from the incoming map, the incoming
 map would be left in a potentially invalid state with respect to its invariants.
 
-> Note that the [blanket paragraph](http://eel.is/c++draft/container.adaptors#flat.map.overview-6) does not apply here, since we're concerned with the incoming `flat_map`'s
-> invariants, not `*this`'s invariants.
-
-We believe that the behavior of these special member functions must be specified explicitly, otherwise these constructors
+Note that the [blanket paragraph](http://eel.is/c++draft/container.adaptors#flat.map.overview-6) does not apply here, since we're concerned with the incoming `flat_map`'s
+invariants, not `*this`'s invariants. We believe that the behavior of these special member functions must be specified explicitly, otherwise these constructors
 are useless in any context where an exception can be thrown.
 
 ## Wording
@@ -571,29 +563,8 @@ This paper is based on our implementation in libc++.
 
 # Feature Test Macro
 
+Bump `__cpp_lib_flat_map` and `__cpp_lib_flat_set` appropriately.
 
----
-references:
-  - id: rangev3
-    citation-label: range-v3
-    title: "range-v3 library"
-    author:
-      - family: Niebler
-        given: Eric
-    URL: https://github.com/ericniebler/range-v3
-
-  - id: ours
-    citation-label: ours
-    title: "A proof-of-concept implementation of `any_view`"
-    author:
-      - family: Xie
-        given: Hui
-      - family: Yilmaz
-        given: S. Levent
-      - family: Louis
-        given: Dionne
-    URL: https://github.com/huixie90/cpp_papers/tree/main/impl/any_view
----
 
 <style>
 .bq{
