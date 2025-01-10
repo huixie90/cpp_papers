@@ -13,6 +13,8 @@ author:
 toc: true
 ---
 
+<!-- TODO: Reduce TOC depth -->
+
 # Revision History
 
 ## R1
@@ -302,11 +304,12 @@ using MyView2 = any_view<const Foo>; // should be an input_range where the range
 If the default options do not work, users can specify the options in this way:
 
 ```cpp
-using MyView3 = any_view<Foo, 
-                         iterator_concept<std::contiguous_iterator_tag>,
-                         reference_type<Foo>,
-                         sized<true>,
-                         borrowed<true>>;
+using namespace std::ranges::any_view_options;
+using MyView3 = std::ranges::any_view<Foo, 
+                                      iterator_concept<std::contiguous_iterator_tag>,
+                                      reference_type<Foo>,
+                                      sized<true>,
+                                      borrowed<true>>;
 ```
 
 The benefits of this approach are
@@ -317,7 +320,7 @@ The benefits of this approach are
 
 An implementation of this approach would look like this: [link](https://godbolt.org/z/qdnoE7Mb9)
 
-However, we believe that this over complicates the design.
+However, we believe that this overcomplicates the design.
 
 ## Alternative Design 2: Single Template Parameter: RangeTraits
 
@@ -365,14 +368,12 @@ An implementation of this approach would look like this: [link](https://godbolt.
 However, every time an user needs to customize anything, they need to
 define a `struct`, which is verbose and inconvenient.
 
-## Alternative Design 3: Detect Traits from a `Range`
+### Optional add-on to `RangeTraits`
 
-In addition to Alternative Design 2, we can have a utility trait class to deduce the traits
-from a given range. This solves the problem of user having to define a `struct`.
+If we decided to go with this alternative, we could have a utility that deduces the traits
+from another range.
 
 ```cpp
-struct default_range_traits {};
-
 template <class Range>
 struct range_traits {
     using iterator_concept = /* see-below */;
@@ -386,37 +387,16 @@ struct range_traits {
     static constexpr bool borrowed = borrowed_range<Range>;
 };
 
-template <class Element, class RangeTraits = default_range_traits>
-class any_view;
-```
+// MyView4 is a contiguous, sized, copyable, non-borrowed int& range 
+using MyView4 = any_view<int, range_traits<std::vector<int>>>;
 
-The Alternative Design 2's user code would still work
-
-
-```cpp
-using MyView1 = any_view<Foo>; // should be an input_range where the range_reference_t is Foo&
-using MyView2 = any_view<const Foo>; // should be an input_range where the range_reference_t is const Foo&
-
-struct MyTraits {
-  using iterator_concept = std::contiguous_iterator_tag;
-  using reference = int;
-  static constexpr bool sized = true;
-  static constexpr move_only = true;
-};
-
-using MyView3 = any_view<int, MyTraits>;
-```
-
-And user can also make uses of the `range_traits` to deduce the properties.
-
-```cpp
-using MyView4 = any_view<int, range_traits<std::vector<int>>>; // MyView4 is a contiguous, sized, copyable, non-borrowed int& range 
-using MyView5 = any_view<const int, range_traits<const std::vector<int>>>; // MyView4 is a contiguous, sized, copyable, non-borrowed const int& range 
+// MyView5 is a contiguous, sized, copyable, non-borrowed const int& range 
+using MyView5 = any_view<const int, range_traits<const std::vector<int>>>;
 ```
 
 An implementation of this approach would look like this: [link](https://godbolt.org/z/co1Kdsra3)
 
-## Alternative Design 4: Barry's Named Template Argument Approach
+## Alternative Design 3: Barry's Named Template Argument Approach
 
 ```cpp
 template <typename T>
@@ -820,11 +800,6 @@ We can see the `any_view` version is 4 times faster. This is a very common patte
 proposed here. The authors also implemented a version that directly follows the
 proposed wording below without any issue [@ours].
 
-# Wording
-
-## Feature Test Macro
-
-```
 
 ---
 references:
