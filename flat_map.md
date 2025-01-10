@@ -444,6 +444,9 @@ If the function exits via an exception, the invariants of `o` and `*this` are re
 
 :::
 
+> Drafting note: Our intent is not to mandate implementations to move or not move the comparator, but we are
+> not certain how to word things such that both implementations are valid.
+
 ### `flat_multimap` Wording
 
 Change [flat.multimap.defn]{.sref} as follows:
