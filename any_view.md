@@ -11,9 +11,8 @@ author:
   - name: S. Levent Yilmaz
     email: <levent.yilmaz@gmail.com>
 toc: true
+toc-depth: 2
 ---
-
-<!-- TODO: Reduce TOC depth -->
 
 # Revision History
 
