@@ -12,8 +12,7 @@ namespace {
 
 using AnyView =
     std::ranges::any_view<int,
-                          std::ranges::any_view_options::bidirectional |
-                              std::ranges::any_view_options::move_only>;
+                          std::ranges::any_view_options::bidirectional>;
 
 static_assert(std::ranges::bidirectional_range<AnyView>);
 static_assert(!std::ranges::random_access_range<AnyView>);
@@ -26,7 +25,7 @@ static_assert(!std::ranges::borrowed_range<AnyView>);
 using AnyViewFull =
     std::ranges::any_view<int, std::ranges::any_view_options::bidirectional |
                                    std::ranges::any_view_options::sized |
-                                   std::ranges::any_view_options::common |
+                                   std::ranges::any_view_options::copyable |
                                    std::ranges::any_view_options::borrowed>;
 
 static_assert(std::ranges::bidirectional_range<AnyViewFull>);
@@ -34,7 +33,7 @@ static_assert(!std::ranges::random_access_range<AnyViewFull>);
 static_assert(std::movable<AnyViewFull>);
 static_assert(std::copyable<AnyViewFull>);
 static_assert(std::ranges::sized_range<AnyViewFull>);
-static_assert(std::ranges::common_range<AnyViewFull>);
+static_assert(!std::ranges::common_range<AnyViewFull>);
 static_assert(std::ranges::borrowed_range<AnyViewFull>);
 
 template <class V>
