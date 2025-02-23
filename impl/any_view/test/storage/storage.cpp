@@ -1,9 +1,9 @@
+#include "storage.hpp"
+
 #include <algorithm>
 #include <array>
 #include <cassert>
 #include <catch2/catch_test_macros.hpp>
-
-#include "storage.hpp"
 
 #define TEST_POINT(x) TEST_CASE(x, "[storage]")
 
@@ -139,7 +139,7 @@ constexpr void move() {
     Storage s1{type<T>{}, 5};
     Storage s2{std::move(s1)};
 
-    if constexpr (Storage::unittest_is_small<T>()) {
+    if (Storage::unittest_obj_on_small_buffer<T>()) {
       assert(!s1.is_singular());
       assert(*s1.get_ptr<T>() == 5);
     } else {
@@ -173,21 +173,23 @@ constexpr void move() {
       assert(stats.construct == 1);
       assert(stats.copy_construct == 0);
 
-      auto expected_move = Storage::unittest_is_small<Track<T>>() ? 1 : 0;
+      auto expected_move =
+          Storage::unittest_obj_on_small_buffer<Track<T>>() ? 1 : 0;
       assert(stats.move_construct == expected_move);
       assert(stats.destroy == 0);
 
       assert(s2.get_ptr<Track<T>>()->t_ == 5);
     }
-    auto expected_destroy = Storage::unittest_is_small<Track<T>>() ? 2 : 1;
+    auto expected_destroy =
+        Storage::unittest_obj_on_small_buffer<Track<T>>() ? 2 : 1;
     assert(stats.destroy == expected_destroy);
   }
 }
 
 template <class LHS, class RHS>
 constexpr void move_assignment() {
-  constexpr bool lhsSmall = Storage::unittest_is_small<LHS>();
-  constexpr bool rhsSmall = Storage::unittest_is_small<RHS>();
+  bool lhsSmall = Storage::unittest_obj_on_small_buffer<LHS>();
+  bool rhsSmall = Storage::unittest_obj_on_small_buffer<RHS>();
   // non singular
   {
     Storage s1{type<LHS>{}, 5};
@@ -195,7 +197,7 @@ constexpr void move_assignment() {
 
     s1 = std::move(s2);
     assert(*s1.get_ptr<RHS>() == 6);
-    if constexpr (rhsSmall) {
+    if (rhsSmall) {
       assert(*s2.get_ptr<RHS>() == 6);
     } else {
       assert(s2.is_singular());
@@ -209,7 +211,7 @@ constexpr void move_assignment() {
 
     s1 = std::move(s2);
     assert(*s1.get_ptr<RHS>() == 6);
-    if constexpr (rhsSmall) {
+    if (rhsSmall) {
       assert(*s2.get_ptr<RHS>() == 6);
     } else {
       assert(s2.is_singular());
@@ -348,8 +350,8 @@ constexpr void copy_assignment() {
   {
     Stats stats1{};
     Stats stats2{};
-    bool lhsSmall = Storage::unittest_is_small<Track<LHS>>();
-    bool rhsSmall = Storage::unittest_is_small<Track<RHS>>();
+    bool lhsSmall = Storage::unittest_obj_on_small_buffer<Track<LHS>>();
+    bool rhsSmall = Storage::unittest_obj_on_small_buffer<Track<RHS>>();
     {
       Storage s1{type<Track<LHS>>{}, stats1, 5};
       assert(stats1.construct == 1);
@@ -432,18 +434,16 @@ constexpr void copy_assignment() {
   }
 }
 
-[[maybe_unused]] constexpr bool test() {
+constexpr void on_heap() {
   singular();
   basic<Big>();
   copy<Big>();
   move<Big>();
   copy_assignment<Big, Big>();
   move_assignment<Big, Big>();
-  return true;
 }
 
-void non_constexpr_test() {
-  // type punning in small buffer not allowed in constexpr
+constexpr void on_small_buffer() {
   basic<Small>();
   copy<Small>();
   move<Small>();
@@ -455,9 +455,14 @@ void non_constexpr_test() {
   move_assignment<Small, Big>();
 }
 
+constexpr bool test() {
+  on_heap();
+  on_small_buffer();
+  return true;
+}
+
 TEST_POINT("storage") {
   test();
-  non_constexpr_test();
 
   static_assert(test());
 }

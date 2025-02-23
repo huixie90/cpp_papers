@@ -11,7 +11,7 @@ namespace {
 
 struct MoveOnly {
   int i;
-  MoveOnly(int ii) : i(ii) {}
+  constexpr MoveOnly(int ii) : i(ii) {}
 
   MoveOnly(const MoveOnly&) = delete;
   MoveOnly& operator=(const MoveOnly&) = delete;
@@ -21,7 +21,7 @@ struct MoveOnly {
   friend bool operator==(const MoveOnly& x, const MoveOnly& y) = default;
 };
 
-void test_impl(std::ranges::any_view<MoveOnly> view) {
+constexpr void test_impl(std::ranges::any_view<MoveOnly> view) {
   assert(std::ranges::equal(view, std::array<MoveOnly, 5>{1, 2, 3, 4, 5}));
 }
 
@@ -39,7 +39,7 @@ constexpr bool test() {
 
 TEST_POINT("viewable_range") {
   test();
-  // static_assert(test());
+  static_assert(test());
 }
 
 }  // namespace

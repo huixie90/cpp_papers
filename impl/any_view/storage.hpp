@@ -3,6 +3,7 @@
 
 #include <concepts>
 #include <memory>
+#include <type_traits>
 
 namespace std::ranges::detail {
 
@@ -17,11 +18,18 @@ struct storage {
 
   template <class T, class... Args>
     requires constructible_from<T, Args &&...>
-  constexpr storage(type<T>, Args &&...args) : vtable_(&vtable_instance<T>) {
-    if constexpr (use_small_buffer<T>) {
-      std::construct_at(get_ptr<T>(), std::forward<Args>(args)...);
-    } else {
+  constexpr storage(type<T>, Args &&...args) {
+    if consteval {
+      vtable_ = &heap_vtable<T>;
       heap_ptr_ = new T(std::forward<Args>(args)...);
+    } else {
+      if constexpr (use_small_buffer<T>) {
+        vtable_ = &small_buffer_vtable<T>;
+        std::construct_at(get_ptr<T>(), std::forward<Args>(args)...);
+      } else {
+        vtable_ = &heap_vtable<T>;
+        heap_ptr_ = new T(std::forward<Args>(args)...);
+      }
     }
   }
 
@@ -62,10 +70,14 @@ struct storage {
     constexpr bool is_this_const =
         std::is_const_v<std::remove_reference_t<Self>>;
     using ptr = std::conditional_t<is_this_const, const T *, T *>;
-    if constexpr (use_small_buffer<T>) {
-      return reinterpret_cast<ptr>(&self.buf_.buf_[0]);
-    } else {
+    if consteval {
       return static_cast<ptr>(self.heap_ptr_);
+    } else {
+      if constexpr (use_small_buffer<T>) {
+        return reinterpret_cast<ptr>(&self.buf_.buf_[0]);
+      } else {
+        return static_cast<ptr>(self.heap_ptr_);
+      }
     }
   }
 
@@ -92,6 +104,11 @@ struct storage {
   template <class T>
   static constexpr bool unittest_is_small() {
     return use_small_buffer<T>;
+  }
+
+  template <class T>
+  static constexpr bool unittest_obj_on_small_buffer() {
+    return use_small_buffer<T> && !std::is_constant_evaluated();
   }
 
  private:
@@ -123,55 +140,63 @@ struct storage {
     void (*destructive_move_)(storage &&, storage &);
   };
 
+  static_assert(alignof(vtable) % 2 == 0);
+
   vtable const *vtable_ = nullptr;
 
   template <class Tp>
-  consteval static vtable gen_vtable() {
+  consteval static vtable gen_vtable_small_buffer() {
     vtable vt{};
-    if constexpr (use_small_buffer<Tp>) {
-      vt.destroy_ = [](storage &self) noexcept {
-        std::destroy_at(self.get_ptr<Tp>());
-      };
-      vt.move_ = [](storage &&self, storage &dest) noexcept {
-        std::construct_at(dest.get_ptr<Tp>(), std::move((*self.get_ptr<Tp>())));
+    vt.destroy_ = [](storage &self) noexcept {
+      std::destroy_at(self.get_ptr<Tp>());
+    };
+    vt.move_ = [](storage &&self, storage &dest) noexcept {
+      std::construct_at(dest.get_ptr<Tp>(), std::move((*self.get_ptr<Tp>())));
+      dest.vtable_ = self.vtable_;
+    };
+    vt.destructive_move_ = [](storage &&self, storage &dest) noexcept {
+      std::construct_at(dest.get_ptr<Tp>(), std::move((*self.get_ptr<Tp>())));
+      dest.vtable_ = self.vtable_;
+      std::destroy_at(self.get_ptr<Tp>());
+    };
+    if constexpr (Copyable) {
+      // may throw, but self is unchanged after throw
+      vt.copy_ = [](storage const &self, storage &dest) {
+        std::construct_at(dest.get_ptr<Tp>(), *self.get_ptr<Tp>());
         dest.vtable_ = self.vtable_;
       };
-      vt.destructive_move_ = [](storage &&self, storage &dest) noexcept {
-        std::construct_at(dest.get_ptr<Tp>(), std::move((*self.get_ptr<Tp>())));
-        dest.vtable_ = self.vtable_;
-        std::destroy_at(self.get_ptr<Tp>());
-      };
-      if constexpr (Copyable) {
-        // may throw, but self is unchanged after throw
-        vt.copy_ = [](storage const &self, storage &dest) {
-          std::construct_at(dest.get_ptr<Tp>(), *self.get_ptr<Tp>());
-          dest.vtable_ = self.vtable_;
-        };
-      }
-    } else {
-      vt.destroy_ = [](storage &self) noexcept {
-        delete static_cast<Tp *>(self.heap_ptr_);
-      };
-      vt.move_ = [](storage &&self, storage &dest) noexcept {
-        dest.heap_ptr_ = self.heap_ptr_;
-        dest.vtable_ = self.vtable_;
-        self.heap_ptr_ = nullptr;
-        self.vtable_ = nullptr;
-      };
-      vt.destructive_move_ = vt.move_;
-      if constexpr (Copyable) {
-        vt.copy_ = [](storage const &self, storage &dest) {
-          // may throw, but self is unchanged after throw
-          dest.heap_ptr_ = new Tp(*static_cast<const Tp *>(self.heap_ptr_));
-          dest.vtable_ = self.vtable_;
-        };
-      }
     }
     return vt;
   }
 
   template <class Tp>
-  static constexpr vtable vtable_instance = gen_vtable<Tp>();
+  consteval static vtable gen_vtable_allocation() {
+    vtable vt{};
+    vt.destroy_ = [](storage &self) noexcept {
+      delete static_cast<Tp *>(self.heap_ptr_);
+    };
+    vt.move_ = [](storage &&self, storage &dest) noexcept {
+      dest.heap_ptr_ = self.heap_ptr_;
+      dest.vtable_ = self.vtable_;
+      self.heap_ptr_ = nullptr;
+      self.vtable_ = nullptr;
+    };
+    vt.destructive_move_ = vt.move_;
+    if constexpr (Copyable) {
+      vt.copy_ = [](storage const &self, storage &dest) {
+        // may throw, but self is unchanged after throw
+        dest.heap_ptr_ = new Tp(*static_cast<const Tp *>(self.heap_ptr_));
+        dest.vtable_ = self.vtable_;
+      };
+    }
+    return vt;
+  }
+
+  template <class Tp>
+  static constexpr vtable small_buffer_vtable = gen_vtable_small_buffer<Tp>();
+
+  template <class Tp>
+  static constexpr vtable heap_vtable = gen_vtable_allocation<Tp>();
 };
 
 }  // namespace std::ranges::detail

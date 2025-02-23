@@ -113,7 +113,7 @@ constexpr bool test() {
 
 TEST_POINT("input") {
   test();
-  // static_assert(test());
+  static_assert(test());
 }
 
 }  // namespace
