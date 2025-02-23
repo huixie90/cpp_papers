@@ -12,20 +12,19 @@ namespace {
 
 using AnyView =
     std::ranges::any_view<int,
-                          std::ranges::any_view_options::contiguous |
-                              std::ranges::any_view_options::move_only>;
+                          std::ranges::any_view_options::contiguous>;
 
 static_assert(std::ranges::contiguous_range<AnyView>);
 static_assert(std::movable<AnyView>);
 static_assert(!std::copyable<AnyView>);
-static_assert(!std::ranges::sized_range<AnyView>);
-static_assert(!std::ranges::common_range<AnyView>);
+static_assert(std::ranges::sized_range<AnyView>);
+static_assert(std::ranges::common_range<AnyView>);
 static_assert(!std::ranges::borrowed_range<AnyView>);
 
 using AnyViewFull =
     std::ranges::any_view<int, std::ranges::any_view_options::contiguous |
                                    std::ranges::any_view_options::sized |
-                                   std::ranges::any_view_options::common |
+                                   std::ranges::any_view_options::copyable |
                                    std::ranges::any_view_options::borrowed>;
 
 static_assert(std::ranges::contiguous_range<AnyViewFull>);
@@ -161,7 +160,7 @@ constexpr bool test() {
   return true;
 }
 
-TEST_POINT("forward") {
+TEST_POINT("contiguous") {
   test();
   // static_assert(test());
 }

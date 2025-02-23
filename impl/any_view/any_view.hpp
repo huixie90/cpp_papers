@@ -2,6 +2,7 @@
 #define LIBCPP__RANGE_ANY_VIEW_TE_HPP
 
 #include <cassert>
+#include <iterator>
 #include <memory>
 #include <ranges>
 #include <type_traits>
@@ -22,8 +23,7 @@ enum class any_view_options {
   category_mask = contiguous,
   sized = 32,
   borrowed = 64,
-  common = 128,
-  move_only = 256
+  copyable = 128
 };
 
 constexpr any_view_options operator&(any_view_options lhs,
@@ -48,9 +48,22 @@ constexpr auto operator<=>(any_view_options lhs,
 
 }  // namespace __any_view
 
-template <class Value, any_view_options Opts = any_view_options::input,
-          class Ref = Value &,
-          class RValueRef = add_rvalue_reference_t<remove_reference_t<Ref>>,
+template <class T>
+struct __rvalue_ref {
+  using type = T;
+};
+
+template <class T>
+struct __rvalue_ref<T&> {
+  using type = T&&;
+};
+
+template <class T>
+using __rvalue_ref_t = typename __rvalue_ref<T>::type;
+
+template <class Element, any_view_options Opts = any_view_options::input,
+          class Ref = Element&,
+          class RValueRef = __rvalue_ref_t<Ref>,
           class Diff = ptrdiff_t>
 class any_view {
  public:
@@ -59,12 +72,10 @@ class any_view {
 
   static constexpr any_view_options Traversal =
       Opts & any_view_options::category_mask;
-  static constexpr bool is_common =
-      (Opts & any_view_options::common) == any_view_options::common;
   static constexpr bool is_view_copyable =
-      (Opts & any_view_options::move_only) == any_view_options::none;
+      (Opts & any_view_options::copyable) != any_view_options::none;
   static constexpr bool is_iterator_copyable =
-      Traversal >= any_view_options::forward || is_common;
+      Traversal >= any_view_options::forward;
 
   template <class T, bool HasT>
   struct maybe_t : T {};
@@ -75,7 +86,7 @@ class any_view {
   using iterator_storage =
       detail::storage<3 * sizeof(void *), sizeof(void *), is_iterator_copyable>;
 
-  struct basic_input_iterator_vtable {
+  struct input_iterator_vtable {
     Ref (*deref_)(const iterator_storage &);
     void (*increment_)(iterator_storage &);
     RValueRef (*iter_move_)(const iterator_storage &);
@@ -85,10 +96,7 @@ class any_view {
     bool (*equal_)(const iterator_storage &, const iterator_storage &);
   };
 
-  struct common_input_iterator : basic_input_iterator_vtable,
-                                 equality_vtable {};
-
-  struct forward_iterator_vtable : basic_input_iterator_vtable,
+  struct forward_iterator_vtable : input_iterator_vtable,
                                    equality_vtable {};
 
   struct bidirectional_iterator_vtable : forward_iterator_vtable {
@@ -113,8 +121,7 @@ class any_view {
               bidirectional_iterator_vtable,
               conditional_t<Traversal == any_view_options::forward,
                             forward_iterator_vtable,
-                            conditional_t<is_common, common_input_iterator,
-                                          basic_input_iterator_vtable>>>>>;
+                            input_iterator_vtable>>>>;
 
   struct iterator_vtable_gen {
     template <class Iter>
@@ -126,7 +133,7 @@ class any_view {
         t.increment_ = &increment<Iter>;
         t.iter_move_ = &iter_move<Iter>;
 
-        if constexpr (Traversal >= any_view_options::forward || is_common) {
+        if constexpr (Traversal >= any_view_options::forward) {
           t.equal_ = &equal<Iter>;
         }
 
@@ -210,7 +217,9 @@ class any_view {
     using iterator_category = decltype(get_category());
   };
   constexpr static auto get_concept() {
-    if constexpr (Traversal >= any_view_options::random_access) {
+    if constexpr (Traversal == any_view_options::contiguous) {
+      return std::contiguous_iterator_tag{};
+    } else if constexpr (Traversal == any_view_options::random_access) {
       return std::random_access_iterator_tag{};
     } else if constexpr (Traversal == any_view_options::bidirectional) {
       return std::bidirectional_iterator_tag{};
@@ -224,7 +233,7 @@ class any_view {
       : std::conditional_t<Traversal >= any_view_options::forward,
                            with_iterator_category, empty_iterator_category> {
     using iterator_concept = decltype(get_concept());
-    using value_type = Value;
+    using value_type = remove_cv_t<Element>;
     using difference_type = Diff;
 
     constexpr any_iterator() = default;
@@ -366,7 +375,7 @@ class any_view {
 
     friend constexpr bool operator==(const any_iterator &x,
                                      const any_iterator &y)
-      requires(Traversal >= any_view_options::forward || is_common)
+      requires(Traversal >= any_view_options::forward)
     {
       if (x.iter_vtable_ != y.iter_vtable_) return false;
       if (!x.iter_vtable_) return true;
@@ -394,21 +403,15 @@ class any_view {
 
   using sentinel_storage =
       detail::storage<3 * sizeof(void *), sizeof(void *), true>;
-  struct sentinel_vtable {
+  struct any_sentinel_vtable {
     bool (*equal_)(const iterator &, const any_sentinel &);
   };
-
-  struct any_sentinel_vtable : maybe_t<sentinel_vtable, !is_common> {};
 
   struct sentinel_vtable_gen {
     template <class Iter, class Sent>
     static constexpr auto generate() {
       any_sentinel_vtable t;
-
-      if constexpr (!is_common) {
-        t.equal_ = &equal<Iter, Sent>;
-      }
-
+      t.equal_ = &equal<Iter, Sent>;
       return t;
     }
 
@@ -455,10 +458,11 @@ class any_view {
     constexpr bool is_singular() const { return sent_.is_singular(); }
   };
 
-  using sentinel = std::conditional_t<!is_common, any_sentinel, iterator>;
+  using sentinel = std::conditional_t<Traversal == any_view_options::contiguous,
+                                      std::add_pointer_t<Ref>, any_sentinel>;
 
   using view_storage =
-      detail::storage<3 * sizeof(void *), sizeof(void *), is_view_copyable>;
+      detail::storage<4 * sizeof(void *), sizeof(void *), is_view_copyable>;
   struct sized_vtable {
     std::size_t (*size_)(const view_storage &);
   };
@@ -487,7 +491,7 @@ class any_view {
     static constexpr iterator begin(view_storage &v) {
       auto &view = *(v.template get_ptr<View>());
       if constexpr (Traversal == any_view_options::contiguous) {
-        return std::ranges::begin(view);
+        return std::to_address(std::ranges::begin(view));
       } else {
         return any_iterator(&iter_vtable<std::ranges::iterator_t<View>>,
                             std::ranges::begin(view));
@@ -497,11 +501,8 @@ class any_view {
     template <class View>
     static constexpr sentinel end(view_storage &v) {
       auto &view = *(v.template get_ptr<View>());
-      if constexpr (Traversal == any_view_options::contiguous && is_common) {
-        return std::ranges::end(view);
-      } else if constexpr (is_common) {
-        return any_iterator(&iter_vtable<std::ranges::iterator_t<View>>,
-                            std::ranges::end(view));
+      if constexpr (Traversal == any_view_options::contiguous) {
+        return std::to_address(std::ranges::end(view));
       } else {
         return any_sentinel(&sent_vtable<std::ranges::iterator_t<View>,
                                          std::ranges::sentinel_t<View>>,
@@ -519,10 +520,6 @@ class any_view {
   consteval static bool view_options_constraint() {
     if constexpr ((Opts & any_view_options::sized) != any_view_options::none &&
                   !std::ranges::sized_range<View>) {
-      return false;
-    }
-
-    if constexpr (is_common && !std::ranges::common_range<View>) {
       return false;
     }
 
@@ -549,12 +546,12 @@ class any_view {
     }
   }
 
-  template <class View>
-    requires(!std::same_as<View, any_view> && std::ranges::view<View> &&
-             view_options_constraint<View>())
-  constexpr any_view(View view)
-      : view_vtable_(&view_vtable<View>),
-        view_(detail::type<View>{}, std::move(view)) {}
+  template <class Range>
+    requires(!std::same_as<remove_cvref_t<Range>, any_view> && std::ranges::viewable_range<Range> &&
+             view_options_constraint<views::all_t<Range>>())
+  constexpr any_view(Range&& range)
+      : view_vtable_(&view_vtable<views::all_t<Range>>),
+        view_(detail::type<views::all_t<Range>>{}, views::all(std::forward<Range>(range))) {}
 
   constexpr any_view(const any_view &)
     requires is_view_copyable

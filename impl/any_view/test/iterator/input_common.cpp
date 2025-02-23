@@ -5,6 +5,10 @@
 
 #include "any_view.hpp"
 
+// note: we no longer support common as an option
+// any_view is always !common
+#if 0
+
 #define TEST_POINT(x) TEST_CASE(x, "[input_common]")
 
 namespace {
@@ -121,3 +125,5 @@ TEST_POINT("input") {
 }
 
 }  // namespace
+
+#endif

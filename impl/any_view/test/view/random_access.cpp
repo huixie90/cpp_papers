@@ -12,8 +12,7 @@ namespace {
 
 using AnyView =
     std::ranges::any_view<int,
-                          std::ranges::any_view_options::random_access |
-                              std::ranges::any_view_options::move_only>;
+                          std::ranges::any_view_options::random_access>;
 
 static_assert(std::ranges::random_access_range<AnyView>);
 static_assert(!std::ranges::contiguous_range<AnyView>);
@@ -26,15 +25,15 @@ static_assert(!std::ranges::borrowed_range<AnyView>);
 using AnyViewFull =
     std::ranges::any_view<int, std::ranges::any_view_options::random_access |
                                    std::ranges::any_view_options::sized |
-                                   std::ranges::any_view_options::common |
-                                   std::ranges::any_view_options::borrowed>;
+                                   std::ranges::any_view_options::borrowed |
+                                   std::ranges::any_view_options::copyable>;
 
 static_assert(std::ranges::random_access_range<AnyViewFull>);
 static_assert(!std::ranges::contiguous_range<AnyViewFull>);
 static_assert(std::movable<AnyViewFull>);
 static_assert(std::copyable<AnyViewFull>);
 static_assert(std::ranges::sized_range<AnyViewFull>);
-static_assert(std::ranges::common_range<AnyViewFull>);
+static_assert(!std::ranges::common_range<AnyViewFull>);
 static_assert(std::ranges::borrowed_range<AnyViewFull>);
 
 static_assert(std::is_nothrow_move_constructible_v<AnyView>);

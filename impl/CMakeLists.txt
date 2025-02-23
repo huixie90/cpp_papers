@@ -21,7 +21,7 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 endif()
 
-#set(range-v3_DIR /Users/huixie/repos/range-v3/build)
+set(range-v3_DIR /Users/huixie/repos/range-v3/build)
 #set(Catch2_DIR /Users/huixie/.local/lib/cmake/Catch2)
 
 # git clone Catch2, cmake & install to $INSTALL.
@@ -113,4 +113,4 @@ target_sources(any_view-bench PRIVATE ${any_view_bench_src})
 target_include_directories(any_view-bench PRIVATE any_view )
 target_link_libraries(any_view-bench PRIVATE benchmark::benchmark)
 target_link_libraries(any_view-bench PRIVATE benchmark::benchmark_main)
-target_compile_options(any_view-bench PRIVATE -O0)
+target_compile_options(any_view-bench PRIVATE -O3)
