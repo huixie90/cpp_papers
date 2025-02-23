@@ -166,7 +166,7 @@ TEST_POINT("forward") {
   auto st = v.end();
 
   test();
-  // static_assert(test());
+  static_assert(test());
 }
 
 }  // namespace

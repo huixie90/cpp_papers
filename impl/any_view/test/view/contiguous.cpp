@@ -162,7 +162,7 @@ constexpr bool test() {
 
 TEST_POINT("contiguous") {
   test();
-  // static_assert(test());
+  static_assert(test());
 }
 
 }  // namespace

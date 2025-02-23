@@ -63,17 +63,23 @@ constexpr void move() {
   Iter iter1 = v.begin();
   Iter iter2(std::move(iter1));
 
-  assert(*iter1 == 1);
+  if !consteval {
+    assert(*iter1 == 1);
+  }
   assert(*iter2 == 1);
 
   ++iter2;
 
-  assert(*iter1 == 1);
+  if !consteval {
+    assert(*iter1 == 1);
+  }
   assert(*iter2 == 2);
 
   iter1 = std::move(iter2);
   assert(*iter1 == 2);
-  assert(*iter2 == 2);
+  if !consteval {
+    assert(*iter2 == 2);
+  }
 }
 
 constexpr void copy() {
