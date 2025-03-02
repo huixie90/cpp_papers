@@ -513,7 +513,13 @@ Stability<span></span></a></li>
 </ul></li>
 <li><a href="#implementation-experience" id="toc-implementation-experience"><span class="toc-section-number">8</span> Implementation
 Experience<span></span></a></li>
-<li><a href="#bibliography" id="toc-bibliography"><span class="toc-section-number">9</span> References<span></span></a></li>
+<li><a href="#wording" id="toc-wording"><span class="toc-section-number">9</span> Wording<span></span></a>
+<ul>
+<li><a href="#addition-to-ranges" id="toc-addition-to-ranges"><span class="toc-section-number">9.1</span> Addition to <code class="sourceCode cpp"><span class="op">&lt;</span>ranges<span class="op">&gt;</span></code><span></span></a></li>
+<li><a href="#any_view" id="toc-any_view"><span class="toc-section-number">9.2</span>
+<code class="sourceCode cpp">any_view</code><span></span></a></li>
+</ul></li>
+<li><a href="#bibliography" id="toc-bibliography"><span class="toc-section-number">10</span> References<span></span></a></li>
 </ul>
 </div>
 <h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
@@ -1365,6 +1371,119 @@ boundaries as a type-erasure tool.</p>
 <span class="citation" data-cites="rangev3">[<a href="https://github.com/ericniebler/range-v3" role="doc-biblioref">range-v3</a>]</span>, with equivalent semantics as
 proposed here. The authors also implemented a version that directly
 follows the proposed wording below without any issue <span class="citation" data-cites="ours">[<a href="https://github.com/huixie90/cpp_papers/tree/main/impl/any_view" role="doc-biblioref">ours</a>]</span>.</p>
+<h1 data-number="9" id="wording"><span class="header-section-number">9</span> Wording<a href="#wording" class="self-link"></a></h1>
+<h2 data-number="9.1" id="addition-to-ranges"><span class="header-section-number">9.1</span> Addition to <code class="sourceCode cpp"><span class="op">&lt;</span>ranges<span class="op">&gt;</span></code><a href="#addition-to-ranges" class="self-link"></a></h2>
+<p>Add the following to <span>25.2
+<a href="https://wg21.link/ranges.syn">[ranges.syn]</a></span>, header
+<code class="sourceCode cpp">ranges</code> synopsis:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co">// [...]</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> std<span class="op">::</span>ranges <span class="op">{</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">// [...]</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">// [range.any], any view</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">enum</span> <span class="kw">class</span> any_view_options</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>      input <span class="op">=</span> <span class="dv">1</span>,</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>      forward <span class="op">=</span> <span class="dv">3</span>,</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>      bidirectional <span class="op">=</span> <span class="dv">7</span>,</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>      random_access <span class="op">=</span> <span class="dv">15</span>,</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>      contiguous <span class="op">=</span> <span class="dv">31</span>,</span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>      sized <span class="op">=</span> <span class="dv">32</span>,</span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>      borrowed <span class="op">=</span> <span class="dv">64</span>,</span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>      copyable <span class="op">=</span> <span class="dv">128</span></span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span>;</span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T<span class="op">&gt;</span></span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>  <span class="kw">using</span> <em>rvalue-ref-t</em> <span class="op">=</span> <em>see below</em>; <span class="co">// exposition-only</span></span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Element,</span>
+<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>            any_view_options Opts <span class="op">=</span> any_view_options<span class="op">::</span>input,</span>
+<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>            <span class="kw">class</span> Ref <span class="op">=</span> Element<span class="op">&amp;</span>,</span>
+<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a>            <span class="kw">class</span> RValueRef <span class="op">=</span> <em>rvalue-ref-t</em><span class="op">&lt;</span>Ref<span class="op">&gt;</span>,</span>
+<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a>            <span class="kw">class</span> Diff <span class="op">=</span> <span class="dt">ptrdiff_t</span><span class="op">&gt;</span></span>
+<span id="cb31-26"><a href="#cb31-26" aria-hidden="true" tabindex="-1"></a>  <span class="kw">class</span> any_view;</span>
+<span id="cb31-27"><a href="#cb31-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<h2 data-number="9.2" id="any_view"><span class="header-section-number">9.2</span>
+<code class="sourceCode cpp">any_view</code><a href="#any_view" class="self-link"></a></h2>
+<p>Add the floolwing subclause to <span>25.5
+<a href="https://wg21.link/range.utility">[range.utility]</a></span></p>
+<h3 class="unnumbered" id="any-view-range.any">?.?.? Any view
+[range.any]<a href="#any-view-range.any" class="self-link"></a></h3>
+<h4 class="unnumbered" id="general-range.any.general">?.?.?.1 General
+[range.any.general]<a href="#general-range.any.general" class="self-link"></a></h4>
+<div class="bq">
+<p><span class="marginalizedparent"><a class="marginalized">1</a></span>
+The <code class="sourceCode cpp">any_view</code> class template provides
+polymorphic wrappers that generalize the notion of a view object
+(<span>25.4.4
+<a href="https://wg21.link/range.view">[range.view]</a></span>). These
+wrappers can store, move, and call arbitrary view objects, given the
+view element types and the view category.</p>
+<p><span class="marginalizedparent"><a class="marginalized">2</a></span>
+Recommended practice: Implementations should avoid the use of
+dynamically allocated memory for a small contained value.</p>
+<p>[Note 1: Such small-object optimization can only be applied to a type
+T for which is_nothrow_move_constructible_v<T> is true. — end note]</p>
+</div>
+<h4 class="unnumbered" id="class-template-any_view-range.any.class">?.?.?.2 Class template
+<code class="sourceCode cpp">any_view</code> [range.any.class]<a href="#class-template-any_view-range.any.class" class="self-link"></a></h4>
+<div class="sourceCode" id="cb32"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Element,</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>          any_view_options Opts <span class="op">=</span> any_view_options<span class="op">::</span>input,</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Ref <span class="op">=</span> Element<span class="op">&amp;</span>,</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> RValueRef <span class="op">=</span> <em>rvalue-ref-t</em><span class="op">&lt;</span>Ref<span class="op">&gt;</span>,</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Diff <span class="op">=</span> <span class="dt">ptrdiff_t</span><span class="op">&gt;</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> any_view <span class="op">{</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">class</span> <em>iterator</em>; <span class="co">// exposition-only</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">class</span> <em>sentinel</em>; <span class="co">// exposition-only</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>  <span class="co">// [range.any.ctor], constructors, assignment, and destructor</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Rng<span class="op">&gt;</span> <span class="kw">requires</span> <em>see below</em></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> any_view<span class="op">(</span>Rng<span class="op">&amp;&amp;</span> rng<span class="op">)</span>;</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> any_view<span class="op">(</span><span class="kw">const</span> any_view <span class="op">&amp;)</span> <span class="kw">requires</span> <em>see below</em>;</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> any_view<span class="op">(</span>any_view <span class="op">&amp;&amp;)</span> <span class="kw">noexcept</span>;</span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> any_view <span class="op">&amp;</span><span class="kw">operator</span><span class="op">=(</span><span class="kw">const</span> any_view <span class="op">&amp;)</span> <span class="kw">requires</span> <em>see below</em>;</span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> any_view <span class="op">&amp;</span><span class="kw">operator</span><span class="op">=(</span>any_view <span class="op">&amp;&amp;)</span> <span class="kw">noexcept</span>;</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="op">~</span>any_view<span class="op">()</span>;</span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>  <span class="co">// [range.any.access], range access</span></span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <em>iterator</em> begin<span class="op">()</span>;</span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <em>sentinel</em> end<span class="op">()</span>;</span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <em>make-unsigned-like-t<Diff></em> size<span class="op">()</span> <span class="kw">const</span> <span class="kw">requires</span> <em>see below</em>;</span>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span></code></pre></div>
+<div class="bq">
+<p><span class="marginalizedparent"><a class="marginalized">1</a></span>
+The exposition-only
+<code class="sourceCode cpp"><em>rvalue-ref-t</em></code> is equivalent
+to:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T<span class="op">&gt;</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> <em>rvalue-ref</em> <span class="op">{</span> <span class="co">// exposition-only</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">using</span> type <span class="op">=</span> T;</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T<span class="op">&gt;</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> <em>rvalue-ref</em><span class="op">&lt;</span>T<span class="op">&amp;&gt;</span> <span class="op">{</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">using</span> type <span class="op">=</span> T<span class="op">&amp;&amp;</span>;</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T<span class="op">&gt;</span></span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <em>rvalue-ref-t</em> <span class="op">=</span> <span class="kw">typename</span> <em>rvalue-ref</em><span class="op">&lt;</span>T<span class="op">&gt;::</span>type;</span></code></pre></div>
+</div>
+<h4 class="unnumbered" id="range-access-range.any.class">?.?.?.4 Range
+access [range.any.class]<a href="#range-access-range.any.class" class="self-link"></a></h4>
+<div class="sourceCode" id="cb34"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em> begin<span class="op">()</span>;</span></code></pre></div>
+<div class="bq">
+<p><span class="marginalizedparent"><a class="marginalized">1</a></span>
+<em>Preconditions</em>: <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code>
+has a target object.</p>
+<p><span class="marginalizedparent"><a class="marginalized">2</a></span>
+<em>Effects</em>: Equivalent to:</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <em>iterator</em><span class="op">(</span>ranges<span class="op">::</span>begin<span class="op">(</span>v<span class="op">))</span>;</span></code></pre></div>
+<p>where <code class="sourceCode cpp">v</code> is an lvalue designating
+the target object of <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code></p>
+</div>
 <style>
 .bq{
     display: block;
@@ -1374,7 +1493,7 @@ follows the proposed wording below without any issue <span class="citation" data
     margin-inline-end: 40px;
 }
 </style>
-<h1 data-number="9" id="bibliography"><span class="header-section-number">9</span> References<a href="#bibliography" class="self-link"></a></h1>
+<h1 data-number="10" id="bibliography"><span class="header-section-number">10</span> References<a href="#bibliography" class="self-link"></a></h1>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="1" role="doc-bibliography">
 <div id="ref-ours" class="csl-entry" role="doc-biblioentry">
 [ours] Hui Xie, S. Levent Yilmaz, and Dionne Louis. A proof-of-concept

@@ -799,7 +799,131 @@ We can see the `any_view` version is 4 times faster. This is a very common patte
 proposed here. The authors also implemented a version that directly follows the
 proposed wording below without any issue [@ours].
 
+# Wording
 
+## Addition to `<ranges>`
+
+Add the following to [ranges.syn]{.sref}, header `ranges` synopsis:
+
+```cpp
+// [...]
+namespace std::ranges {
+  // [...]
+
+  // [range.any], any view
+  enum class any_view_options
+  {
+      input = 1,
+      forward = 3,
+      bidirectional = 7,
+      random_access = 15,
+      contiguous = 31,
+      sized = 32,
+      borrowed = 64,
+      copyable = 128
+  };
+
+  template <class T>
+  using @*rvalue-ref-t*@ = @*see below*@; // exposition-only
+
+  template <class Element,
+            any_view_options Opts = any_view_options::input,
+            class Ref = Element&,
+            class RValueRef = @*rvalue-ref-t*@<Ref>,
+            class Diff = ptrdiff_t>
+  class any_view;
+}
+```
+
+## `any_view`
+
+Add the floolwing subclause to [range.utility]{.sref}
+
+### ?.?.? Any view [range.any] {-}
+
+#### ?.?.?.1 General [range.any.general] {-}
+
+:::bq
+
+[1]{.pnum} The `any_view` class template provides polymorphic wrappers that generalize the notion of a view object ([range.view]{.sref}). These wrappers can store, move, and call arbitrary view objects, given the view element types and the view category.
+
+[2]{.pnum} Recommended practice: Implementations should avoid the use of dynamically allocated memory for a small contained value.
+
+[Note 1: Such small-object optimization can only be applied to a type T for which is_nothrow_move_constructible_v<T> is true. — end note]
+
+:::
+
+#### ?.?.?.2 Class template `any_view` [range.any.class] {-}
+
+```cpp
+template <class Element,
+          any_view_options Opts = any_view_options::input,
+          class Ref = Element&,
+          class RValueRef = @*rvalue-ref-t*@<Ref>,
+          class Diff = ptrdiff_t>
+class any_view {
+  class @*iterator*@; // exposition-only
+  class @*sentinel*@; // exposition-only
+public:
+  // [range.any.ctor], constructors, assignment, and destructor
+  template <class Rng> requires @*see below*@
+  constexpr any_view(Rng&& rng);
+  constexpr any_view(const any_view &) requires @*see below*@;
+  constexpr any_view(any_view &&) noexcept;
+
+  constexpr any_view &operator=(const any_view &) requires @*see below*@;
+  constexpr any_view &operator=(any_view &&) noexcept;
+
+  constexpr ~any_view();
+
+  // [range.any.access], range access
+  constexpr @*iterator*@ begin();
+  constexpr @*sentinel*@ end();
+
+  constexpr @*make-unsigned-like-t<Diff>*@ size() const requires @*see below*@;
+};
+```
+
+:::bq
+
+[1]{.pnum} The exposition-only `@*rvalue-ref-t*@` is equivalent to:
+
+```cpp
+template <class T>
+struct @*rvalue-ref*@ { // exposition-only
+  using type = T;
+};
+
+template <class T>
+struct @*rvalue-ref*@<T&> {
+  using type = T&&;
+};
+
+template <class T>
+using @*rvalue-ref-t*@ = typename @*rvalue-ref*@<T>::type;
+```
+
+:::
+
+#### ?.?.?.4 Range access [range.any.class] {-}
+
+```cpp
+constexpr @*iterator*@ begin();
+```
+
+:::bq
+
+[1]{.pnum} *Preconditions*: `*this` has a target object.
+
+[2]{.pnum} *Effects*: Equivalent to:
+
+```cpp
+return @*iterator*@(ranges::begin(v));
+```
+
+where `v` is an lvalue designating the target object of `*this`
+
+:::
 ---
 references:
   - id: rangev3
