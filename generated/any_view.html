@@ -1405,27 +1405,46 @@ follows the proposed wording below without any issue <span class="citation" data
 <span id="cb31-27"><a href="#cb31-27" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <h2 data-number="9.2" id="any_view"><span class="header-section-number">9.2</span>
 <code class="sourceCode cpp">any_view</code><a href="#any_view" class="self-link"></a></h2>
-<p>Add the floolwing subclause to <span>25.5
+<p>Add the following subclause to <span>25.5
 <a href="https://wg21.link/range.utility">[range.utility]</a></span></p>
 <h3 class="unnumbered" id="any-view-range.any">?.?.? Any view
 [range.any]<a href="#any-view-range.any" class="self-link"></a></h3>
-<h4 class="unnumbered" id="general-range.any.general">?.?.?.1 General
+<h4 class="unnumbered" id="definition-range.any.def">?.?.?.1 Definition
+[range.any.def]<a href="#definition-range.any.def" class="self-link"></a></h4>
+<p><span class="marginalizedparent"><a class="marginalized">1</a></span>
+The following definitions apply to this Clause:</p>
+<p><span class="marginalizedparent"><a class="marginalized">2</a></span>
+A <em>view object</em> is an object of type which models
+<code class="sourceCode cpp">ranges<span class="op">::</span>view</code>
+(<span>25.4.4
+<a href="https://wg21.link/range.view">[range.view]</a></span>)
+concept.</p>
+<p><span class="marginalizedparent"><a class="marginalized">3</a></span>
+A <em>view wrapper type</em> is a type that holds a view object and
+supports <code class="sourceCode cpp">ranges<span class="op">::</span>begin</code> and
+<code class="sourceCode cpp">ranges<span class="op">::</span>end</code>
+operation that forwards to that object.</p>
+<p><span class="marginalizedparent"><a class="marginalized">4</a></span>
+A <em>view wrapper</em> is an object of <em>view wrapper type</em>.</p>
+<p><span class="marginalizedparent"><a class="marginalized">5</a></span>
+A <em>target object</em> is the <em>view object</em> held by a <em>view
+wrapper</em>.</p>
+<h4 class="unnumbered" id="general-range.any.general">?.?.?.2 General
 [range.any.general]<a href="#general-range.any.general" class="self-link"></a></h4>
-<div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">1</a></span>
 The <code class="sourceCode cpp">any_view</code> class template provides
-polymorphic wrappers that generalize the notion of a view object
-(<span>25.4.4
-<a href="https://wg21.link/range.view">[range.view]</a></span>). These
-wrappers can store, move, and call arbitrary view objects, given the
-view element types and the view category.</p>
+polymorphic wrappers that generalize the notion of a <em>view
+object</em>. These wrappers can store, move, and traverse arbitrary
+<em>view object</em>s, given the view element types and the view
+category.</p>
 <p><span class="marginalizedparent"><a class="marginalized">2</a></span>
 Recommended practice: Implementations should avoid the use of
 dynamically allocated memory for a small contained value.</p>
 <p>[Note 1: Such small-object optimization can only be applied to a type
-T for which is_nothrow_move_constructible_v<T> is true. — end note]</p>
-</div>
-<h4 class="unnumbered" id="class-template-any_view-range.any.class">?.?.?.2 Class template
+<code class="sourceCode cpp">T</code> for which <code class="sourceCode cpp">is_nothrow_move_constructible_v<span class="op">&lt;</span>T<span class="op">&gt;</span></code>
+is <code class="sourceCode cpp"><span class="kw">true</span></code>. —
+end note]</p>
+<h4 class="unnumbered" id="class-template-any_view-range.any.class">?.?.?.3 Class template
 <code class="sourceCode cpp">any_view</code> [range.any.class]<a href="#class-template-any_view-range.any.class" class="self-link"></a></h4>
 <div class="sourceCode" id="cb32"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Element,</span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>          any_view_options Opts <span class="op">=</span> any_view_options<span class="op">::</span>input,</span>
@@ -1451,7 +1470,7 @@ T for which is_nothrow_move_constructible_v<T> is true. — end note]</p>
 <span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <em>iterator</em> begin<span class="op">()</span>;</span>
 <span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <em>sentinel</em> end<span class="op">()</span>;</span>
 <span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <em>make-unsigned-like-t<Diff></em> size<span class="op">()</span> <span class="kw">const</span> <span class="kw">requires</span> <em>see below</em>;</span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <em>make-unsigned-like-t</em><span class="op">&lt;</span>Diff<span class="op">&gt;</span> size<span class="op">()</span> <span class="kw">const</span> <span class="kw">requires</span> <em>see below</em>;</span>
 <span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">1</a></span>
@@ -1471,18 +1490,29 @@ to:</p>
 <span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T<span class="op">&gt;</span></span>
 <span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a><span class="kw">using</span> <em>rvalue-ref-t</em> <span class="op">=</span> <span class="kw">typename</span> <em>rvalue-ref</em><span class="op">&lt;</span>T<span class="op">&gt;::</span>type;</span></code></pre></div>
 </div>
-<h4 class="unnumbered" id="range-access-range.any.class">?.?.?.4 Range
-access [range.any.class]<a href="#range-access-range.any.class" class="self-link"></a></h4>
+<h4 class="unnumbered" id="range-access-range.any.access">?.?.?.4 Range
+access [range.any.access]<a href="#range-access-range.any.access" class="self-link"></a></h4>
 <div class="sourceCode" id="cb34"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em> begin<span class="op">()</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">1</a></span>
 <em>Preconditions</em>: <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code>
-has a target object.</p>
+has a <em>target object</em>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">2</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb35"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <em>iterator</em><span class="op">(</span>ranges<span class="op">::</span>begin<span class="op">(</span>v<span class="op">))</span>;</span></code></pre></div>
 <p>where <code class="sourceCode cpp">v</code> is an lvalue designating
-the target object of <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code></p>
+the <em>target object</em> of <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code></p>
+</div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>sentinel</em> end<span class="op">()</span>;</span></code></pre></div>
+<div class="bq">
+<p><span class="marginalizedparent"><a class="marginalized">1</a></span>
+<em>Preconditions</em>: <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code>
+has a <em>target object</em>.</p>
+<p><span class="marginalizedparent"><a class="marginalized">2</a></span>
+<em>Effects</em>: Equivalent to:</p>
+<div class="sourceCode" id="cb37"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <em>sentinel</em><span class="op">(</span>ranges<span class="op">::</span>end<span class="op">(</span>v<span class="op">))</span>;</span></code></pre></div>
+<p>where <code class="sourceCode cpp">v</code> is an lvalue designating
+the <em>target object</em> of <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code></p>
 </div>
 <style>
 .bq{
