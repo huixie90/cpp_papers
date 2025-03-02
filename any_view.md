@@ -837,23 +837,33 @@ namespace std::ranges {
 
 ## `any_view`
 
-Add the floolwing subclause to [range.utility]{.sref}
+Add the following subclause to [range.utility]{.sref}
 
 ### ?.?.? Any view [range.any] {-}
 
-#### ?.?.?.1 General [range.any.general] {-}
+#### ?.?.?.1 Definition [range.any.def] {-}
 
-:::bq
+[1]{.pnum} The following definitions apply to this Clause:
 
-[1]{.pnum} The `any_view` class template provides polymorphic wrappers that generalize the notion of a view object ([range.view]{.sref}). These wrappers can store, move, and call arbitrary view objects, given the view element types and the view category.
+[2]{.pnum} A *view object* is an object of type which models `ranges::view` ([range.view]{.sref}) concept.
+
+[3]{.pnum} A *view wrapper type* is a type that holds a view object and supports `ranges::begin` and `ranges::end` operation that forwards to that object.
+
+[4]{.pnum} A *view wrapper* is an object of *view wrapper type*.
+
+[5]{.pnum} A *target object* is the *view object* held by a *view wrapper*.
+
+#### ?.?.?.2 General [range.any.general] {-}
+
+
+[1]{.pnum} The `any_view` class template provides polymorphic wrappers that generalize the notion of a *view object*. These wrappers can store, move, and traverse arbitrary *view object*s, given the view element types and the view category.
 
 [2]{.pnum} Recommended practice: Implementations should avoid the use of dynamically allocated memory for a small contained value.
 
-[Note 1: Such small-object optimization can only be applied to a type T for which is_nothrow_move_constructible_v<T> is true. — end note]
+[Note 1: Such small-object optimization can only be applied to a type `T` for which `is_nothrow_move_constructible_v<T>` is `true`. — end note]
 
-:::
 
-#### ?.?.?.2 Class template `any_view` [range.any.class] {-}
+#### ?.?.?.3 Class template `any_view` [range.any.class] {-}
 
 ```cpp
 template <class Element,
@@ -880,7 +890,7 @@ public:
   constexpr @*iterator*@ begin();
   constexpr @*sentinel*@ end();
 
-  constexpr @*make-unsigned-like-t<Diff>*@ size() const requires @*see below*@;
+  constexpr @*make-unsigned-like-t*@<Diff> size() const requires @*see below*@;
 };
 ```
 
@@ -905,7 +915,7 @@ using @*rvalue-ref-t*@ = typename @*rvalue-ref*@<T>::type;
 
 :::
 
-#### ?.?.?.4 Range access [range.any.class] {-}
+#### ?.?.?.4 Range access [range.any.access] {-}
 
 ```cpp
 constexpr @*iterator*@ begin();
@@ -913,7 +923,7 @@ constexpr @*iterator*@ begin();
 
 :::bq
 
-[1]{.pnum} *Preconditions*: `*this` has a target object.
+[1]{.pnum} *Preconditions*: `*this` has a *target object*.
 
 [2]{.pnum} *Effects*: Equivalent to:
 
@@ -921,7 +931,25 @@ constexpr @*iterator*@ begin();
 return @*iterator*@(ranges::begin(v));
 ```
 
-where `v` is an lvalue designating the target object of `*this`
+where `v` is an lvalue designating the *target object* of `*this`
+
+:::
+
+```cpp
+constexpr @*sentinel*@ end();
+```
+
+:::bq
+
+[1]{.pnum} *Preconditions*: `*this` has a *target object*.
+
+[2]{.pnum} *Effects*: Equivalent to:
+
+```cpp
+return @*sentinel*@(ranges::end(v));
+```
+
+where `v` is an lvalue designating the *target object* of `*this`
 
 :::
 ---
