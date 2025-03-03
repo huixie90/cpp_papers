@@ -1,7 +1,7 @@
 ---
 title: "`any_view`"
-document: P3411R1
-date: 2024-12-29
+document: P3411R2
+date: 2025-02-03
 audience: SG9, LEWG
 author:
   - name: Hui Xie
@@ -17,6 +17,15 @@ toc-depth: 2
 ---
 
 # Revision History
+
+## R2
+
+- Add `constexpr` support
+- Add initial wording
+- Move-only by default
+- Second reference implementation
+- Various fixes
+- Added default constructor and `operator bool`
 
 ## R1
 
@@ -219,30 +228,7 @@ template <class Element,
           class Ref = Element &,
           class RValueRef = @*rvalue-ref-t*@<Ref>,
           class Diff = ptrdiff_t>
-class any_view {
-  class iterator; // exposition-only
-  class sentinel; // exposition-only
-
- public:
-  template <class Range>
-  constexpr any_view(Range &&range);
-
-  constexpr any_view(const any_view &)
-    requires(bool(Opts & any_view_options::copyable));
-
-  constexpr any_view(any_view &&) noexcept;
-
-  constexpr any_view &operator=(const any_view &)
-    requires(bool(Opts & any_view_options::copyable));
-
-  constexpr any_view &operator=(any_view &&) noexcept;
-
-  constexpr iterator begin();
-  constexpr sentinel end();
-
-  constexpr @*make-unsigned-like-t*@<Diff> size() const
-    requires(bool(Opts & any_view_options::sized));
-};
+class any_view;
 
 template <class Element, any_view_options Opts, class Ref, class RValueRef,
           class Diff>
@@ -459,6 +445,26 @@ user has to follow the same order of the options that are defined in `any_view_o
 
 An implementation of this approach would look like this: [link](https://godbolt.org/z/4dGYneWxx)
 
+## SG9 Decision
+
+In Hagenberg, SG9 voted these designs
+
+> I like the following template parameter design:
+>
+> - Proposed in P3411R1 (flags + defaulted template parameters)
+> - Alternative 1 (variadic named template parameters)
+> - Alternative 2 (custom traits with potentially some standard library provided default traits (e.g. the tags))
+> - Alternative 3 (options aggregate type using type as values/reflection and designated initializers)
+
+| Option        | Approval votes |
+|---------------|----------------|
+| Proposed	    |     10         |  
+| Alternative 1 |	     5         |
+| Alternative 2 |	     5         |
+| Alternative 3 |	     4         |
+
+SG9 Recommended moving forward with the proposed design.
+
 # Other Design Considerations
 
 ## Why don't follow range-v3's design where first template parameter is `range_reference_t`?
@@ -494,13 +500,23 @@ more general purpose utility in ranges library. Therefore, the authors recommend
 ## `constexpr` Support
 
 We require `constexpr` because there is no strong reason not to provide it. Even when providing SBO at runtime, there is no need to provide such an optimization at compile-time as well, given that the conditions for the optimization are implementation-dependent, and experience shows this support is easy enough to add.
-Both of our two reference implementations have proper `constexpr` support.
+Both of our two reference implementations have proper `constexpr` support. SG9 also recommended in Hagenberg to support `constexpr`
 
 ## Move-only `view` Support
 
 Move-only `view` is worth supporting as we generally support them in `ranges`. We propose to have a configuration template parameter `any_view_options::copyable` to make the `any_view` conditionally copyable. This removes the need to have another type as we did for `move_only_function`.
-
 We also propose that by default, `any_view` is move-only and to make it copyable, the user needs to explicitly provide this template parameter `any_view_options::copyable`.
+On R1 version, this paper proposed to make `any_view` copyable by default. 
+
+In Hagenberg, SG9 recommended to make it move-only by default with the votes:
+
+> As proposed, any_view<T> is copyable by default, requiring a flag to allow type-erasing move-only types.
+We want to change it to be move-only by default, requiring a flag to make it copyable and prohibit type-erasure of move-only types.
+
+|SF	|F	|N	|A	|SA|
+|---|---|---|---|--|
+|4	|5	|1	|0  |1 |	
+
 
 ## Move-only `iterator` Support
 
@@ -522,7 +538,15 @@ For simplicity, the authors propose to make `any_view` unconditionally non-const
 ## `common_range` support
 
 Unconditionally making `any_view` a `common_range` is not an option. This would exclude most of the Standard Library `view`s. Adding a configuration template parameter to make `any_view` conditionally `common_range` is overkill. After all, if users need `common_range`, they can use `my_any_view | views::common`. Furthermore, supporting this turns out to add substantial complexity in the implementation.
-The authors believe that adding `common_range` support is not worth the added complexity.
+The authors believe that adding `common_range` support is not worth the added complexity. This is also confirmed with the votes in SG9 in Hagenberg.
+
+> As proposed, any_view<T> is never a common range.
+We want to have a flag to make it a common range if that flag is set.
+
+|SF	|F	|N	|A	|SA|
+|---|---|---|---|--|
+|0	|1	|4	|2  |0 |	
+
 
 ## `borrowed_range` support
 
@@ -537,7 +561,7 @@ Therefore, we recommend conditional support for `borrowed_range`. However, since
 
 We propose providing the strong exception safety guarantee in the following operations: swap, copy-assignment, move-assignment and move-construction. This means that if the operation fails, the two `any_view` objects will be in their original states.
 If the underlying view's move constructor (or move-assignment operator) is not `noexcept`, the only way to achieve the strong exception safety guarantee is to avoid calling these operations altogether, which requires `any_view` to hold its underlying object on the heap so it can implement these operations by swapping pointers.
-This means that any implementation of `any_view` will have an empty state, and a "moved-from" `any_view` will be in that state.
+This means that any implementation of `any_view` will have an empty state, and a "moved-from" heap allocated `any_view` will be in that state. Therefore, the authors propose to add default constructor to `any_view`, which results in an `any_view` object in such state. What's more, we need `operator bool` to test if an `any_view` object is in this state.
 
 ## ABI Stability
 
@@ -808,7 +832,7 @@ We can see the `any_view` version is 4 times faster. This is a very common patte
 
 `any_view` has been implemented in [@rangev3], with equivalent semantics as
 proposed here. The authors also implemented a version that directly follows the
-proposed wording below without any issue [@ours] and [bemanproject].
+proposed wording below without any issue [@ours] and [@bemanproject].
 
 # Wording
 
@@ -833,6 +857,9 @@ namespace std::ranges {
       borrowed = 64,
       copyable = 128
   };
+
+  constexpr any_view_options operator|(any_view_options, any_view_options) noexcept;
+  constexpr any_view_options operator&(any_view_options, any_view_options) noexcept;
 
   template <class T>
   using @*rvalue-ref-t*@ = @*see below*@; // exposition-only
@@ -871,7 +898,7 @@ Add the following subclause to [range.utility]{.sref}
 
 [2]{.pnum} Recommended practice: Implementations should avoid the use of dynamically allocated memory for a small contained value.
 
-[Note 1: Such small-object optimization can only be applied to a type `T` for which `is_nothrow_move_constructible_v<T>` is `true`. — end note]
+[Note 1: Such small-object optimization can only be applied to a type `T` for which `is_nothrow_move_constructible_v<T>` is `true`. — end note]
 
 
 #### ?.?.?.3 Class template `any_view` [range.any.class] {-}
@@ -887,6 +914,7 @@ class any_view {
   class @*sentinel*@; // exposition-only
 public:
   // [range.any.ctor], constructors, assignment, and destructor
+  constexpr any_view();
   template <class Rng> requires @*see below*@
   constexpr any_view(Rng&& rng);
   constexpr any_view(const any_view &) requires @*see below*@;
@@ -902,6 +930,8 @@ public:
   constexpr @*sentinel*@ end();
 
   constexpr @*make-unsigned-like-t*@<Diff> size() const requires @*see below*@;
+
+  constexpr explicit operator bool() const;
 };
 ```
 
@@ -992,6 +1022,7 @@ references:
       - family: Roberts
         given: Patrick
     URL: https://github.com/bemanproject/any_view
+
 ---
 
 <style>
