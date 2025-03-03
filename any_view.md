@@ -10,6 +10,8 @@ author:
     email: <ldionne.2@gmail.com>
   - name: S. Levent Yilmaz
     email: <levent.yilmaz@gmail.com>
+  - name: Patrick Roberts
+    email: <cpp@patrickroberts.dev>
 toc: true
 toc-depth: 2
 ---
@@ -195,8 +197,9 @@ does not allow users to configure the `range_value_t`, `range_difference_t`, `bo
 This paper proposes the following interface:
 
 ```cpp
-enum class any_view_options
-{
+namespace std::ranges {
+
+enum class any_view_options {
     input = 1,
     forward = 3,
     bidirectional = 7,
@@ -204,43 +207,69 @@ enum class any_view_options
     contiguous = 31,
     sized = 32,
     borrowed = 64,
-    move_only = 128
+    copyable = 128
 };
+
+constexpr any_view_options operator|(any_view_options lhs, any_view_options rhs) noexcept;
+
+constexpr any_view_options operator&(any_view_options lhs, any_view_options rhs) noexcept;
+
+constexpr any_view_options operator^(any_view_options lhs, any_view_options rhs) noexcept;
+
+constexpr any_view_options operator~(any_view_options opt) noexcept;
+
+constexpr any_view_options &operator|=(any_view_options &lhs, any_view_options rhs) noexcept;
+
+constexpr any_view_options &operator&=(any_view_options &lhs, any_view_options rhs) noexcept;
+
+constexpr any_view_options &operator^=(any_view_options &lhs, any_view_options rhs) noexcept;
+
+template <class T>
+struct /*rvalue-ref*/ { using type = T; };
+
+template <class T>
+struct /*rvalue-ref*/<T &> { using type = T &&; };
+
+template <class T>
+using /*rvalue-ref-t*/ = /*rvalue-ref*/<T>::type;
 
 template <class Element,
           any_view_options Opts = any_view_options::input,
-          class Ref =  Element&,
-          class Value = remove_cvref_t<Element>,
-          class RValueRef = add_rvalue_reference_t<remove_reference_t<Ref>>,
+          class Ref = Element &,
+          class RValueRef = /*rvalue-ref-t*/<Ref>,
           class Diff = ptrdiff_t>
 class any_view {
   class iterator; // exposition-only
   class sentinel; // exposition-only
 
-  template <class View>
-    requires(!std::same_as<View, any_view> && std::ranges::view<View> &&
-             view_options_constraint<View>())
-  any_view(View view);
+ public:
+  template <class Range>
+  constexpr any_view(Range &&range);
 
-  any_view(const any_view &) requires (!(Opts & any_view_options::move_only));
+  constexpr any_view(const any_view &)
+    requires(bool(Opts & any_view_options::copyable));
 
-  any_view(any_view &&) = default;
+  constexpr any_view(any_view &&) noexcept;
 
-  any_view &operator=(const any_view &) requires (!(Opts & any_view_options::move_only));
+  constexpr any_view &operator=(const any_view &)
+    requires(bool(Opts & any_view_options::copyable));
 
-  any_view &operator=(any_view &&);
+  constexpr any_view &operator=(any_view &&) noexcept;
 
-  iterator begin();
-  sentinel end();
+  constexpr iterator begin();
+  constexpr sentinel end();
 
-  size_t size() const requires(Opts & any_view_options::sized);
+  constexpr /*make-unsigned-like-t*/<Diff> size() const
+    requires(bool(Opts & any_view_options::sized));
 };
 
-template <class Element, any_view_options Opts, class Ref, class Value, class RValueRef,
+template <class Element, any_view_options Opts, class Ref, class RValueRef,
           class Diff>
 inline constexpr bool
     enable_borrowed_range<any_view<Value, Opts, Ref, RValueRef, Diff>> =
-        Opts & any_view_options::borrowed;
+        bool(Opts & any_view_options::borrowed);
+
+} // namespace std::ranges
 ```
 
 The intent is that users can select various desired properties of the `any_view` by `bitwise-or`ing them. For example:
@@ -272,182 +301,6 @@ any_view<const Foo>; // should be an input_range where the range_reference_t is 
 With the proposed design, the above two use cases would work.
 Even though there are lots of template parameters, we do not expect users to specify them
 often because the default would work for majority of the use cases.
-
-## Alternative Design 1: Variadic Named Template Parameters
-
-```cpp
-namespace any_view_options {
-
-template <class> struct iterator_concept;
-template <class> struct reference_type;
-template <class> struct value_type;
-template <class> struct difference_type;
-template <class> struct rvalue_reference_type;
-template <bool> struct sized;
-template <bool> struct move_only;
-template <bool> struct borrowed;
-
-} // any_view_options
-
-template <class Element, class... Options>
-class any_view;
-```
-
-With this design, the two main use cases would still work
-
-```cpp
-using MyView1 = any_view<Foo>; // should be an input_range where the range_reference_t is Foo&
-using MyView2 = any_view<const Foo>; // should be an input_range where the range_reference_t is const Foo&
-```
-
-If the default options do not work, users can specify the options in this way:
-
-```cpp
-using namespace std::ranges::any_view_options;
-using MyView3 = std::ranges::any_view<Foo, 
-                                      iterator_concept<std::contiguous_iterator_tag>,
-                                      reference_type<Foo>,
-                                      sized<true>,
-                                      borrowed<true>>;
-```
-
-The benefits of this approach are
-
-- Each parameter is named
-- Users do not need to specify the template parameters in a specific order
-- Users can skip few template parameters if they need to customize the "last" template option
-
-An implementation of this approach would look like this: [link](https://godbolt.org/z/qdnoE7Mb9)
-
-However, we believe that this overcomplicates the design.
-
-## Alternative Design 2: Single Template Parameter: RangeTraits
-
-In Wrocław meeting, one feedback we had was to explore the options to have
-"single expansion point", i.e not to have too many template parameters
-
-```cpp
-struct default_range_traits {};
-
-template <class Element, class RangeTraits = default_range_traits>
-class any_view;
-```
-
-In the `RangeTraits`, the user can define aliases to customize `iterator_concept`, `reference_type` etc,
-and define `static constexpr bool` variables to customize `sized`, `move_only` etc. If an alias or
-`static constexpr bool` variable is missing, the default type or value will be used.
-
-With this design, the two main use cases would still work
-
-```cpp
-using MyView1 = any_view<Foo>; // should be an input_range where the range_reference_t is Foo&
-using MyView2 = any_view<const Foo>; // should be an input_range where the range_reference_t is const Foo&
-```
-
-If the default options do not work, users can specify the options in this way:
-```cpp
-struct MyTraits {
-  using iterator_concept = std::contiguous_iterator_tag;
-  using reference = int;
-  static constexpr bool sized = true;
-  static constexpr move_only = true;
-};
-
-using MyView3 = any_view<int, MyTraits>;
-```
-
-The benefits of this approach are
-
-- Each option is named
-- Users do not need to specify the template parameters in a specific order
-- Users can skip any options if they can use the default values
-
-An implementation of this approach would look like this: [link](https://godbolt.org/z/596avP8T5)
-
-However, every time an user needs to customize anything, they need to
-define a `struct`, which is verbose and inconvenient.
-
-### Optional add-on to `RangeTraits`
-
-If we decided to go with this alternative, we could have a utility that deduces the traits
-from another range.
-
-```cpp
-template <class Range>
-struct range_traits {
-    using iterator_concept = /* see-below */;
-    using reference_type = range_reference_t<Range>;
-    using value_type = range_value_t<Range>;
-    using rvalue_reference_type = range_rvalue_reference_t<Range>;
-    using difference_type = range_difference_t<Range>;
-
-    static constexpr bool sized = sized_range<Range>;
-    static constexpr bool move_only = !copyable<decay_t<Range>>;
-    static constexpr bool borrowed = borrowed_range<Range>;
-};
-
-// MyView4 is a contiguous, sized, copyable, non-borrowed int& range 
-using MyView4 = any_view<int, range_traits<std::vector<int>>>;
-
-// MyView5 is a contiguous, sized, copyable, non-borrowed const int& range 
-using MyView5 = any_view<const int, range_traits<const std::vector<int>>>;
-```
-
-An implementation of this approach would look like this: [link](https://godbolt.org/z/co1Kdsra3)
-
-## Alternative Design 3: Barry's Named Template Argument Approach
-
-```cpp
-template <typename T>
-struct type_t {
-    using type = T;
-};
-
-template <typename T>
-inline constexpr type_t<T> type{};
-
-template <class Ref,
-          class IterConcept = input_iterator_tag,
-          class Value = decay_t<Ref>,
-          class RValueRef = remove_reference_t<Ref>&&,
-          class Difference = ptrdiff_t>
-struct any_view_options {
-    type_t<Ref> reference_type;
-    type_t<IterConcept> iterator_concept = {};
-    bool sized = false;
-    bool move_only = false;
-    bool borrowed = false;
-    type_t<Value> value_type;
-    type_t<RValueRef> rvalue_reference_type;
-    type_t<Difference> difference_type;
-};
-
-template <class Element, any_view_options options = {.reference_type = type<Element&>}>
-class any_view;
-```
-
-This is inspired by Barry's [blog post](https://brevzin.github.io/c++/2019/12/02/named-arguments/).
-Thanks to designated initializers and generated CTAD, the user code is extremely readable
-
-```cpp
-using MyView1 = any_view<Foo>; // should be an input_range where the range_reference_t is Foo&
-using MyView2 = any_view<const Foo>; // should be an input_range where the range_reference_t is const Foo&
-
-using MyView3 = any_view<int, {.reference_type = type<int&>,
-                               .iterator_concept = type<std::contiguous_iterator_tag>,
-                               .value_type = type<long>}>;
-
-using MyView4 = any_view<int, {.reference_type = type<int&>,
-                               .iterator_concept = type<std::contiguous_iterator_tag>,
-                               .sized = true,
-                               .borrowed = true,
-                               .value_type = type<long>}>;                        
-```
-
-Each option is named and user can skip parameters if they want to use the default. However, the
-user has to follow the same order of the options that are defined in `any_view_options`.
-
-An implementation of this approach would look like this: [link](https://godbolt.org/z/4dGYneWxx)
 
 # Other Design Considerations
 
@@ -483,13 +336,13 @@ more general purpose utility in ranges library. Therefore, the authors recommend
 
 ## `constexpr` Support
 
-We do not require `constexpr` in order to allow efficient implementations using e.g. SBO. There is no way, with the current working draft, to construct an object of different type on a `unsigned char[N]` or `std::byte[N]` buffer in `constexpr` context.
+We require `constexpr` because there is no strong reason not to provide it. Even when providing SBO at runtime, there is no need to provide such an optimization at compile-time as well, given that the conditions for the optimization are implementation-dependent, and experience shows this support is easy enough to add.
 
 ## Move-only `view` Support
 
-Move-only `view` is worth supporting as we generally support them in `ranges`. We propose to have a configuration template parameter `any_view_options::move_only` to make the `any_view` conditionally move-only. This removes the need to have another type `move_only_any_view` as we did for `move_only_function`.
+Move-only `view` is worth supporting as we generally support them in `ranges`. We propose to have a configuration template parameter `any_view_options::copyable` to make the `any_view` conditionally copyable. This removes the need to have another type as we did for `move_only_function`.
 
-We also propose that by default, `any_view` is copyable and to make it move-only, the user needs to explicitly provide this template parameter `any_view_options::move_only`.
+We also propose that by default, `any_view` is move-only and to make it copyable, the user needs to explicitly provide this template parameter `any_view_options::copyable`.
 
 ## Move-only `iterator` Support
 
@@ -973,6 +826,14 @@ references:
       - family: Louis
         given: Dionne
     URL: https://github.com/huixie90/cpp_papers/tree/main/impl/any_view
+  
+  - id: bemanproject
+    citation-label: beman-project
+    title: "A generalized type-erased view with customizable properties"
+    author:
+      - family: Roberts
+        given: Patrick
+    URL: https://github.com/bemanproject/any_view
 ---
 
 <style>
