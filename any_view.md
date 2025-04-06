@@ -25,7 +25,6 @@ toc-depth: 2
 - Move-only by default
 - Second reference implementation
 - Various fixes
-- Added default constructor and `operator bool`
 
 ## R1
 
@@ -561,7 +560,7 @@ Therefore, we recommend conditional support for `borrowed_range`. However, since
 
 We propose providing the strong exception safety guarantee in the following operations: swap, copy-assignment, move-assignment and move-construction. This means that if the operation fails, the two `any_view` objects will be in their original states.
 If the underlying view's move constructor (or move-assignment operator) is not `noexcept`, the only way to achieve the strong exception safety guarantee is to avoid calling these operations altogether, which requires `any_view` to hold its underlying object on the heap so it can implement these operations by swapping pointers.
-This means that any implementation of `any_view` will have an empty state, and a "moved-from" heap allocated `any_view` will be in that state. Therefore, the authors propose to add default constructor to `any_view`, which results in an `any_view` object in such state. What's more, we need `operator bool` to test if an `any_view` object is in this state.
+This means that any implementation of `any_view` will have an empty state, and a "moved-from" heap allocated `any_view` will be in that state.
 
 ## ABI Stability
 
@@ -914,7 +913,6 @@ class any_view {
   class @*sentinel*@; // exposition-only
 public:
   // [range.any.ctor], constructors, assignment, and destructor
-  constexpr any_view();
   template <class Rng> requires @*see below*@
   constexpr any_view(Rng&& rng);
   constexpr any_view(const any_view &) requires @*see below*@;
@@ -930,8 +928,6 @@ public:
   constexpr @*sentinel*@ end();
 
   constexpr @*make-unsigned-like-t*@<Diff> size() const requires @*see below*@;
-
-  constexpr explicit operator bool() const;
 };
 ```
 
