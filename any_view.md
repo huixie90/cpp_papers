@@ -232,7 +232,7 @@ class any_view;
 template <class Element, any_view_options Opts, class Ref, class RValueRef,
           class Diff>
 inline constexpr bool
-    enable_borrowed_range<any_view<Value, Opts, Ref, RValueRef, Diff>> =
+    enable_borrowed_range<any_view<Element, Opts, Ref, RValueRef, Diff>> =
         bool(Opts & any_view_options::borrowed);
 
 } // namespace std::ranges
@@ -869,6 +869,12 @@ namespace std::ranges {
             class RValueRef = @*rvalue-ref-t*@<Ref>,
             class Diff = ptrdiff_t>
   class any_view;
+
+  template <class Element, any_view_options Opts, class Ref, class RValueRef,
+            class Diff>
+  inline constexpr bool
+      enable_borrowed_range<any_view<Element, Opts, Ref, RValueRef, Diff>> =
+          Opts & any_view_options::borrowed != any_view_options(0);
 }
 ```
 
@@ -884,11 +890,11 @@ Add the following subclause to [range.utility]{.sref}
 
 [2]{.pnum} A *view object* is an object of type which models `ranges::view` ([range.view]{.sref}) concept.
 
-[3]{.pnum} A *view wrapper type* is a type that holds a view object and supports `ranges::begin` and `ranges::end` operation that forwards to that object.
+[3]{.pnum} A *view wrapper type* is a type that holds a *view object* and supports `ranges::begin` and `ranges::end` operation that forwards to that object.
 
 [4]{.pnum} A *view wrapper* is an object of *view wrapper type*.
 
-[5]{.pnum} A *target object* is the *view object* held by a *view wrapper*.
+[5]{.pnum} A *target view object* is the *view object* held by a *view wrapper*.
 
 #### ?.?.?.2 General [range.any.general] {-}
 
@@ -913,13 +919,12 @@ class any_view {
   class @*sentinel*@; // exposition-only
 public:
   // [range.any.ctor], constructors, assignment, and destructor
-  template <class Rng> requires @*see below*@
-  constexpr any_view(Rng&& rng);
-  constexpr any_view(const any_view &) requires @*see below*@;
-  constexpr any_view(any_view &&) noexcept;
+  template <class Rng> constexpr any_view(Rng&& rng);
+  constexpr any_view(const any_view&);
+  constexpr any_view(any_view&&) noexcept;
 
-  constexpr any_view &operator=(const any_view &) requires @*see below*@;
-  constexpr any_view &operator=(any_view &&) noexcept;
+  constexpr any_view &operator=(const any_view&)
+  constexpr any_view &operator=(any_view&&) noexcept;
 
   constexpr ~any_view();
 
@@ -927,7 +932,11 @@ public:
   constexpr @*iterator*@ begin();
   constexpr @*sentinel*@ end();
 
-  constexpr @*make-unsigned-like-t*@<Diff> size() const requires @*see below*@;
+  constexpr @*make-unsigned-like-t*@<Diff> size() const;
+
+  // [range.any.swap], swap
+  constexpr void swap(any_view&) noexcept;
+  constexpr friend void swap(any_view&, any_view&) noexcept;
 };
 ```
 
@@ -952,7 +961,141 @@ using @*rvalue-ref-t*@ = typename @*rvalue-ref*@<T>::type;
 
 :::
 
-#### ?.?.?.4 Range access [range.any.access] {-}
+```cpp
+constexpr any_view_options operator|(any_view_options lhs, any_view_options rhs) noexcept;
+```
+
+:::bq
+
+[2]{.pnum} *Effects*: Equivalent to:
+
+```cpp
+  return any_view_options(to_underlying(lhs) | to_underlying(rhs));
+```
+
+:::
+
+```cpp
+constexpr any_view_options operator&(any_view_options, any_view_options) noexcept;
+```
+
+:::bq
+
+[3]{.pnum} *Effects*: Equivalent to:
+
+```cpp
+  return any_view_options(to_underlying(lhs) & to_underlying(rhs));
+```
+
+:::
+
+#### ?.?.?.4 Constructors, assignment, and destructor [range.any.ctor] {-}
+
+```cpp
+template <class Rng> constexpr any_view(Rng&& rng);
+```
+
+:::bq
+
+[1]{.pnum} *Constraints*:
+
+- [1.1]{.pnum} `remove_cvref_t<Rng>` is not the same type as `any_view`, and
+
+- [1.2]{.pnum} `Rng` models `viewable_range`, and
+
+- [1.3]{.pnum} either `Opts & any_view_options::sized` is `any_views_options(0)`, or `Rng`
+  models `sized_range`, and
+
+- [1.4]{.pnum} either `Opts & any_view_options::borrowed` is `any_views_options(0)`, or `Rng`
+  models `borrowed_range`, and
+
+- [1.5]{.pnum} either `Opts & any_view_options::copyable` is `any_views_options(0)`, or `all_t<Rng>`
+  models `copyable`, and
+
+- [1.6]{.pnum} either `Opts & any_view_options::contiguous` is not `any_views_options::contiguous`, or `all_t<Rng>`
+  models `contiguous_range`, and
+
+- [1.7]{.pnum} either `Opts & any_view_options::random_access` is not `any_views_options::random_access`, or `all_t<Rng>`
+  models `random_access_range`, and
+
+- [1.8]{.pnum} either `Opts & any_view_options::bidirectional` is not `any_views_options::bidirectional`, or `all_t<Rng>`
+  models `bidirectional_range`, and
+
+- [1.9]{.pnum} either `Opts & any_view_options::forward` is not `any_views_options::forward`, or `all_t<Rng>`
+  models `forward_range`, and
+
+- [1.10]{.pnum} `Opts & any_view_options::input` is `any_views_options::input`, and `all_t<Rng>`
+  models `input_range`
+
+[2]{.pnum} *Postconditions*:
+
+- [2.1]{.pnum} `*this` has no *target view object* if `remove_cvref_t<Rng>` is a specialization of the `any_view` class template, and `rng` has no *target view object*.
+
+- [2.2]{.pnum} Otherwise, `*this` has a *target view object* of type `all_t<Rng>` direct-non-list-initialized with `std​::​forward<Rng>(rng)`.
+
+[3]{.pnum} *Throws*: Any exception thrown by the initialization of the *target view object*. May throw `bad_alloc`.
+
+:::
+
+```cpp
+constexpr any_view(const any_view& other);
+```
+
+:::bq
+
+[4]{.pnum} *Constraints*: `Opts & any_view_options::copyable` is `any_view_options::copyable`
+
+[5]{.pnum} *Postconditions*: `*this` has no *target view object* if `other` had no *target view object*. Otherwise, the *target view object* of `*this` is a copy of the *target view object* of `other`.
+
+:::
+
+```cpp
+constexpr any_view(any_view&& other) noexcept;
+```
+
+:::bq
+
+[6]{.pnum} *Postconditions*: The *target view object* of `*this` is the *target view object* `other` had before construction, and `other` is in a valid state with an unspecified value.
+
+:::
+
+```cpp
+constexpr any_view &operator=(const any_view& other)
+```
+
+:::bq
+
+[7]{.pnum} *Constraints*: `Opts & any_view_options::copyable` is `any_view_options::copyable`
+
+[8]{.pnum} *Effects*: Equivalent to: `any_view(other).swap(*this);`
+
+[9]{.pnum} *Returns*: `*this`.
+
+:::
+
+```cpp
+constexpr any_view &operator=(any_view&& other)
+```
+
+:::bq
+
+[10]{.pnum} *Effects*: Equivalent to: `any_view(std::move(other)).swap(*this);`
+
+[11]{.pnum} *Returns*: `*this`.
+
+:::
+
+```cpp
+constexpr ~any_view();
+```
+
+:::bq
+
+[12]{.pnum} *Effects*: Destroys the *target view object* of `*this`, if any.
+
+:::
+
+#### ?.?.?.5 Range access [range.any.access] {-}
 
 ```cpp
 constexpr @*iterator*@ begin();
@@ -960,7 +1103,7 @@ constexpr @*iterator*@ begin();
 
 :::bq
 
-[1]{.pnum} *Preconditions*: `*this` has a *target object*.
+[1]{.pnum} *Preconditions*: `*this` has a *target view object*.
 
 [2]{.pnum} *Effects*: Equivalent to:
 
@@ -968,7 +1111,7 @@ constexpr @*iterator*@ begin();
 return @*iterator*@(ranges::begin(v));
 ```
 
-where `v` is an lvalue designating the *target object* of `*this`
+where `v` is an lvalue designating the *target view object* of `*this`
 
 :::
 
@@ -978,7 +1121,7 @@ constexpr @*sentinel*@ end();
 
 :::bq
 
-[1]{.pnum} *Preconditions*: `*this` has a *target object*.
+[1]{.pnum} *Preconditions*: `*this` has a *target view object*.
 
 [2]{.pnum} *Effects*: Equivalent to:
 
@@ -986,7 +1129,7 @@ constexpr @*sentinel*@ end();
 return @*sentinel*@(ranges::end(v));
 ```
 
-where `v` is an lvalue designating the *target object* of `*this`
+where `v` is an lvalue designating the *target view object* of `*this`
 
 :::
 ---
