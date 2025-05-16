@@ -888,29 +888,23 @@ Add the following subclause to [range.utility]{.sref}
 
 [1]{.pnum} The following definitions apply to this Clause:
 
-[2]{.pnum} A *view object* is an object of type which models `ranges::view` ([range.view]{.sref}) concept.
+[2]{.pnum} A *view object* is an object of a type that models the `ranges::view` ([range.view]{.sref}) concept.
 
-[3]{.pnum} A *view wrapper type* is a type that holds a *view object* and supports `ranges::begin` and `ranges::end` operation that forwards to that object.
+[3]{.pnum} A *view wrapper type* is a type that holds a *view object* and supports `ranges::begin` and `ranges::end` operations that forward to that object.
 
-[4]{.pnum} A *view wrapper* is an object of *view wrapper type*.
+[4]{.pnum} A *target view object* is the *view object* held by an object of a *view wrapper type*.
 
-[5]{.pnum} A *target view object* is the *view object* held by a *view wrapper*.
+[5]{.pnum} An *iterator object* is an object of a type that models the `input_iterator` ([iterator.concept.input]{.sref}) concept.
 
-[6]{.pnum} An *iterator object* is an object of type which models `input_iterator` ([iterator.concept.input]{.sref}) concept.
+[6]{.pnum} An *iterator wrapper type* is a type that holds an *iterator object* and forward operations to that object.
 
-[7]{.pnum} An *iterator wrapper type* is a type that holds an *iterator object* and forward operations to that object.
+[7]{.pnum} A *target iterator object* is the *iterator object* held by an object of a *iterator wrapper type*.
 
-[8]{.pnum} An *iterator wrapper* is an object of *iterator wrapper type*.
+[8]{.pnum} A *sentinel object* is an object of a type that models `sentinel_for<Iter>` ([iterator.concept.sentinel]{.sref}) concept for some `Iter`.
 
-[9]{.pnum} A *target iterator object* is the *iterator object* held by a *iterator wrapper*.
+[9]{.pnum} A *sentinel wrapper type* is a type that holds an *sentinel object* and forwards operations to that object.
 
-[10]{.pnum} A *sentinel object* is an object of type which models `sentinel_for<Iter>` ([iterator.concept.sentinel]{.sref}) concept for some `Iter`.
-
-[11]{.pnum} An *sentinel wrapper type* is a type that holds an *sentinel object* and forward operations to that object.
-
-[12]{.pnum} An *sentinel wrapper* is an object of *sentinel wrapper type*.
-
-[13]{.pnum} A *target sentinel object* is the *sentinel object* held by a *sentinel wrapper*.
+[10]{.pnum} A *target sentinel object* is the *sentinel object* held by an object of a *sentinel wrapper type*.
 
 #### ?.?.?.2 General [range.any.general] {-}
 
