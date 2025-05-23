@@ -939,8 +939,8 @@ public:
   constexpr ~any_view();
 
   // [range.any.access], range access
-  constexpr auto begin();
-  constexpr auto end();
+  constexpr @*iterator*@ begin();
+  constexpr @*sentinel*@ end();
 
   constexpr @*make-unsigned-like-t*@<Diff> size() const;
 
@@ -1108,22 +1108,14 @@ constexpr ~any_view();
 #### ?.?.?.5 Range access [range.any.access] {-}
 
 ```cpp
-constexpr auto begin();
+constexpr @*iterator*@ begin();
 ```
 
 :::bq
 
 [1]{.pnum} *Preconditions*: `*this` has a *target view object*.
 
-[2]{.pnum} *Effects*: Let `v` be an lvalue designating the *target view object* of `*this`.
-
-- [2.1]{.pnum} If `Opts & any_view_options::contiguous` is `any_view_options::contiguous`, equivalent to:
-
-```cpp
-  return to_address(ranges::begin(v));
-```
-
-- [2.2]{.pnum} Otherwise, returns an *iterator wrapper* object `@*iterator*@`, which holds a *target iterator object* of `ranges::begin(v)`
+[2]{.pnum} *Effects*: Let `v` be an lvalue designating the *target view object* of `*this`, returns an object of *iterator wrapper type* `@*iterator*@`, which holds a *target iterator object* of `ranges::begin(v)`
 
 :::
 
@@ -1135,15 +1127,7 @@ constexpr @*sentinel*@ end();
 
 [3]{.pnum} *Preconditions*: `*this` has a *target view object*.
 
-[4]{.pnum} *Effects*: Let `v` be an lvalue designating the *target view object* of `*this`.
-
-- [4.1]{.pnum} If `Opts & any_view_options::contiguous` is `any_view_options::contiguous`, equivalent to:
-
-```cpp
-  return to_address(ranges::end(v));
-```
-
-- [4.2]{.pnum} Otherwise, returns a *sentinel wrapper* object `@*sentinel*@`, which holds a *target sentinel object* of `ranges::end(v)`
+[4]{.pnum} *Effects*: Let `v` be an lvalue designating the *target view object* of `*this`, returns an object of *sentinel wrapper type* `@*sentinel*@`, which holds a *target sentinel object* of `ranges::end(v)`
 
 :::
 
@@ -1216,6 +1200,7 @@ namespace std::ranges {
     constexpr @*iterator*@& operator-=(difference_type n);
 
     constexpr Ref operator[](difference_type n) const;
+    constexpr add_pointer_t<Ref> operator->() const;
 
     friend constexpr bool operator==(const @*iterator*@& x, const @*iterator*@& y);
 
@@ -1238,20 +1223,24 @@ namespace std::ranges {
 
 [1]{.pnum} `@*iterator*@::iterator_concept` is defined as follows:
 
-- [1.1]{.pnum} If `Opts & any_view_options::random_access` is `any_view_options::random_access`, then `iterator_concept` denotes `random_access_iterator_tag`.
+- [1.1]{.pnum} If `Opts & any_view_options::contiguous` is `any_view_options::contiguous`, then `iterator_concept` denotes `contiguous_iterator_tag`.
 
-- [1.2]{.pnum} Otherwise, if `Opts & any_view_options::bidirectional` is `any_view_options::bidirectional`, then `iterator_concept` denotes `bidirectional_iterator_tag`.
+- [1.2]{.pnum} Otherwise, if `Opts & any_view_options::random_access` is `any_view_options::random_access`, then `iterator_concept` denotes `random_access_iterator_tag`.
 
-- [1.3]{.pnum} Otherwise, if `Opts & any_view_options::forward` is `any_view_options::forward`, then `iterator_concept` denotes `forward_iterator_tag`.
+- [1.3]{.pnum} Otherwise, if `Opts & any_view_options::bidirectional` is `any_view_options::bidirectional`, then `iterator_concept` denotes `bidirectional_iterator_tag`.
 
-- [1.4]{.pnum} Otherwise, `iterator_concept` denotes `input_iterator_tag`.
+- [1.4]{.pnum} Otherwise, if `Opts & any_view_options::forward` is `any_view_options::forward`, then `iterator_concept` denotes `forward_iterator_tag`.
+
+- [1.5]{.pnum} Otherwise, `iterator_concept` denotes `input_iterator_tag`.
 
 
 [2]{.pnum} The member typedef-name `iterator_category` is defined if and only if `Opts & any_view_options::forward` is `any_view_options::forward`. In that case, `@*iterator*@​::​iterator_category` is defined as follows:
 
-- [2.1]{.pnum} If `is_reference_v<Ref>` is `true`, then `iterator_category` denotes `iterator_concept`.
+- [2.1]{.pnum} If `is_reference_v<Ref>` is `true`, and `iterator_concept` is `contiguous_iterator_tag`, then `iterator_category` denotes `random_access_iterator_tag`.
 
-- [2.1]{.pnum} Otherwise, `iterator_category` denotes `input_iterator_tag`.
+- [2.2]{.pnum} Otherwise, if `is_reference_v<Ref>` is `true`, then `iterator_category` denotes `iterator_concept`.
+
+- [2.3]{.pnum} Otherwise, `iterator_category` denotes `input_iterator_tag`.
 
 ```cpp
 constexpr @*iterator*@();
@@ -1416,6 +1405,26 @@ constexpr Ref operator[](difference_type n) const;
 ```cpp
 return *((*this) + n);
 ```
+
+:::
+
+```cpp
+constexpr add_pointer_t<Ref> operator->() const;
+```
+
+:::bq
+
+[20]{.pnum} *Constraints*: `Opts & any_view_options::contiguous` is `any_view_options::contiguous`
+
+[21]{.pnum} *Preconditions*: `*this` has a *target iterator object*.
+
+[22]{.pnum} *Effects*: Equivalent to:
+
+```cpp
+return to_address(it);
+```
+
+where `it` is an lvalue designating the *target iterator object* of `*this`
 
 :::
 

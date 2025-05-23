@@ -17,8 +17,8 @@ using AnyView =
 static_assert(std::ranges::contiguous_range<AnyView>);
 static_assert(std::movable<AnyView>);
 static_assert(!std::copyable<AnyView>);
-static_assert(std::ranges::sized_range<AnyView>);
-static_assert(std::ranges::common_range<AnyView>);
+static_assert(!std::ranges::sized_range<AnyView>);
+static_assert(!std::ranges::common_range<AnyView>);
 static_assert(!std::ranges::borrowed_range<AnyView>);
 
 using AnyViewFull =
@@ -31,7 +31,7 @@ static_assert(std::ranges::contiguous_range<AnyViewFull>);
 static_assert(std::movable<AnyViewFull>);
 static_assert(std::copyable<AnyViewFull>);
 static_assert(std::ranges::sized_range<AnyViewFull>);
-static_assert(std::ranges::common_range<AnyViewFull>);
+static_assert(!std::ranges::common_range<AnyViewFull>);
 static_assert(std::ranges::borrowed_range<AnyViewFull>);
 
 template <class V>
