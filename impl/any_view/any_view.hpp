@@ -54,16 +54,15 @@ struct __rvalue_ref {
 };
 
 template <class T>
-struct __rvalue_ref<T&> {
-  using type = T&&;
+struct __rvalue_ref<T &> {
+  using type = T &&;
 };
 
 template <class T>
 using __rvalue_ref_t = typename __rvalue_ref<T>::type;
 
 template <class Element, any_view_options Opts = any_view_options::input,
-          class Ref = Element&,
-          class RValueRef = __rvalue_ref_t<Ref>,
+          class Ref = Element &, class RValueRef = __rvalue_ref_t<Ref>,
           class Diff = ptrdiff_t>
 class any_view {
  public:
@@ -96,8 +95,7 @@ class any_view {
     bool (*equal_)(const iterator_storage &, const iterator_storage &);
   };
 
-  struct forward_iterator_vtable : input_iterator_vtable,
-                                   equality_vtable {};
+  struct forward_iterator_vtable : input_iterator_vtable, equality_vtable {};
 
   struct bidirectional_iterator_vtable : forward_iterator_vtable {
     void (*decrement_)(iterator_storage &);
@@ -108,8 +106,9 @@ class any_view {
     Diff (*distance_to_)(const iterator_storage &, const iterator_storage &);
   };
 
-  // for contiguous , we just return raw pointers
-  struct contiguous_iterator_vtable {};
+  struct contiguous_iterator_vtable : random_access_iterator_vtable {
+    std::add_pointer_t<Ref> (*arrow_)(const iterator_storage &);
+  };
 
   using any_iterator_vtable = conditional_t<
       Traversal == any_view_options::contiguous, contiguous_iterator_vtable,
@@ -120,31 +119,32 @@ class any_view {
               Traversal == any_view_options::bidirectional,
               bidirectional_iterator_vtable,
               conditional_t<Traversal == any_view_options::forward,
-                            forward_iterator_vtable,
-                            input_iterator_vtable>>>>;
+                            forward_iterator_vtable, input_iterator_vtable>>>>;
 
   struct iterator_vtable_gen {
     template <class Iter>
     static constexpr auto generate() {
       any_iterator_vtable t;
 
-      if constexpr (Traversal != any_view_options::contiguous) {
-        t.deref_ = &deref<Iter>;
-        t.increment_ = &increment<Iter>;
-        t.iter_move_ = &iter_move<Iter>;
+      t.deref_ = &deref<Iter>;
+      t.increment_ = &increment<Iter>;
+      t.iter_move_ = &iter_move<Iter>;
 
-        if constexpr (Traversal >= any_view_options::forward) {
-          t.equal_ = &equal<Iter>;
-        }
+      if constexpr (Traversal >= any_view_options::forward) {
+        t.equal_ = &equal<Iter>;
+      }
 
-        if constexpr (Traversal >= any_view_options::bidirectional) {
-          t.decrement_ = &decrement<Iter>;
-        }
+      if constexpr (Traversal >= any_view_options::bidirectional) {
+        t.decrement_ = &decrement<Iter>;
+      }
 
-        if constexpr (Traversal >= any_view_options::random_access) {
-          t.advance_ = &advance<Iter>;
-          t.distance_to_ = &distance_to<Iter>;
-        }
+      if constexpr (Traversal >= any_view_options::random_access) {
+        t.advance_ = &advance<Iter>;
+        t.distance_to_ = &distance_to<Iter>;
+      }
+
+      if constexpr (Traversal == any_view_options::contiguous) {
+        t.arrow_ = &arrow<Iter>;
       }
       return t;
     }
@@ -194,6 +194,12 @@ class any_view {
       return Diff((*self.template get_ptr<Iter>()) -
                   (*other.template get_ptr<Iter>()));
     }
+
+    // contiguous
+    template <class Iter>
+    static constexpr add_pointer_t<Ref> arrow(const iterator_storage &self) {
+      return std::to_address(*(self.template get_ptr<Iter>()));
+    };
   };
 
   struct empty_iterator_category {};
@@ -310,6 +316,13 @@ class any_view {
       return *((*this) + n);
     }
 
+    constexpr std::add_pointer_t<Ref> operator->() const
+      requires(Traversal == any_view_options::contiguous)
+    {
+      assert(!is_singular());
+      return (*(iter_vtable_->arrow_))(iter_);
+    }
+
     friend constexpr bool operator<(const any_iterator &x,
                                     const any_iterator &y)
       requires(Traversal >= any_view_options::random_access)
@@ -398,8 +411,7 @@ class any_view {
     constexpr bool is_singular() const { return iter_.is_singular(); }
   };
 
-  using iterator = std::conditional_t<Traversal == any_view_options::contiguous,
-                                      std::add_pointer_t<Ref>, any_iterator>;
+  using iterator = any_iterator;
 
   using sentinel_storage =
       detail::storage<3 * sizeof(void *), sizeof(void *), true>;
@@ -418,14 +430,9 @@ class any_view {
     template <class Iter, class Sent>
     static constexpr bool equal(const iterator &iter,
                                 const any_sentinel &sent) {
-      if (sent.is_singular()) return false;
-      if constexpr (Traversal == any_view_options::contiguous) {
-        return iter == *sent.sent_.template get_ptr<Sent>();
-      } else {
-        if (iter.is_singular()) return false;
-        return *(iter.iter_.template get_ptr<Iter>()) ==
-               *(sent.sent_.template get_ptr<Sent>());
-      }
+      if (sent.is_singular() || iter.is_singular()) return false;
+      return *(iter.iter_.template get_ptr<Iter>()) ==
+             *(sent.sent_.template get_ptr<Sent>());
     }
   };
 
@@ -458,8 +465,7 @@ class any_view {
     constexpr bool is_singular() const { return sent_.is_singular(); }
   };
 
-  using sentinel = std::conditional_t<Traversal == any_view_options::contiguous,
-                                      std::add_pointer_t<Ref>, any_sentinel>;
+  using sentinel = any_sentinel;
 
   using view_storage =
       detail::storage<4 * sizeof(void *), sizeof(void *), is_view_copyable>;
@@ -490,24 +496,16 @@ class any_view {
     template <class View>
     static constexpr iterator begin(view_storage &v) {
       auto &view = *(v.template get_ptr<View>());
-      if constexpr (Traversal == any_view_options::contiguous) {
-        return std::to_address(std::ranges::begin(view));
-      } else {
-        return any_iterator(&iter_vtable<std::ranges::iterator_t<View>>,
-                            std::ranges::begin(view));
-      }
+      return any_iterator(&iter_vtable<std::ranges::iterator_t<View>>,
+                          std::ranges::begin(view));
     }
 
     template <class View>
     static constexpr sentinel end(view_storage &v) {
       auto &view = *(v.template get_ptr<View>());
-      if constexpr (Traversal == any_view_options::contiguous) {
-        return std::to_address(std::ranges::end(view));
-      } else {
-        return any_sentinel(&sent_vtable<std::ranges::iterator_t<View>,
-                                         std::ranges::sentinel_t<View>>,
-                            std::ranges::end(view));
-      }
+      return any_sentinel(&sent_vtable<std::ranges::iterator_t<View>,
+                                       std::ranges::sentinel_t<View>>,
+                          std::ranges::end(view));
     }
 
     template <class View>
@@ -547,11 +545,13 @@ class any_view {
   }
 
   template <class Range>
-    requires(!std::same_as<remove_cvref_t<Range>, any_view> && std::ranges::viewable_range<Range> &&
+    requires(!std::same_as<remove_cvref_t<Range>, any_view> &&
+             std::ranges::viewable_range<Range> &&
              view_options_constraint<views::all_t<Range>>())
-  constexpr any_view(Range&& range)
+  constexpr any_view(Range &&range)
       : view_vtable_(&view_vtable<views::all_t<Range>>),
-        view_(detail::type<views::all_t<Range>>{}, views::all(std::forward<Range>(range))) {}
+        view_(detail::type<views::all_t<Range>>{},
+              views::all(std::forward<Range>(range))) {}
 
   constexpr any_view(const any_view &)
     requires is_view_copyable

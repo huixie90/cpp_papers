@@ -4,29 +4,32 @@
 
 #include "any_view.hpp"
 
-#define TEST_POINT(x) TEST_CASE(x, "[bidirectional]")
+#define TEST_POINT(x) TEST_CASE(x, "[contiguous]")
 
 namespace {
 
 using AnyView =
-    std::ranges::any_view<int, std::ranges::any_view_options::bidirectional>;
+    std::ranges::any_view<int, std::ranges::any_view_options::contiguous>;
 using Iter = std::ranges::iterator_t<AnyView>;
 
-static_assert(std::bidirectional_iterator<Iter>);
-static_assert(!std::random_access_iterator<Iter>);
+static_assert(std::random_access_iterator<Iter>);
+static_assert(std::contiguous_iterator<Iter>);
 static_assert(std::same_as<std::iter_reference_t<Iter>, int&>);
 static_assert(std::same_as<std::iter_rvalue_reference_t<Iter>, int&&>);
 static_assert(std::same_as<std::iter_value_t<Iter>, int>);
 static_assert(std::same_as<std::iter_difference_t<Iter>, ptrdiff_t>);
 static_assert(
     std::same_as<typename std::iterator_traits<Iter>::iterator_category,
-                 std::bidirectional_iterator_tag>);
+                 std::random_access_iterator_tag>);
 static_assert(
     std::same_as<typename std::iterator_traits<Iter>::value_type, int>);
 static_assert(
     std::same_as<typename std::iterator_traits<Iter>::reference, int&>);
 static_assert(std::same_as<typename std::iterator_traits<Iter>::difference_type,
                            ptrdiff_t>);
+
+static_assert(std::is_nothrow_move_constructible_v<Iter>);
+static_assert(std::is_nothrow_move_assignable_v<Iter>);
 
 constexpr void basic() {
   std::array a{1, 2, 3, 4, 5};
@@ -76,10 +79,10 @@ constexpr void move() {
   assert(*iter2 == 2);
 
   iter1 = std::move(iter2);
-  assert(*iter1 == 2);
   if !consteval {
     assert(*iter2 == 2);
   }
+  assert(*iter1 == 2);
 }
 
 constexpr void copy() {
@@ -140,16 +143,109 @@ constexpr void decrement() {
   }
 }
 
+constexpr void random_access() {
+  std::array a{1, 2, 3, 4, 5};
+  AnyView v(std::views::all(a));
+
+  Iter iter = v.begin();
+
+  {
+    std::same_as<Iter&> decltype(auto) r = iter += 3;
+    assert(*iter == 4);
+    assert(&r == &iter);
+  }
+
+  {
+    std::same_as<Iter&> decltype(auto) r = iter -= 2;
+    assert(*iter == 2);
+    assert(&r == &iter);
+  }
+
+  {
+    std::same_as<int&> decltype(auto) r = iter[3];
+    assert(*iter == 2);
+    assert(r == 5);
+  }
+
+  {
+    std::same_as<Iter> decltype(auto) r = iter + 3;
+    assert(*iter == 2);
+    assert(*r == 5);
+  }
+
+  {
+    std::same_as<Iter> decltype(auto) r = 3 + iter;
+    assert(*iter == 2);
+    assert(*r == 5);
+  }
+
+  Iter iter2(v.begin() + 3);
+
+  {
+    std::same_as<Iter> decltype(auto) r = iter2 - 2;
+    assert(*iter2 == 4);
+    assert(*r == 2);
+  }
+
+  {
+    std::same_as<ptrdiff_t> decltype(auto) r = iter2 - iter;
+    assert(r == 2);
+  }
+
+  {
+    std::same_as<ptrdiff_t> decltype(auto) r = iter - iter2;
+    assert(r == -2);
+  }
+}
+
+constexpr void contiguous() {
+  std::array a{1, 2, 3, 4, 5};
+  AnyView v(std::views::all(a));
+
+  Iter iter = v.begin();
+
+  auto* p = iter.operator->();
+  assert(*p == 1);
+}
+
+constexpr void compare() {
+  std::array a{1, 2, 3, 4, 5};
+  AnyView v(std::views::all(a));
+
+  Iter iter1 = v.begin();
+  Iter iter1_copy = iter1;
+
+  Iter iter4(v.begin() + 3);
+
+  assert(iter1 < iter4);
+  assert(iter1 <= iter4);
+  assert(!(iter1 > iter4));
+  assert(!(iter1 >= iter4));
+
+  assert(!(iter4 < iter1));
+  assert(!(iter4 <= iter1));
+  assert(iter4 > iter1);
+  assert(iter4 >= iter1);
+
+  assert(!(iter1 < iter1_copy));
+  assert(iter1 <= iter1_copy);
+  assert(!(iter1 > iter1_copy));
+  assert(iter1 >= iter1_copy);
+}
+
 constexpr bool test() {
   basic();
   move();
   copy();
   equal();
   decrement();
+  random_access();
+  contiguous();
+  compare();
   return true;
 }
 
-TEST_POINT("bidirectional") {
+TEST_POINT("contiguous") {
   test();
   static_assert(test());
 }

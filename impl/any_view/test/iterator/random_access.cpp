@@ -80,9 +80,9 @@ constexpr void move() {
 
   iter1 = std::move(iter2);
   if !consteval {
-    assert(*iter1 == 2);
+    assert(*iter2 == 2);
   }
-  assert(*iter2 == 2);
+  assert(*iter1 == 2);
 }
 
 constexpr void copy() {
@@ -234,9 +234,9 @@ constexpr bool test() {
   return true;
 }
 
-TEST_POINT("forward") {
+TEST_POINT("random_access") {
   test();
-  // static_assert(test());
+  static_assert(test());
 }
 
 }  // namespace

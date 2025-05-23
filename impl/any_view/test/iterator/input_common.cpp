@@ -119,9 +119,9 @@ constexpr bool test() {
   return true;
 }
 
-TEST_POINT("input") {
+TEST_POINT("input common") {
   test();
-  // static_assert(test());
+  static_assert(test());
 }
 
 }  // namespace
