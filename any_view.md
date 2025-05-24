@@ -1,7 +1,7 @@
 ---
 title: "`any_view`"
-document: P3411R2
-date: 2025-02-03
+document: D3411R3
+date: 2025-05-24
 audience: SG9, LEWG
 author:
   - name: Hui Xie
@@ -17,6 +17,10 @@ toc-depth: 2
 ---
 
 # Revision History
+
+## R3
+
+- Fix `contiguous` range
 
 ## R2
 
