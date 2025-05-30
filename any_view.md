@@ -878,9 +878,11 @@ namespace std::ranges {
             class Diff>
   inline constexpr bool
       enable_borrowed_range<any_view<Element, Opts, Ref, RValueRef, Diff>> =
-          Opts & any_view_options::borrowed != any_view_options(0);
+          (Opts & any_view_options::borrowed) == any_view_options::borrowed;
 }
 ```
+
+<!-- TODO: Consider introducing an exposition-only function like flag-is-set (better name??) instead of `(Opts & flag) == flag`. Reuse in spec below. -->
 
 ## `any_view`
 
@@ -913,14 +915,14 @@ Add the following subclause to [range.utility]{.sref}
 #### ?.?.?.2 General [range.any.general] {-}
 
 
-[1]{.pnum} The `any_view` class template provides polymorphic wrappers that generalize the notion of a *view object*. These wrappers can store, move, and traverse arbitrary *view object*s, given the view element types and the view category.
+[1]{.pnum} The `any_view` class template provides polymorphic wrappers that generalize the notion of a *view object*. These wrappers can store, move, and traverse arbitrary *view object*s, given a view element type and a view category.
 
-[2]{.pnum} Recommended practice: Implementations should avoid the use of dynamically allocated memory for a small contained value.
-
-[Note 1: Such small-object optimization can only be applied to a type `T` for which `is_nothrow_move_constructible_v<T>` is `true`. — end note]
+[2]{.pnum} Recommended practice: Implementations should avoid the use of dynamically allocated memory for a small contained _target view object_ of type `T` which satisfies `is_nothrow_move_constructible_v<T>`.
 
 
 #### ?.?.?.3 Class template `any_view` [range.any.class] {-}
+
+<!-- TODO: Should we address convertibility in the any_view constructor? Add a constraint on the value_type of the incoming range? Consider conditional-explicit? -->
 
 ```cpp
 template <class Element,
