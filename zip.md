@@ -2,7 +2,7 @@
 title: "`zip()` Should Be an Infinite Range"
 document: DXXXXR0
 date: 2025-05-31
-audience: SG9
+audience: SG9, LEWG
 author:
   - name: Hui Xie
     email: <hui.xie1990@gmail.com>
