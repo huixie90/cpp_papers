@@ -87,6 +87,10 @@ on StackOverflow's Python community long time ago [@stackoverflow], but there is
 
 Whether an infinite range is a `ranges::range` is out of the scope of this paper. After all, this paper only delegates this special case of `views::zip` to `views::repeat` without inventing anything new. Whatever fix that is needed to fix `ranges::range` concept to work nicely with infinite ranges will fix all the existing views, i.e. `views::iota(0)`, `views::repeat(x)` and so on in one go.
 
+## Conclusion
+
+The authors propose to change the current incorrect results of `zip()` to `repeat(tuple())`. If the resistance of this change is too significant, the authors believe a compromise is to make `zip()` ill-formed.
+
 
 # Implementation Experience
 

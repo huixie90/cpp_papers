@@ -34,6 +34,7 @@ jobs:
         run: |
           make flat_map.html
           make any_view.html
+          make zip.html
           make concat.html
           make P2483R0.html
           make ref_wrapper_common_ref.html
