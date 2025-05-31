@@ -472,10 +472,10 @@ Design<span></span></a>
 <li><a href="#other-languages" id="toc-other-languages"><span class="toc-section-number">3.3</span> Other Languages<span></span></a>
 <ul>
 <li><a href="#julia" id="toc-julia"><span class="toc-section-number">3.3.1</span> Julia<span></span></a></li>
-<li><a href="#rust" id="toc-rust"><span class="toc-section-number">3.3.2</span> Rust<span></span></a></li>
-<li><a href="#java-c-haskell" id="toc-java-c-haskell"><span class="toc-section-number">3.3.3</span> Java, C#,
-Haskell<span></span></a></li>
-<li><a href="#python" id="toc-python"><span class="toc-section-number">3.3.4</span> Python<span></span></a></li>
+<li><a href="#haskell" id="toc-haskell"><span class="toc-section-number">3.3.2</span> Haskell<span></span></a></li>
+<li><a href="#rust" id="toc-rust"><span class="toc-section-number">3.3.3</span> Rust<span></span></a></li>
+<li><a href="#java-c" id="toc-java-c"><span class="toc-section-number">3.3.4</span> Java, C<span></span></a></li>
+<li><a href="#python" id="toc-python"><span class="toc-section-number">3.3.5</span> Python<span></span></a></li>
 </ul></li>
 <li><a href="#an-infinite-range-is-not-a-rangesrange" id="toc-an-infinite-range-is-not-a-rangesrange"><span class="toc-section-number">3.4</span> An Infinite Range is not a <code class="sourceCode cpp">ranges<span class="op">::</span>range</code><span></span></a></li>
 <li><a href="#conclusion" id="toc-conclusion"><span class="toc-section-number">3.5</span> Conclusion<span></span></a></li>
@@ -566,17 +566,28 @@ on, at the minimum, zip() should be ill-formed</li>
 <code class="sourceCode cpp">zip<span class="op">()</span></code>
 produces an infinite range of empty tuples, which is in line with the
 authors’ view.</p>
-<h3 data-number="3.3.2" id="rust"><span class="header-section-number">3.3.2</span> Rust<a href="#rust" class="self-link"></a></h3>
+<h3 data-number="3.3.2" id="haskell"><span class="header-section-number">3.3.2</span> Haskell<a href="#haskell" class="self-link"></a></h3>
+<p>Haskell’s <code class="sourceCode cpp">ZipList</code>’s
+<code class="sourceCode cpp">pure</code> implementation is <span class="citation" data-cites="haskell_source">[<a href="https://hackage.haskell.org/package/ghc-internal-9.1201.0/docs/src/GHC.Internal.Functor.ZipList.html" role="doc-biblioref">haskell_source</a>]</span></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pure</span> x <span class="ot">=</span> <span class="dt">ZipList</span> (<span class="fu">repeat</span> x)</span></code></pre></div>
+<p>This is also what authors expected.</p>
+<p>Haskell documentation <span class="citation" data-cites="haskell_doc">[<a href="https://en.wikibooks.org/wiki/Haskell/Applicative_functors#ZipList" role="doc-biblioref">haskell_doc</a>]</span> clearly stated that</p>
+<blockquote>
+<p>The only way to ensure <code class="sourceCode cpp">zipWith <span class="op">(</span><span class="er">$</span><span class="op">)</span> fs</code>
+never removes elements is making <code class="sourceCode cpp">fs</code>
+infinite.</p>
+</blockquote>
+<h3 data-number="3.3.3" id="rust"><span class="header-section-number">3.3.3</span> Rust<a href="#rust" class="self-link"></a></h3>
 <p>Rust’s compiler actively rejects
 <code class="sourceCode cpp">multizip</code> or
 <code class="sourceCode cpp">izip<span class="op">!</span></code> calls
 with no argument. This is much better than giving the wrong results.</p>
-<h3 data-number="3.3.3" id="java-c-haskell"><span class="header-section-number">3.3.3</span> Java, C#, Haskell<a href="#java-c-haskell" class="self-link"></a></h3>
+<h3 data-number="3.3.4" id="java-c"><span class="header-section-number">3.3.4</span> Java, C<a href="#java-c" class="self-link"></a></h3>
 <p>These languages either only supports a zip with two ranges, or
 provide zip3, zip4, … functions for more ranges, possibly due to lack of
 support for variadic arguments. However, they don’t provide a zip0, for
 a good reason.</p>
-<h3 data-number="3.3.4" id="python"><span class="header-section-number">3.3.4</span> Python<a href="#python" class="self-link"></a></h3>
+<h3 data-number="3.3.5" id="python"><span class="header-section-number">3.3.5</span> Python<a href="#python" class="self-link"></a></h3>
 <p>Python got it wrong too.
 <code class="sourceCode cpp">zip<span class="op">()</span></code> is an
 empty iterable. It is unclear what drives the design decision on this.
@@ -627,6 +638,13 @@ if <code class="sourceCode cpp">Es</code> is an empty pack,</li>
 </style>
 <h1 data-number="6" id="bibliography"><span class="header-section-number">6</span> References<a href="#bibliography" class="self-link"></a></h1>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="1" role="doc-bibliography">
+<div id="ref-haskell_doc" class="csl-entry" role="doc-biblioentry">
+[haskell_doc] Haskell ZipList Documentation. <a href="https://en.wikibooks.org/wiki/Haskell/Applicative_functors#ZipList"><div class="csl-block">https://en.wikibooks.org/wiki/Haskell/Applicative_functors#ZipList</div></a>
+</div>
+<div id="ref-haskell_source" class="csl-entry" role="doc-biblioentry">
+[haskell_source] implementing <code class="sourceCode cpp">pure</code>
+in ZipList. <a href="https://hackage.haskell.org/package/ghc-internal-9.1201.0/docs/src/GHC.Internal.Functor.ZipList.html"><div class="csl-block">https://hackage.haskell.org/package/ghc-internal-9.1201.0/docs/src/GHC.Internal.Functor.ZipList.html</div></a>
+</div>
 <div id="ref-P2321R2" class="csl-entry" role="doc-biblioentry">
 [P2321R2] Tim Song. 2021-06-11. zip. <a href="https://wg21.link/p2321r2"><div class="csl-block">https://wg21.link/p2321r2</div></a>
 </div>
