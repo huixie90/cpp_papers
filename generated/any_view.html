@@ -1531,8 +1531,9 @@ follows the proposed wording below without any issue <span class="citation" data
 <span id="cb31-32"><a href="#cb31-32" aria-hidden="true" tabindex="-1"></a>            <span class="kw">class</span> Diff<span class="op">&gt;</span></span>
 <span id="cb31-33"><a href="#cb31-33" aria-hidden="true" tabindex="-1"></a>  <span class="kw">inline</span> <span class="kw">constexpr</span> <span class="dt">bool</span></span>
 <span id="cb31-34"><a href="#cb31-34" aria-hidden="true" tabindex="-1"></a>      enable_borrowed_range<span class="op">&lt;</span>any_view<span class="op">&lt;</span>Element, Opts, Ref, RValueRef, Diff<span class="op">&gt;&gt;</span> <span class="op">=</span></span>
-<span id="cb31-35"><a href="#cb31-35" aria-hidden="true" tabindex="-1"></a>          Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>borrowed <span class="op">!=</span> any_view_options<span class="op">(</span><span class="dv">0</span><span class="op">)</span>;</span>
+<span id="cb31-35"><a href="#cb31-35" aria-hidden="true" tabindex="-1"></a>          <span class="op">(</span>Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>borrowed<span class="op">)</span> <span class="op">==</span> any_view_options<span class="op">::</span>borrowed;</span>
 <span id="cb31-36"><a href="#cb31-36" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<!-- TODO: Consider introducing an exposition-only function like flag-is-set (better name??) instead of `(Opts & flag) == flag`. Reuse in spec below. -->
 <h2 data-number="9.2" id="any_view"><span class="header-section-number">9.2</span>
 <code class="sourceCode cpp">any_view</code><a href="#any_view" class="self-link"></a></h2>
 <p>Add the following subclause to <span>25.5
@@ -1585,17 +1586,16 @@ an object of a <em>sentinel wrapper type</em>.</p>
 The <code class="sourceCode cpp">any_view</code> class template provides
 polymorphic wrappers that generalize the notion of a <em>view
 object</em>. These wrappers can store, move, and traverse arbitrary
-<em>view object</em>s, given the view element types and the view
+<em>view object</em>s, given a view element type and a view
 category.</p>
 <p><span class="marginalizedparent"><a class="marginalized">2</a></span>
 Recommended practice: Implementations should avoid the use of
-dynamically allocated memory for a small contained value.</p>
-<p>[Note 1: Such small-object optimization can only be applied to a type
-<code class="sourceCode cpp">T</code> for which <code class="sourceCode cpp">is_nothrow_move_constructible_v<span class="op">&lt;</span>T<span class="op">&gt;</span></code>
-is <code class="sourceCode cpp"><span class="kw">true</span></code>. —
-end note]</p>
+dynamically allocated memory for a small contained <em>target view
+object</em> of type <code class="sourceCode cpp">T</code> which
+satisfies <code class="sourceCode cpp">is_nothrow_move_constructible_v<span class="op">&lt;</span>T<span class="op">&gt;</span></code>.</p>
 <h4 class="unnumbered" id="class-template-any_view-range.any.class">?.?.?.3 Class template
 <code class="sourceCode cpp">any_view</code> [range.any.class]<a href="#class-template-any_view-range.any.class" class="self-link"></a></h4>
+<!-- TODO: Should we address convertibility in the any_view constructor? Add a constraint on the value_type of the incoming range? Consider conditional-explicit? -->
 <div class="sourceCode" id="cb32"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Element,</span>
 <span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>          any_view_options Opts <span class="op">=</span> any_view_options<span class="op">::</span>input,</span>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Ref <span class="op">=</span> Element<span class="op">&amp;</span>,</span>
