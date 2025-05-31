@@ -69,11 +69,26 @@ TODO: explain the main diagonal and identity yield same results
 
 Julia's `zip()` produces an infinite range of empty tuples, which is in line with the authors' view.
 
+### Haskell
+
+Haskell's `ZipList`'s `pure` implementation is [@haskell_source]
+
+```haskell
+pure x = ZipList (repeat x)
+```
+
+This is also what authors expected.
+
+Haskell documentation [@haskell_doc] clearly stated that
+
+> The only way to ensure `zipWith ($) fs` never removes elements is making `fs` infinite.
+
+
 ### Rust
 
 Rust's compiler actively rejects `multizip` or `izip!` calls with no argument. This is much better than giving the wrong results.
 
-### Java, C#, Haskell
+### Java, C#
 
 These languages either only supports a zip with two ranges, or provide zip3, zip4, ... functions for more ranges, possibly due to
 lack of support for variadic arguments. However, they don't provide a zip0, for a good reason.
@@ -112,6 +127,16 @@ references:
     citation-label: stackoverflow
     title: "Why does Python `zip()` yield nothing when given no iterables?"
     URL: https://stackoverflow.com/questions/71561715/why-does-python-zip-yield-nothing-when-given-no-iterables
+
+  - id: haskell_doc
+    citation-label: haskell_doc
+    title: "Haskell ZipList Documentation"
+    URL: https://en.wikibooks.org/wiki/Haskell/Applicative_functors#ZipList
+
+  - id: haskell_source
+    citation-label: haskell_source
+    title: "implementing `pure` in ZipList"
+    URL: https://hackage.haskell.org/package/ghc-internal-9.1201.0/docs/src/GHC.Internal.Functor.ZipList.html
 
   - id: range-v3
     citation-label: range-v3
