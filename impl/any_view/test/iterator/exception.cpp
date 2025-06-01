@@ -4,6 +4,8 @@
 #include "any_view.hpp"
 
 #define TEST_POINT(x) TEST_CASE(x, "[exception]")
+
+namespace {
 using AnyView =
     std::ranges::any_view<int, std::ranges::any_view_options::forward>;
 using Iter = std::ranges::iterator_t<AnyView>;
@@ -121,3 +123,5 @@ TEST_POINT("exception") {
   test();
   //  static_assert(test());
 }
+
+}  // namespace

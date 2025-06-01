@@ -4,6 +4,7 @@
 #include <cassert>
 #include <catch2/catch_test_macros.hpp>
 
+#include "../helper.hpp"
 #include "any_view.hpp"
 
 #define TEST_POINT(x) TEST_CASE(x, "[contiguous_view]")
@@ -11,8 +12,7 @@
 namespace {
 
 using AnyView =
-    std::ranges::any_view<int,
-                          std::ranges::any_view_options::contiguous>;
+    std::ranges::any_view<int, std::ranges::any_view_options::contiguous>;
 
 static_assert(std::ranges::contiguous_range<AnyView>);
 static_assert(std::movable<AnyView>);
@@ -33,6 +33,12 @@ static_assert(std::copyable<AnyViewFull>);
 static_assert(std::ranges::sized_range<AnyViewFull>);
 static_assert(!std::ranges::common_range<AnyViewFull>);
 static_assert(std::ranges::borrowed_range<AnyViewFull>);
+
+static_assert(!std::is_constructible_v<AnyView, InputView>);
+static_assert(!std::is_constructible_v<AnyView, ForwardView>);
+static_assert(!std::is_constructible_v<AnyView, BidiView>);
+static_assert(!std::is_constructible_v<AnyView, RandomAccessView>);
+static_assert(std::is_constructible_v<AnyView, ContiguousView>);
 
 template <class V>
 constexpr void basic() {
