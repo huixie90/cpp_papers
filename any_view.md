@@ -864,6 +864,8 @@ namespace std::ranges {
   constexpr any_view_options operator|(any_view_options, any_view_options) noexcept;
   constexpr any_view_options operator&(any_view_options, any_view_options) noexcept;
 
+  constexpr bool @*flag-is-set*@(any_view_options opts, any_view_options flag); // exposition-only
+
   template <class T>
   using @*rvalue-ref-t*@ = @*see below*@; // exposition-only
 
@@ -881,8 +883,6 @@ namespace std::ranges {
           (Opts & any_view_options::borrowed) == any_view_options::borrowed;
 }
 ```
-
-<!-- TODO: Consider introducing an exposition-only function like flag-is-set (better name??) instead of `(Opts & flag) == flag`. Reuse in spec below. -->
 
 ## `any_view`
 
@@ -1005,6 +1005,20 @@ constexpr any_view_options operator&(any_view_options, any_view_options) noexcep
 
 :::
 
+```cpp
+constexpr bool @*flag-is-set*@(any_view_options opts, any_view_options flag); // exposition-only
+```
+
+:::bq
+
+[4]{.pnum} *Effects*: Equivalent to:
+
+```cpp
+  return (opts & flag) != any_view_options(0);
+```
+
+:::
+
 #### ?.?.?.4 Constructors, assignment, and destructor [range.any.ctor] {-}
 
 ```cpp
@@ -1019,29 +1033,26 @@ template <class Rng> constexpr any_view(Rng&& rng);
 
 - [1.2]{.pnum} `Rng` models `viewable_range`, and
 
-- [1.3]{.pnum} either `Opts & any_view_options::sized` is `any_views_options(0)`, or `Rng`
+- [1.3]{.pnum} either `@*flag-is-set*@(Opts, any_view_options::sized)` is `false`, or `Rng`
   models `sized_range`, and
 
-- [1.4]{.pnum} either `Opts & any_view_options::borrowed` is `any_views_options(0)`, or `Rng`
+- [1.4]{.pnum} either `@*flag-is-set*@(Opts, any_view_options::borrowed)` is `false`, or `Rng`
   models `borrowed_range`, and
 
-- [1.5]{.pnum} either `Opts & any_view_options::copyable` is `any_views_options(0)`, or `all_t<Rng>`
+- [1.5]{.pnum} either `@*flag-is-set*@(Opts, any_view_options::copyable)` is `false`, or `all_t<Rng>`
   models `copyable`, and
 
-- [1.6]{.pnum} either `Opts & any_view_options::contiguous` is not `any_views_options::contiguous`, or `all_t<Rng>`
-  models `contiguous_range`, and
+- [1.6]{.pnum} Let `CAT` be `Opts & any_view_options::contiguous`, `R` be `all_t<Rng>`,
 
-- [1.7]{.pnum} either `Opts & any_view_options::random_access` is not `any_views_options::random_access`, or `all_t<Rng>`
-  models `random_access_range`, and
+  - [1.6.1]{.pnum} If `CAT` is `any_views_options::contiguous`, `R` models `contiguous_range`
 
-- [1.8]{.pnum} either `Opts & any_view_options::bidirectional` is not `any_views_options::bidirectional`, or `all_t<Rng>`
-  models `bidirectional_range`, and
+  - [1.6.2]{.pnum} Otherwise, if `CAT` is `any_views_options::random_access`, `R` models `random_access_range`,
 
-- [1.9]{.pnum} either `Opts & any_view_options::forward` is not `any_views_options::forward`, or `all_t<Rng>`
-  models `forward_range`, and
+  - [1.6.3]{.pnum} Otherwise, if `CAT` is `any_views_options::bidirectional`, `R` models `bidirectional_range`,
 
-- [1.10]{.pnum} `Opts & any_view_options::input` is `any_views_options::input`, and `all_t<Rng>`
-  models `input_range`
+  - [1.6.4]{.pnum} Otherwise if `CAT` is `any_views_options::forward`, `R` models `forward_range`,
+
+  - [1.6.5]{.pnum} Otherwise, `CAT` is `any_views_options::input`, and `R` models `input_range`
 
 [2]{.pnum} *Postconditions*:
 

@@ -5,6 +5,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "any_view.hpp"
+#include "../helper.hpp"
 
 #define TEST_POINT(x) TEST_CASE(x, "[forward_view]")
 
@@ -35,6 +36,12 @@ static_assert(std::copyable<AnyViewFull>);
 static_assert(std::ranges::sized_range<AnyViewFull>);
 static_assert(!std::ranges::common_range<AnyViewFull>);
 static_assert(std::ranges::borrowed_range<AnyViewFull>);
+
+static_assert(!std::is_constructible_v<AnyView, InputView>);
+static_assert(std::is_constructible_v<AnyView, ForwardView>);
+static_assert(std::is_constructible_v<AnyView, BidiView>);
+static_assert(std::is_constructible_v<AnyView, RandomAccessView>);
+static_assert(std::is_constructible_v<AnyView, ContiguousView>);
 
 template <class V>
 constexpr void basic() {

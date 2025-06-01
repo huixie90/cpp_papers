@@ -46,6 +46,11 @@ constexpr auto operator<=>(any_view_options lhs,
          static_cast<std::underlying_type_t<any_view_options>>(rhs);
 }
 
+constexpr bool __flag_is_set(any_view_options opts,
+                             any_view_options flag) noexcept {
+  return (opts & flag) != any_view_options::none;
+}
+
 }  // namespace __any_view
 
 template <class T>
@@ -516,13 +521,12 @@ class any_view {
 
   template <class View>
   consteval static bool view_options_constraint() {
-    if constexpr ((Opts & any_view_options::sized) != any_view_options::none &&
+    if constexpr (__flag_is_set(Opts, any_view_options::sized) &&
                   !std::ranges::sized_range<View>) {
       return false;
     }
 
-    if constexpr ((Opts & any_view_options::borrowed) !=
-                      any_view_options::none &&
+    if constexpr (__flag_is_set(Opts, any_view_options::borrowed) &&
                   !std::ranges::borrowed_range<View>) {
       return false;
     }

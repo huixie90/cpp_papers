@@ -7,6 +7,7 @@
 
 #define TEST_POINT(x) TEST_CASE(x, "[storage exception]")
 
+namespace {
 template <bool MoveNoexcept, bool isBig>
 struct MayThrow {
   int i;
@@ -112,3 +113,5 @@ TEST_POINT("test noexcept") {
   test<BigNoexcept, BigNoexcept, true, false>();
   test<BigThrow, BigThrow, true, false>();
 }
+
+}  // namespace
