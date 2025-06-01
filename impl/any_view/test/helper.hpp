@@ -178,3 +178,14 @@ static_assert(std::ranges::forward_range<ForwardView>);
 static_assert(std::ranges::bidirectional_range<BidiView>);
 static_assert(std::ranges::random_access_range<RandomAccessView>);
 static_assert(std::ranges::contiguous_range<ContiguousView>);
+
+
+
+struct MoveOnly {
+    int i;
+    constexpr explicit MoveOnly(int x) : i(x) {}
+    constexpr MoveOnly(MoveOnly &&) noexcept = default;
+    constexpr MoveOnly(const MoveOnly &) = delete;
+    constexpr MoveOnly &operator=(MoveOnly &&) noexcept = default;
+    constexpr MoveOnly &operator=(const MoveOnly &) = delete;
+};

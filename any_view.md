@@ -922,8 +922,6 @@ Add the following subclause to [range.utility]{.sref}
 
 #### ?.?.?.3 Class template `any_view` [range.any.class] {-}
 
-<!-- TODO: Should we address convertibility in the any_view constructor? Add a constraint on the value_type of the incoming range? Consider conditional-explicit? -->
-
 ```cpp
 template <class Element,
           any_view_options Opts = any_view_options::input,
@@ -1042,17 +1040,25 @@ template <class Rng> constexpr any_view(Rng&& rng);
 - [1.5]{.pnum} either `@*flag-is-set*@(Opts, any_view_options::copyable)` is `false`, or `all_t<Rng>`
   models `copyable`, and
 
-- [1.6]{.pnum} Let `CAT` be `Opts & any_view_options::contiguous`, `R` be `all_t<Rng>`,
+- [1.6]{.pnum} `is_convertible_v<range_reference_t<all_t<Rng>>, Ref>` is `true`, and
 
-  - [1.6.1]{.pnum} If `CAT` is `any_views_options::contiguous`, `R` models `contiguous_range`
+- [1.7]{.pnum} `is_convertible_v<range_value_t<all_t<Rng>>, remove_cv_t<Element>>` is `true`, and
 
-  - [1.6.2]{.pnum} Otherwise, if `CAT` is `any_views_options::random_access`, `R` models `random_access_range`,
+- [1.8]{.pnum} `is_convertible_v<range_rvalue_reference_t<all_t<Rng>>, RValueRef>` is `true`, and
 
-  - [1.6.3]{.pnum} Otherwise, if `CAT` is `any_views_options::bidirectional`, `R` models `bidirectional_range`,
+- [1.9]{.pnum} `is_convertible_v<range_difference_t<all_t<Rng>>, Diff>` is `true`, and
 
-  - [1.6.4]{.pnum} Otherwise if `CAT` is `any_views_options::forward`, `R` models `forward_range`,
+- [1.10]{.pnum} Let `CAT` be `Opts & any_view_options::contiguous`, `R` be `all_t<Rng>`,
 
-  - [1.6.5]{.pnum} Otherwise, `CAT` is `any_views_options::input`, and `R` models `input_range`
+  - [1.10.1]{.pnum} If `CAT` is `any_views_options::contiguous`, `R` models `contiguous_range`
+
+  - [1.10.2]{.pnum} Otherwise, if `CAT` is `any_views_options::random_access`, `R` models `random_access_range`,
+
+  - [1.10.3]{.pnum} Otherwise, if `CAT` is `any_views_options::bidirectional`, `R` models `bidirectional_range`,
+
+  - [1.10.4]{.pnum} Otherwise if `CAT` is `any_views_options::forward`, `R` models `forward_range`,
+
+  - [1.10.5]{.pnum} Otherwise, `CAT` is `any_views_options::input`, and `R` models `input_range`
 
 [2]{.pnum} *Postconditions*:
 
