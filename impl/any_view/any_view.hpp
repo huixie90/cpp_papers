@@ -534,6 +534,27 @@ class any_view {
     if constexpr (is_view_copyable && !std::copyable<View>) {
       return false;
     }
+
+    if constexpr (!std::convertible_to<std::ranges::range_reference_t<View>,
+                                       Ref>) {
+      return false;
+    }
+
+    if constexpr (!std::convertible_to<std::ranges::range_value_t<View>,
+                                       remove_cv_t<Element>>) {
+      return false;
+    }
+
+    if constexpr (!std::convertible_to<std::ranges::range_rvalue_reference_t<View>,
+                                       RValueRef>) {
+      return false;
+    }
+
+    if constexpr (!std::convertible_to<std::ranges::range_difference_t<View>,
+                                       Diff>) {
+      return false;
+    }
+
     constexpr auto cat_mask = Opts & any_view_options::category_mask;
     if constexpr (cat_mask == any_view_options::contiguous) {
       return std::ranges::contiguous_range<View>;
