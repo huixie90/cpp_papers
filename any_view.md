@@ -1675,7 +1675,7 @@ return false;
 
 - [2.2]{.pnum} Otherwise, let `it` be an lvalue designating the *target iterator object* of `x`, and `st` be an lvalue designating the *target sentinel object* of `y`,
 
-  - [2.3.1]{.pnum} If `sentinal_for<decay_t<decltype(st)>, decay_t<decltype(it)>>` is `false`, the return value is unspecified
+  - [2.3.1]{.pnum} If `sentinel_for<decay_t<decltype(st)>, decay_t<decltype(it)>>` is `false`, the return value is unspecified
 
   - [2.3.2]{.pnum} Otherwise, equivalent to:
 ```cpp
