@@ -1090,6 +1090,8 @@ constexpr any_view(any_view&& other) noexcept;
 
 [6]{.pnum} *Postconditions*: The *target view object* of `*this` is the *target view object* `other` had before construction, and `other` is in a valid state with an unspecified value.
 
+<!-- TODO: You really end up with two objects, one is move-initialized from the other one. So you can't say "is the target view object other had [...]". -->
+
 :::
 
 ```cpp
