@@ -1088,9 +1088,7 @@ constexpr any_view(any_view&& other) noexcept;
 
 :::bq
 
-[6]{.pnum} *Postconditions*: The *target view object* of `*this` is the *target view object* `other` had before construction, and `other` is in a valid state with an unspecified value.
-
-<!-- TODO: You really end up with two objects, one is move-initialized from the other one. So you can't say "is the target view object other had [...]". -->
+[6]{.pnum} *Postconditions*: `*this` has no *target view object* if `other` had no *target view object*. Otherwise, the *target view object* of `*this` is equivalent to the *target view object* of `other` before the construction of `*this`, and `other` is in a valid state with an unspecified value.
 
 :::
 
@@ -1478,14 +1476,16 @@ return false;
 - [21.3]{.pnum} Otherwise, let `it1` be an lvalue designating the *target iterator object* of `x`, and `it2` be an lvalue designating the *target iterator object* of `y`.
 
   - [21.3.1]{.pnum} If `is_same_v<decltype(it1), decltype(it2)>` is `false`, equivalent to
-```cpp
-return false;
-```
 
-  [21.3.2]{.pnum} Otherwise, equivalent to
-```cpp
-return it1 == it2;
-```
+    ```cpp
+    return false;
+    ```
+
+  - [21.3.2]{.pnum} Otherwise, equivalent to
+
+    ```cpp
+    return it1 == it2;
+    ```
 
 :::
 
