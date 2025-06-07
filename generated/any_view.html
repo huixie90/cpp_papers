@@ -1772,6 +1772,7 @@ is the <em>target view object</em>
 <code class="sourceCode cpp">other</code> had before construction, and
 <code class="sourceCode cpp">other</code> is in a valid state with an
 unspecified value.</p>
+<!-- TODO: You really end up with two objects, one is move-initialized from the other one. So you can't say "is the target view object other had [...]". -->
 </div>
 <div class="sourceCode" id="cb43"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> any_view <span class="op">&amp;</span><span class="kw">operator</span><span class="op">=(</span><span class="kw">const</span> any_view<span class="op">&amp;</span> other<span class="op">)</span></span></code></pre></div>
 <div class="bq">
