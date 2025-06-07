@@ -1767,12 +1767,15 @@ is a copy of the <em>target view object</em> of
 <div class="sourceCode" id="cb42"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> any_view<span class="op">(</span>any_view<span class="op">&amp;&amp;</span> other<span class="op">)</span> <span class="kw">noexcept</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">6</a></span>
-<em>Postconditions</em>: The <em>target view object</em> of <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code>
-is the <em>target view object</em>
-<code class="sourceCode cpp">other</code> had before construction, and
-<code class="sourceCode cpp">other</code> is in a valid state with an
-unspecified value.</p>
-<!-- TODO: You really end up with two objects, one is move-initialized from the other one. So you can't say "is the target view object other had [...]". -->
+<em>Postconditions</em>: <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code>
+has no <em>target view object</em> if
+<code class="sourceCode cpp">other</code> had no <em>target view
+object</em>. Otherwise, the <em>target view object</em> of <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code>
+is equivalent to the <em>target view object</em> of
+<code class="sourceCode cpp">other</code> before the construction of
+<code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code>,
+and <code class="sourceCode cpp">other</code> is in a valid state with
+an unspecified value.</p>
 </div>
 <div class="sourceCode" id="cb43"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> any_view <span class="op">&amp;</span><span class="kw">operator</span><span class="op">=(</span><span class="kw">const</span> any_view<span class="op">&amp;</span> other<span class="op">)</span></span></code></pre></div>
 <div class="bq">
@@ -2096,15 +2099,15 @@ designating the <em>target iterator object</em> of
 <em>target iterator object</em> of
 <code class="sourceCode cpp">y</code>.</p>
 <ul>
-<li><span class="marginalizedparent"><a class="marginalized">(21.3.1)</a></span>
+<li><p><span class="marginalizedparent"><a class="marginalized">(21.3.1)</a></span>
 If <code class="sourceCode cpp">is_same_v<span class="op">&lt;</span><span class="kw">decltype</span><span class="op">(</span>it1<span class="op">)</span>, <span class="kw">decltype</span><span class="op">(</span>it2<span class="op">)&gt;</span></code>
 is <code class="sourceCode cpp"><span class="kw">false</span></code>,
-equivalent to</li>
-</ul>
-<div class="sourceCode" id="cb77"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="kw">false</span>;</span></code></pre></div>
-<p><span class="marginalizedparent"><a class="marginalized">(21.3.2)</a></span>
+equivalent to</p>
+<div class="sourceCode" id="cb77"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="kw">false</span>;</span></code></pre></div></li>
+<li><p><span class="marginalizedparent"><a class="marginalized">(21.3.2)</a></span>
 Otherwise, equivalent to</p>
 <div class="sourceCode" id="cb78"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> it1 <span class="op">==</span> it2;</span></code></pre></div></li>
+</ul></li>
 </ul>
 </div>
 <div class="sourceCode" id="cb79"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&lt;(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span>;</span></code></pre></div>
