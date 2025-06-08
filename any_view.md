@@ -864,7 +864,7 @@ namespace std::ranges {
   constexpr any_view_options operator|(any_view_options, any_view_options) noexcept;
   constexpr any_view_options operator&(any_view_options, any_view_options) noexcept;
 
-  constexpr bool @*flag-is-set*@(any_view_options opts, any_view_options flag); // exposition-only
+  constexpr bool @*any-view-flag-is-set*@(any_view_options opts, any_view_options flag); // exposition-only
 
   template <class T>
   using @*rvalue-ref-t*@ = @*see below*@; // exposition-only
@@ -1004,7 +1004,7 @@ constexpr any_view_options operator&(any_view_options, any_view_options) noexcep
 :::
 
 ```cpp
-constexpr bool @*flag-is-set*@(any_view_options opts, any_view_options flag); // exposition-only
+constexpr bool @*any-view-flag-is-set*@(any_view_options opts, any_view_options flag); // exposition-only
 ```
 
 :::bq
@@ -1031,13 +1031,13 @@ template <class Rng> constexpr any_view(Rng&& rng);
 
 - [1.2]{.pnum} `Rng` models `viewable_range`, and
 
-- [1.3]{.pnum} either `@*flag-is-set*@(Opts, any_view_options::sized)` is `false`, or `Rng`
+- [1.3]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::sized)` is `false`, or `Rng`
   models `sized_range`, and
 
-- [1.4]{.pnum} either `@*flag-is-set*@(Opts, any_view_options::borrowed)` is `false`, or `Rng`
+- [1.4]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::borrowed)` is `false`, or `Rng`
   models `borrowed_range`, and
 
-- [1.5]{.pnum} either `@*flag-is-set*@(Opts, any_view_options::copyable)` is `false`, or `all_t<Rng>`
+- [1.5]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::copyable)` is `false`, or `all_t<Rng>`
   models `copyable`, and
 
 - [1.6]{.pnum} `is_convertible_v<range_reference_t<all_t<Rng>>, Ref>` is `true`, and
