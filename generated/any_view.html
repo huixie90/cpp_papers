@@ -1517,7 +1517,7 @@ follows the proposed wording below without any issue <span class="citation" data
 <span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> any_view_options <span class="kw">operator</span><span class="op">|(</span>any_view_options, any_view_options<span class="op">)</span> <span class="kw">noexcept</span>;</span>
 <span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> any_view_options <span class="kw">operator</span><span class="op">&amp;(</span>any_view_options, any_view_options<span class="op">)</span> <span class="kw">noexcept</span>;</span>
 <span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="dt">bool</span> <em>flag-is-set</em><span class="op">(</span>any_view_options opts, any_view_options flag<span class="op">)</span>; <span class="co">// exposition-only</span></span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="dt">bool</span> <em>any-view-flag-is-set</em><span class="op">(</span>any_view_options opts, any_view_options flag<span class="op">)</span>; <span class="co">// exposition-only</span></span>
 <span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> T<span class="op">&gt;</span></span>
 <span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a>  <span class="kw">using</span> <em>rvalue-ref-t</em> <span class="op">=</span> <em>see below</em>; <span class="co">// exposition-only</span></span>
@@ -1655,7 +1655,7 @@ to:</p>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb37"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> any_view_options<span class="op">(</span>to_underlying<span class="op">(</span>lhs<span class="op">)</span> <span class="op">&amp;</span> to_underlying<span class="op">(</span>rhs<span class="op">))</span>;</span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb38"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">bool</span> <em>flag-is-set</em><span class="op">(</span>any_view_options opts, any_view_options flag<span class="op">)</span>; <span class="co">// exposition-only</span></span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">bool</span> <em>any-view-flag-is-set</em><span class="op">(</span>any_view_options opts, any_view_options flag<span class="op">)</span>; <span class="co">// exposition-only</span></span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">4</a></span>
 <em>Effects</em>: Equivalent to:</p>
@@ -1676,17 +1676,17 @@ and</p></li>
 <code class="sourceCode cpp">Rng</code> models
 <code class="sourceCode cpp">viewable_range</code>, and</p></li>
 <li><p><span class="marginalizedparent"><a class="marginalized">(1.3)</a></span>
-either <code class="sourceCode cpp"><em>flag-is-set</em><span class="op">(</span>Opts, any_view_options<span class="op">::</span>sized<span class="op">)</span></code>
+either <code class="sourceCode cpp"><em>any-view-flag-is-set</em><span class="op">(</span>Opts, any_view_options<span class="op">::</span>sized<span class="op">)</span></code>
 is <code class="sourceCode cpp"><span class="kw">false</span></code>, or
 <code class="sourceCode cpp">Rng</code> models
 <code class="sourceCode cpp">sized_range</code>, and</p></li>
 <li><p><span class="marginalizedparent"><a class="marginalized">(1.4)</a></span>
-either <code class="sourceCode cpp"><em>flag-is-set</em><span class="op">(</span>Opts, any_view_options<span class="op">::</span>borrowed<span class="op">)</span></code>
+either <code class="sourceCode cpp"><em>any-view-flag-is-set</em><span class="op">(</span>Opts, any_view_options<span class="op">::</span>borrowed<span class="op">)</span></code>
 is <code class="sourceCode cpp"><span class="kw">false</span></code>, or
 <code class="sourceCode cpp">Rng</code> models
 <code class="sourceCode cpp">borrowed_range</code>, and</p></li>
 <li><p><span class="marginalizedparent"><a class="marginalized">(1.5)</a></span>
-either <code class="sourceCode cpp"><em>flag-is-set</em><span class="op">(</span>Opts, any_view_options<span class="op">::</span>copyable<span class="op">)</span></code>
+either <code class="sourceCode cpp"><em>any-view-flag-is-set</em><span class="op">(</span>Opts, any_view_options<span class="op">::</span>copyable<span class="op">)</span></code>
 is <code class="sourceCode cpp"><span class="kw">false</span></code>, or
 <code class="sourceCode cpp">all_t<span class="op">&lt;</span>Rng<span class="op">&gt;</span></code>
 models <code class="sourceCode cpp">copyable</code>, and</p></li>
