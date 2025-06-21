@@ -472,10 +472,72 @@ class any_view {
 
   using sentinel = any_sentinel;
 
+  struct empty_iterator {
+    static consteval any_iterator_vtable get_vtable() {
+      any_iterator_vtable t;
+
+      t.deref_ = [](const iterator_storage &) -> Ref {
+        assert(false && "Dereferencing empty iterator");
+        std::unreachable();
+      };
+      t.increment_ = [](iterator_storage &) {
+        assert(false && "Incrementing empty iterator");
+      };
+      t.iter_move_ = [](const iterator_storage &) -> RValueRef {
+        assert(false && "iter_moving empty iterator");
+        std::unreachable();
+      };
+
+      if constexpr (Traversal >= any_view_options::forward) {
+        t.equal_ = [](const iterator_storage &, const iterator_storage &) {
+          return true;
+        };
+      }
+
+      if constexpr (Traversal >= any_view_options::bidirectional) {
+        t.decrement_ = [](iterator_storage &) {
+          assert(false && "Decrementing empty iterator");
+        };
+      }
+
+      if constexpr (Traversal >= any_view_options::random_access) {
+        t.advance_ = [](iterator_storage &, Diff) {
+          assert(false && "Advancing empty iterator");
+        };
+        t.distance_to_ = [](const iterator_storage &,
+                            const iterator_storage &) -> Diff {
+          assert(false && "Distance to empty iterator");
+          std::unreachable();
+        };
+      }
+
+      if constexpr (Traversal == any_view_options::contiguous) {
+        t.arrow_ = [](const iterator_storage &) -> std::add_pointer_t<Ref> {
+          assert(false && "Arrow operator on empty iterator");
+          std::unreachable();
+        };
+      }
+
+      return t;
+    }
+
+    static constexpr any_iterator_vtable vtable = get_vtable();
+  };
+
+  struct empty_sentinel {
+    static consteval any_sentinel_vtable get_vtable() {
+      any_sentinel_vtable t;
+      t.equal_ = [](const iterator &, const any_sentinel &) { return true; };
+      return t;
+    }
+
+    static constexpr any_sentinel_vtable vtable = get_vtable();
+  };
+
   using view_storage =
       detail::storage<4 * sizeof(void *), sizeof(void *), is_view_copyable>;
   struct sized_vtable {
-    std::size_t (*size_)(const view_storage &);
+    std::__make_unsigned_t<Diff> (*size_)(const view_storage &);
   };
   struct any_view_vtable
       : maybe_t<sized_vtable,
@@ -514,9 +576,31 @@ class any_view {
     }
 
     template <class View>
-    static constexpr std::size_t size(const view_storage &v) {
-      return std::ranges::size(*(v.template get_ptr<View>()));
+    static constexpr std::__make_unsigned_t<Diff> size(const view_storage &v) {
+      return std::__make_unsigned_t<Diff>(
+          std::ranges::size(*(v.template get_ptr<View>())));
     }
+  };
+
+  struct empty_view_ {
+    static consteval any_view_vtable get_vtable() {
+      any_view_vtable t;
+      t.begin_ = [](view_storage &) -> iterator {
+        return any_iterator(&empty_iterator::vtable, empty_iterator{});
+      };
+      t.end_ = [](view_storage &) -> sentinel {
+        return any_sentinel(&empty_sentinel::vtable, empty_sentinel{});
+      };
+      if constexpr ((Opts & any_view_options::sized) !=
+                    any_view_options::none) {
+        t.size_ = [](const view_storage &) -> std::__make_unsigned_t<Diff> {
+          return 0;
+        };
+      }
+      return t;
+    }
+
+    static constexpr any_view_vtable vtable = get_vtable();
   };
 
   template <class View>
@@ -545,8 +629,8 @@ class any_view {
       return false;
     }
 
-    if constexpr (!std::convertible_to<std::ranges::range_rvalue_reference_t<View>,
-                                       RValueRef>) {
+    if constexpr (!std::convertible_to<
+                      std::ranges::range_rvalue_reference_t<View>, RValueRef>) {
       return false;
     }
 
@@ -569,6 +653,8 @@ class any_view {
     }
   }
 
+  constexpr any_view() : view_vtable_(&empty_view_::vtable), view_() {}
+
   template <class Range>
     requires(!std::same_as<remove_cvref_t<Range>, any_view> &&
              std::ranges::viewable_range<Range> &&
@@ -582,24 +668,38 @@ class any_view {
     requires is_view_copyable
   = default;
 
-  constexpr any_view(any_view &&) = default;
+  constexpr any_view(any_view &&other) noexcept
+      : view_vtable_(other.view_vtable_), view_(std::move(other.view_)) {
+    other.view_vtable_ = &empty_view_::vtable;
+  }
 
   constexpr any_view &operator=(const any_view &)
     requires is_view_copyable
   = default;
 
-  constexpr any_view &operator=(any_view &&) = default;
+  constexpr any_view &operator=(any_view &&other) noexcept {
+    if (this != &other) {
+      any_view(std::move(other)).swap(*this);
+    }
+    return *this;
+  }
 
   constexpr ~any_view() = default;
 
   constexpr iterator begin() { return (*(view_vtable_->begin_))(view_); }
   constexpr sentinel end() { return (*(view_vtable_->end_))(view_); }
 
-  constexpr std::size_t size() const
+  constexpr std::__make_unsigned_t<Diff> size() const
     requires((Opts & any_view_options::sized) != any_view_options::none)
   {
     return (*(view_vtable_->size_))(view_);
   }
+
+  constexpr void swap(any_view &other) noexcept {
+    view_.swap(other.view_);
+    std::swap(view_vtable_, other.view_vtable_);
+  }
+  constexpr friend void swap(any_view &x, any_view &y) noexcept { x.swap(y); }
 
  private:
   template <class Iter>
