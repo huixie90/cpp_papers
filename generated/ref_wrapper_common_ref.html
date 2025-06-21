@@ -532,10 +532,9 @@ a reference type
 <code class="sourceCode cpp">T<span class="op">&amp;</span></code>.</p>
 <h1 data-number="3" id="motivation-and-examples"><span class="header-section-number">3</span> Motivation and Examples<a href="#motivation-and-examples" class="self-link"></a></h1>
 <p>C++20 introduced the meta-programming utility
-<code class="sourceCode cpp">common_reference</code> <span>21.3.8.7
-<a href="https://wg21.link/meta.trans.other">[meta.trans.other]</a></span>
-in order to programmatically determine a common reference type to which
-one or more types can be converted or bound.</p>
+<code class="sourceCode cpp">common_reference</code> <a href="https://wg21.link/meta.trans.other">[meta.trans.other]</a> in
+order to programmatically determine a common reference type to which one
+or more types can be converted or bound.</p>
 <p>The precise rules are rather convoluted, but roughly speaking, for
 given two non-reference non-<em>cv</em> qualified types
 <code class="sourceCode cpp">X</code> and
@@ -881,15 +880,13 @@ Types<a href="#section4_4" class="self-link"></a></h2>
 <code class="sourceCode cpp">common_reference</code> trait are such that
 any <code class="sourceCode cpp">basic_common_reference</code>
 specialization is consulted only if some ternary expression of the pair
-of arguments is ill-formed (see <span>21.3.8.7
-<a href="https://wg21.link/meta.trans.other">[meta.trans.other]</a></span>/5.3.1).</p>
+of arguments is ill-formed (see <a href="https://wg21.link/meta.trans.other">[meta.trans.other]</a>/5.3.1).</p>
 <p>More precisely, that ternary expression is denoted by <code class="sourceCode cpp"><em>COMMON-REF</em><span class="op">(</span>T1, T2<span class="op">)</span></code>,
 where <code class="sourceCode cpp">T1</code> and
 <code class="sourceCode cpp">T2</code> are the two arguments of the
 trait, and <code class="sourceCode cpp"><em>COMMON-REF</em></code> is a
-complex macro defined in <span>21.3.8.7
-<a href="https://wg21.link/meta.trans.other">[meta.trans.other]</a></span>/2.
-For the cases where both <code class="sourceCode cpp">T1</code> and
+complex macro defined in <a href="https://wg21.link/meta.trans.other">[meta.trans.other]</a>/2. For
+the cases where both <code class="sourceCode cpp">T1</code> and
 <code class="sourceCode cpp">T2</code> are lvalue references, their
 <code class="sourceCode cpp"><em>COMMON-REF</em></code> is the union of
 their cv-qualifiers applied to both. For example, given
@@ -1032,9 +1029,8 @@ issue<span class="citation" data-cites="ours">[<a href="https://github.com/huixi
 and all libc++ tests passed.<span class="citation" data-cites="libcxx">[<a href="https://reviews.llvm.org/D141200" role="doc-biblioref">libcxx</a>]</span></p></li>
 </ul>
 <h1 data-number="6" id="wording"><span class="header-section-number">6</span> Wording<a href="#wording" class="self-link"></a></h1>
-<p>Modify <span>21.3.8.7
-<a href="https://wg21.link/meta.trans.other">[meta.trans.other]</a></span>
-section (5.3.1) as</p>
+<p>Modify <a href="https://wg21.link/meta.trans.other">[meta.trans.other]</a> section
+(5.3.1) as</p>
 <ul>
 <li>(5.3.1) <span class="add" style="color: #006e28"><ins>Let
 <span><code class="sourceCode default">R</code></span> be
@@ -1051,10 +1047,9 @@ then the member typedef <code class="sourceCode cpp">type</code> denotes
 <span class="rm" style="color: #bf0303"><del>that type</del></span>
 <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">R</code></span></ins></span>.</li>
 </ul>
-<p>Modify <span>22.10.2
-<a href="https://wg21.link/functional.syn">[functional.syn]</a></span>
-to add to the end of
-<code class="sourceCode cpp">reference_wrapper</code> section:</p>
+<p>Modify <a href="https://wg21.link/functional.syn">[functional.syn]</a> to add to
+the end of <code class="sourceCode cpp">reference_wrapper</code>
+section:</p>
 <div class="add" style="color: #006e28">
 
 <div class="sourceCode" id="cb20"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>// <em>[refwrap.common.ref] <code class="sourceCode cpp">common_reference</code> related
@@ -1068,8 +1063,7 @@ specializations</em></span>
 <span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>struct basic_common_reference&lt;T, R, TQual, RQual&gt;;</span></code></pre></div>
 
 </div>
-<p>Add the following subclause to <span>22.10.6
-<a href="https://wg21.link/refwrap">[refwrap]</a></span>:</p>
+<p>Add the following subclause to <a href="https://wg21.link/refwrap">[refwrap]</a>:</p>
 <h4 class="unnumbered" id="common_reference-related-specializations-refwrap.common.ref">?.?.?.?
 <code class="sourceCode cpp">common_reference</code> related
 specializations [refwrap.common.ref]<a href="#common_reference-related-specializations-refwrap.common.ref" class="self-link"></a></h4>
@@ -1102,9 +1096,7 @@ specializations [refwrap.common.ref]<a href="#common_reference-related-specializ
 <span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> type <span class="op">=</span> common_reference_t<span class="op">&lt;</span><span class="kw">typename</span> R<span class="op">::</span>type<span class="op">&amp;</span>, TQual<span class="op">&lt;</span>T<span class="op">&gt;&gt;</span>;</span>
 <span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a><span class="op">}</span>;</span></code></pre></div>
 <h2 data-number="6.1" id="feature-test-macro"><span class="header-section-number">6.1</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
-<p>Add the following macro definition to <span>17.3.2
-<a href="https://wg21.link/version.syn">[version.syn]</a></span>, header
-<code class="sourceCode cpp"><span class="op">&lt;</span>version<span class="op">&gt;</span></code>
+<p>Add the following macro definition to <a href="https://wg21.link/version.syn">[version.syn]</a>, header <code class="sourceCode cpp"><span class="op">&lt;</span>version<span class="op">&gt;</span></code>
 synopsis, with the value selected by the editor to reflect the date of
 adoption of this paper:</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define __cpp_lib_common_reference  </span><span class="dv">20</span><span class="er">XXXXL</span><span class="pp">         </span><span class="co">// also in &lt;type_traits&gt;</span></span>

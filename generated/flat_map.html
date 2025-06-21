@@ -542,8 +542,7 @@ and we move to <code class="sourceCode cpp">ranges<span class="op">::</span>for_
 for consistency with the rest of the
 <code class="sourceCode cpp">flat_map</code> specification.</p>
 <h2 data-number="3.1" id="wording"><span class="header-section-number">3.1</span> Wording<a href="#wording" class="self-link"></a></h2>
-<p>Change <span>23.6.8.7
-<a href="https://wg21.link/flat.map.modifiers">[flat.map.modifiers]</a></span>
+<p>Change <a href="https://wg21.link/flat.map.modifiers">[flat.map.modifiers]</a>
 paragraph 12 to:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span>container<span class="op">-</span>compatible<span class="op">-</span>range<span class="op">&lt;</span>value_type<span class="op">&gt;</span> R<span class="op">&gt;</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> insert_range<span class="op">(</span>R<span class="op">&amp;&amp;</span> rg<span class="op">)</span>;</span></code></pre></div>
@@ -588,9 +587,8 @@ harsh.</p>
 conditionally-<code class="sourceCode cpp"><span class="kw">noexcept</span></code>
 allows us to propagate the exception (after restoring invariants).</p>
 <h2 data-number="4.1" id="wording-1"><span class="header-section-number">4.1</span> Wording<a href="#wording-1" class="self-link"></a></h2>
-<p>Change <span>23.6.8.2
-<a href="https://wg21.link/flat.map.defn">[flat.map.defn]</a></span> as
-follows:</p>
+<p>Change <a href="https://wg21.link/flat.map.defn">[flat.map.defn]</a>
+as follows:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> swap<span class="op">(</span>flat_map<span class="op">&amp;</span> y<span class="op">)</span> <span class="rm" style="color: #bf0303"><del><span><code class="sourceCode default">noexcept;</code></span></del></span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">noexcept(is_nothrow_swappable_v&lt;key_container_type&gt; &amp;&amp;</code></span></ins></span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>           <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">is_nothrow_swappable_v&lt;mapped_container_type&gt; &amp;&amp;</code></span></ins></span></span>
@@ -603,8 +601,7 @@ follows:</p>
 <span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>           <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">is_nothrow_swappable_v&lt;mapped_container_type&gt; &amp;&amp;</code></span></ins></span></span>
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>           <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">is_nothrow_swappable_v&lt;key_compare&gt;)</code></span></ins></span></span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span> x<span class="op">.</span>swap<span class="op">(</span>y<span class="op">)</span>; <span class="op">}</span></span></code></pre></div>
-<p>Change <span>23.6.8.7
-<a href="https://wg21.link/flat.map.modifiers">[flat.map.modifiers]</a></span>
+<p>Change <a href="https://wg21.link/flat.map.modifiers">[flat.map.modifiers]</a>
 paragraph 33:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> swap<span class="op">(</span>flat_map<span class="op">&amp;</span> y<span class="op">)</span> <span class="rm" style="color: #bf0303"><del><span><code class="sourceCode default">noexcept;</code></span></del></span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">noexcept(is_nothrow_swappable_v&lt;key_container_type&gt; &amp;&amp;</code></span></ins></span></span>
@@ -617,9 +614,8 @@ paragraph 33:</p>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>ranges<span class="op">::</span>swap<span class="op">(</span>c<span class="op">.</span>keys, y<span class="op">.</span>c<span class="op">.</span>keys<span class="op">)</span>;</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>ranges<span class="op">::</span>swap<span class="op">(</span>c<span class="op">.</span>values, y<span class="op">.</span>c<span class="op">.</span>values<span class="op">)</span>;</span></code></pre></div>
 </div>
-<p>Change <span>23.6.9.2
-<a href="https://wg21.link/flat.multimap.defn">[flat.multimap.defn]</a></span>
-as follows:</p>
+<p>Change <a href="https://wg21.link/flat.multimap.defn">[flat.multimap.defn]</a> as
+follows:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> swap<span class="op">(</span>flat_multimap<span class="op">&amp;</span> y<span class="op">)</span> <span class="rm" style="color: #bf0303"><del><span><code class="sourceCode default">noexcept;</code></span></del></span></span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">noexcept(is_nothrow_swappable_v&lt;key_container_type&gt; &amp;&amp;</code></span></ins></span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>           <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">is_nothrow_swappable_v&lt;mapped_container_type&gt; &amp;&amp;</code></span></ins></span></span>
@@ -632,9 +628,8 @@ as follows:</p>
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>           <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">is_nothrow_swappable_v&lt;mapped_container_type&gt; &amp;&amp;</code></span></ins></span></span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>           <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">is_nothrow_swappable_v&lt;key_compare&gt;)</code></span></ins></span></span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span> x<span class="op">.</span>swap<span class="op">(</span>y<span class="op">)</span>; <span class="op">}</span></span></code></pre></div>
-<p>Change <span>23.6.11.2
-<a href="https://wg21.link/flat.set.defn">[flat.set.defn]</a></span> as
-follows:</p>
+<p>Change <a href="https://wg21.link/flat.set.defn">[flat.set.defn]</a>
+as follows:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> swap<span class="op">(</span>flat_set<span class="op">&amp;</span> y<span class="op">)</span> <span class="rm" style="color: #bf0303"><del><span><code class="sourceCode default">noexcept;</code></span></del></span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">noexcept(is_nothrow_swappable_v&lt;container_type&gt; &amp;&amp;</code></span></ins></span></span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>           <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">is_nothrow_swappable_v&lt;key_compare&gt;);</code></span></ins></span></span>
@@ -645,8 +640,7 @@ follows:</p>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">noexcept(is_nothrow_swappable_v&lt;container_type&gt; &amp;&amp;</code></span></ins></span></span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>           <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">is_nothrow_swappable_v&lt;key_compare&gt;)</code></span></ins></span></span>
 <span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span> x<span class="op">.</span>swap<span class="op">(</span>y<span class="op">)</span>; <span class="op">}</span></span></code></pre></div>
-<p>Change <span>23.6.11.5
-<a href="https://wg21.link/flat.set.modifiers">[flat.set.modifiers]</a></span>
+<p>Change <a href="https://wg21.link/flat.set.modifiers">[flat.set.modifiers]</a>
 paragraph 13:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> swap<span class="op">(</span>flat_set<span class="op">&amp;</span> y<span class="op">)</span> <span class="rm" style="color: #bf0303"><del><span><code class="sourceCode default">noexcept;</code></span></del></span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">noexcept(is_nothrow_swappable_v&lt;container_type&gt; &amp;&amp;</code></span></ins></span></span>
@@ -657,9 +651,8 @@ paragraph 13:</p>
 <div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>ranges<span class="op">::</span>swap<span class="op">(</span>compare, y<span class="op">.</span>compare<span class="op">)</span>;</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>ranges<span class="op">::</span>swap<span class="op">(</span>c, y<span class="op">.</span>c<span class="op">)</span>;</span></code></pre></div>
 </div>
-<p>Change <span>23.6.12.2
-<a href="https://wg21.link/flat.multiset.defn">[flat.multiset.defn]</a></span>
-as follows:</p>
+<p>Change <a href="https://wg21.link/flat.multiset.defn">[flat.multiset.defn]</a> as
+follows:</p>
 <div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> swap<span class="op">(</span>flat_multiset<span class="op">&amp;</span> y<span class="op">)</span> <span class="rm" style="color: #bf0303"><del><span><code class="sourceCode default">noexcept;</code></span></del></span></span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">noexcept(is_nothrow_swappable_v&lt;container_type&gt; &amp;&amp;</code></span></ins></span></span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>           <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">is_nothrow_swappable_v&lt;key_compare&gt;);</code></span></ins></span></span>
@@ -670,8 +663,7 @@ as follows:</p>
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">noexcept(is_nothrow_swappable_v&lt;container_type&gt; &amp;&amp;</code></span></ins></span></span>
 <span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>           <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">is_nothrow_swappable_v&lt;key_compare&gt;)</code></span></ins></span></span>
 <span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span> x<span class="op">.</span>swap<span class="op">(</span>y<span class="op">)</span>; <span class="op">}</span></span></code></pre></div>
-<p>Change <span>23.6.12.5
-<a href="https://wg21.link/flat.multiset.modifiers">[flat.multiset.modifiers]</a></span>
+<p>Change <a href="https://wg21.link/flat.multiset.modifiers">[flat.multiset.modifiers]</a>
 paragraph 9:</p>
 <div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> swap<span class="op">(</span>flat_multiset<span class="op">&amp;</span> y<span class="op">)</span> <span class="rm" style="color: #bf0303"><del><span><code class="sourceCode default">noexcept;</code></span></del></span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">noexcept(is_nothrow_swappable_v&lt;container_type&gt; &amp;&amp;</code></span></ins></span></span>
@@ -707,9 +699,8 @@ is also missing.</p>
 <h2 data-number="5.1" id="wording-2"><span class="header-section-number">5.1</span> Wording<a href="#wording-2" class="self-link"></a></h2>
 <h3 data-number="5.1.1" id="flat_map"><span class="header-section-number">5.1.1</span>
 <code class="sourceCode cpp">flat_map</code><a href="#flat_map" class="self-link"></a></h3>
-<p>Change <span>23.6.8.2
-<a href="https://wg21.link/flat.map.defn">[flat.map.defn]</a></span> as
-follows:</p>
+<p>Change <a href="https://wg21.link/flat.map.defn">[flat.map.defn]</a>
+as follows:</p>
 <div class="sourceCode" id="cb15"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> InputIterator<span class="op">&gt;</span></span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> insert<span class="op">(</span>InputIterator first, InputIterator last<span class="op">)</span>;</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> InputIterator<span class="op">&gt;</span></span>
@@ -718,8 +709,7 @@ follows:</p>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> insert_range<span class="op">(</span>R<span class="op">&amp;&amp;</span> rg<span class="op">)</span>;</span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">template&lt;container-compatible-range&lt;value_type&gt; R&gt;</code></span></ins></span></span>
 <span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">void insert_range(sorted_unique_t, R&amp;&amp; rg);</code></span></ins></span></span></code></pre></div>
-<p>Add a new entry to <span>23.6.8.7
-<a href="https://wg21.link/flat.map.modifiers">[flat.map.modifiers]</a></span>
+<p>Add a new entry to <a href="https://wg21.link/flat.map.modifiers">[flat.map.modifiers]</a>
 after paragraph 14:</p>
 <div class="sourceCode" id="cb16"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span>container<span class="op">-</span>compatible<span class="op">-</span>range<span class="op">&lt;</span>value_type<span class="op">&gt;</span> R<span class="op">&gt;</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> insert_range<span class="op">(</span>sorted_unique_t, R<span class="op">&amp;&amp;</span> rg<span class="op">)</span>;</span></code></pre></div>
@@ -749,9 +739,8 @@ may allocate memory.</p>
 </div>
 <h3 data-number="5.1.2" id="flat_multimap"><span class="header-section-number">5.1.2</span>
 <code class="sourceCode cpp">flat_multimap</code><a href="#flat_multimap" class="self-link"></a></h3>
-<p>Change <span>23.6.9.2
-<a href="https://wg21.link/flat.multimap.defn">[flat.multimap.defn]</a></span>
-as follows:</p>
+<p>Change <a href="https://wg21.link/flat.multimap.defn">[flat.multimap.defn]</a> as
+follows:</p>
 <div class="sourceCode" id="cb19"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> InputIterator<span class="op">&gt;</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> insert<span class="op">(</span>InputIterator first, InputIterator last<span class="op">)</span>;</span>
 <span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> InputIterator<span class="op">&gt;</span></span>
@@ -762,9 +751,8 @@ as follows:</p>
 <span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">void insert_range(sorted_equivalent_t, R&amp;&amp; rg);</code></span></ins></span></span></code></pre></div>
 <h3 data-number="5.1.3" id="flat_set"><span class="header-section-number">5.1.3</span>
 <code class="sourceCode cpp">flat_set</code><a href="#flat_set" class="self-link"></a></h3>
-<p>Change <span>23.6.11.2
-<a href="https://wg21.link/flat.set.defn">[flat.set.defn]</a></span> as
-follows:</p>
+<p>Change <a href="https://wg21.link/flat.set.defn">[flat.set.defn]</a>
+as follows:</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> InputIterator<span class="op">&gt;</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> insert<span class="op">(</span>InputIterator first, InputIterator last<span class="op">)</span>;</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> InputIterator<span class="op">&gt;</span></span>
@@ -773,8 +761,7 @@ follows:</p>
 <span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> insert_range<span class="op">(</span>R<span class="op">&amp;&amp;</span> rg<span class="op">)</span>;</span>
 <span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">template&lt;container-compatible-range&lt;value_type&gt; R&gt;</code></span></ins></span></span>
 <span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">void insert_range(sorted_unique_t, R&amp;&amp; rg);</code></span></ins></span></span></code></pre></div>
-<p>Add a new entry to <span>23.6.11.5
-<a href="https://wg21.link/flat.set.modifiers">[flat.set.modifiers]</a></span>
+<p>Add a new entry to <a href="https://wg21.link/flat.set.modifiers">[flat.set.modifiers]</a>
 after paragraph 12:</p>
 <div class="sourceCode" id="cb21"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span>container<span class="op">-</span>compatible<span class="op">-</span>range<span class="op">&lt;</span>value_type<span class="op">&gt;</span> R<span class="op">&gt;</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> insert_range<span class="op">(</span>sorted_unique_t, R<span class="op">&amp;&amp;</span> rg<span class="op">)</span>;</span></code></pre></div>
@@ -788,9 +775,8 @@ the operation.</p>
 </div>
 <h3 data-number="5.1.4" id="flat_multiset"><span class="header-section-number">5.1.4</span>
 <code class="sourceCode cpp">flat_multiset</code><a href="#flat_multiset" class="self-link"></a></h3>
-<p>Change <span>23.6.12.2
-<a href="https://wg21.link/flat.multiset.defn">[flat.multiset.defn]</a></span>
-as follows:</p>
+<p>Change <a href="https://wg21.link/flat.multiset.defn">[flat.multiset.defn]</a> as
+follows:</p>
 <div class="sourceCode" id="cb22"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> InputIterator<span class="op">&gt;</span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> insert<span class="op">(</span>InputIterator first, InputIterator last<span class="op">)</span>;</span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="kw">class</span> InputIterator<span class="op">&gt;</span></span>
@@ -814,8 +800,7 @@ as if by:</p>
 </div>
 <p>We should allow implementations to move when they can.</p>
 <h2 data-number="6.1" id="wording-3"><span class="header-section-number">6.1</span> Wording<a href="#wording-3" class="self-link"></a></h2>
-<p>Change <span>23.6.11.5
-<a href="https://wg21.link/flat.set.modifiers">[flat.set.modifiers]</a></span>
+<p>Change <a href="https://wg21.link/flat.set.modifiers">[flat.set.modifiers]</a>
 paragraph 10 as follows:</p>
 <div class="sourceCode" id="cb25"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span>container<span class="op">-</span>compatible<span class="op">-</span>range<span class="op">&lt;</span>value_type<span class="op">&gt;</span> R<span class="op">&gt;</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">void</span> insert_range<span class="op">(</span>R<span class="op">&amp;&amp;</span> rg<span class="op">)</span>;</span></code></pre></div>
@@ -851,9 +836,8 @@ useless in any context where an exception can be thrown.</p>
 <h2 data-number="7.1" id="wording-4"><span class="header-section-number">7.1</span> Wording<a href="#wording-4" class="self-link"></a></h2>
 <h3 data-number="7.1.1" id="flat_map-wording"><span class="header-section-number">7.1.1</span>
 <code class="sourceCode cpp">flat_map</code> Wording<a href="#flat_map-wording" class="self-link"></a></h3>
-<p>Change <span>23.6.8.2
-<a href="https://wg21.link/flat.map.defn">[flat.map.defn]</a></span> as
-follows:</p>
+<p>Change <a href="https://wg21.link/flat.map.defn">[flat.map.defn]</a>
+as follows:</p>
 <div class="sourceCode" id="cb27"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co">// [flat.map.cons], constructors</span></span>
 <span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>flat_map<span class="op">()</span> <span class="op">:</span> flat_map<span class="op">(</span>key_compare<span class="op">())</span> <span class="op">{</span> <span class="op">}</span></span>
 <span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -861,9 +845,8 @@ follows:</p>
 <span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">flat_map(flat_map&amp;&amp;);</code></span></ins></span></span>
 <span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">flat_map&amp; operator=(const flat_map&amp;);</code></span></ins></span></span>
 <span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">flat_map&amp; operator=(flat_map&amp;&amp;);</code></span></ins></span></span></code></pre></div>
-<p>Add a new entry to <span>23.6.8.3
-<a href="https://wg21.link/flat.map.cons">[flat.map.cons]</a></span> at
-the beginning:</p>
+<p>Add a new entry to <a href="https://wg21.link/flat.map.cons">[flat.map.cons]</a> at the
+beginning:</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>flat_map<span class="op">(</span>flat_map<span class="op">&amp;&amp;</span> o<span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">1</a></span>
@@ -890,9 +873,8 @@ such that both implementations are valid.</p>
 </blockquote>
 <h3 data-number="7.1.2" id="flat_multimap-wording"><span class="header-section-number">7.1.2</span>
 <code class="sourceCode cpp">flat_multimap</code> Wording<a href="#flat_multimap-wording" class="self-link"></a></h3>
-<p>Change <span>23.6.9.2
-<a href="https://wg21.link/flat.multimap.defn">[flat.multimap.defn]</a></span>
-as follows:</p>
+<p>Change <a href="https://wg21.link/flat.multimap.defn">[flat.multimap.defn]</a> as
+follows:</p>
 <div class="sourceCode" id="cb30"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co">// [flat.multimap.cons], constructors</span></span>
 <span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>flat_multimap<span class="op">()</span> <span class="op">:</span> flat_multimap<span class="op">(</span>key_compare<span class="op">())</span> <span class="op">{</span> <span class="op">}</span></span>
 <span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -900,9 +882,8 @@ as follows:</p>
 <span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">flat_multimap(flat_multimap&amp;&amp;);</code></span></ins></span></span>
 <span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">flat_multimap&amp; operator=(const flat_multimap&amp;);</code></span></ins></span></span>
 <span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">flat_multimap&amp; operator=(flat_multimap&amp;&amp;);</code></span></ins></span></span></code></pre></div>
-<p>Add a new entry to <span>23.6.9.3
-<a href="https://wg21.link/flat.multimap.cons">[flat.multimap.cons]</a></span>
-at the beginning:</p>
+<p>Add a new entry to <a href="https://wg21.link/flat.multimap.cons">[flat.multimap.cons]</a> at
+the beginning:</p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>flat_multimap<span class="op">(</span>flat_multimap<span class="op">&amp;&amp;</span> o<span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">1</a></span>
@@ -924,9 +905,8 @@ are restored.</p>
 </div>
 <h3 data-number="7.1.3" id="flat_set-wording"><span class="header-section-number">7.1.3</span>
 <code class="sourceCode cpp">flat_set</code> Wording<a href="#flat_set-wording" class="self-link"></a></h3>
-<p>Change <span>23.6.11.2
-<a href="https://wg21.link/flat.set.defn">[flat.set.defn]</a></span> as
-follows:</p>
+<p>Change <a href="https://wg21.link/flat.set.defn">[flat.set.defn]</a>
+as follows:</p>
 <div class="sourceCode" id="cb33"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co">// [flat.set.cons], constructors</span></span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>flat_set<span class="op">()</span> <span class="op">:</span> flat_set<span class="op">(</span>key_compare<span class="op">())</span> <span class="op">{</span> <span class="op">}</span></span>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -934,9 +914,8 @@ follows:</p>
 <span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">flat_set(flat_set&amp;&amp;);</code></span></ins></span></span>
 <span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">flat_set&amp; operator=(const flat_set&amp;);</code></span></ins></span></span>
 <span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">flat_set&amp; operator=(flat_set&amp;&amp;);</code></span></ins></span></span></code></pre></div>
-<p>Add a new entry to <span>23.6.11.3
-<a href="https://wg21.link/flat.set.cons">[flat.set.cons]</a></span> at
-the beginning:</p>
+<p>Add a new entry to <a href="https://wg21.link/flat.set.cons">[flat.set.cons]</a> at the
+beginning:</p>
 <div class="sourceCode" id="cb34"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>flat_set<span class="op">(</span>flat_set<span class="op">&amp;&amp;</span> o<span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">1</a></span>
@@ -958,9 +937,8 @@ are restored.</p>
 </div>
 <h3 data-number="7.1.4" id="flat_multiset-wording"><span class="header-section-number">7.1.4</span>
 <code class="sourceCode cpp">flat_multiset</code> Wording<a href="#flat_multiset-wording" class="self-link"></a></h3>
-<p>Change <span>23.6.12.2
-<a href="https://wg21.link/flat.multiset.defn">[flat.multiset.defn]</a></span>
-as follows:</p>
+<p>Change <a href="https://wg21.link/flat.multiset.defn">[flat.multiset.defn]</a> as
+follows:</p>
 <div class="sourceCode" id="cb36"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co">// [flat.multiset.cons], constructors</span></span>
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>flat_multiset<span class="op">()</span> <span class="op">:</span> flat_multiset<span class="op">(</span>key_compare<span class="op">())</span> <span class="op">{</span> <span class="op">}</span></span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
@@ -968,9 +946,8 @@ as follows:</p>
 <span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">flat_multiset(flat_multiset&amp;&amp;);</code></span></ins></span></span>
 <span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">flat_multiset&amp; operator=(const flat_multiset&amp;);</code></span></ins></span></span>
 <span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">flat_multiset&amp; operator=(flat_multiset&amp;&amp;);</code></span></ins></span></span></code></pre></div>
-<p>Add a new entry to <span>23.6.12.3
-<a href="https://wg21.link/flat.multiset.cons">[flat.multiset.cons]</a></span>
-at the beginning:</p>
+<p>Add a new entry to <a href="https://wg21.link/flat.multiset.cons">[flat.multiset.cons]</a> at
+the beginning:</p>
 <div class="sourceCode" id="cb37"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>flat_multiset<span class="op">(</span>flat_multiset<span class="op">&amp;&amp;</span> o<span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">1</a></span>
