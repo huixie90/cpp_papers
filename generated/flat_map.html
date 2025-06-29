@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="mpark/wg21" />
@@ -90,6 +90,10 @@ font-family: serif;
 hyphens: auto;
 line-height: 1.35;
 text-align: justify;
+
+-webkit-text-size-adjust: none;
+-moz-text-size-adjust: none;
+text-size-adjust: none;
 }
 @media screen and (max-width: 30em) {
 body {
@@ -423,7 +427,11 @@ code.sourceCode > span { display: inline; }
 <table style="border:none;float:right">
   <tr>
     <td>Document #:</td>
-    <td>P3567R0</td>
+    <td>
+      P3567R0
+      [<a href="https://wg21.link/P3567">Latest</a>]
+      [<a href="https://wg21.link/P3567/status">Status</a>]
+    </td>
   </tr>
   <tr>
     <td>Date:</td>
@@ -511,14 +519,14 @@ Macro<span></span></a></li>
 </ul>
 </div>
 <h1 data-number="1" id="abstract"><span class="header-section-number">1</span> Abstract<a href="#abstract" class="self-link"></a></h1>
-<p>This paper proposes a subset of the fixes in <span class="citation" data-cites="P2767R2">[<a href="https://wg21.link/p2767r2" role="doc-biblioref">P2767R2</a>]</span> to
+<p>This paper proposes a subset of the fixes in <span class="citation" data-cites="P2767R2"><a href="https://wg21.link/p2767r2" role="doc-biblioref">[P2767R2]</a></span> to
 <code class="sourceCode cpp">flat_map</code>,
 <code class="sourceCode cpp">flat_multimap</code>,
 <code class="sourceCode cpp">flat_set</code>, and
 <code class="sourceCode cpp">flat_multiset</code> based on libc++’s
 implementation.</p>
 <h1 data-number="2" id="introduction"><span class="header-section-number">2</span> Introduction<a href="#introduction" class="self-link"></a></h1>
-<p><span class="citation" data-cites="P2767R2">[<a href="https://wg21.link/p2767r2" role="doc-biblioref">P2767R2</a>]</span> proposed a set of changes to
+<p><span class="citation" data-cites="P2767R2"><a href="https://wg21.link/p2767r2" role="doc-biblioref">[P2767R2]</a></span> proposed a set of changes to
 <code class="sourceCode cpp">flat_map</code>,
 <code class="sourceCode cpp">flat_multimap</code>,
 <code class="sourceCode cpp">flat_set</code>, and
@@ -527,14 +535,14 @@ implementation experience. However, the paper contains not only some
 straight forward fixes, but also some design changes, which did not get
 consensus in previous meetings. We (libc++) have recently released the
 <code class="sourceCode cpp">flat_map</code> implementation. After
-consulting the author of the original paper <span class="citation" data-cites="P2767R2">[<a href="https://wg21.link/p2767r2" role="doc-biblioref">P2767R2</a>]</span>, we decided to create a new
+consulting the author of the original paper <span class="citation" data-cites="P2767R2"><a href="https://wg21.link/p2767r2" role="doc-biblioref">[P2767R2]</a></span>, we decided to create a new
 paper which contains a subset of the non-controversial fixes based on
 our implementation experience.</p>
 <h1 data-number="3" id="lwg-4000-flat_mapinsert_range-fix"><span class="header-section-number">3</span> LWG 4000: <code class="sourceCode cpp">flat_map<span class="op">::</span>insert_range</code>
 Fix<a href="#lwg-4000-flat_mapinsert_range-fix" class="self-link"></a></h1>
-<p>As stated in <span class="citation" data-cites="LWG4000">[<a href="https://wg21.link/lwg4000" role="doc-biblioref">LWG4000</a>]</span>, <code class="sourceCode cpp">flat_map<span class="op">::</span>insert_range</code>
+<p>As stated in <span class="citation" data-cites="LWG4000"><a href="https://wg21.link/lwg4000" role="doc-biblioref">[LWG4000]</a></span>, <code class="sourceCode cpp">flat_map<span class="op">::</span>insert_range</code>
 has an obvious bug. But for some reason, this LWG issue was not moved
-forward, possibly due to the existence of <span class="citation" data-cites="P2767R2">[<a href="https://wg21.link/p2767r2" role="doc-biblioref">P2767R2</a>]</span>. The fix is twofold: first, we
+forward, possibly due to the existence of <span class="citation" data-cites="P2767R2"><a href="https://wg21.link/p2767r2" role="doc-biblioref">[P2767R2]</a></span>. The fix is twofold: first, we
 use <code class="sourceCode cpp">value_type</code> explicitly to make
 sure that <code class="sourceCode cpp">e</code> is a
 <code class="sourceCode cpp">std<span class="op">::</span>pair</code>,

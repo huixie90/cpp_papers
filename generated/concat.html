@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="mpark/wg21" />
@@ -90,6 +90,10 @@ font-family: serif;
 hyphens: auto;
 line-height: 1.35;
 text-align: justify;
+
+-webkit-text-size-adjust: none;
+-moz-text-size-adjust: none;
+text-size-adjust: none;
 }
 @media screen and (max-width: 30em) {
 body {
@@ -423,7 +427,11 @@ code.sourceCode > span { display: inline; }
 <table style="border:none;float:right">
   <tr>
     <td>Document #:</td>
-    <td>P2542R8</td>
+    <td>
+      P2542R8
+      [<a href="https://wg21.link/P2542">Latest</a>]
+      [<a href="https://wg21.link/P2542/status">Status</a>]
+    </td>
   </tr>
   <tr>
     <td>Date:</td>
@@ -588,7 +596,7 @@ defines <code class="sourceCode cpp">concatable</code>.</p></li>
 </ul>
 <h1 data-number="2" id="abstract"><span class="header-section-number">2</span> Abstract<a href="#abstract" class="self-link"></a></h1>
 <p>This paper proposes <code class="sourceCode cpp">views<span class="op">::</span>concat</code> as
-very briefly introduced in Section 4.7 of <span class="citation" data-cites="P2214R1">[<a href="https://wg21.link/p2214r1" role="doc-biblioref">P2214R1</a>]</span>. It is a view factory that
+very briefly introduced in Section 4.7 of <span class="citation" data-cites="P2214R1"><a href="https://wg21.link/p2214r1" role="doc-biblioref">[P2214R1]</a></span>. It is a view factory that
 takes an arbitrary number of ranges as an argument list, and provides a
 view that starts at the first element of the first range, ends at the
 last element of the last range, with all range elements sequenced in
@@ -709,7 +717,7 @@ problematic indirection in its value type.
 <code class="sourceCode cpp">concat_view</code> based implementation is
 a neat one-liner.</p>
 <h1 data-number="4" id="design"><span class="header-section-number">4</span> Design<a href="#design" class="self-link"></a></h1>
-<p>This is a generator factory as described in <span class="citation" data-cites="P2214R1">[<a href="https://wg21.link/p2214r1" role="doc-biblioref">P2214R1</a>]</span> Section 4.7. As such, it can
+<p>This is a generator factory as described in <span class="citation" data-cites="P2214R1"><a href="https://wg21.link/p2214r1" role="doc-biblioref">[P2214R1]</a></span> Section 4.7. As such, it can
 not be piped to. It takes the list of ranges to concatenate as arguments
 to <code class="sourceCode cpp">ranges<span class="op">::</span>concat_view</code>
 constructor, or to <code class="sourceCode cpp">ranges<span class="op">::</span>views<span class="op">::</span>concat</code>
@@ -726,7 +734,7 @@ and is captured by the exposition only concept
 <code class="sourceCode cpp">concatable</code>. See <a href="#concatable-definition">Wording</a>. Proposed
 <code class="sourceCode cpp">concat_view</code> is then additionally
 constrained by this concept. (Note that, this is an improvement over
-<span class="citation" data-cites="rangev3">[<a href="https://github.com/ericniebler/range-v3" role="doc-biblioref">range-v3</a>]</span>
+<span class="citation" data-cites="rangev3"><a href="https://github.com/ericniebler/range-v3" role="doc-biblioref">[range-v3]</a></span>
 <code class="sourceCode cpp">concat_view</code> which lacks such
 constraints, and fails with hard errors instead.)</p>
 <h3 data-number="4.1.1" id="reference"><span class="header-section-number">4.1.1</span>
@@ -890,7 +898,7 @@ at its interface. A future extension may satisfy these use cases, for
 example a <code class="sourceCode cpp">concat_as</code> view, or by even
 generally via an <code class="sourceCode cpp">as</code> view that is a
 type-generalized version of the
-<code class="sourceCode cpp">as_const</code> view of <span class="citation" data-cites="P2278R1">[<a href="https://wg21.link/p2278r1" role="doc-biblioref">P2278R1</a>]</span>.</p>
+<code class="sourceCode cpp">as_const</code> view of <span class="citation" data-cites="P2278R1"><a href="https://wg21.link/p2278r1" role="doc-biblioref">[P2278R1]</a></span>.</p>
 <h2 data-number="4.2" id="zero-or-one-view"><span class="header-section-number">4.2</span> Zero or one view<a href="#zero-or-one-view" class="self-link"></a></h2>
 <ul>
 <li>No argument <code class="sourceCode cpp">views<span class="op">::</span>concat<span class="op">()</span></code>
@@ -917,8 +925,8 @@ concatenates which is a statically known parameter of this view.</p>
 <code class="sourceCode cpp">size</code>, and its iterators’ increment,
 decrement, advance, distance. This characteristic (but not necessarily
 the specifics) are very much similar to the other n-ary adaptors like
-<code class="sourceCode cpp">zip_view</code> <span class="citation" data-cites="P2321R2">[<a href="https://wg21.link/p2321r2" role="doc-biblioref">P2321R2</a>]</span> and
-<code class="sourceCode cpp">cartesian_view</code> <span class="citation" data-cites="P2374R3">[<a href="https://wg21.link/p2374r3" role="doc-biblioref">P2374R3</a>]</span>.</p>
+<code class="sourceCode cpp">zip_view</code> <span class="citation" data-cites="P2321R2"><a href="https://wg21.link/p2321r2" role="doc-biblioref">[P2321R2]</a></span> and
+<code class="sourceCode cpp">cartesian_view</code> <span class="citation" data-cites="P2374R3"><a href="https://wg21.link/p2374r3" role="doc-biblioref">[P2374R3]</a></span>.</p>
 <h2 data-number="4.4" id="borrowed-vs-cheap-iterator"><span class="header-section-number">4.4</span> Borrowed vs Cheap Iterator<a href="#borrowed-vs-cheap-iterator" class="self-link"></a></h2>
 <p><code class="sourceCode cpp">concat_view</code> can be designed to be
 a <code class="sourceCode cpp">borrowed_range</code>, if all the
@@ -926,7 +934,7 @@ underlying ranges are. However, this requires the iterator
 implementation to contain a copy of all iterators and sentinels of all
 underlying ranges at all times (just like that of
 <code class="sourceCode cpp">views<span class="op">::</span>zip</code>
-<span class="citation" data-cites="P2321R2">[<a href="https://wg21.link/p2321r2" role="doc-biblioref">P2321R2</a>]</span>). On the other hand (unlike
+<span class="citation" data-cites="P2321R2"><a href="https://wg21.link/p2321r2" role="doc-biblioref">[P2321R2]</a></span>). On the other hand (unlike
 <code class="sourceCode cpp">views<span class="op">::</span>zip</code>),
 a much cheaper implementation can satisfy all the proposed functionality
 provided it is permitted to be unconditionally not borrowed. This
@@ -934,7 +942,7 @@ implementation would maintain only a single active iterator at a time
 and simply refers to the parent view for the bounds.</p>
 <p>Experience shows the borrowed-ness of
 <code class="sourceCode cpp">concat</code> is not a major requirement;
-and the existing implementation in <span class="citation" data-cites="rangev3">[<a href="https://github.com/ericniebler/range-v3" role="doc-biblioref">range-v3</a>]</span> seems to have picked the
+and the existing implementation in <span class="citation" data-cites="rangev3"><a href="https://github.com/ericniebler/range-v3" role="doc-biblioref">[range-v3]</a></span> seems to have picked the
 cheaper alternative. This paper proposes the same.</p>
 <h2 data-number="4.5" id="common-range"><span class="header-section-number">4.5</span> Common Range<a href="#common-range" class="self-link"></a></h2>
 <p><code class="sourceCode cpp">concat_view</code> can be
@@ -1097,7 +1105,7 @@ do not consider this type of ranges as worth supporting
 bidirectional</li>
 </ul>
 <p>In the <code class="sourceCode cpp">concat</code> implementation in
-<span class="citation" data-cites="rangev3">[<a href="https://github.com/ericniebler/range-v3" role="doc-biblioref">range-v3</a>]</span>, <code class="sourceCode cpp"><span class="kw">operator</span><span class="op">--</span></code>
+<span class="citation" data-cites="rangev3"><a href="https://github.com/ericniebler/range-v3" role="doc-biblioref">[range-v3]</a></span>, <code class="sourceCode cpp"><span class="kw">operator</span><span class="op">--</span></code>
 is only constrained on all underlying ranges being
 <code class="sourceCode cpp">bidirectional_range</code> on the
 declaration, but its implementation is using <code class="sourceCode cpp">ranges<span class="op">::</span>next<span class="op">(</span>ranges<span class="op">::</span>begin<span class="op">(</span>r<span class="op">)</span>, ranges<span class="op">::</span>end<span class="op">(</span>r<span class="op">))</span></code>
@@ -1195,9 +1203,9 @@ the same underlying iterators.</p>
 is adopted in this revision.</p>
 <h2 data-number="4.9" id="implementation-experience"><span class="header-section-number">4.9</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h2>
 <p><code class="sourceCode cpp">views<span class="op">::</span>concat</code> has
-been implemented in <span class="citation" data-cites="rangev3">[<a href="https://github.com/ericniebler/range-v3" role="doc-biblioref">range-v3</a>]</span>, with equivalent semantics as
+been implemented in <span class="citation" data-cites="rangev3"><a href="https://github.com/ericniebler/range-v3" role="doc-biblioref">[range-v3]</a></span>, with equivalent semantics as
 proposed here. The authors also implemented a version that directly
-follows the proposed wording below without any issue <span class="citation" data-cites="ours">[<a href="https://github.com/huixie90/cpp_papers/tree/main/impl/concat" role="doc-biblioref">ours</a>]</span>.</p>
+follows the proposed wording below without any issue <span class="citation" data-cites="ours"><a href="https://github.com/huixie90/cpp_papers/tree/main/impl/concat" role="doc-biblioref">[ours]</a></span>.</p>
 <h1 data-number="5" id="wording"><span class="header-section-number">5</span> Wording<a href="#wording" class="self-link"></a></h1>
 <h2 data-number="5.1" id="addition-to-ranges"><span class="header-section-number">5.1</span> Addition to <code class="sourceCode cpp"><span class="op">&lt;</span>ranges<span class="op">&gt;</span></code><a href="#addition-to-ranges" class="self-link"></a></h2>
 <p>Add the following to <a href="https://wg21.link/ranges.syn">[ranges.syn]</a>, header <code class="sourceCode cpp"><span class="op">&lt;</span>ranges<span class="op">&gt;</span></code>

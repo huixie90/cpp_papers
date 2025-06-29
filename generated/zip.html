@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="mpark/wg21" />
@@ -90,6 +90,10 @@ font-family: serif;
 hyphens: auto;
 line-height: 1.35;
 text-align: justify;
+
+-webkit-text-size-adjust: none;
+-moz-text-size-adjust: none;
+text-size-adjust: none;
 }
 @media screen and (max-width: 30em) {
 body {
@@ -424,7 +428,9 @@ Should Be an Infinite Range</h1>
 <table style="border:none;float:right">
   <tr>
     <td>Document #:</td>
-    <td>DXXXXR0</td>
+    <td>
+      DXXXXR0
+    </td>
   </tr>
   <tr>
     <td>Date:</td>
@@ -504,7 +510,7 @@ instead of the current <code class="sourceCode cpp">views<span class="op">::</sp
 <code class="sourceCode cpp">zip<span class="op">()</span></code>
 Design<a href="#rationale-for-the-current-zip-design" class="self-link"></a></h2>
 <h3 data-number="3.1.1" id="p2321r2"><span class="header-section-number">3.1.1</span> P2321R2<a href="#p2321r2" class="self-link"></a></h3>
-<p>According to <span class="citation" data-cites="P2321R2">[<a href="https://wg21.link/p2321r2" role="doc-biblioref">P2321R2</a>]</span>, the reason for the current
+<p>According to <span class="citation" data-cites="P2321R2"><a href="https://wg21.link/p2321r2" role="doc-biblioref">[P2321R2]</a></span>, the reason for the current
 behaviour of
 <code class="sourceCode cpp">zip<span class="op">()</span></code>
 was:</p>
@@ -515,7 +521,7 @@ type.</p>
 </blockquote>
 <p>Searching through the historical commits in range-v3, the behaviour
 of <code class="sourceCode cpp">zip<span class="op">()</span></code> was
-added in this commit <span class="citation" data-cites="range-v3">[<a href="https://github.com/ericniebler/range-v3/commit/ef9a650d4da87f02c5c079055e09017825c92fb3" role="doc-biblioref">range-v3</a>]</span>.</p>
+added in this commit <span class="citation" data-cites="range-v3"><a href="https://github.com/ericniebler/range-v3/commit/ef9a650d4da87f02c5c079055e09017825c92fb3" role="doc-biblioref">[range-v3]</a></span>.</p>
 <p>In this commit, both nullary <code class="sourceCode cpp">cartesian_product<span class="op">()</span></code>
 and <code class="sourceCode cpp">zip<span class="op">()</span></code>
 were added, both yield an empty range, and both are incorrect. And the
@@ -527,11 +533,11 @@ rationale for this commit was</p>
 <p>In conclusion, this behaviour did not seem to be a result of careful
 design, but just chosen to work around a “nasty MSVC special case”.</p>
 <h3 data-number="3.1.2" id="p2540r1"><span class="header-section-number">3.1.2</span> P2540R1<a href="#p2540r1" class="self-link"></a></h3>
-<p>The discussion on the <span class="citation" data-cites="reflector">[<a href="https://lists.isocpp.org/lib-ext/2022/01/22023.php" role="doc-biblioref">reflector</a>]</span> indicated that <code class="sourceCode cpp">cartesian_product<span class="op">()</span></code>
+<p>The discussion on the <span class="citation" data-cites="reflector"><a href="https://lists.isocpp.org/lib-ext/2022/01/22023.php" role="doc-biblioref">[reflector]</a></span> indicated that <code class="sourceCode cpp">cartesian_product<span class="op">()</span></code>
 should be <code class="sourceCode cpp">single<span class="op">(</span>tuple<span class="op">())</span></code>
 and <code class="sourceCode cpp">zip<span class="op">()</span></code>
 should be <code class="sourceCode cpp">repeat<span class="op">(</span>tuple<span class="op">())</span></code>.</p>
-<p>Luckily, <span class="citation" data-cites="P2540R1">[<a href="https://wg21.link/p2540r1" role="doc-biblioref">P2540R1</a>]</span> fixed
+<p>Luckily, <span class="citation" data-cites="P2540R1"><a href="https://wg21.link/p2540r1" role="doc-biblioref">[P2540R1]</a></span> fixed
 <code class="sourceCode cpp">cartesian_product</code>. So it no longer
 follows the “range-v3” behaviour but the correct one <code class="sourceCode cpp">views<span class="op">::</span>single<span class="op">(</span>tuple<span class="op">())</span></code>.</p>
 <p>However, the paper intentionally left
@@ -568,10 +574,10 @@ produces an infinite range of empty tuples, which is in line with the
 authors’ view.</p>
 <h3 data-number="3.3.2" id="haskell"><span class="header-section-number">3.3.2</span> Haskell<a href="#haskell" class="self-link"></a></h3>
 <p>Haskell’s <code class="sourceCode cpp">ZipList</code>’s
-<code class="sourceCode cpp">pure</code> implementation is <span class="citation" data-cites="haskell_source">[<a href="https://hackage.haskell.org/package/ghc-internal-9.1201.0/docs/src/GHC.Internal.Functor.ZipList.html" role="doc-biblioref">haskell_source</a>]</span></p>
+<code class="sourceCode cpp">pure</code> implementation is <span class="citation" data-cites="haskell_source"><a href="https://hackage.haskell.org/package/ghc-internal-9.1201.0/docs/src/GHC.Internal.Functor.ZipList.html" role="doc-biblioref">[haskell_source]</a></span></p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pure</span> x <span class="ot">=</span> <span class="dt">ZipList</span> (<span class="fu">repeat</span> x)</span></code></pre></div>
 <p>This is also what authors expected.</p>
-<p>Haskell documentation <span class="citation" data-cites="haskell_doc">[<a href="https://en.wikibooks.org/wiki/Haskell/Applicative_functors#ZipList" role="doc-biblioref">haskell_doc</a>]</span> clearly stated that</p>
+<p>Haskell documentation <span class="citation" data-cites="haskell_doc"><a href="https://en.wikibooks.org/wiki/Haskell/Applicative_functors#ZipList" role="doc-biblioref">[haskell_doc]</a></span> clearly stated that</p>
 <blockquote>
 <p>The only way to ensure <code class="sourceCode cpp">zipWith <span class="op">(</span><span class="er">$</span><span class="op">)</span> fs</code>
 never removes elements is making <code class="sourceCode cpp">fs</code>
@@ -592,7 +598,7 @@ a good reason.</p>
 <code class="sourceCode cpp">zip<span class="op">()</span></code> is an
 empty iterable. It is unclear what drives the design decision on this.
 The author has asked this question on StackOverflow’s Python community
-long time ago <span class="citation" data-cites="stackoverflow">[<a href="https://stackoverflow.com/questions/71561715/why-does-python-zip-yield-nothing-when-given-no-iterables" role="doc-biblioref">stackoverflow</a>]</span>, but there is no
+long time ago <span class="citation" data-cites="stackoverflow"><a href="https://stackoverflow.com/questions/71561715/why-does-python-zip-yield-nothing-when-given-no-iterables" role="doc-biblioref">[stackoverflow]</a></span>, but there is no
 satisfying answer.</p>
 <h2 data-number="3.4" id="an-infinite-range-is-not-a-rangesrange"><span class="header-section-number">3.4</span> An Infinite Range is not a
 <code class="sourceCode cpp">ranges<span class="op">::</span>range</code><a href="#an-infinite-range-is-not-a-rangesrange" class="self-link"></a></h2>

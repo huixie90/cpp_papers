@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="mpark/wg21" />
@@ -90,6 +90,10 @@ font-family: serif;
 hyphens: auto;
 line-height: 1.35;
 text-align: justify;
+
+-webkit-text-size-adjust: none;
+-moz-text-size-adjust: none;
+text-size-adjust: none;
 }
 @media screen and (max-width: 30em) {
 body {
@@ -424,7 +428,11 @@ for <code class="sourceCode cpp">single_view</code></h1>
 <table style="border:none;float:right">
   <tr>
     <td>Document #:</td>
-    <td>P2483R0</td>
+    <td>
+      P2483R0
+      [<a href="https://wg21.link/P2483">Latest</a>]
+      [<a href="https://wg21.link/P2483/status">Status</a>]
+    </td>
   </tr>
   <tr>
     <td>Date:</td>
@@ -467,7 +475,7 @@ invalid</p>
 <code class="sourceCode cpp">view</code> concept requires
 <code class="sourceCode cpp">semiregular</code>, thus all
 <code class="sourceCode cpp">view</code> implementations have to be
-copyable. However, after <span class="citation" data-cites="P1456R1">[<a href="https://wg21.link/p1456r1" role="doc-biblioref">P1456R1</a>]</span>,
+copyable. However, after <span class="citation" data-cites="P1456R1"><a href="https://wg21.link/p1456r1" role="doc-biblioref">[P1456R1]</a></span>,
 <code class="sourceCode cpp">view</code> no long requires
 implementations to be <code class="sourceCode cpp">copyable</code> but
 only <code class="sourceCode cpp">movable</code>, so technically the

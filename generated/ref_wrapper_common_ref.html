@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="mpark/wg21" />
@@ -91,6 +91,10 @@ font-family: serif;
 hyphens: auto;
 line-height: 1.35;
 text-align: justify;
+
+-webkit-text-size-adjust: none;
+-moz-text-size-adjust: none;
+text-size-adjust: none;
 }
 @media screen and (max-width: 30em) {
 body {
@@ -426,7 +430,11 @@ Reference Type</h1>
 <table style="border:none;float:right">
   <tr>
     <td>Document #:</td>
-    <td>P2655R3</td>
+    <td>
+      P2655R3
+      [<a href="https://wg21.link/P2655">Latest</a>]
+      [<a href="https://wg21.link/P2655/status">Status</a>]
+    </td>
   </tr>
   <tr>
     <td>Date:</td>
@@ -729,7 +737,7 @@ of <code class="sourceCode cpp">basic_common_reference</code> trait.</p>
 </table>
 <p>In the second and the third example, the user would like to use <code class="sourceCode cpp">views<span class="op">::</span>join_with</code>
 and <code class="sourceCode cpp">views<span class="op">::</span>concat</code>
-<span class="citation" data-cites="P2542R2">[<a href="https://wg21.link/p2542r2" role="doc-biblioref">P2542R2</a>]</span>, respectively, with a range of
+<span class="citation" data-cites="P2542R2"><a href="https://wg21.link/p2542r2" role="doc-biblioref">[P2542R2]</a></span>, respectively, with a range of
 <code class="sourceCode cpp">Foo</code>s and a single
 <code class="sourceCode cpp">Foo</code> for which they use a
 <code class="sourceCode cpp">reference_wrapper</code> to avoid copies.
@@ -1024,9 +1032,9 @@ implementation can be found in the Wording section.</p>
 <h1 data-number="5" id="implementation-experience"><span class="header-section-number">5</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
 <ul>
 <li><p>The authors implemented the proposed wording below without any
-issue<span class="citation" data-cites="ours">[<a href="https://github.com/huixie90/cpp_papers/tree/main/impl/ref_wrapper" role="doc-biblioref">ours</a>]</span>.</p></li>
+issue<span class="citation" data-cites="ours"><a href="https://github.com/huixie90/cpp_papers/tree/main/impl/ref_wrapper" role="doc-biblioref">[ours]</a></span>.</p></li>
 <li><p>The authors also applied the proposed wording in LLVM’s libc++
-and all libc++ tests passed.<span class="citation" data-cites="libcxx">[<a href="https://reviews.llvm.org/D141200" role="doc-biblioref">libcxx</a>]</span></p></li>
+and all libc++ tests passed.<span class="citation" data-cites="libcxx"><a href="https://reviews.llvm.org/D141200" role="doc-biblioref">[libcxx]</a></span></p></li>
 </ul>
 <h1 data-number="6" id="wording"><span class="header-section-number">6</span> Wording<a href="#wording" class="self-link"></a></h1>
 <p>Modify <a href="https://wg21.link/meta.trans.other">[meta.trans.other]</a> section

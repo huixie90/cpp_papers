@@ -24,7 +24,7 @@ brew install mactex # Only for PDF papers
 ### Ubuntu
 
 ```bash
-sudo apt-get install texlive-latex-base # Only for PDF papers
+sudo apt-get install texlive-xetex # Only for PDF papers
 ```
 
 ### Debian
@@ -64,12 +64,15 @@ This framework provides support for various common elements for C++ papers.
 - [Title](#title)
 - [Table of Contents](#table-of-contents)
 - [Markdown](#markdown)
-- [Embedded Markdown within Code](#embedded-markdown-within-code)
+  - [Automatic Header Links](#automatic-header-links)
+  - [Embedded Markdown within Code](#embedded-markdown-within-code)
 - [Comparison Tables](#comparison-tables)
 - [Proposed Wording](#proposed-wording)
   - [Paragraph Numbers](#paragraph-numbers)
   - [Code Changes](#code-changes)
   - [Wording Changes](#wording-changes)
+  - [Examples](#examples)
+  - [Notes](#notes)
   - [Grammar Changes](#grammar-changes)
 - [Stable Names](#stable-names)
 - [Citations](#citations)
@@ -125,11 +128,34 @@ Refer to the full [Pandoc Markdown] spec for useful extensions!
 
 [Pandoc Markdown]: https://pandoc.org/MANUAL.html#pandocs-markdown
 
-### Embedded Markdown within Code
+#### Automatic Header Links
 
-Within default, `cpp`, and `diff` code elements, any text surrounded by the `@`
-symbol is formatted as Markdown! This is useful for conventions such as
-_`see below`_, _`unspecified`_, and _exposition-only_ variable names.
+To link to a header by its ID and have the header title automatically extracted
+as the link text, you may omit the link text like this: `[](#header-id)`.
+
+Assign an explicit ID to a header like this: `# Algorithm Return Type {#return-type}`.
+Then a link without a link text like `[](#return-type)` will automatically display
+"Algorithm Return Type" as the link text.
+
+```markdown
+# Algorithm Return Type {#return-type}
+
+Text describing the return type...
+
+# Section
+
+- Except as mentioned above, the parallel range algorithms should return
+  the same type as the corresponding serial range algorithms. See [](#return-type).
+```
+
+![](img/automatic-header-link.png)
+
+#### Embedded Markdown within Code
+
+Within default, `cpp`, `diff`, `nasm` and `rust` code elements, any text
+surrounded by the `@` symbol is formatted as Markdown! This is useful for
+conventions such as _`see below`_, _`unspecified`_, and _exposition-only_
+variable names.
 
 ![](img/code-cpp.png)
 
@@ -316,6 +342,121 @@ Small, inline changes are [bracketed `Span` elements][divspan] that looks like
 
 ![](img/wording-span.png)
 
+#### Examples
+
+Large examples are [fenced `Div` blocks][divspan] with `::: example`.
+
+``````markdown
+::: example
+A simple example of a class definition is
+
+```cpp
+struct tnode {
+  char tword[20];
+  int count;
+  tnode* left;
+  tnode* right;
+};
+```
+:::
+``````
+
+![](img/example-div.png)
+
+Smaller, inline examples are [bracketed `Span` elements][divspan] that looks like `[example text]{.example}`.
+
+```markdown
+[`T x = T(T(T()));` value-initializes `x`.]{.example}
+```
+
+![](img/example-span.png)
+
+#### Notes
+
+Large notes are [fenced `Div` blocks][divspan] with `::: note`.
+
+``````markdown
+::: note
+An expression of type "*cv1* `T`" can initialize an object of type "*cv2* `T`"
+independently of the cv-qualifiers *cv1* and *cv2*.
+
+```cpp
+int a;
+const int b = a;
+int c = b;
+```
+:::
+``````
+
+![](img/note-div.png)
+
+Smaller, inline notes are [bracketed `Span` elements][divspan] that looks like `[note text]{.note}`.
+
+```markdown
+[Padding bits have unspecified value, but cannot cause traps.]{.note}
+```
+
+![](img/note-span.png)
+
+For editorial notes, use `ednote`:
+
+```markdown
+::: ednote
+Throughout the wording, we say that a reflection (an object of type `std::meta::info`)
+represents some source construct, while splicing that reflection designates that source
+construct. For instance, `^^int` represents the type `int` and `[: ^^int :]` designates
+the type `int`.
+:::
+```
+
+![](img/ednote-div.png)
+
+```markdown
+[This is a drive-by fix.]{.ednote}
+```
+
+![](img/ednote-span.png)
+
+For drafting notes, use `draftnote`:
+
+```markdown
+::: draftnote
+We don’t think we have to change anything here, since if `E` is a *splice-specifier*
+that can be interpreted as a *splice-expression*, the requirements already fall out
+based on how paragraphs 1 and 3 are already worded
+:::
+```
+
+![](img/draftnote-div.png)
+
+```markdown
+[An `audience` attribute addresses a specific audience]{.draftnote audience="the reader"}
+```
+
+![](img/draftnote-span.png)
+
+> To specify an audience for the [fenced `Div` block][divspan], you'll need `::: {.draftnote audience="the reader"}`.
+
+Finally, in the relatively common situation where an example appears within a note, you can simply nest them:
+
+``````markdown
+::: note
+The declaration of a class name takes effect immediately after the *identifier* is
+seen in the class definition or *elaborated-type-specifier*.
+
+::: example
+```cpp
+class A * A;
+```
+first specifies `A` to be the name of a class and then redefines it as the name of a
+pointer to an object of that class. This means that the elaborated form `class A` must be
+used to refer to the class. Such artistry with names can be confusing and is best avoided.
+:::
+:::
+``````
+
+![](img/note-example-nested.png)
+
 #### Grammar Changes
 
 Use [line blocks][lineblock] (`|`) in order to preserve the leading spaces.
@@ -355,31 +496,6 @@ Use [line blocks][lineblock] (`|`) in order to preserve the leading spaces.
 
 ![](img/grammar.png)
 
-#### Notes
-
-There are three supported styles of note:
-
-- Use the `note` class for notes that are expected to appear in the specification wording
-  ```markdown
-  [Notes will look like this]{.note}
-  ```
-  ![](img/note.png)
-
-- Use the `ednote` for editorial notes, these will be formatted as
-  ```markdown
-  [Editorial notes are important]{.ednote}
-  ```
-  ![](img/ednote.png)
-
-- Use `draftnote` to include text that is intended as questions or information for reviews and
-  working groups.
-  ```markdown
-  [Drafting notes can be used to provide comments for reviewers that are explicitly not to be
-   included in the specification.]{.draftnote} [It is also possible to indicate the a note is for
-   a specific `audience` via this optional attribute.]{.draftnote audience="the reader"}
-  ```
-  ![](img/draftnote.png)
-
 ### Stable Names
 
 Stable names are [bracketed `Span` elements][divspan] that look like: `[stable.name]{.sref}`.
@@ -394,7 +510,7 @@ The `sizeof...` operator yields the number of [arguments provided for]{.rm}
 
 ![](img/sref.png)
 
-You may can also add a class `-` or `.unnumbered` to omit the section number.
+You can also add a class `-` or `.unnumbered` to omit the section number.
 
 For example, `[expr.sizeof]{- .sref}` or `[expr.sizeof]{.unnumbered .sref}`
 
@@ -405,6 +521,10 @@ For example, `[expr.sizeof]{- .sref}` or `[expr.sizeof]{.unnumbered .sref}`
 In-text citations look like this: `[@id]`
 
 ![](img/citation.png)
+
+You may also include the title of the paper like `[@P1240R2]{.title}` which generates:
+
+![](img/citetitle.png)
 
 ### References
 

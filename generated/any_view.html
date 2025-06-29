@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="mpark/wg21" />
@@ -90,6 +90,10 @@ font-family: serif;
 hyphens: auto;
 line-height: 1.35;
 text-align: justify;
+
+-webkit-text-size-adjust: none;
+-moz-text-size-adjust: none;
+text-size-adjust: none;
 }
 @media screen and (max-width: 30em) {
 body {
@@ -423,7 +427,11 @@ code.sourceCode > span { display: inline; }
 <table style="border:none;float:right">
   <tr>
     <td>Document #:</td>
-    <td>D3411R3</td>
+    <td>
+      D3411R3
+      [<a href="https://wg21.link/P3411">Latest</a>]
+      [<a href="https://wg21.link/P3411/status">Status</a>]
+    </td>
   </tr>
   <tr>
     <td>Date:</td>
@@ -1489,9 +1497,9 @@ is 4 times faster. This is a very common pattern in the real world code.
 boundaries as a type-erasure tool.</p>
 <h1 data-number="8" id="implementation-experience"><span class="header-section-number">8</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
 <p><code class="sourceCode cpp">any_view</code> has been implemented in
-<span class="citation" data-cites="rangev3">[<a href="https://github.com/ericniebler/range-v3" role="doc-biblioref">range-v3</a>]</span>, with equivalent semantics as
+<span class="citation" data-cites="rangev3"><a href="https://github.com/ericniebler/range-v3" role="doc-biblioref">[range-v3]</a></span>, with equivalent semantics as
 proposed here. The authors also implemented a version that directly
-follows the proposed wording below without any issue <span class="citation" data-cites="ours">[<a href="https://github.com/huixie90/cpp_papers/tree/main/impl/any_view" role="doc-biblioref">ours</a>]</span> and <span class="citation" data-cites="bemanproject">[<a href="https://github.com/bemanproject/any_view" role="doc-biblioref">beman-project</a>]</span>.</p>
+follows the proposed wording below without any issue <span class="citation" data-cites="ours"><a href="https://github.com/huixie90/cpp_papers/tree/main/impl/any_view" role="doc-biblioref">[ours]</a></span> and <span class="citation" data-cites="bemanproject"><a href="https://github.com/bemanproject/any_view" role="doc-biblioref">[beman-project]</a></span>.</p>
 <h1 data-number="9" id="wording"><span class="header-section-number">9</span> Wording<a href="#wording" class="self-link"></a></h1>
 <h2 data-number="9.1" id="addition-to-ranges"><span class="header-section-number">9.1</span> Addition to <code class="sourceCode cpp"><span class="op">&lt;</span>ranges<span class="op">&gt;</span></code><a href="#addition-to-ranges" class="self-link"></a></h2>
 <p>Add the following to <a href="https://wg21.link/ranges.syn">[ranges.syn]</a>, header

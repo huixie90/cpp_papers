@@ -185,6 +185,25 @@ some things just don't change.
 - @_unspecified_@ detail::foo::template foo;
 ```
 
+### `rust` Syntax Highlighting
+
+```rust
+enum Result<T, E> {
+  Ok(T),
+  Err(E),
+}
+
+match parse(some_input) {
+  Ok(v) => // use `v`
+  Err(err) => // use `err`
+}
+```
+
+## Automatic Header Links {#auto-header-links}
+
+Automatic header links are written as `[](#auto-header-links)`{.markdown},
+and renders as [](#auto-header-links).
+
 # Comparison Tables
 
 ::: cmptable
@@ -362,7 +381,7 @@ There are three supported styles of note:
   ```
   [Drafting notes can be used to provide comments for reviewers that are explicitly not to be
    included in the specification.]{.draftnote}
-   
+
    [It is also possible to indicate the a note is for
    a specific `audience` via this optional attribute.]{.draftnote audience="the reader"}
   ```
@@ -377,9 +396,12 @@ There are three supported styles of note:
 Automatic references are written as `[@N4762]` and renders as [@N4762].
 Anything in <https://wg21.link/index.yaml> are linked automatically.
 
-  - `N` Papers (e.g., `[@N3887]` [@N3887])
-  - `P` Papers (e.g., `[@P1371R1]` [@P1371R1])
-  - CWG Issues (e.g., `[@CWG1234]` [@CWG1234])
-  - LWG Issues (e.g., `[@LWG1234]` [@LWG1234])
-  - Github Edits (e.g, `[@EDIT1234]` [@EDIT1234])
-  - Standing Documents (e.g., `[@SD6]` [@SD6])
+  - `N` Papers (e.g., `[@N3887]` → [@N3887])
+  - `P` Papers (e.g., `[@P1371R1]` → [@P1371R1])
+  - CWG Issues (e.g., `[@CWG1234]` → [@CWG1234])
+  - LWG Issues (e.g., `[@LWG1234]` → [@LWG1234])
+  - Github Edits (e.g, `[@EDIT1234]` → [@EDIT1234])
+  - Standing Documents (e.g., `[@SD6]` → [@SD6])
+
+You may also write `[@P2996R8]{.title}`{.default} to include the title of the paper,
+and renders as: [@P2996R8]{.title}.
