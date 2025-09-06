@@ -522,12 +522,14 @@ holds.</p>
 <h1 data-number="3" id="impact-on-the-standard"><span class="header-section-number">3</span> Impact on the Standard<a href="#impact-on-the-standard" class="self-link"></a></h1>
 <p>This proposal is a pure library extension.</p>
 <h1 data-number="4" id="proposed-wording"><span class="header-section-number">4</span> Proposed Wording<a href="#proposed-wording" class="self-link"></a></h1>
-<p>Modify <a href="https://wg21.link/ranges.syn">[ranges.syn]</a></p>
+<p>Modify <span>25.2
+<a href="https://wg21.link/ranges.syn">[ranges.syn]</a></span></p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co">// [range.single], single view</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span><span class="op">&lt;</span><span class="rm" style="color: #bf0303"><del><span><code class="sourceCode default">copy_­constructible</code></span></del></span><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">move_­constructible</code></span></ins></span> T<span class="op">&gt;</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> is_object_v<span class="op">&lt;</span>T<span class="op">&gt;</span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">class</span> single_view;</span></code></pre></div>
-<p>Modify <a href="https://wg21.link/range.single.view">[range.single.view]</a></p>
+<p>Modify <span>25.6.3.2
+<a href="https://wg21.link/range.single.view">[range.single.view]</a></span></p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> std<span class="op">::</span>ranges <span class="op">{</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span><span class="op">&lt;</span><span class="rm" style="color: #bf0303"><del><span><code class="sourceCode default">copy_­constructible</code></span></del></span><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">move_­constructible</code></span></ins></span> T<span class="op">&gt;</span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> is_object_v<span class="op">&lt;</span>T<span class="op">&gt;</span></span>
@@ -543,7 +545,8 @@ holds.</p>
 <p><span class="marginalizedparent"><a class="marginalized">1</a></span>
 <em>Effects</em>: Initializes <code class="sourceCode cpp">value_­</code>
 with <code class="sourceCode cpp">t</code>.</p>
-<p>Add a new section <strong>[range.move.wrap]</strong> under <a href="https://wg21.link/range.adaptors">[range.adaptors]</a></p>
+<p>Add a new section <strong>[range.move.wrap]</strong> under <span>25.7
+<a href="https://wg21.link/range.adaptors">[range.adaptors]</a></span></p>
 <div class="add" style="color: #006e28">
 <p><strong>Movable wrapper</strong></p>
 <p><span class="marginalizedparent"><a class="marginalized">1</a></span>

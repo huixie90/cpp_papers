@@ -1502,7 +1502,8 @@ proposed here. The authors also implemented a version that directly
 follows the proposed wording below without any issue <span class="citation" data-cites="ours"><a href="https://github.com/huixie90/cpp_papers/tree/main/impl/any_view" role="doc-biblioref">[ours]</a></span> and <span class="citation" data-cites="bemanproject"><a href="https://github.com/bemanproject/any_view" role="doc-biblioref">[beman-project]</a></span>.</p>
 <h1 data-number="9" id="wording"><span class="header-section-number">9</span> Wording<a href="#wording" class="self-link"></a></h1>
 <h2 data-number="9.1" id="addition-to-ranges"><span class="header-section-number">9.1</span> Addition to <code class="sourceCode cpp"><span class="op">&lt;</span>ranges<span class="op">&gt;</span></code><a href="#addition-to-ranges" class="self-link"></a></h2>
-<p>Add the following to <a href="https://wg21.link/ranges.syn">[ranges.syn]</a>, header
+<p>Add the following to <span>25.2
+<a href="https://wg21.link/ranges.syn">[ranges.syn]</a></span>, header
 <code class="sourceCode cpp">ranges</code> synopsis:</p>
 <div class="sourceCode" id="cb31"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co">// [...]</span></span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> std<span class="op">::</span>ranges <span class="op">{</span></span>
@@ -1544,7 +1545,8 @@ follows the proposed wording below without any issue <span class="citation" data
 <span id="cb31-38"><a href="#cb31-38" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <h2 data-number="9.2" id="any_view"><span class="header-section-number">9.2</span>
 <code class="sourceCode cpp">any_view</code><a href="#any_view" class="self-link"></a></h2>
-<p>Add the following subclause to <a href="https://wg21.link/range.utility">[range.utility]</a></p>
+<p>Add the following subclause to <span>25.5
+<a href="https://wg21.link/range.utility">[range.utility]</a></span></p>
 <h3 class="unnumbered" id="any-view-range.any">?.?.? Any view
 [range.any]<a href="#any-view-range.any" class="self-link"></a></h3>
 <h4 class="unnumbered" id="definition-range.any.def">?.?.?.1 Definition
@@ -1554,7 +1556,9 @@ The following definitions apply to this Clause:</p>
 <p><span class="marginalizedparent"><a class="marginalized">2</a></span>
 A <em>view object</em> is an object of a type that models the
 <code class="sourceCode cpp">ranges<span class="op">::</span>view</code>
-(<a href="https://wg21.link/range.view">[range.view]</a>) concept.</p>
+(<span>25.4.5
+<a href="https://wg21.link/range.view">[range.view]</a></span>)
+concept.</p>
 <p><span class="marginalizedparent"><a class="marginalized">3</a></span>
 A <em>view wrapper type</em> is a type that holds a <em>view object</em>
 and supports <code class="sourceCode cpp">ranges<span class="op">::</span>begin</code> and
@@ -1565,7 +1569,8 @@ A <em>target view object</em> is the <em>view object</em> held by an
 object of a <em>view wrapper type</em>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">5</a></span>
 An <em>iterator object</em> is an object of a type that models the
-<code class="sourceCode cpp">input_iterator</code> (<a href="https://wg21.link/iterator.concept.input">[iterator.concept.input]</a>)
+<code class="sourceCode cpp">input_iterator</code> (<span>24.3.4.9
+<a href="https://wg21.link/iterator.concept.input">[iterator.concept.input]</a></span>)
 concept.</p>
 <p><span class="marginalizedparent"><a class="marginalized">6</a></span>
 An <em>iterator wrapper type</em> is a type that holds an <em>iterator
@@ -1575,7 +1580,8 @@ A <em>target iterator object</em> is the <em>iterator object</em> held
 by an object of a <em>iterator wrapper type</em>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">8</a></span>
 A <em>sentinel object</em> is an object of a type that models <code class="sourceCode cpp">sentinel_for<span class="op">&lt;</span>Iter<span class="op">&gt;</span></code>
-(<a href="https://wg21.link/iterator.concept.sentinel">[iterator.concept.sentinel]</a>)
+(<span>24.3.4.7
+<a href="https://wg21.link/iterator.concept.sentinel">[iterator.concept.sentinel]</a></span>)
 concept for some <code class="sourceCode cpp">Iter</code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">9</a></span>
 A <em>sentinel wrapper type</em> is a type that holds an <em>sentinel

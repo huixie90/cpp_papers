@@ -862,8 +862,9 @@ through syntactic requirements. Therefore, the authors of this paper
 propose to use the “equality-preserving” semantic requirements of the
 requires-expression and the notational convention that constant lvalues
 shall not be modified in a manner observable to equality-preserving as
-defined in <a href="https://wg21.link/concepts.equality">[concepts.equality]</a>. See
-<a href="#concat-indirectly-readable-definition">Wording</a>.</p>
+defined in <span>18.2
+<a href="https://wg21.link/concepts.equality">[concepts.equality]</a></span>.
+See <a href="#concat-indirectly-readable-definition">Wording</a>.</p>
 <h3 data-number="4.1.6" id="unsupported-cases-and-potential-extensions-for-the-future"><span class="header-section-number">4.1.6</span> Unsupported Cases and
 Potential Extensions for the Future<a href="#unsupported-cases-and-potential-extensions-for-the-future" class="self-link"></a></h3>
 <p>Common type and reference based
@@ -977,7 +978,8 @@ was removed in R1 version for simplicity</p>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> default_sentinel;</span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <p>However, <code class="sourceCode cpp">cartesian_product_view</code>
-<a href="https://wg21.link/range.cartesian.view">[range.cartesian.view]</a>
+<span>25.7.33.2
+<a href="https://wg21.link/range.cartesian.view">[range.cartesian.view]</a></span>
 defines its <code class="sourceCode cpp">end</code> function in a way
 that is very similar to
 <code class="sourceCode cpp">concat_view</code>’s R0 version.</p>
@@ -1208,7 +1210,9 @@ proposed here. The authors also implemented a version that directly
 follows the proposed wording below without any issue <span class="citation" data-cites="ours"><a href="https://github.com/huixie90/cpp_papers/tree/main/impl/concat" role="doc-biblioref">[ours]</a></span>.</p>
 <h1 data-number="5" id="wording"><span class="header-section-number">5</span> Wording<a href="#wording" class="self-link"></a></h1>
 <h2 data-number="5.1" id="addition-to-ranges"><span class="header-section-number">5.1</span> Addition to <code class="sourceCode cpp"><span class="op">&lt;</span>ranges<span class="op">&gt;</span></code><a href="#addition-to-ranges" class="self-link"></a></h2>
-<p>Add the following to <a href="https://wg21.link/ranges.syn">[ranges.syn]</a>, header <code class="sourceCode cpp"><span class="op">&lt;</span>ranges<span class="op">&gt;</span></code>
+<p>Add the following to <span>25.2
+<a href="https://wg21.link/ranges.syn">[ranges.syn]</a></span>, header
+<code class="sourceCode cpp"><span class="op">&lt;</span>ranges<span class="op">&gt;</span></code>
 synopsis:</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co">// [...]</span></span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="kw">namespace</span> std<span class="op">::</span>ranges <span class="op">{</span></span>
@@ -1228,9 +1232,13 @@ synopsis:</p>
 utilities<a href="#move-exposition-only-utilities" class="self-link"></a></h2>
 <p>Move <code class="sourceCode cpp"><em>all-random-access</em></code>,
 <code class="sourceCode cpp"><em>all-bidirectional</em></code>, and
-<code class="sourceCode cpp"><em>all-forward</em></code> from <a href="https://wg21.link/range.zip.iterator">[range.zip.iterator]</a> to
-<a href="https://wg21.link/range.adaptor.helpers">[range.adaptor.helpers]</a>.</p>
-<p>Add the following to <a href="https://wg21.link/range.adaptor.helpers">[range.adaptor.helpers]</a></p>
+<code class="sourceCode cpp"><em>all-forward</em></code> from
+<span>25.7.25.3
+<a href="https://wg21.link/range.zip.iterator">[range.zip.iterator]</a></span>
+to <span>25.7.5
+<a href="https://wg21.link/range.adaptor.helpers">[range.adaptor.helpers]</a></span>.</p>
+<p>Add the following to <span>25.7.5
+<a href="https://wg21.link/range.adaptor.helpers">[range.adaptor.helpers]</a></span></p>
 <div>
 <div class="sourceCode" id="cb21"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>namespace std::ranges {</span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>// [...]</span>
@@ -1246,7 +1254,8 @@ utilities<a href="#move-exposition-only-utilities" class="self-link"></a></h2>
 <span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>// [...]</span>
 <span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 </div>
-<p>Remove the following from <a href="https://wg21.link/range.zip.iterator">[range.zip.iterator]</a></p>
+<p>Remove the following from <span>25.7.25.3
+<a href="https://wg21.link/range.zip.iterator">[range.zip.iterator]</a></span></p>
 <div>
 <div class="sourceCode" id="cb22"><pre class="sourceCode diff"><code class="sourceCode diff"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>namespace std::ranges {</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="st">- template&lt;bool Const, class... Views&gt;</span></span>
@@ -1263,7 +1272,8 @@ utilities<a href="#move-exposition-only-utilities" class="self-link"></a></h2>
 </div>
 <h2 data-number="5.3" id="concat"><span class="header-section-number">5.3</span>
 <code class="sourceCode cpp">concat</code><a href="#concat" class="self-link"></a></h2>
-<p>Add the following subclause to <a href="https://wg21.link/range.adaptors">[range.adaptors]</a>.</p>
+<p>Add the following subclause to <span>25.7
+<a href="https://wg21.link/range.adaptors">[range.adaptors]</a></span>.</p>
 <h3 class="unnumbered" id="concat-view-range.concat">?.?.? Concat view
 [range.concat]<a href="#concat-view-range.concat" class="self-link"></a></h3>
 <h4 class="unnumbered" id="overview-range.concat.overview">?.?.?.1
@@ -1274,7 +1284,8 @@ Overview [range.concat.overview]<a href="#overview-range.concat.overview" class=
 underlying ranges.</p>
 <p><span class="marginalizedparent"><a class="marginalized">2</a></span>
 The name <code class="sourceCode cpp">views<span class="op">::</span>concat</code>
-denotes a customization point object (<a href="https://wg21.link/customization.point.object">[customization.point.object]</a>).
+denotes a customization point object (<span>16.3.3.3.5
+<a href="https://wg21.link/customization.point.object">[customization.point.object]</a></span>).
 Given a pack of subexpressions
 <code class="sourceCode cpp">Es<span class="op">...</span></code>, the
 expression <code class="sourceCode cpp">views<span class="op">::</span>concat<span class="op">(</span>Es<span class="op">...)</span></code>
@@ -2034,7 +2045,9 @@ to</p>
 <span id="cb97-2"><a href="#cb97-2" aria-hidden="true" tabindex="-1"></a><span class="op">(...</span> <span class="op">&amp;&amp;</span> indirectly_swappable<span class="op">&lt;</span>iterator_t<span class="op">&lt;</span><em>maybe-const</em><span class="op">&lt;</span>Const, Views<span class="op">&gt;&gt;&gt;)</span></span></code></pre></div>
 </div>
 <h2 data-number="5.4" id="feature-test-macro"><span class="header-section-number">5.4</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
-<p>Add the following macro definition to <a href="https://wg21.link/version.syn">[version.syn]</a>, header <code class="sourceCode cpp"><span class="op">&lt;</span>version<span class="op">&gt;</span></code>
+<p>Add the following macro definition to <span>17.3.2
+<a href="https://wg21.link/version.syn">[version.syn]</a></span>, header
+<code class="sourceCode cpp"><span class="op">&lt;</span>version<span class="op">&gt;</span></code>
 synopsis, with the value selected by the editor to reflect the date of
 adoption of this paper:</p>
 <div class="sourceCode" id="cb98"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define __cpp_lib_ranges_concat  </span><span class="dv">20</span><span class="er">XXXXL</span><span class="pp"> </span><span class="co">// also in &lt;ranges&gt;</span></span></code></pre></div>
