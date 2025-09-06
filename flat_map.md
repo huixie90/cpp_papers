@@ -1,7 +1,7 @@
 ---
 title: "flat_meow Fixes"
-document: P3567R0
-date: 2024-12-15
+document: P3567R1
+date: 2025-09-06
 audience: LEWG, LWG
 author:
   - name: Hui Xie
@@ -12,6 +12,12 @@ author:
     email: <arthur.j.odwyer@gmail.com>
 toc: true
 ---
+
+# Revision History
+
+## R1
+
+- Wording Fixes
 
 # Abstract
 
@@ -41,7 +47,7 @@ and we move to `ranges::for_each` for consistency with the rest of the `flat_map
 Change [flat.map.modifiers]{.sref} paragraph 12 to:
 
 ```cpp
-template<container-compatible-range<value_type> R>
+template<@*container-compatible-range*@<value_type> R>
   void insert_range(R&& rg);
 ```
 
@@ -51,7 +57,7 @@ template<container-compatible-range<value_type> R>
 
 ```cpp
 @[`for (const auto& e : rg) {`]{.rm}@
-@[`ranges::for_each(rg, [&c](value_type e) {`]{.add}@
+@[`ranges::for_each(rg, [&](value_type e) {`]{.add}@
   c.keys.insert(c.keys.end(), @[`std::move(`]{.add}@e.first@[`)`]{.add}@);
   c.values.insert(c.values.end(), @[`std::move(`]{.add}@e.second@[`)`]{.add}@);
 }@[`);`]{.add}@
@@ -86,17 +92,11 @@ Instead, making `swap` conditionally-`noexcept` allows us to propagate the excep
 Change [flat.map.defn]{.sref} as follows:
 
 ```cpp
-void swap(flat_map& y) @[`noexcept;`]{.rm}@
-  @[`noexcept(is_nothrow_swappable_v<key_container_type> &&`]{.add}@
-           @[`is_nothrow_swappable_v<mapped_container_type> &&`]{.add}@
-           @[`is_nothrow_swappable_v<key_compare>);`]{.add}@
+void swap(flat_map& y) noexcept@@[`(@*see below*@)`]{.add}@@;
 
 // ...
 
-friend void swap(flat_map& x, flat_map& y) @[`noexcept`]{.rm}@
-  @[`noexcept(is_nothrow_swappable_v<key_container_type> &&`]{.add}@
-           @[`is_nothrow_swappable_v<mapped_container_type> &&`]{.add}@
-           @[`is_nothrow_swappable_v<key_compare>)`]{.add}@
+friend void swap(flat_map& x, flat_map& y) noexcept@[`(noexcept(x.swap(y)))`]{.add}@
   { x.swap(y); }
 ```
 
@@ -130,25 +130,18 @@ void swap(flat_multimap& y) @[`noexcept;`]{.rm}@
 
 // ...
 
-friend void swap(flat_multimap& x, flat_multimap& y) @[`noexcept`]{.rm}@
-  @[`noexcept(is_nothrow_swappable_v<key_container_type> &&`]{.add}@
-           @[`is_nothrow_swappable_v<mapped_container_type> &&`]{.add}@
-           @[`is_nothrow_swappable_v<key_compare>)`]{.add}@
+friend void swap(flat_multimap& x, flat_multimap& y) noexcept@[`(noexcept(x.swap(y)))`]{.add}@
   { x.swap(y); }
 ```
 
 Change [flat.set.defn]{.sref} as follows:
 
 ```cpp
-void swap(flat_set& y) @[`noexcept;`]{.rm}@
-  @[`noexcept(is_nothrow_swappable_v<container_type> &&`]{.add}@
-           @[`is_nothrow_swappable_v<key_compare>);`]{.add}@
+void swap(flat_set& y) noexcept@@[`(@*see below*@)`]{.add}@@;
 
 // ...
 
-friend void swap(flat_set& x, flat_set& y) @[`noexcept`]{.rm}@
-  @[`noexcept(is_nothrow_swappable_v<container_type> &&`]{.add}@
-           @[`is_nothrow_swappable_v<key_compare>)`]{.add}@
+friend void swap(flat_set& x, flat_set& y) noexcept@[`(noexcept(x.swap(y)))`]{.add}@
   { x.swap(y); }
 ```
 
@@ -173,15 +166,11 @@ ranges::swap(c, y.c);
 Change [flat.multiset.defn]{.sref} as follows:
 
 ```cpp
-void swap(flat_multiset& y) @[`noexcept;`]{.rm}@
-  @[`noexcept(is_nothrow_swappable_v<container_type> &&`]{.add}@
-           @[`is_nothrow_swappable_v<key_compare>);`]{.add}@
+void swap(flat_multiset& y) noexcept@@[`(@*see below*@)`]{.add}@@;
 
 // ...
 
-friend void swap(flat_multiset& x, flat_multiset& y) @[`noexcept`]{.rm}@
-  @[`noexcept(is_nothrow_swappable_v<container_type> &&`]{.add}@
-           @[`is_nothrow_swappable_v<key_compare>)`]{.add}@
+friend void swap(flat_multiset& x, flat_multiset& y) noexcept@[`(noexcept(x.swap(y)))`]{.add}@
   { x.swap(y); }
 ```
 
@@ -237,44 +226,28 @@ template<class InputIterator>
   void insert(InputIterator first, InputIterator last);
 template<class InputIterator>
   void insert(sorted_unique_t, InputIterator first, InputIterator last);
-template<container-compatible-range<value_type> R>
+template<@*container-compatible-range*@<value_type> R>
   void insert_range(R&& rg);
-@[`template<container-compatible-range<value_type> R>`]{.add}@
+@@[`template<@*container-compatible-range*@<value_type> R>`]{.add}@@
   @[`void insert_range(sorted_unique_t, R&& rg);`]{.add}@
 ```
 
 Add a new entry to [flat.map.modifiers]{.sref} after paragraph 14:
 
+:::add
+
 ```cpp
-template<container-compatible-range<value_type> R>
+template<@*container-compatible-range*@<value_type> R>
   void insert_range(sorted_unique_t, R&& rg);
 ```
 
 :::bq
 
-[15]{.pnum} *Effects*: Adds elements to `c` as if by:
-
-```cpp
-ranges::for_each(rg, [&c](value_type e) {
-  c.keys.insert(c.keys.end(), std::move(e.first));
-  c.values.insert(c.values.end(), std::move(e.second));
-});
-```
-
-Then, merges the newly inserted sorted range and the sorted range of pre-existing elements into a single sorted range; and finally erases the duplicate elements as if by:
-
-```cpp
-auto zv = views::zip(c.keys, c.values);
-auto it = ranges::unique(zv, key_equiv(compare)).begin();
-auto dist = distance(zv.begin(), it);
-c.keys.erase(c.keys.begin() + dist, c.keys.end());
-c.values.erase(c.values.begin() + dist, c.values.end());
-```
+[15]{.pnum} *Effects*: Equivalent to `ìnsert_range(rg)`.
 
 [16]{.pnum} *Complexity*: Linear in *N*, where *N* is `size()` after the operation.
 
-[17]{.pnum} *Remarks*: Since this operation performs an in-place merge, it may allocate memory.
-
+:::
 :::
 
 ### `flat_multimap`
@@ -286,9 +259,9 @@ template<class InputIterator>
   void insert(InputIterator first, InputIterator last);
 template<class InputIterator>
   void insert(sorted_equivalent_t, InputIterator first, InputIterator last);
-template<container-compatible-range<value_type> R>
+template<@*container-compatible-range*@<value_type> R>
   void insert_range(R&& rg);
-@[`template<container-compatible-range<value_type> R>`]{.add}@
+@@[`template<@*container-compatible-range*@<value_type> R>`]{.add}@@
   @[`void insert_range(sorted_equivalent_t, R&& rg);`]{.add}@
 ```
 
@@ -301,16 +274,18 @@ template<class InputIterator>
   void insert(InputIterator first, InputIterator last);
 template<class InputIterator>
   void insert(sorted_unique_t, InputIterator first, InputIterator last);
-template<container-compatible-range<value_type> R>
+template<@*container-compatible-range*@<value_type> R>
   void insert_range(R&& rg);
-@[`template<container-compatible-range<value_type> R>`]{.add}@
+@@[`template<@*container-compatible-range*@<value_type> R>`]{.add}@@
   @[`void insert_range(sorted_unique_t, R&& rg);`]{.add}@
 ```
 
 Add a new entry to [flat.set.modifiers]{.sref} after paragraph 12:
 
+:::add
+
 ```cpp
-template<container-compatible-range<value_type> R>
+template<@*container-compatible-range*@<value_type> R>
   void insert_range(sorted_unique_t, R&& rg);
 ```
 
@@ -320,6 +295,7 @@ template<container-compatible-range<value_type> R>
 
 [14]{.pnum} *Complexity*: Linear in *N*, where *N* is `size()` after the operation.
 
+:::
 :::
 
 ### `flat_multiset`
@@ -331,11 +307,66 @@ template<class InputIterator>
   void insert(InputIterator first, InputIterator last);
 template<class InputIterator>
   void insert(sorted_equivalent_t, InputIterator first, InputIterator last);
-template<container-compatible-range<value_type> R>
+template<@*container-compatible-range*@<value_type> R>
   void insert_range(R&& rg);
-@[`template<container-compatible-range<value_type> R>`]{.add}@
+@@[`template<@*container-compatible-range*@<value_type> R>`]{.add}@@
   @[`void insert_range(sorted_equivalent_t, R&& rg);`]{.add}@
 ```
+
+Change [flat.multiset.modifiers]{.sref} Paragraph 8 as follows:
+
+```cpp
+template<class InputIterator>
+  constexpr void insert(sorted_equivalent_t, InputIterator first, InputIterator last);
+```
+
+:::bq
+
+[7]{.pnum} *Effects*: Equivalent to `insert(first, last)`.
+
+[8]{.pnum} *Complexity*: Linear [ in *N*, where *N* is `size()` after the operation]{.add}.
+:::
+
+Add a new entry to [flat.multiset.modifiers]{.sref} after Paragraph 8:
+
+:::add
+
+```cpp
+template<@*container-compatible-range*@<value_type> R>
+  void insert_range(R&& rg);
+```
+
+:::bq
+
+[9]{.pnum} *Effects*: Adds elements to `c` as if by:
+
+```cpp
+ranges::for_each([&](auto&& e) {
+  c.insert(c.end(), std::forward<decltype(e)>(e));
+});
+```
+
+Then, sorts the range of newly inserted elements with respect to `compare`, and merges the resulting sorted range and the sorted range of pre-existing elements into a single sorted range.
+
+[10]{.pnum} *Complexity*: *N* + *M*log*M*, where *N* is `size()` before the operation and *M* is `ranges::distance(rg)`.
+
+[11]{.pnum} *Remarks*: Since this operation performs an in-place merge, it may allocate memory.
+
+:::
+
+```cpp
+template<@*container-compatible-range*@<value_type> R>
+  void insert_range(sorted_equivalent_t, R&& rg);
+```
+
+:::bq
+
+[12]{.pnum} *Effects*: Equivalent to `insert_range(rg)`.
+
+[13]{.pnum} *Complexity*: Linear in *N*, where *N* is `size()` after the operation.
+
+:::
+:::
 
 # `flat_set::insert_range`
 
@@ -343,7 +374,7 @@ The current specification for `flat_set::insert_range` seems to unnecessarily pe
 copies of the elements:
 
 ```cpp
-template<container-compatible-range<value_type> R>
+template<@*container-compatible-range*@<value_type> R>
   void insert_range(R&& rg);
 ```
 
@@ -366,7 +397,7 @@ We should allow implementations to move when they can.
 Change [flat.set.modifiers]{.sref} paragraph 10 as follows:
 
 ```cpp
-template<container-compatible-range<value_type> R>
+template<@*container-compatible-range*@<value_type> R>
   void insert_range(R&& rg);
 ```
 
@@ -375,7 +406,8 @@ template<container-compatible-range<value_type> R>
 [10]{.pnum} *Effects*: Adds elements to `c` as if by:
 
 ```cpp
-for (@[`const auto&`]{.rm}@ @[`auto&&`]{.add}@ e : rg) {
+@[`for (const auto& e : rg) {`]{.rm}@
+@[`ranges::for_each(rg, [&](auto&& e) {`]{.add}@
   c.insert(c.end(), @[`std::forward<decltype(e)>(`]{.add}@e@[`)`]{.add}@);
 }
 ```
@@ -400,6 +432,16 @@ are useless in any context where an exception can be thrown.
 
 ### `flat_map` Wording
 
+Change [flat.map.overview]{.sref} Paragraph 6 as follows:
+
+:::bq
+
+[6]{.pnum} If any member function in [flat.map.defn]{.sref} exits via an exception[,]{.add} the invariants are restored. [For the move constructor and move assignment operator, the invariants of the argument are also restored.]{.add}
+
+[*Note 2*: This can result in the `flat_map` being emptied. — *end note*]
+
+:::
+
 Change [flat.map.defn]{.sref} as follows:
 
 ```cpp
@@ -412,34 +454,17 @@ flat_map() : flat_map(key_compare()) { }
 @[`flat_map& operator=(flat_map&&);`]{.add}@
 ```
 
-Add a new entry to [flat.map.cons]{.sref} at the beginning:
-
-```cpp
-flat_map(flat_map&& o);
-```
-
-:::bq
-
-[1]{.pnum} *Effects*: Initialize `@*c*@` with `std::move(o.@*c*@)` and `@*compare*@` with `std::move(o.@*compare*@)`.
-If the function exits via an exception, the invariants of `o` are restored.
-
-:::
-
-```cpp
-flat_map& operator=(flat_map&& o);
-```
-
-:::bq
-
-[2]{.pnum} *Effects*: Assigns `std::move(o.@*c*@)` to `@*c*@` and `std::move(o.@*compare*@)` to `@*compare*@`.
-If the function exits via an exception, the invariants of `o` and `*this` are restored.
-
-:::
-
-> Drafting note: Our intent is not to mandate implementations to move or not move the comparator, but we are
-> not certain how to word things such that both implementations are valid.
-
 ### `flat_multimap` Wording
+
+Change [flat.multimap.overview]{.sref} Paragraph 6 as follows:
+
+:::bq
+
+[6]{.pnum} If any member function in [flat.multimap.defn]{.sref} exits via an exception, the invariants are restored. [For the move constructor and move assignment operator, the invariants of the argument are also restored.]{.add}
+
+[*Note 2*: This can result in the `flat_multimap` being emptied. — *end note*]
+
+:::
 
 Change [flat.multimap.defn]{.sref} as follows:
 
@@ -453,31 +478,17 @@ flat_multimap() : flat_multimap(key_compare()) { }
 @[`flat_multimap& operator=(flat_multimap&&);`]{.add}@
 ```
 
-Add a new entry to [flat.multimap.cons]{.sref} at the beginning:
-
-```cpp
-flat_multimap(flat_multimap&& o);
-```
-
-:::bq
-
-[1]{.pnum} *Effects*: Initialize `@*c*@` with `std::move(o.@*c*@)` and `@*compare*@` with `std::move(o.@*compare*@)`.
-If the function exits via an exception, the invariants of `o` are restored.
-
-:::
-
-```cpp
-flat_multimap& operator=(flat_multimap&& o);
-```
-
-:::bq
-
-[2]{.pnum} *Effects*: Assigns `std::move(o.@*c*@)` to `@*c*@` and `std::move(o.@*compare*@)` to `@*compare*@`.
-If the function exits via an exception, the invariants of `o` and `*this` are restored.
-
-:::
-
 ### `flat_set` Wording
+
+Change [flat.set.overview]{.sref} Paragraph 6 as follows:
+
+:::bq
+
+[6]{.pnum} If any member function in [flat.set.defn]{.sref} exits via an exception, the invariant is restored. [For the move constructor and move assignment operator, the invariant of the argument is also restored.]{.add}
+
+[*Note 2*: This can result in the `flat_set`'s being emptied. — *end note*]
+
+:::
 
 Change [flat.set.defn]{.sref} as follows:
 
@@ -491,31 +502,17 @@ flat_set() : flat_set(key_compare()) { }
 @[`flat_set& operator=(flat_set&&);`]{.add}@
 ```
 
-Add a new entry to [flat.set.cons]{.sref} at the beginning:
-
-```cpp
-flat_set(flat_set&& o);
-```
-
-:::bq
-
-[1]{.pnum} *Effects*: Initialize `@*c*@` with `std::move(o.@*c*@)` and `@*compare*@` with `std::move(o.@*compare*@)`.
-If the function exits via an exception, the invariants of `o` are restored.
-
-:::
-
-```cpp
-flat_set& operator=(flat_set&& o);
-```
-
-:::bq
-
-[2]{.pnum} *Effects*: Assigns `std::move(o.@*c*@)` to `@*c*@` and `std::move(o.@*compare*@)` to `@*compare*@`.
-If the function exits via an exception, the invariants of `o` and `*this` are restored.
-
-:::
-
 ### `flat_multiset` Wording
+
+Change [flat.multiset.overview]{.sref} Paragraph 6 as follows:
+
+:::bq
+
+[6]{.pnum} If any member function in [flat.multiset.defn]{.sref} exits via an exception, the invariant is restored. [For the move constructor and move assignment operator, the invariant of the argument is also restored.]{.add}
+
+[*Note 2*: This can result in the `flat_multiset`'s being emptied. — *end note*]
+
+:::
 
 Change [flat.multiset.defn]{.sref} as follows:
 
@@ -528,34 +525,6 @@ flat_multiset() : flat_multiset(key_compare()) { }
 @[`flat_multiset& operator=(const flat_multiset&);`]{.add}@
 @[`flat_multiset& operator=(flat_multiset&&);`]{.add}@
 ```
-
-Add a new entry to [flat.multiset.cons]{.sref} at the beginning:
-
-```cpp
-flat_multiset(flat_multiset&& o);
-```
-
-:::bq
-
-[1]{.pnum} *Effects*: Initialize `@*c*@` with `std::move(o.@*c*@)` and `@*compare*@` with `std::move(o.@*compare*@)`.
-If the function exits via an exception, the invariants of `o` are restored.
-
-:::
-
-```cpp
-flat_multiset& operator=(flat_multiset&& o);
-```
-
-:::bq
-
-[2]{.pnum} *Effects*: Assigns `std::move(o.@*c*@)` to `@*c*@` and `std::move(o.@*compare*@)` to `@*compare*@`.
-If the function exits via an exception, the invariants of `o` and `*this` are restored.
-
-:::
-
-Note: We purposefully do not add `noexcept` specifiers to any of these member functions. Doing so is a complicated subject
-that is the target of [LWG2227](http://wg21.link/LWG2227) and we would prefer to solve that problem separately. In practice,
-implementations are free to strengthen `noexcept` specifications if they so desire.
 
 # Implementation Experience
 
