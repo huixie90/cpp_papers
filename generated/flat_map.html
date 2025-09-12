@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="mpark/wg21" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="dcterms.date" content="2025-09-06" />
+  <meta name="dcterms.date" content="2025-09-12" />
   <title>flat_meow Fixes</title>
   <style>
       code{white-space: pre-wrap;}
@@ -428,14 +428,14 @@ code.sourceCode > span { display: inline; }
   <tr>
     <td>Document #:</td>
     <td>
-      P3567R1
+      P3567R2
       [<a href="https://wg21.link/P3567">Latest</a>]
       [<a href="https://wg21.link/P3567/status">Status</a>]
     </td>
   </tr>
   <tr>
     <td>Date:</td>
-    <td>2025-09-06</td>
+    <td>2025-09-12</td>
   </tr>
   <tr>
     <td style="vertical-align:top">Project:</td>
@@ -463,7 +463,8 @@ code.sourceCode > span { display: inline; }
 <ul>
 <li><a href="#revision-history" id="toc-revision-history"><span class="toc-section-number">1</span> Revision History<span></span></a>
 <ul>
-<li><a href="#r1" id="toc-r1"><span class="toc-section-number">1.1</span> R1<span></span></a></li>
+<li><a href="#r2" id="toc-r2"><span class="toc-section-number">1.1</span> R2<span></span></a></li>
+<li><a href="#r1" id="toc-r1"><span class="toc-section-number">1.2</span> R1<span></span></a></li>
 </ul></li>
 <li><a href="#abstract" id="toc-abstract"><span class="toc-section-number">2</span> Abstract<span></span></a></li>
 <li><a href="#introduction" id="toc-introduction"><span class="toc-section-number">3</span> Introduction<span></span></a></li>
@@ -523,7 +524,11 @@ Macro<span></span></a></li>
 </ul>
 </div>
 <h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
-<h2 data-number="1.1" id="r1"><span class="header-section-number">1.1</span> R1<a href="#r1" class="self-link"></a></h2>
+<h2 data-number="1.1" id="r2"><span class="header-section-number">1.1</span> R2<a href="#r2" class="self-link"></a></h2>
+<ul>
+<li>More Wording Fixes</li>
+</ul>
+<h2 data-number="1.2" id="r1"><span class="header-section-number">1.2</span> R1<a href="#r1" class="self-link"></a></h2>
 <ul>
 <li>Wording Fixes</li>
 </ul>
@@ -728,7 +733,7 @@ after paragraph 14:</p>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">15</a></span>
 <em>Effects</em>: Equivalent to
-<code class="sourceCode default">ìnsert_range(rg)</code>.</p>
+<code class="sourceCode default">insert_range(rg)</code>.</p>
 <p><span class="marginalizedparent"><a class="marginalized">16</a></span>
 <em>Complexity</em>: Linear in <em>N</em>, where <em>N</em> is
 <code class="sourceCode default">size()</code> after the operation.</p>
@@ -815,7 +820,7 @@ after Paragraph 8:</p>
 <p><span class="marginalizedparent"><a class="marginalized">9</a></span>
 <em>Effects</em>: Adds elements to
 <code class="sourceCode default">c</code> as if by:</p>
-<div class="sourceCode" id="cb23"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>ranges::for_each([&amp;](auto&amp;&amp; e) {</span>
+<div class="sourceCode" id="cb23"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>ranges::for_each(rg, [&amp;](auto&amp;&amp; e) {</span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  c.insert(c.end(), std::forward&lt;decltype(e)&gt;(e));</span>
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>});</span></code></pre></div>
 <p>Then, sorts the range of newly inserted elements with respect to
@@ -870,7 +875,7 @@ as if by:</p>
 <div class="sourceCode" id="cb28"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="rm" style="color: #bf0303"><del><span><code class="sourceCode default">for (const auto&amp; e : rg) {</code></span></del></span></span>
 <span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">ranges::for_each(rg, [&amp;](auto&amp;&amp; e) {</code></span></ins></span></span>
 <span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  c<span class="op">.</span>insert<span class="op">(</span>c<span class="op">.</span>end<span class="op">()</span>, <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">std::forward&lt;decltype(e)&gt;(</code></span></ins></span>e<span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">)</code></span></ins></span><span class="op">)</span>;</span>
-<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span><span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">);</code></span></ins></span></span></code></pre></div>
 <p>Then, sorts the range of newly inserted elements with respect to
 compare; merges the resulting sorted range and the sorted range of
 pre-existing elements into a single sorted range; and finally erases all
@@ -903,9 +908,9 @@ Paragraph 6 as follows:</p>
 <p><span class="marginalizedparent"><a class="marginalized">6</a></span>
 If any member function in <span>23.6.8.2
 <a href="https://wg21.link/flat.map.defn">[flat.map.defn]</a></span>
-exits via an exception<span class="add" style="color: #006e28"><ins>,</ins></span> the invariants are restored.
-<span class="add" style="color: #006e28"><ins>For the move constructor
-and move assignment operator, the invariants of the argument are also
+exits via an exception<span class="add" style="color: #006e28"><ins>,</ins></span> the invariants <span class="add" style="color: #006e28"><ins>of the object
+argument</ins></span> are restored. <span class="add" style="color: #006e28"><ins>For the move constructor and move assignment
+operator, the invariants of both arguments are
 restored.</ins></span></p>
 <p>[<em>Note 2</em>: This can result in the
 <code class="sourceCode cpp">flat_map</code> being emptied. — <em>end
@@ -930,9 +935,10 @@ Paragraph 6 as follows:</p>
 <p><span class="marginalizedparent"><a class="marginalized">6</a></span>
 If any member function in <span>23.6.9.2
 <a href="https://wg21.link/flat.multimap.defn">[flat.multimap.defn]</a></span>
-exits via an exception, the invariants are restored. <span class="add" style="color: #006e28"><ins>For the move constructor and move assignment
-operator, the invariants of the argument are also
-restored.</ins></span></p>
+exits via an exception, the invariants <span class="add" style="color: #006e28"><ins>of the object argument</ins></span> are
+restored. <span class="add" style="color: #006e28"><ins>For the move
+constructor and move assignment operator, the invariants of both
+arguments are restored.</ins></span></p>
 <p>[<em>Note 2</em>: This can result in the
 <code class="sourceCode cpp">flat_multimap</code> being emptied. —
 <em>end note</em>]</p>
@@ -956,9 +962,10 @@ Paragraph 6 as follows:</p>
 <p><span class="marginalizedparent"><a class="marginalized">6</a></span>
 If any member function in <span>23.6.11.2
 <a href="https://wg21.link/flat.set.defn">[flat.set.defn]</a></span>
-exits via an exception, the invariant is restored. <span class="add" style="color: #006e28"><ins>For the move constructor and move assignment
-operator, the invariant of the argument is also
-restored.</ins></span></p>
+exits via an exception, the invariant <span class="add" style="color: #006e28"><ins>of the object argument</ins></span> is
+restored. <span class="add" style="color: #006e28"><ins>For the move
+constructor and move assignment operator, the invariants of both
+arguments are restored.</ins></span></p>
 <p>[<em>Note 2</em>: This can result in the
 <code class="sourceCode cpp">flat_set</code>’s being emptied. — <em>end
 note</em>]</p>
@@ -982,9 +989,10 @@ Paragraph 6 as follows:</p>
 <p><span class="marginalizedparent"><a class="marginalized">6</a></span>
 If any member function in <span>23.6.12.2
 <a href="https://wg21.link/flat.multiset.defn">[flat.multiset.defn]</a></span>
-exits via an exception, the invariant is restored. <span class="add" style="color: #006e28"><ins>For the move constructor and move assignment
-operator, the invariant of the argument is also
-restored.</ins></span></p>
+exits via an exception, the invariant <span class="add" style="color: #006e28"><ins>of the object argument</ins></span> is
+restored. <span class="add" style="color: #006e28"><ins>For the move
+constructor and move assignment operator, the invariants of both
+arguments are restored.</ins></span></p>
 <p>[<em>Note 2</em>: This can result in the
 <code class="sourceCode cpp">flat_multiset</code>’s being emptied. —
 <em>end note</em>]</p>

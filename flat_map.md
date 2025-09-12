@@ -1,7 +1,7 @@
 ---
 title: "flat_meow Fixes"
-document: P3567R1
-date: 2025-09-06
+document: P3567R2
+date: 2025-09-12
 audience: LEWG, LWG
 author:
   - name: Hui Xie
@@ -14,6 +14,10 @@ toc: true
 ---
 
 # Revision History
+
+## R2
+
+- More Wording Fixes
 
 ## R1
 
@@ -243,7 +247,7 @@ template<@*container-compatible-range*@<value_type> R>
 
 :::bq
 
-[15]{.pnum} *Effects*: Equivalent to `ìnsert_range(rg)`.
+[15]{.pnum} *Effects*: Equivalent to `insert_range(rg)`.
 
 [16]{.pnum} *Complexity*: Linear in *N*, where *N* is `size()` after the operation.
 
@@ -341,7 +345,7 @@ template<@*container-compatible-range*@<value_type> R>
 [9]{.pnum} *Effects*: Adds elements to `c` as if by:
 
 ```cpp
-ranges::for_each([&](auto&& e) {
+ranges::for_each(rg, [&](auto&& e) {
   c.insert(c.end(), std::forward<decltype(e)>(e));
 });
 ```
@@ -409,7 +413,7 @@ template<@*container-compatible-range*@<value_type> R>
 @[`for (const auto& e : rg) {`]{.rm}@
 @[`ranges::for_each(rg, [&](auto&& e) {`]{.add}@
   c.insert(c.end(), @[`std::forward<decltype(e)>(`]{.add}@e@[`)`]{.add}@);
-}
+}@[`);`]{.add}@
 ```
 
 Then, sorts the range of newly inserted elements with respect to compare; merges the resulting sorted range and the sorted range of pre-existing elements into a single sorted range; and finally erases all but the first element from each group of consecutive equivalent elements.
@@ -436,7 +440,7 @@ Change [flat.map.overview]{.sref} Paragraph 6 as follows:
 
 :::bq
 
-[6]{.pnum} If any member function in [flat.map.defn]{.sref} exits via an exception[,]{.add} the invariants are restored. [For the move constructor and move assignment operator, the invariants of the argument are also restored.]{.add}
+[6]{.pnum} If any member function in [flat.map.defn]{.sref} exits via an exception[,]{.add} the invariants [of the object argument]{.add} are restored. [For the move constructor and move assignment operator, the invariants of both arguments are restored.]{.add}
 
 [*Note 2*: This can result in the `flat_map` being emptied. — *end note*]
 
@@ -460,7 +464,7 @@ Change [flat.multimap.overview]{.sref} Paragraph 6 as follows:
 
 :::bq
 
-[6]{.pnum} If any member function in [flat.multimap.defn]{.sref} exits via an exception, the invariants are restored. [For the move constructor and move assignment operator, the invariants of the argument are also restored.]{.add}
+[6]{.pnum} If any member function in [flat.multimap.defn]{.sref} exits via an exception, the invariants [of the object argument]{.add} are restored. [For the move constructor and move assignment operator, the invariants of both arguments are restored.]{.add}
 
 [*Note 2*: This can result in the `flat_multimap` being emptied. — *end note*]
 
@@ -484,7 +488,7 @@ Change [flat.set.overview]{.sref} Paragraph 6 as follows:
 
 :::bq
 
-[6]{.pnum} If any member function in [flat.set.defn]{.sref} exits via an exception, the invariant is restored. [For the move constructor and move assignment operator, the invariant of the argument is also restored.]{.add}
+[6]{.pnum} If any member function in [flat.set.defn]{.sref} exits via an exception, the invariant [of the object argument]{.add} is restored. [For the move constructor and move assignment operator, the invariants of both arguments are restored.]{.add}
 
 [*Note 2*: This can result in the `flat_set`'s being emptied. — *end note*]
 
@@ -508,7 +512,7 @@ Change [flat.multiset.overview]{.sref} Paragraph 6 as follows:
 
 :::bq
 
-[6]{.pnum} If any member function in [flat.multiset.defn]{.sref} exits via an exception, the invariant is restored. [For the move constructor and move assignment operator, the invariant of the argument is also restored.]{.add}
+[6]{.pnum} If any member function in [flat.multiset.defn]{.sref} exits via an exception, the invariant [of the object argument]{.add} is restored. [For the move constructor and move assignment operator, the invariants of both arguments are restored.]{.add}
 
 [*Note 2*: This can result in the `flat_multiset`'s being emptied. — *end note*]
 
