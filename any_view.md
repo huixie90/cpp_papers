@@ -18,6 +18,10 @@ toc-depth: 2
 
 # Revision History
 
+## R4
+
+- Default constructed and moved-from object will be assigned to an empty view
+
 ## R3
 
 - Fix `contiguous` range
@@ -566,6 +570,19 @@ We propose providing the strong exception safety guarantee in the following oper
 If the underlying view's move constructor (or move-assignment operator) is not `noexcept`, the only way to achieve the strong exception safety guarantee is to avoid calling these operations altogether, which requires `any_view` to hold its underlying object on the heap so it can implement these operations by swapping pointers.
 This means that any implementation of `any_view` will have an empty state, and a "moved-from" heap allocated `any_view` will be in that state.
 
+In the original design, we proposed any operations, other than assignment or destruction, have preconditions that the `any_view` is not in an empty state. This allows implementations to leave the moved-from object containing a `nullptr` if the wrapped object is heap allocated. However, in Sofia meeting, SG9 has decided that the moved-from object should behave like an empty view.
+
+> The moved-from state of `std::ranges::any_view` should behave like it contains an empty view with the specified properties. `begin()` always return an `iterator` (and doesn't have a precondition).
+
+|SF	|F	|N	|A	|SA|
+|---|---|---|---|--|
+|5	|2	|0	|2  |0 |	
+
+This revision (R4) follows SG9's recommendation to make the moved-from state as an empty view. However, the authors still believe that this is a wrong decision.
+This is an unprecedented design in the standard library type erasure facilities. We did not make `std::any` to assign an empty `struct` to a moved-from object.
+We did not make `std::{copyable_,move_only}function<void()>` to assign `[]{}` to a moved-from object. This is adding unnecessary complexity. Instead, we should
+just discourage people from using the moved-from object other than destruction or assignment.
+
 ## ABI Stability
 
 As a type intended to exist at ABI boundaries, ensuring the ABI stability of `any_view` is extremely important. However, since almost any change to the API of `any_view` will require a modification to the vtable, this makes `any_view` somewhat fragile to incremental evolution.
@@ -933,6 +950,7 @@ class any_view {
   class @*sentinel*@; // exposition-only
 public:
   // [range.any.ctor], constructors, assignment, and destructor
+  constexpr any_view();
   template <class Rng> constexpr any_view(Rng&& rng);
   constexpr any_view(const any_view&);
   constexpr any_view(any_view&&) noexcept;
@@ -1020,53 +1038,59 @@ constexpr bool @*any-view-flag-is-set*@(any_view_options opts, any_view_options 
 #### ?.?.?.4 Constructors, assignment, and destructor [range.any.ctor] {-}
 
 ```cpp
+constexpr any_view();
+```
+
+:::bq
+
+[1]{.pnum} *Postconditions*: `*this` holds a *target view object* `v`, where `ranges::empty(v)` is `true`.
+
+:::
+
+```cpp
 template <class Rng> constexpr any_view(Rng&& rng);
 ```
 
 :::bq
 
-[1]{.pnum} *Constraints*:
+[2]{.pnum} *Constraints*:
 
-- [1.1]{.pnum} `remove_cvref_t<Rng>` is not the same type as `any_view`, and
+- [2.1]{.pnum} `remove_cvref_t<Rng>` is not the same type as `any_view`, and
 
-- [1.2]{.pnum} `Rng` models `viewable_range`, and
+- [2.2]{.pnum} `Rng` models `viewable_range`, and
 
-- [1.3]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::sized)` is `false`, or `Rng`
+- [2.3]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::sized)` is `false`, or `Rng`
   models `sized_range`, and
 
-- [1.4]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::borrowed)` is `false`, or `Rng`
+- [2.4]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::borrowed)` is `false`, or `Rng`
   models `borrowed_range`, and
 
-- [1.5]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::copyable)` is `false`, or `all_t<Rng>`
+- [2.5]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::copyable)` is `false`, or `all_t<Rng>`
   models `copyable`, and
 
-- [1.6]{.pnum} `is_convertible_v<range_reference_t<all_t<Rng>>, Ref>` is `true`, and
+- [2.6]{.pnum} `is_convertible_v<range_reference_t<all_t<Rng>>, Ref>` is `true`, and
 
-- [1.7]{.pnum} `is_convertible_v<range_value_t<all_t<Rng>>, remove_cv_t<Element>>` is `true`, and
+- [2.7]{.pnum} `is_convertible_v<range_value_t<all_t<Rng>>, remove_cv_t<Element>>` is `true`, and
 
-- [1.8]{.pnum} `is_convertible_v<range_rvalue_reference_t<all_t<Rng>>, RValueRef>` is `true`, and
+- [2.8]{.pnum} `is_convertible_v<range_rvalue_reference_t<all_t<Rng>>, RValueRef>` is `true`, and
 
-- [1.9]{.pnum} `is_convertible_v<range_difference_t<all_t<Rng>>, Diff>` is `true`, and
+- [2.9]{.pnum} `is_convertible_v<range_difference_t<all_t<Rng>>, Diff>` is `true`, and
 
-- [1.10]{.pnum} Let `CAT` be `Opts & any_view_options::contiguous`, `R` be `all_t<Rng>`,
+- [2.10]{.pnum} Let `CAT` be `Opts & any_view_options::contiguous`, `R` be `all_t<Rng>`,
 
-  - [1.10.1]{.pnum} If `CAT` is `any_views_options::contiguous`, `R` models `contiguous_range`
+  - [2.10.1]{.pnum} If `CAT` is `any_views_options::contiguous`, `R` models `contiguous_range`
 
-  - [1.10.2]{.pnum} Otherwise, if `CAT` is `any_views_options::random_access`, `R` models `random_access_range`,
+  - [2.10.2]{.pnum} Otherwise, if `CAT` is `any_views_options::random_access`, `R` models `random_access_range`,
 
-  - [1.10.3]{.pnum} Otherwise, if `CAT` is `any_views_options::bidirectional`, `R` models `bidirectional_range`,
+  - [2.10.3]{.pnum} Otherwise, if `CAT` is `any_views_options::bidirectional`, `R` models `bidirectional_range`,
 
-  - [1.10.4]{.pnum} Otherwise if `CAT` is `any_views_options::forward`, `R` models `forward_range`,
+  - [2.10.4]{.pnum} Otherwise if `CAT` is `any_views_options::forward`, `R` models `forward_range`,
 
-  - [1.10.5]{.pnum} Otherwise, `CAT` is `any_views_options::input`, and `R` models `input_range`
+  - [2.10.5]{.pnum} Otherwise, `CAT` is `any_views_options::input`, and `R` models `input_range`
 
-[2]{.pnum} *Postconditions*:
+[3]{.pnum} *Postconditions*: `*this` has a *target view object* of type `all_t<Rng>` direct-non-list-initialized with `std​::​forward<Rng>(rng)`.
 
-- [2.1]{.pnum} `*this` has no *target view object* if `remove_cvref_t<Rng>` is a specialization of the `any_view` class template, and `rng` has no *target view object*.
-
-- [2.2]{.pnum} Otherwise, `*this` has a *target view object* of type `all_t<Rng>` direct-non-list-initialized with `std​::​forward<Rng>(rng)`.
-
-[3]{.pnum} *Throws*: Any exception thrown by the initialization of the *target view object*. May throw `bad_alloc`.
+[4]{.pnum} *Throws*: Any exception thrown by the initialization of the *target view object*. May throw `bad_alloc`.
 
 :::
 
@@ -1076,9 +1100,9 @@ constexpr any_view(const any_view& other);
 
 :::bq
 
-[4]{.pnum} *Constraints*: `Opts & any_view_options::copyable` is `any_view_options::copyable`
+[5]{.pnum} *Constraints*: `Opts & any_view_options::copyable` is `any_view_options::copyable`
 
-[5]{.pnum} *Postconditions*: `*this` has no *target view object* if `other` had no *target view object*. Otherwise, the *target view object* of `*this` is a copy of the *target view object* of `other`.
+[6]{.pnum} *Postconditions*: The *target view object* of `*this` is a copy of the *target view object* of `other`.
 
 :::
 
@@ -1088,7 +1112,7 @@ constexpr any_view(any_view&& other) noexcept;
 
 :::bq
 
-[6]{.pnum} *Postconditions*: `*this` has no *target view object* if `other` had no *target view object*. Otherwise, the *target view object* of `*this` is equivalent to the *target view object* of `other` before the construction of `*this`, and `other` is in a valid state with an unspecified value.
+[7]{.pnum} *Postconditions*: The *target view object* of `*this` is equivalent to the *target view object* of `other` before the construction of `*this`, and `other` holds a *target view object* `v` where `ranges::empty(v)` is `true`
 
 :::
 
@@ -1098,11 +1122,11 @@ constexpr any_view &operator=(const any_view& other)
 
 :::bq
 
-[7]{.pnum} *Constraints*: `Opts & any_view_options::copyable` is `any_view_options::copyable`
+[8]{.pnum} *Constraints*: `Opts & any_view_options::copyable` is `any_view_options::copyable`
 
-[8]{.pnum} *Effects*: Equivalent to: `any_view(other).swap(*this);`
+[9]{.pnum} *Effects*: Equivalent to: `any_view(other).swap(*this);`
 
-[9]{.pnum} *Returns*: `*this`.
+[10]{.pnum} *Returns*: `*this`.
 
 :::
 
@@ -1112,9 +1136,9 @@ constexpr any_view &operator=(any_view&& other)
 
 :::bq
 
-[10]{.pnum} *Effects*: Equivalent to: `any_view(std::move(other)).swap(*this);`
+[11]{.pnum} *Effects*: Equivalent to: `any_view(std::move(other)).swap(*this);`
 
-[11]{.pnum} *Returns*: `*this`.
+[12]{.pnum} *Returns*: `*this`.
 
 :::
 
@@ -1124,7 +1148,7 @@ constexpr ~any_view();
 
 :::bq
 
-[12]{.pnum} *Effects*: Destroys the *target view object* of `*this`, if any.
+[13]{.pnum} *Effects*: Destroys the *target view object* of `*this`.
 
 :::
 
@@ -1136,9 +1160,7 @@ constexpr @*iterator*@ begin();
 
 :::bq
 
-[1]{.pnum} *Preconditions*: `*this` has a *target view object*.
-
-[2]{.pnum} *Effects*: Let `v` be an lvalue designating the *target view object* of `*this`, returns an object of *iterator wrapper type* `@*iterator*@`, which holds a *target iterator object* of `ranges::begin(v)`
+[1]{.pnum} *Effects*: Let `v` be an lvalue designating the *target view object* of `*this`, returns an object of *iterator wrapper type* `@*iterator*@`, which holds a *target iterator object* of `ranges::begin(v)`
 
 :::
 
@@ -1148,9 +1170,7 @@ constexpr @*sentinel*@ end();
 
 :::bq
 
-[3]{.pnum} *Preconditions*: `*this` has a *target view object*.
-
-[4]{.pnum} *Effects*: Let `v` be an lvalue designating the *target view object* of `*this`, returns an object of *sentinel wrapper type* `@*sentinel*@`, which holds a *target sentinel object* of `ranges::end(v)`
+[2]{.pnum} *Effects*: Let `v` be an lvalue designating the *target view object* of `*this`, returns an object of *sentinel wrapper type* `@*sentinel*@`, which holds a *target sentinel object* of `ranges::end(v)`
 
 :::
 
@@ -1160,11 +1180,9 @@ constexpr @*make-unsigned-like-t*@<Diff> size() const;
 
 :::bq
 
-[5]{.pnum} *Constraints*: `Opts & any_view_options::sized` is `any_view_options::sized`
+[3]{.pnum} *Constraints*: `Opts & any_view_options::sized` is `any_view_options::sized`
 
-[6]{.pnum} *Preconditions*: `*this` has a *target view object*.
-
-[7]{.pnum} *Effects*: Equivalent to:
+[4]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return @*make-unsigned-like-t*@<Diff>(ranges::size(v));
