@@ -1,6 +1,6 @@
 ---
 title: "Proposed Resolution for NB Comment GB13-309 `atomic_ref<T>` is not convertible to `atomic_ref<const T>`"
-document: PXXXXR0
+document: P3860R0
 date: 2025-10-04
 audience: LEWG, LWG
 author:
