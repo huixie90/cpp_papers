@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="mpark/wg21" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="dcterms.date" content="2025-09-12" />
+  <meta name="dcterms.date" content="2025-10-04" />
   <title>Proposed Resolution for NB Comment GB13-309
 `atomic_ref&lt;T&gt;` is not convertible to `atomic_ref&lt;const
 T&gt;`</title>
@@ -432,12 +432,14 @@ is not convertible to <code class="sourceCode cpp">atomic_ref<span class="op">&l
   <tr>
     <td>Document #:</td>
     <td>
-      PXXXXR0
+      P3860R0
+      [<a href="https://wg21.link/P3860">Latest</a>]
+      [<a href="https://wg21.link/P3860/status">Status</a>]
     </td>
   </tr>
   <tr>
     <td>Date:</td>
-    <td>2025-09-12</td>
+    <td>2025-10-04</td>
   </tr>
   <tr>
     <td style="vertical-align:top">Project:</td>
@@ -485,14 +487,16 @@ is not convertible to <code class="sourceCode cpp">atomic_ref<span class="op">&l
 constructor of <code class="sourceCode cpp">atomic_ref</code> between
 different cv qualifiers is overlooked.</p>
 <h1 data-number="3" id="wording"><span class="header-section-number">3</span> Wording<a href="#wording" class="self-link"></a></h1>
-<p>Change <a href="https://wg21.link/atomics.ref.generic.general">[atomics.ref.generic.general]</a>
+<p>Change <span>32.5.7.1
+<a href="https://wg21.link/atomics.ref.generic.general">[atomics.ref.generic.general]</a></span>
 as follows:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">explicit</span> atomic_ref<span class="op">(</span>T<span class="op">&amp;)</span>;</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> atomic_ref<span class="op">(</span><span class="kw">const</span> atomic_ref<span class="op">&amp;)</span> <span class="kw">noexcept</span>;</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">template &lt;class U&gt;</code></span></ins></span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">constexpr atomic_ref(const atomic_ref&lt;U&gt;&amp;);</code></span></ins></span></span></code></pre></div>
-<p>Add a new entry to <a href="https://wg21.link/atomics.ref.ops">[atomics.ref.ops]</a> after
-paragraph 8:</p>
+<p>Add a new entry to <span>32.5.7.2
+<a href="https://wg21.link/atomics.ref.ops">[atomics.ref.ops]</a></span>
+after paragraph 8:</p>
 <div class="add" style="color: #006e28">
 
 <div class="sourceCode" id="cb2"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>template &lt;class U&gt;</span>
@@ -516,6 +520,8 @@ references the object referenced by
 <p><span class="citation" data-cites="P3323R1"><a href="https://wg21.link/p3323r1" role="doc-biblioref">[P3323R1]</a></span> is currently being implemented
 in libc++ and adding the proposed constructor is under way.</p>
 <h1 data-number="5" id="feature-test-macro"><span class="header-section-number">5</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h1>
+<p><span class="citation" data-cites="P3323R1"><a href="https://wg21.link/p3323r1" role="doc-biblioref">[P3323R1]</a></span> does not seem to mention
+Feature Test Macro</p>
 <style>
 .bq{
     display: block;
