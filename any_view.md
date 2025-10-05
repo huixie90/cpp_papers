@@ -579,9 +579,7 @@ In the original design, we proposed any operations, other than assignment or des
 |5	|2	|0	|2  |0 |	
 
 This revision (R4) follows SG9's recommendation to make the moved-from state as an empty view. However, the authors still believe that this is a wrong decision.
-This is an unprecedented design in the standard library type erasure facilities. We did not make `std::any` to assign an empty `struct` to a moved-from object.
-We did not make `std::{copyable_,move_only}function<void()>` to assign `[]{}` to a moved-from object. This is adding unnecessary complexity. Instead, we should
-just discourage people from using the moved-from object other than destruction or assignment.
+This is an unprecedented design in the standard library type erasure facilities. All existing type erasure utilities in the library leave the moved-from object in a valid but unspecified state. Assigning `any_view`'s moved-from state to be an empty view adds unnecessary complexity and goes against "don't pay for what you don't use" philosophy.
 
 ## ABI Stability
 
