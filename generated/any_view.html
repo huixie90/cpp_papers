@@ -1274,16 +1274,12 @@ doesn’t have a precondition).</p>
 <p>This revision (R4) follows SG9’s recommendation to make the
 moved-from state as an empty view. However, the authors still believe
 that this is a wrong decision. This is an unprecedented design in the
-standard library type erasure facilities. We did not make
-<code class="sourceCode cpp">std<span class="op">::</span>any</code> to
-assign an empty
-<code class="sourceCode cpp"><span class="kw">struct</span></code> to a
-moved-from object. We did not make <code class="sourceCode cpp">std<span class="op">::{</span>copyable_,move_only<span class="op">}</span>function<span class="op">&lt;</span><span class="dt">void</span><span class="op">()&gt;</span></code>
-to assign
-<code class="sourceCode cpp"><span class="op">[]{}</span></code> to a
-moved-from object. This is adding unnecessary complexity. Instead, we
-should just discourage people from using the moved-from object other
-than destruction or assignment.</p>
+standard library type erasure facilities. All existing type erasure
+utilities in the library leave the moved-from object in a valid but
+unspecified state. Assigning
+<code class="sourceCode cpp">any_view</code>’s moved-from state to be an
+empty view adds unnecessary complexity and goes against “don’t pay for
+what you don’t use” philosophy.</p>
 <h2 data-number="7.11" id="abi-stability"><span class="header-section-number">7.11</span> ABI Stability<a href="#abi-stability" class="self-link"></a></h2>
 <p>As a type intended to exist at ABI boundaries, ensuring the ABI
 stability of <code class="sourceCode cpp">any_view</code> is extremely
