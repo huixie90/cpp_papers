@@ -546,21 +546,21 @@ references the object referenced by
 <p>Change <span>32.5.7.3
 <a href="https://wg21.link/atomics.ref.int">[atomics.ref.int]</a></span>
 as follows:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">explicit</span> atomic_ref<span class="op">(</span>integral<span class="op">-</span>type<span class="op">&amp;)</span>;</span>
+<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">explicit</span> atomic_ref<span class="op">(</span><em>integral-type</em><span class="op">&amp;)</span>;</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> atomic_ref<span class="op">(</span><span class="kw">const</span> atomic_ref<span class="op">&amp;)</span> <span class="kw">noexcept</span>;</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">template &lt;class U&gt;</code></span></ins></span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">constexpr atomic_ref(const atomic_ref&lt;U&gt;&amp;) noexcept;</code></span></ins></span></span></code></pre></div>
 <p>Change <span>32.5.7.4
 <a href="https://wg21.link/atomics.ref.float">[atomics.ref.float]</a></span>
 as follows:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">explicit</span> atomic_ref<span class="op">(</span>floating<span class="op">-</span>point<span class="op">-</span>type<span class="op">&amp;)</span>;</span>
+<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">explicit</span> atomic_ref<span class="op">(</span><em>floating-point-type</em><span class="op">&amp;)</span>;</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> atomic_ref<span class="op">(</span><span class="kw">const</span> atomic_ref<span class="op">&amp;)</span> <span class="kw">noexcept</span>;</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">template &lt;class U&gt;</code></span></ins></span></span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">constexpr atomic_ref(const atomic_ref&lt;U&gt;&amp;) noexcept;</code></span></ins></span></span></code></pre></div>
 <p>Change <span>32.5.7.5
 <a href="https://wg21.link/atomics.ref.pointer">[atomics.ref.pointer]</a></span>
 as follows:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">explicit</span> atomic_ref<span class="op">(</span>pointer<span class="op">-</span>type<span class="op">&amp;)</span>;</span>
+<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">explicit</span> atomic_ref<span class="op">(</span><em>pointer-type</em><span class="op">&amp;)</span>;</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> atomic_ref<span class="op">(</span><span class="kw">const</span> atomic_ref<span class="op">&amp;)</span> <span class="kw">noexcept</span>;</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">template &lt;class U&gt;</code></span></ins></span></span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">constexpr atomic_ref(const atomic_ref&lt;U&gt;&amp;) noexcept;</code></span></ins></span></span></code></pre></div>

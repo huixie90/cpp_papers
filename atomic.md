@@ -12,7 +12,9 @@ toc: true
 ---
 
 # Revision History
+
 ## R1
+
 - Added `noexcept` specifier.
 - Changed constraints wording to say "`T` and `U` are similar types" per LWG feedback
 - Added converting constructor to specializations for integral types
@@ -20,8 +22,8 @@ toc: true
 - Added converting constructor to specializations for pointer types
 
 ## R0
-- Initial revision
 
+- Initial revision
 
 # Abstract
 
@@ -64,7 +66,7 @@ constexpr atomic_ref(const atomic_ref<U>& ref) noexcept;
 Change [atomics.ref.int]{.sref} as follows:
 
 ```cpp
-    constexpr explicit atomic_ref(integral-type&);
+    constexpr explicit atomic_ref(@*integral-type*@&);
     constexpr atomic_ref(const atomic_ref&) noexcept;
     @[`template <class U>`]{.add}@
     @[`constexpr atomic_ref(const atomic_ref<U>&) noexcept;`]{.add}@
@@ -73,7 +75,7 @@ Change [atomics.ref.int]{.sref} as follows:
 Change [atomics.ref.float]{.sref} as follows:
 
 ```cpp
-    constexpr explicit atomic_ref(floating-point-type&);
+    constexpr explicit atomic_ref(@*floating-point-type*@&);
     constexpr atomic_ref(const atomic_ref&) noexcept;
     @[`template <class U>`]{.add}@
     @[`constexpr atomic_ref(const atomic_ref<U>&) noexcept;`]{.add}@
@@ -82,7 +84,7 @@ Change [atomics.ref.float]{.sref} as follows:
 Change [atomics.ref.pointer]{.sref} as follows:
 
 ```cpp
-    constexpr explicit atomic_ref(pointer-type&);
+    constexpr explicit atomic_ref(@*pointer-type*@&);
     constexpr atomic_ref(const atomic_ref&) noexcept;
     @[`template <class U>`]{.add}@
     @[`constexpr atomic_ref(const atomic_ref<U>&) noexcept;`]{.add}@
