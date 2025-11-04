@@ -485,6 +485,16 @@ Macro<span></span></a></li>
 <li>Added
 <code class="sourceCode cpp"><span class="kw">noexcept</span></code>
 specifier.</li>
+<li>Changed constraints wording to say
+“<code class="sourceCode cpp">T</code> and
+<code class="sourceCode cpp">U</code> are similar types” per LWG
+feedback</li>
+<li>Added converting constructor to specializations for integral
+types</li>
+<li>Added converting constructor to specializations for floating-point
+types</li>
+<li>Added converting constructor to specializations for pointer
+types</li>
 </ul>
 <h2 data-number="1.2" id="r0"><span class="header-section-number">1.2</span> R0<a href="#r0" class="self-link"></a></h2>
 <ul>
@@ -503,14 +513,16 @@ is not convertible to <code class="sourceCode cpp">atomic_ref<span class="op">&l
 constructor of <code class="sourceCode cpp">atomic_ref</code> between
 different cv qualifiers is overlooked.</p>
 <h1 data-number="4" id="wording"><span class="header-section-number">4</span> Wording<a href="#wording" class="self-link"></a></h1>
-<p>Change <a href="https://wg21.link/atomics.ref.generic.general">[atomics.ref.generic.general]</a>
+<p>Change <span>32.5.7.1
+<a href="https://wg21.link/atomics.ref.generic.general">[atomics.ref.generic.general]</a></span>
 as follows:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">explicit</span> atomic_ref<span class="op">(</span>T<span class="op">&amp;)</span>;</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> atomic_ref<span class="op">(</span><span class="kw">const</span> atomic_ref<span class="op">&amp;)</span> <span class="kw">noexcept</span>;</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">template &lt;class U&gt;</code></span></ins></span></span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">constexpr atomic_ref(const atomic_ref&lt;U&gt;&amp;) noexcept;</code></span></ins></span></span></code></pre></div>
-<p>Add a new entry to <a href="https://wg21.link/atomics.ref.ops">[atomics.ref.ops]</a> after
-paragraph 8:</p>
+<p>Add a new entry to <span>32.5.7.2
+<a href="https://wg21.link/atomics.ref.ops">[atomics.ref.ops]</a></span>
+after paragraph 8:</p>
 <div class="add" style="color: #006e28">
 
 <div class="sourceCode" id="cb2"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>template &lt;class U&gt;</span>
@@ -519,8 +531,9 @@ paragraph 8:</p>
 <em>Contraints</em>:</p>
 <ul>
 <li><p><span class="marginalizedparent"><a class="marginalized">(9.1)</a></span>
-<code class="sourceCode default">is_same_v&lt;remove_cv_t&lt;T&gt;, remove_cv_t&lt;U&gt;&gt;</code>
-is <code class="sourceCode default">true</code>, and</p></li>
+<code class="sourceCode default">T</code> and
+<code class="sourceCode default">U</code> are similar types
+([conv.qual]), and</p></li>
 <li><p><span class="marginalizedparent"><a class="marginalized">(9.2)</a></span>
 <code class="sourceCode default">is_convertible_v&lt;U*, T*&gt;</code>
 is <code class="sourceCode default">true</code></p></li>
@@ -530,6 +543,27 @@ is <code class="sourceCode default">true</code></p></li>
 references the object referenced by
 <code class="sourceCode default">ref</code>.</p>
 </div>
+<p>Change <span>32.5.7.3
+<a href="https://wg21.link/atomics.ref.int">[atomics.ref.int]</a></span>
+as follows:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">explicit</span> atomic_ref<span class="op">(</span>integral<span class="op">-</span>type<span class="op">&amp;)</span>;</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> atomic_ref<span class="op">(</span><span class="kw">const</span> atomic_ref<span class="op">&amp;)</span> <span class="kw">noexcept</span>;</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">template &lt;class U&gt;</code></span></ins></span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">constexpr atomic_ref(const atomic_ref&lt;U&gt;&amp;) noexcept;</code></span></ins></span></span></code></pre></div>
+<p>Change <span>32.5.7.4
+<a href="https://wg21.link/atomics.ref.float">[atomics.ref.float]</a></span>
+as follows:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">explicit</span> atomic_ref<span class="op">(</span>floating<span class="op">-</span>point<span class="op">-</span>type<span class="op">&amp;)</span>;</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> atomic_ref<span class="op">(</span><span class="kw">const</span> atomic_ref<span class="op">&amp;)</span> <span class="kw">noexcept</span>;</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">template &lt;class U&gt;</code></span></ins></span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">constexpr atomic_ref(const atomic_ref&lt;U&gt;&amp;) noexcept;</code></span></ins></span></span></code></pre></div>
+<p>Change <span>32.5.7.5
+<a href="https://wg21.link/atomics.ref.pointer">[atomics.ref.pointer]</a></span>
+as follows:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">explicit</span> atomic_ref<span class="op">(</span>pointer<span class="op">-</span>type<span class="op">&amp;)</span>;</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> atomic_ref<span class="op">(</span><span class="kw">const</span> atomic_ref<span class="op">&amp;)</span> <span class="kw">noexcept</span>;</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">template &lt;class U&gt;</code></span></ins></span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">constexpr atomic_ref(const atomic_ref&lt;U&gt;&amp;) noexcept;</code></span></ins></span></span></code></pre></div>
 <h1 data-number="5" id="implementation-experience"><span class="header-section-number">5</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
 <p><span class="citation" data-cites="P3323R1"><a href="https://wg21.link/p3323r1" role="doc-biblioref">[P3323R1]</a></span> is currently being implemented
 in libc++ and adding the proposed constructor is under way.</p>
