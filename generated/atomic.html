@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="mpark/wg21" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="dcterms.date" content="2025-11-04" />
+  <meta name="dcterms.date" content="2025-11-03" />
   <title>Proposed Resolution for NB Comment GB13-309
 `atomic_ref&lt;T&gt;` is not convertible to `atomic_ref&lt;const
 T&gt;`</title>
@@ -439,7 +439,7 @@ is not convertible to <code class="sourceCode cpp">atomic_ref<span class="op">&l
   </tr>
   <tr>
     <td>Date:</td>
-    <td>2025-11-04</td>
+    <td>2025-11-03</td>
   </tr>
   <tr>
     <td style="vertical-align:top">Project:</td>
@@ -464,21 +464,37 @@ is not convertible to <code class="sourceCode cpp">atomic_ref<span class="op">&l
 <div id="TOC" role="doc-toc">
 <h1 id="toctitle">Contents</h1>
 <ul>
-<li><a href="#abstract" id="toc-abstract"><span class="toc-section-number">1</span> Abstract<span></span></a></li>
-<li><a href="#introduction" id="toc-introduction"><span class="toc-section-number">2</span> Introduction<span></span></a></li>
-<li><a href="#wording" id="toc-wording"><span class="toc-section-number">3</span> Wording<span></span></a></li>
-<li><a href="#implementation-experience" id="toc-implementation-experience"><span class="toc-section-number">4</span> Implementation
+<li><a href="#revision-history" id="toc-revision-history"><span class="toc-section-number">1</span> Revision History<span></span></a>
+<ul>
+<li><a href="#r1" id="toc-r1"><span class="toc-section-number">1.1</span> R1<span></span></a></li>
+<li><a href="#r0" id="toc-r0"><span class="toc-section-number">1.2</span> R0<span></span></a></li>
+</ul></li>
+<li><a href="#abstract" id="toc-abstract"><span class="toc-section-number">2</span> Abstract<span></span></a></li>
+<li><a href="#introduction" id="toc-introduction"><span class="toc-section-number">3</span> Introduction<span></span></a></li>
+<li><a href="#wording" id="toc-wording"><span class="toc-section-number">4</span> Wording<span></span></a></li>
+<li><a href="#implementation-experience" id="toc-implementation-experience"><span class="toc-section-number">5</span> Implementation
 Experience<span></span></a></li>
-<li><a href="#feature-test-macro" id="toc-feature-test-macro"><span class="toc-section-number">5</span> Feature Test
+<li><a href="#feature-test-macro" id="toc-feature-test-macro"><span class="toc-section-number">6</span> Feature Test
 Macro<span></span></a></li>
-<li><a href="#bibliography" id="toc-bibliography"><span class="toc-section-number">6</span> References<span></span></a></li>
+<li><a href="#bibliography" id="toc-bibliography"><span class="toc-section-number">7</span> References<span></span></a></li>
 </ul>
 </div>
-<h1 data-number="1" id="abstract"><span class="header-section-number">1</span> Abstract<a href="#abstract" class="self-link"></a></h1>
+<h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
+<h2 data-number="1.1" id="r1"><span class="header-section-number">1.1</span> R1<a href="#r1" class="self-link"></a></h2>
+<ul>
+<li>Added
+<code class="sourceCode cpp"><span class="kw">noexcept</span></code>
+specifier.</li>
+</ul>
+<h2 data-number="1.2" id="r0"><span class="header-section-number">1.2</span> R0<a href="#r0" class="self-link"></a></h2>
+<ul>
+<li>Initial revision</li>
+</ul>
+<h1 data-number="2" id="abstract"><span class="header-section-number">2</span> Abstract<a href="#abstract" class="self-link"></a></h1>
 <p>This paper proposes a converting constructor for
 <code class="sourceCode cpp">atomic_ref</code> as the resolution for UK
 NB Comment GB13-309.</p>
-<h1 data-number="2" id="introduction"><span class="header-section-number">2</span> Introduction<a href="#introduction" class="self-link"></a></h1>
+<h1 data-number="3" id="introduction"><span class="header-section-number">3</span> Introduction<a href="#introduction" class="self-link"></a></h1>
 <p>The UK NB Comment GB13-309 pointed out that <code class="sourceCode cpp">atomic_ref<span class="op">&lt;</span>T<span class="op">&gt;</span></code>
 is not convertible to <code class="sourceCode cpp">atomic_ref<span class="op">&lt;</span><span class="kw">const</span> T<span class="op">&gt;</span></code>.
 <span class="citation" data-cites="P3323R1"><a href="https://wg21.link/p3323r1" role="doc-biblioref">[P3323R1]</a></span> added cv qualifiers to
@@ -486,7 +502,7 @@ is not convertible to <code class="sourceCode cpp">atomic_ref<span class="op">&l
 <code class="sourceCode cpp">atomic_ref</code>. However, the conversion
 constructor of <code class="sourceCode cpp">atomic_ref</code> between
 different cv qualifiers is overlooked.</p>
-<h1 data-number="3" id="wording"><span class="header-section-number">3</span> Wording<a href="#wording" class="self-link"></a></h1>
+<h1 data-number="4" id="wording"><span class="header-section-number">4</span> Wording<a href="#wording" class="self-link"></a></h1>
 <p>Change <a href="https://wg21.link/atomics.ref.generic.general">[atomics.ref.generic.general]</a>
 as follows:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">constexpr</span> <span class="kw">explicit</span> atomic_ref<span class="op">(</span>T<span class="op">&amp;)</span>;</span>
@@ -514,10 +530,10 @@ is <code class="sourceCode default">true</code></p></li>
 references the object referenced by
 <code class="sourceCode default">ref</code>.</p>
 </div>
-<h1 data-number="4" id="implementation-experience"><span class="header-section-number">4</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
+<h1 data-number="5" id="implementation-experience"><span class="header-section-number">5</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
 <p><span class="citation" data-cites="P3323R1"><a href="https://wg21.link/p3323r1" role="doc-biblioref">[P3323R1]</a></span> is currently being implemented
 in libc++ and adding the proposed constructor is under way.</p>
-<h1 data-number="5" id="feature-test-macro"><span class="header-section-number">5</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h1>
+<h1 data-number="6" id="feature-test-macro"><span class="header-section-number">6</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h1>
 <p><span class="citation" data-cites="P3323R1"><a href="https://wg21.link/p3323r1" role="doc-biblioref">[P3323R1]</a></span> does not seem to mention
 Feature Test Macro</p>
 <style>
@@ -529,7 +545,7 @@ Feature Test Macro</p>
     margin-inline-end: 40px;
 }
 </style>
-<h1 data-number="6" id="bibliography"><span class="header-section-number">6</span> References<a href="#bibliography" class="self-link"></a></h1>
+<h1 data-number="7" id="bibliography"><span class="header-section-number">7</span> References<a href="#bibliography" class="self-link"></a></h1>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="1" role="doc-bibliography">
 <div id="ref-P3323R1" class="csl-entry" role="doc-biblioentry">
 [P3323R1] Gonzalo Brito Gadeschi. 2024-11-18. cv-qualified types in
