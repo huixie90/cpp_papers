@@ -5,7 +5,7 @@
   <meta name="generator" content="mpark/wg21" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
   <meta name="dcterms.date" content="2025-11-09" />
-  <title>String literals are harmful in ranges</title>
+  <title>String literals considered harmful in ranges</title>
   <style>
       code{white-space: pre-wrap;}
       span.smallcaps{font-variant: small-caps;}
@@ -423,8 +423,8 @@ code.sourceCode > span { display: inline; }
 <body>
 <div class="wrapper">
 <header id="title-block-header">
-<h1 class="title" style="text-align:center">String literals are harmful
-in ranges</h1>
+<h1 class="title" style="text-align:center">String literals considered
+harmful in ranges</h1>
 <table style="border:none;float:right">
   <tr>
     <td>Document #:</td>
@@ -467,15 +467,26 @@ in ranges</h1>
 <li><a href="#introduction" id="toc-introduction"><span class="toc-section-number">3</span> Introduction<span></span></a></li>
 <li><a href="#proposed-solutions" id="toc-proposed-solutions"><span class="toc-section-number">4</span> Proposed Solutions<span></span></a>
 <ul>
-<li><a href="#deprecate-string-literals-as-non-viewable_range-or-viewall" id="toc-deprecate-string-literals-as-non-viewable_range-or-viewall"><span class="toc-section-number">4.1</span> Deprecate String Literals as
+<li><a href="#deprecate-rangesbegin-and-rangesend-for-string-literals" id="toc-deprecate-rangesbegin-and-rangesend-for-string-literals"><span class="toc-section-number">4.1</span> Deprecate <code class="sourceCode cpp">ranges<span class="op">::</span>begin</code> and
+<code class="sourceCode cpp">ranges<span class="op">::</span>end</code>
+for String Literals<span></span></a></li>
+<li><a href="#deprecate-string-literals-as-non-viewable_range-or-viewall" id="toc-deprecate-string-literals-as-non-viewable_range-or-viewall"><span class="toc-section-number">4.2</span> Deprecate String Literals as
 non-<code class="sourceCode cpp">viewable_range</code> or
 <code class="sourceCode cpp">view<span class="op">::</span>all</code><span></span></a></li>
-<li><a href="#make-viewall-to-return-string_view-for-string-literals" id="toc-make-viewall-to-return-string_view-for-string-literals"><span class="toc-section-number">4.2</span> Make
+<li><a href="#make-viewall-to-return-string_view-for-string-literals" id="toc-make-viewall-to-return-string_view-for-string-literals"><span class="toc-section-number">4.3</span> Make
 <code class="sourceCode cpp">view<span class="op">::</span>all</code> to
 return <code class="sourceCode cpp">string_view</code> for String
 Literals<span></span></a></li>
-<li><a href="#how-to-detect-a-string-literal" id="toc-how-to-detect-a-string-literal"><span class="toc-section-number">4.3</span> How to detect a string
-literal<span></span></a></li>
+<li><a href="#how-to-detect-a-string-literal" id="toc-how-to-detect-a-string-literal"><span class="toc-section-number">4.4</span> How to detect a string
+literal<span></span></a>
+<ul>
+<li><a href="#reflection" id="toc-reflection"><span class="toc-section-number">4.4.1</span> Reflection<span></span></a></li>
+<li><a href="#char-array-can-be-initialised-with-string-literals-but-not-another-char-array" id="toc-char-array-can-be-initialised-with-string-literals-but-not-another-char-array"><span class="toc-section-number">4.4.2</span>
+<code class="sourceCode cpp"><span class="dt">char</span></code> array
+can be initialised with string literals , but not another
+<code class="sourceCode cpp"><span class="dt">char</span></code>
+array<span></span></a></li>
+</ul></li>
 </ul></li>
 <li><a href="#wording" id="toc-wording"><span class="toc-section-number">5</span> Wording<span></span></a></li>
 <li><a href="#implementation-experience" id="toc-implementation-experience"><span class="toc-section-number">6</span> Implementation
@@ -493,6 +504,8 @@ Macro<span></span></a></li>
 <p>This paper proposes to fix string literal support in ranges
 library</p>
 <h1 data-number="3" id="introduction"><span class="header-section-number">3</span> Introduction<a href="#introduction" class="self-link"></a></h1>
+<p>TODO: add the problem in <code class="sourceCode cpp">to_utfN</code>
+and why banning is only a partial solution</p>
 <h4 data-number="3.0.0.1" id="rangesempty"><span class="header-section-number">3.0.0.1</span> <code class="sourceCode cpp">ranges<span class="op">::</span>empty</code><a href="#rangesempty" class="self-link"></a></h4>
 <div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>ranges<span class="op">::</span>empty<span class="op">(</span><span class="st">&quot;&quot;</span><span class="bu">sv</span><span class="op">)</span>; <span class="co">// true</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>ranges<span class="op">::</span>empty<span class="op">(</span><span class="st">&quot;&quot;</span><span class="bu">s</span><span class="op">)</span>;  <span class="co">// true</span></span>
@@ -525,27 +538,105 @@ library</p>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>views<span class="op">::</span>cartesian_product<span class="op">(</span><span class="st">&quot;ab&quot;</span><span class="bu">s</span>, <span class="st">&quot;cd&quot;</span><span class="bu">s</span><span class="op">)</span>;   <span class="co">// ac, ad, bc, bd</span></span>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>std<span class="op">::</span>views<span class="op">::</span>cartesian_product<span class="op">(</span><span class="st">&quot;ab&quot;</span>, <span class="st">&quot;cd&quot;</span><span class="op">)</span>;     <span class="co">// ac, ad, a\0, bc, bd, b\0, \0c, \0d, \0\0</span></span></code></pre></div>
 <h1 data-number="4" id="proposed-solutions"><span class="header-section-number">4</span> Proposed Solutions<a href="#proposed-solutions" class="self-link"></a></h1>
-<h2 data-number="4.1" id="deprecate-string-literals-as-non-viewable_range-or-viewall"><span class="header-section-number">4.1</span> Deprecate String Literals as
+<h2 data-number="4.1" id="deprecate-rangesbegin-and-rangesend-for-string-literals"><span class="header-section-number">4.1</span> Deprecate <code class="sourceCode cpp">ranges<span class="op">::</span>begin</code> and
+<code class="sourceCode cpp">ranges<span class="op">::</span>end</code>
+for String Literals<a href="#deprecate-rangesbegin-and-rangesend-for-string-literals" class="self-link"></a></h2>
+<p>We have tried to delete the <code class="sourceCode cpp"><span class="kw">const</span> <span class="dt">char</span><span class="op">[</span>N<span class="op">]</span></code>
+overload in <code class="sourceCode cpp">ranges<span class="op">::</span>begin</code> to
+see the impact</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="dt">size_t</span> _Np<span class="op">&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="kw">auto</span> <span class="kw">operator</span><span class="op">()(</span><span class="kw">const</span> <span class="dt">char</span> <span class="op">(&amp;</span>__t<span class="op">)[</span>_Np<span class="op">])</span> <span class="kw">const</span> <span class="kw">noexcept</span> <span class="op">=</span> <span class="kw">delete</span>;</span></code></pre></div>
+<p>Only 27 tests are failing</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode default"><code class="sourceCode default"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/containers/sequences/deque/deque.modifiers/append_range.pass.cpp</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/containers/sequences/deque/deque.modifiers/assign_range.pass.cpp</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/containers/sequences/deque/deque.modifiers/insert_range.pass.cpp</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/containers/sequences/deque/deque.modifiers/prepend_range.pass.cpp</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/containers/sequences/forwardlist/forwardlist.modifiers/assign_range.pass.cpp</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/containers/sequences/forwardlist/forwardlist.modifiers/insert_range_after.pass.cpp</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/containers/sequences/forwardlist/forwardlist.modifiers/prepend_range.pass.cpp</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/containers/sequences/list/list.modifiers/append_range.pass.cpp</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/containers/sequences/list/list.modifiers/assign_range.pass.cpp</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/containers/sequences/list/list.modifiers/insert_range.pass.cpp</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/containers/sequences/list/list.modifiers/prepend_range.pass.cpp</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/containers/sequences/vector.bool/append_range.pass.cpp</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/containers/sequences/vector.bool/assign_range.pass.cpp</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/containers/sequences/vector.bool/insert_range.pass.cpp</span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/containers/sequences/vector/vector.modifiers/append_range.pass.cpp</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/containers/sequences/vector/vector.modifiers/assign_range.pass.cpp</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/containers/sequences/vector/vector.modifiers/insert_range.pass.cpp</span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/ranges/range.adaptors/range.join/lwg3698.pass.cpp</span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/ranges/range.adaptors/range.lazy.split/general.pass.cpp</span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/ranges/range.adaptors/range.lazy.split/view_interface.pass.cpp</span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/ranges/range.adaptors/range.split/ctor.range.pass.cpp</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/ranges/range.adaptors/range.split/general.pass.cpp</span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/strings/basic.string/string.cons/from_range.pass.cpp</span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/strings/basic.string/string.modifiers/string_append/append_range.pass.cpp</span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/strings/basic.string/string.modifiers/string_assign/assign_range.pass.cpp</span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/strings/basic.string/string.modifiers/string_insert/insert_range.pass.cpp</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>  llvm-libc++-shared.cfg.in :: std/strings/basic.string/string.modifiers/string_replace/replace_with_range.pass.cpp</span></code></pre></div>
+<p>And all the container tests are failing with the exact same reason:
+we have this helper in the container tests</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> TestCase<span class="op">&lt;</span><span class="dt">char</span><span class="op">&gt;</span> EmptyContainer_OneElementRange<span class="op">&lt;</span><span class="dt">char</span><span class="op">&gt;{.</span>initial <span class="op">=</span> <span class="op">{}</span>, <span class="op">.</span>index <span class="op">=</span> <span class="dv">0</span>, <span class="op">.</span>input <span class="op">=</span> <span class="st">&quot;a&quot;</span>, <span class="op">.</span>expected <span class="op">=</span> <span class="st">&quot;a&quot;</span><span class="op">}</span>;</span></code></pre></div>
+<p>The test utility has special code to remove the null terminator from
+the literal.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>  <span class="kw">template</span> <span class="op">&lt;</span>std<span class="op">::</span><span class="dt">size_t</span> N2<span class="op">&gt;</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> Buffer<span class="op">(</span><span class="kw">const</span> <span class="dt">char</span> <span class="op">(&amp;</span>input<span class="op">)[</span>N2<span class="op">])</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>    <span class="kw">requires</span> std<span class="op">::</span>same_as<span class="op">&lt;</span>T, <span class="dt">char</span><span class="op">&gt;</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    <span class="kw">static_assert</span><span class="op">(</span>N2 <span class="op">&lt;=</span> N<span class="op">)</span>;</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    std<span class="op">::</span>ranges<span class="op">::</span>copy<span class="op">(</span>input, data_<span class="op">)</span>;</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Omit the terminating null.</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    size_ <span class="op">=</span> input<span class="op">[</span>N2 <span class="op">-</span> <span class="dv">1</span><span class="op">]</span> <span class="op">==</span> <span class="ch">&#39;</span><span class="sc">\0</span><span class="ch">&#39;</span> <span class="op">?</span> N2 <span class="op">-</span> <span class="dv">1</span> <span class="op">:</span> N2;</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code></pre></div>
+<p>If the tests were using
+<code class="sourceCode cpp">string_view</code>, the special null
+terminator removing code can also be removed.</p>
+<p>And the failed tests in the <code class="sourceCode cpp">range<span class="op">.</span>adaptor</code> are
+the tests that we explicitly lock down this null terminator
+behaviour.</p>
+<p>It is unclear that whether or not an user is using string literal
+with the ranges library, with the intention that they explicitly want
+the null terminator in the range.</p>
+<h2 data-number="4.2" id="deprecate-string-literals-as-non-viewable_range-or-viewall"><span class="header-section-number">4.2</span> Deprecate String Literals as
 non-<code class="sourceCode cpp">viewable_range</code> or
 <code class="sourceCode cpp">view<span class="op">::</span>all</code><a href="#deprecate-string-literals-as-non-viewable_range-or-viewall" class="self-link"></a></h2>
-<p>The goal is to make the usage ill-formed (with diagnostic). The usual
-procedure to invalidate existing valid code is going through the
-deprecation path. An obvious choice to make string literals not usable
-with ranges library is to make it not a
-<code class="sourceCode cpp">viewable_range</code>. However, this can’t
-achieved by using <code class="sourceCode cpp"><span class="op">[[</span><span class="at">deprecated</span><span class="op">]]</span></code>
-attribute. Another solution is to have a new overload in
-<code class="sourceCode cpp">views<span class="op">::</span>all</code>
-and mark that overload <code class="sourceCode cpp"><span class="op">[[</span><span class="at">deprecated</span><span class="op">]]</span></code></p>
-<h2 data-number="4.2" id="make-viewall-to-return-string_view-for-string-literals"><span class="header-section-number">4.2</span> Make
+<h2 data-number="4.3" id="make-viewall-to-return-string_view-for-string-literals"><span class="header-section-number">4.3</span> Make
 <code class="sourceCode cpp">view<span class="op">::</span>all</code> to
 return <code class="sourceCode cpp">string_view</code> for String
 Literals<a href="#make-viewall-to-return-string_view-for-string-literals" class="self-link"></a></h2>
-<h2 data-number="4.3" id="how-to-detect-a-string-literal"><span class="header-section-number">4.3</span> How to detect a string
+<h2 data-number="4.4" id="how-to-detect-a-string-literal"><span class="header-section-number">4.4</span> How to detect a string
 literal<a href="#how-to-detect-a-string-literal" class="self-link"></a></h2>
 <p><code class="sourceCode cpp"><span class="st">&quot;ab&quot;</span></code> has
 the same type as <code class="sourceCode cpp"><span class="kw">const</span> <span class="dt">char</span> c<span class="op">[]</span> <span class="op">=</span> <span class="op">{</span><span class="ch">&#39;a&#39;</span>, <span class="ch">&#39;b&#39;</span>, <span class="ch">&#39;c&#39;</span><span class="op">}</span></code>.
 There is no simple way to detect it just through the type system.</p>
+<h3 data-number="4.4.1" id="reflection"><span class="header-section-number">4.4.1</span> Reflection<a href="#reflection" class="self-link"></a></h3>
+<p>TODO: explain reflection can help with detecting string literals in
+constant expression. but not in general case</p>
+<h3 data-number="4.4.2" id="char-array-can-be-initialised-with-string-literals-but-not-another-char-array"><span class="header-section-number">4.4.2</span>
+<code class="sourceCode cpp"><span class="dt">char</span></code> array
+can be initialised with string literals , but not another
+<code class="sourceCode cpp"><span class="dt">char</span></code> array<a href="#char-array-can-be-initialised-with-string-literals-but-not-another-char-array" class="self-link"></a></h3>
+<p>Ed Catmur had proposed a way to detect a string literal from a
+<code class="sourceCode cpp"><span class="dt">char</span></code> array
+on this Stackoverflow post
+https://stackoverflow.com/a/75151972/10915786. That is, a
+<code class="sourceCode cpp"><span class="dt">char</span></code> array
+can be initialised from a string literal <span>9.5.3
+<a href="https://wg21.link/dcl.init.string">[dcl.init.string]</a></span>,
+but not from another
+<code class="sourceCode cpp"><span class="dt">char</span></code>
+array.</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>    <span class="kw">using</span> T <span class="op">=</span> <span class="dt">char</span><span class="op">[</span><span class="dv">2</span><span class="op">]</span>;</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    T x <span class="op">=</span> <span class="op">{</span><span class="ch">&#39;a&#39;</span>, <span class="ch">&#39;</span><span class="sc">\0</span><span class="ch">&#39;</span><span class="op">}</span>;</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    T y1 <span class="op">{</span><span class="st">&quot;a&quot;</span><span class="op">}</span>; <span class="co">// OK</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    T y2 <span class="op">{</span>x<span class="op">}</span>;   <span class="co">// NOK</span></span></code></pre></div>
+<p>With this, one can create a concept that detects it as shown in Ed’s
+example code.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define IS_SL</span><span class="op">(</span>x<span class="op">)</span><span class="pp"> </span><span class="op">([&amp;]&lt;</span><span class="kw">class</span><span class="pp"> </span>T<span class="pp"> </span><span class="op">=</span><span class="pp"> </span><span class="dt">char</span><span class="op">&gt;()</span><span class="pp"> </span><span class="op">{</span><span class="pp"> </span>\</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="pp">    </span><span class="cf">return</span><span class="pp"> </span>std<span class="op">::</span>is_same_v<span class="op">&lt;</span>T<span class="pp"> </span><span class="kw">const</span><span class="pp"> </span><span class="op">(&amp;)[</span><span class="kw">sizeof</span><span class="op">(</span>x<span class="op">)]</span>,<span class="pp"> </span><span class="kw">decltype</span><span class="op">(</span>x<span class="op">)&gt;</span><span class="pp"> </span><span class="kw">and</span><span class="pp"> </span>\</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="pp">    </span><span class="kw">requires</span><span class="pp"> </span><span class="op">{</span><span class="pp"> </span>std<span class="op">::</span>type_identity_t<span class="op">&lt;</span>T<span class="op">[</span><span class="kw">sizeof</span><span class="op">(</span>x<span class="op">)</span><span class="pp"> </span><span class="op">+</span><span class="pp"> </span><span class="dv">1</span><span class="op">]&gt;{</span>x<span class="op">}</span>;<span class="pp"> </span><span class="op">}</span>;<span class="pp"> </span><span class="op">}())</span></span></code></pre></div>
 <h1 data-number="5" id="wording"><span class="header-section-number">5</span> Wording<a href="#wording" class="self-link"></a></h1>
 <h1 data-number="6" id="implementation-experience"><span class="header-section-number">6</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
 <h1 data-number="7" id="feature-test-macro"><span class="header-section-number">7</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h1>

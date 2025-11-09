@@ -23,6 +23,8 @@ This paper proposes to fix string literal support in ranges library
 
 # Introduction
 
+TODO: add the problem in `to_utfN` and why banning is only a partial solution
+
 
 #### `ranges::empty`
 
@@ -84,23 +86,112 @@ std::views::cartesian_product("ab", "cd");     // ac, ad, a\0, bc, bd, b\0, \0c,
 
 # Proposed Solutions
 
+## Deprecate `ranges::begin` and `ranges::end` for String Literals
+
+We have tried to delete the `const char[N]` overload in `ranges::begin` to see the impact
+
+```cpp
+template <size_t _Np>
+constexpr auto operator()(const char (&__t)[_Np]) const noexcept = delete;
+
+```
+
+Only 27 tests are failing
+
+```
+  llvm-libc++-shared.cfg.in :: std/containers/sequences/deque/deque.modifiers/append_range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/containers/sequences/deque/deque.modifiers/assign_range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/containers/sequences/deque/deque.modifiers/insert_range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/containers/sequences/deque/deque.modifiers/prepend_range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/containers/sequences/forwardlist/forwardlist.modifiers/assign_range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/containers/sequences/forwardlist/forwardlist.modifiers/insert_range_after.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/containers/sequences/forwardlist/forwardlist.modifiers/prepend_range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/containers/sequences/list/list.modifiers/append_range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/containers/sequences/list/list.modifiers/assign_range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/containers/sequences/list/list.modifiers/insert_range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/containers/sequences/list/list.modifiers/prepend_range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/containers/sequences/vector.bool/append_range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/containers/sequences/vector.bool/assign_range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/containers/sequences/vector.bool/insert_range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/containers/sequences/vector/vector.modifiers/append_range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/containers/sequences/vector/vector.modifiers/assign_range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/containers/sequences/vector/vector.modifiers/insert_range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/ranges/range.adaptors/range.join/lwg3698.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/ranges/range.adaptors/range.lazy.split/general.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/ranges/range.adaptors/range.lazy.split/view_interface.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/ranges/range.adaptors/range.split/ctor.range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/ranges/range.adaptors/range.split/general.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/strings/basic.string/string.cons/from_range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/strings/basic.string/string.modifiers/string_append/append_range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/strings/basic.string/string.modifiers/string_assign/assign_range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/strings/basic.string/string.modifiers/string_insert/insert_range.pass.cpp
+  llvm-libc++-shared.cfg.in :: std/strings/basic.string/string.modifiers/string_replace/replace_with_range.pass.cpp
+```
+
+And all the container tests are failing with the exact same reason: we have this helper in the container tests
+
+```cpp
+template <>
+constexpr TestCase<char> EmptyContainer_OneElementRange<char>{.initial = {}, .index = 0, .input = "a", .expected = "a"};
+```
+
+The test utility has special code to remove the null terminator from the literal.
+
+```cpp
+  template <std::size_t N2>
+  constexpr Buffer(const char (&input)[N2])
+    requires std::same_as<T, char>
+  {
+    static_assert(N2 <= N);
+    std::ranges::copy(input, data_);
+    // Omit the terminating null.
+    size_ = input[N2 - 1] == '\0' ? N2 - 1 : N2;
+  }
+```
+
+If the tests were using `string_view`, the special null terminator removing code can also be removed.
+
+And the failed tests in the `range.adaptor` are the tests that we explicitly lock down this null terminator behaviour.
+
+It is unclear that whether or not an user is using string literal with the ranges library, with the intention that they
+explicitly want the null terminator in the range.
+
 ## Deprecate String Literals as non-`viewable_range` or `view::all`
 
-The goal is to make the usage ill-formed (with diagnostic). The usual
-procedure to invalidate existing valid code is going through the deprecation
-path. An obvious choice to make string literals not usable with ranges library
-is to make it not a `viewable_range`. However, this can't achieved by using
-`[[deprecated]]` attribute. Another solution is to have a new overload in
-`views::all` and mark that overload `[[deprecated]]`
 
 ## Make `view::all` to return `string_view` for String Literals
-
 
 
 ## How to detect a string literal
 
 `"ab"` has the same type as `const char c[] = {'a', 'b', 'c'}`. There is no simple
 way to detect it just through the type system.
+
+### Reflection
+
+TODO: explain reflection can help with detecting string literals in constant expression. but not in general case
+
+### `char` array can be initialised with string literals , but not another `char` array
+
+Ed Catmur had proposed a way to detect a string literal from a `char` array on this Stackoverflow post
+https://stackoverflow.com/a/75151972/10915786. That is, a `char` array can be initialised from a string literal
+[dcl.init.string]{.sref}, but not from another `char` array.
+
+```cpp
+    using T = char[2];
+
+    T x = {'a', '\0'};
+    T y1 {"a"}; // OK
+    T y2 {x};   // NOK
+```
+
+With this, one can create a concept that detects it as shown in Ed's example code.
+
+```cpp
+#define IS_SL(x) ([&]<class T = char>() { \
+    return std::is_same_v<T const (&)[sizeof(x)], decltype(x)> and \
+    requires { std::type_identity_t<T[sizeof(x) + 1]>{x}; }; }())
+```
 
 
 # Wording
