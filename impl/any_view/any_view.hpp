@@ -7,6 +7,7 @@
 #include <ranges>
 #include <type_traits>
 
+#include "reserve_hint.hpp"
 #include "storage.hpp"
 
 namespace std::ranges {
@@ -21,9 +22,10 @@ enum class any_view_options {
   random_access = 15,
   contiguous = 31,
   category_mask = contiguous,
-  sized = 32,
-  borrowed = 64,
-  copyable = 128
+  approximately_sized = 32,
+  sized = 96,
+  borrowed = 128,
+  copyable = 256
 };
 
 constexpr any_view_options operator&(any_view_options lhs,
@@ -59,15 +61,15 @@ struct __rvalue_ref {
 };
 
 template <class T>
-struct __rvalue_ref<T &> {
-  using type = T &&;
+struct __rvalue_ref<T&> {
+  using type = T&&;
 };
 
 template <class T>
 using __rvalue_ref_t = typename __rvalue_ref<T>::type;
 
 template <class Element, any_view_options Opts = any_view_options::input,
-          class Ref = Element &, class RValueRef = __rvalue_ref_t<Ref>,
+          class Ref = Element&, class RValueRef = __rvalue_ref_t<Ref>,
           class Diff = ptrdiff_t>
 class any_view {
  public:
@@ -81,6 +83,12 @@ class any_view {
   static constexpr bool is_iterator_copyable =
       Traversal >= any_view_options::forward;
 
+  static constexpr bool is_sized =
+      (Opts & any_view_options::sized) == any_view_options::sized;
+  static constexpr bool is_approximately_sized =
+      (Opts & any_view_options::approximately_sized) ==
+      any_view_options::approximately_sized;
+
   template <class T, bool HasT>
   struct maybe_t : T {};
 
@@ -88,31 +96,31 @@ class any_view {
   struct maybe_t<T, false> {};
 
   using iterator_storage =
-      detail::storage<3 * sizeof(void *), sizeof(void *), is_iterator_copyable>;
+      detail::storage<3 * sizeof(void*), sizeof(void*), is_iterator_copyable>;
 
   struct input_iterator_vtable {
-    Ref (*deref_)(const iterator_storage &);
-    void (*increment_)(iterator_storage &);
-    RValueRef (*iter_move_)(const iterator_storage &);
+    Ref (*deref_)(const iterator_storage&);
+    void (*increment_)(iterator_storage&);
+    RValueRef (*iter_move_)(const iterator_storage&);
   };
 
   struct equality_vtable {
-    bool (*equal_)(const iterator_storage &, const iterator_storage &);
+    bool (*equal_)(const iterator_storage&, const iterator_storage&);
   };
 
   struct forward_iterator_vtable : input_iterator_vtable, equality_vtable {};
 
   struct bidirectional_iterator_vtable : forward_iterator_vtable {
-    void (*decrement_)(iterator_storage &);
+    void (*decrement_)(iterator_storage&);
   };
 
   struct random_access_iterator_vtable : bidirectional_iterator_vtable {
-    void (*advance_)(iterator_storage &, Diff);
-    Diff (*distance_to_)(const iterator_storage &, const iterator_storage &);
+    void (*advance_)(iterator_storage&, Diff);
+    Diff (*distance_to_)(const iterator_storage&, const iterator_storage&);
   };
 
   struct contiguous_iterator_vtable : random_access_iterator_vtable {
-    std::add_pointer_t<Ref> (*arrow_)(const iterator_storage &);
+    std::add_pointer_t<Ref> (*arrow_)(const iterator_storage&);
   };
 
   using any_iterator_vtable = conditional_t<
@@ -157,52 +165,52 @@ class any_view {
     // input
 
     template <class Iter>
-    static constexpr Ref deref(const iterator_storage &self) {
+    static constexpr Ref deref(const iterator_storage& self) {
       return **(self.template get_ptr<Iter>());
     };
 
     template <class Iter>
-    static constexpr void increment(iterator_storage &self) {
+    static constexpr void increment(iterator_storage& self) {
       ++(*(self.template get_ptr<Iter>()));
     };
 
     template <class Iter>
-    static constexpr RValueRef iter_move(const iterator_storage &self) {
+    static constexpr RValueRef iter_move(const iterator_storage& self) {
       return std::ranges::iter_move(*(self.template get_ptr<Iter>()));
     };
 
     // forward
 
     template <class Iter>
-    static constexpr bool equal(const iterator_storage &lhs,
-                                const iterator_storage &rhs) {
+    static constexpr bool equal(const iterator_storage& lhs,
+                                const iterator_storage& rhs) {
       return *lhs.template get_ptr<Iter>() == *rhs.template get_ptr<Iter>();
     }
 
     // bidi
 
     template <class Iter>
-    static constexpr void decrement(iterator_storage &self) {
+    static constexpr void decrement(iterator_storage& self) {
       --(*(self.template get_ptr<Iter>()));
     }
 
     // random access
 
     template <class Iter>
-    static constexpr void advance(iterator_storage &self, Diff diff) {
+    static constexpr void advance(iterator_storage& self, Diff diff) {
       (*self.template get_ptr<Iter>()) += diff;
     }
 
     template <class Iter>
-    static constexpr Diff distance_to(const iterator_storage &self,
-                                      const iterator_storage &other) {
+    static constexpr Diff distance_to(const iterator_storage& self,
+                                      const iterator_storage& other) {
       return Diff((*self.template get_ptr<Iter>()) -
                   (*other.template get_ptr<Iter>()));
     }
 
     // contiguous
     template <class Iter>
-    static constexpr add_pointer_t<Ref> arrow(const iterator_storage &self) {
+    static constexpr add_pointer_t<Ref> arrow(const iterator_storage& self) {
       return std::to_address(*(self.template get_ptr<Iter>()));
     };
   };
@@ -249,17 +257,17 @@ class any_view {
 
     constexpr any_iterator() = default;
 
-    constexpr any_iterator(const any_iterator &)
+    constexpr any_iterator(const any_iterator&)
       requires is_iterator_copyable
     = default;
 
-    constexpr any_iterator(any_iterator &&) = default;
+    constexpr any_iterator(any_iterator&&) = default;
 
-    constexpr any_iterator &operator=(const any_iterator &)
+    constexpr any_iterator& operator=(const any_iterator&)
       requires is_iterator_copyable
     = default;
 
-    constexpr any_iterator &operator=(any_iterator &&) = default;
+    constexpr any_iterator& operator=(any_iterator&&) = default;
 
     constexpr ~any_iterator() = default;
 
@@ -268,7 +276,7 @@ class any_view {
       return (*(iter_vtable_->deref_))(iter_);
     }
 
-    constexpr any_iterator &operator++() {
+    constexpr any_iterator& operator++() {
       assert(!is_singular());
       (*(iter_vtable_->increment_))(iter_);
       return *this;
@@ -284,7 +292,7 @@ class any_view {
       return tmp;
     }
 
-    constexpr any_iterator &operator--()
+    constexpr any_iterator& operator--()
       requires(Traversal >= any_view_options::bidirectional)
     {
       assert(!is_singular());
@@ -300,7 +308,7 @@ class any_view {
       return tmp;
     }
 
-    constexpr any_iterator &operator+=(difference_type n)
+    constexpr any_iterator& operator+=(difference_type n)
       requires(Traversal >= any_view_options::random_access)
     {
       assert(!is_singular());
@@ -308,7 +316,7 @@ class any_view {
       return *this;
     }
 
-    constexpr any_iterator &operator-=(difference_type n)
+    constexpr any_iterator& operator-=(difference_type n)
       requires(Traversal >= any_view_options::random_access)
     {
       *this += -n;
@@ -328,35 +336,35 @@ class any_view {
       return (*(iter_vtable_->arrow_))(iter_);
     }
 
-    friend constexpr bool operator<(const any_iterator &x,
-                                    const any_iterator &y)
+    friend constexpr bool operator<(const any_iterator& x,
+                                    const any_iterator& y)
       requires(Traversal >= any_view_options::random_access)
     {
       return (x - y) < 0;
     }
 
-    friend constexpr bool operator>(const any_iterator &x,
-                                    const any_iterator &y)
+    friend constexpr bool operator>(const any_iterator& x,
+                                    const any_iterator& y)
       requires(Traversal >= any_view_options::random_access)
     {
       return (x - y) > 0;
     }
 
-    friend constexpr bool operator<=(const any_iterator &x,
-                                     const any_iterator &y)
+    friend constexpr bool operator<=(const any_iterator& x,
+                                     const any_iterator& y)
       requires(Traversal >= any_view_options::random_access)
     {
       return (x - y) <= 0;
     }
 
-    friend constexpr bool operator>=(const any_iterator &x,
-                                     const any_iterator &y)
+    friend constexpr bool operator>=(const any_iterator& x,
+                                     const any_iterator& y)
       requires(Traversal >= any_view_options::random_access)
     {
       return (x - y) >= 0;
     }
 
-    friend constexpr any_iterator operator+(const any_iterator &it,
+    friend constexpr any_iterator operator+(const any_iterator& it,
                                             difference_type n)
       requires(Traversal >= any_view_options::random_access)
     {
@@ -366,13 +374,13 @@ class any_view {
     }
 
     friend constexpr any_iterator operator+(difference_type n,
-                                            const any_iterator &it)
+                                            const any_iterator& it)
       requires(Traversal >= any_view_options::random_access)
     {
       return it + n;
     }
 
-    friend constexpr any_iterator operator-(const any_iterator &it,
+    friend constexpr any_iterator operator-(const any_iterator& it,
                                             difference_type n)
       requires(Traversal >= any_view_options::random_access)
     {
@@ -381,8 +389,8 @@ class any_view {
       return temp;
     }
 
-    friend constexpr difference_type operator-(const any_iterator &x,
-                                               const any_iterator &y)
+    friend constexpr difference_type operator-(const any_iterator& x,
+                                               const any_iterator& y)
       requires(Traversal >= any_view_options::random_access)
     {
       assert(!x.is_singular());
@@ -391,8 +399,8 @@ class any_view {
       return (*(x.iter_vtable_->distance_to_))(x.iter_, y.iter_);
     }
 
-    friend constexpr bool operator==(const any_iterator &x,
-                                     const any_iterator &y)
+    friend constexpr bool operator==(const any_iterator& x,
+                                     const any_iterator& y)
       requires(Traversal >= any_view_options::forward)
     {
       if (x.iter_vtable_ != y.iter_vtable_) return false;
@@ -400,17 +408,17 @@ class any_view {
       return (*(x.iter_vtable_->equal_))(x.iter_, y.iter_);
     }
 
-    friend constexpr RValueRef iter_move(const any_iterator &iter) {
+    friend constexpr RValueRef iter_move(const any_iterator& iter) {
       assert(!iter.is_singular());
       return (*(iter.iter_vtable_->iter_move_))(iter.iter_);
     }
 
     // private:
-    const any_iterator_vtable *iter_vtable_ = nullptr;
+    const any_iterator_vtable* iter_vtable_ = nullptr;
     iterator_storage iter_;
 
     template <class Iter>
-    constexpr any_iterator(const any_iterator_vtable *table, Iter iter)
+    constexpr any_iterator(const any_iterator_vtable* table, Iter iter)
         : iter_vtable_(table), iter_(detail::type<Iter>{}, std::move(iter)) {}
 
     constexpr bool is_singular() const { return iter_.is_singular(); }
@@ -419,9 +427,9 @@ class any_view {
   using iterator = any_iterator;
 
   using sentinel_storage =
-      detail::storage<3 * sizeof(void *), sizeof(void *), true>;
+      detail::storage<3 * sizeof(void*), sizeof(void*), true>;
   struct any_sentinel_vtable {
-    bool (*equal_)(const iterator &, const any_sentinel &);
+    bool (*equal_)(const iterator&, const any_sentinel&);
   };
 
   struct sentinel_vtable_gen {
@@ -433,8 +441,8 @@ class any_view {
     }
 
     template <class Iter, class Sent>
-    static constexpr bool equal(const iterator &iter,
-                                const any_sentinel &sent) {
+    static constexpr bool equal(const iterator& iter,
+                                const any_sentinel& sent) {
       if (sent.is_singular() || iter.is_singular()) return false;
       return *(iter.iter_.template get_ptr<Iter>()) ==
              *(sent.sent_.template get_ptr<Sent>());
@@ -444,27 +452,27 @@ class any_view {
   struct any_sentinel {
     constexpr any_sentinel() = default;
 
-    constexpr any_sentinel(const any_sentinel &) = default;
+    constexpr any_sentinel(const any_sentinel&) = default;
 
-    constexpr any_sentinel(any_sentinel &&) = default;
+    constexpr any_sentinel(any_sentinel&&) = default;
 
-    constexpr any_sentinel &operator=(const any_sentinel &) = default;
+    constexpr any_sentinel& operator=(const any_sentinel&) = default;
 
-    constexpr any_sentinel &operator=(any_sentinel &&) = default;
+    constexpr any_sentinel& operator=(any_sentinel&&) = default;
 
     constexpr ~any_sentinel() = default;
 
-    friend constexpr bool operator==(const iterator &iter,
-                                     const any_sentinel &sent) {
+    friend constexpr bool operator==(const iterator& iter,
+                                     const any_sentinel& sent) {
       return (*(sent.sent_vtable_->equal_))(iter, sent);
     }
 
     // private:
-    const any_sentinel_vtable *sent_vtable_ = nullptr;
+    const any_sentinel_vtable* sent_vtable_ = nullptr;
     sentinel_storage sent_;
 
     template <class Sent>
-    constexpr any_sentinel(const any_sentinel_vtable *table, Sent sent)
+    constexpr any_sentinel(const any_sentinel_vtable* table, Sent sent)
         : sent_vtable_(table), sent_(detail::type<Sent>{}, std::move(sent)) {}
 
     constexpr bool is_singular() const { return sent_.is_singular(); }
@@ -476,43 +484,43 @@ class any_view {
     static consteval any_iterator_vtable get_vtable() {
       any_iterator_vtable t;
 
-      t.deref_ = [](const iterator_storage &) -> Ref {
+      t.deref_ = [](const iterator_storage&) -> Ref {
         assert(false && "Dereferencing empty iterator");
         std::unreachable();
       };
-      t.increment_ = [](iterator_storage &) {
+      t.increment_ = [](iterator_storage&) {
         assert(false && "Incrementing empty iterator");
       };
-      t.iter_move_ = [](const iterator_storage &) -> RValueRef {
+      t.iter_move_ = [](const iterator_storage&) -> RValueRef {
         assert(false && "iter_moving empty iterator");
         std::unreachable();
       };
 
       if constexpr (Traversal >= any_view_options::forward) {
-        t.equal_ = [](const iterator_storage &, const iterator_storage &) {
+        t.equal_ = [](const iterator_storage&, const iterator_storage&) {
           return true;
         };
       }
 
       if constexpr (Traversal >= any_view_options::bidirectional) {
-        t.decrement_ = [](iterator_storage &) {
+        t.decrement_ = [](iterator_storage&) {
           assert(false && "Decrementing empty iterator");
         };
       }
 
       if constexpr (Traversal >= any_view_options::random_access) {
-        t.advance_ = [](iterator_storage &, Diff) {
+        t.advance_ = [](iterator_storage&, Diff) {
           assert(false && "Advancing empty iterator");
         };
-        t.distance_to_ = [](const iterator_storage &,
-                            const iterator_storage &) -> Diff {
+        t.distance_to_ = [](const iterator_storage&,
+                            const iterator_storage&) -> Diff {
           assert(false && "Distance to empty iterator");
           std::unreachable();
         };
       }
 
       if constexpr (Traversal == any_view_options::contiguous) {
-        t.arrow_ = [](const iterator_storage &) -> std::add_pointer_t<Ref> {
+        t.arrow_ = [](const iterator_storage&) -> std::add_pointer_t<Ref> {
           assert(false && "Arrow operator on empty iterator");
           std::unreachable();
         };
@@ -527,7 +535,7 @@ class any_view {
   struct empty_sentinel {
     static consteval any_sentinel_vtable get_vtable() {
       any_sentinel_vtable t;
-      t.equal_ = [](const iterator &, const any_sentinel &) { return true; };
+      t.equal_ = [](const iterator&, const any_sentinel&) { return true; };
       return t;
     }
 
@@ -535,15 +543,24 @@ class any_view {
   };
 
   using view_storage =
-      detail::storage<4 * sizeof(void *), sizeof(void *), is_view_copyable>;
+      detail::storage<4 * sizeof(void*), sizeof(void*), is_view_copyable>;
+
   struct sized_vtable {
-    std::__make_unsigned_t<Diff> (*size_)(const view_storage &);
+    std::__make_unsigned_t<Diff> (*size_)(const view_storage&);
   };
+
+  struct approximately_sized_vtable {
+    std::__make_unsigned_t<Diff> (*reserve_hint_)(const view_storage&);
+  };
+
+  struct unsized {};
+
   struct any_view_vtable
-      : maybe_t<sized_vtable,
-                (Opts & any_view_options::sized) != any_view_options::none> {
-    iterator (*begin_)(view_storage &);
-    sentinel (*end_)(view_storage &);
+      : conditional_t<is_sized, sized_vtable,
+                      conditional_t<is_approximately_sized,
+                                    approximately_sized_vtable, unsized>> {
+    iterator (*begin_)(view_storage&);
+    sentinel (*end_)(view_storage&);
   };
 
   struct view_vtable_gen {
@@ -552,48 +569,60 @@ class any_view {
       any_view_vtable t;
       t.begin_ = &begin<View>;
       t.end_ = &end<View>;
-      if constexpr ((Opts & any_view_options::sized) !=
-                    any_view_options::none) {
+      if constexpr (is_sized) {
         t.size_ = &size<View>;
+      } else if constexpr (is_approximately_sized) {
+        t.reserve_hint_ = &reserve_hint<View>;
       }
 
       return t;
     }
 
     template <class View>
-    static constexpr iterator begin(view_storage &v) {
-      auto &view = *(v.template get_ptr<View>());
+    static constexpr iterator begin(view_storage& v) {
+      auto& view = *(v.template get_ptr<View>());
       return any_iterator(&iter_vtable<std::ranges::iterator_t<View>>,
                           std::ranges::begin(view));
     }
 
     template <class View>
-    static constexpr sentinel end(view_storage &v) {
-      auto &view = *(v.template get_ptr<View>());
+    static constexpr sentinel end(view_storage& v) {
+      auto& view = *(v.template get_ptr<View>());
       return any_sentinel(&sent_vtable<std::ranges::iterator_t<View>,
                                        std::ranges::sentinel_t<View>>,
                           std::ranges::end(view));
     }
 
     template <class View>
-    static constexpr std::__make_unsigned_t<Diff> size(const view_storage &v) {
+    static constexpr std::__make_unsigned_t<Diff> size(const view_storage& v) {
       return std::__make_unsigned_t<Diff>(
           std::ranges::size(*(v.template get_ptr<View>())));
+    }
+
+    template <class View>
+    static constexpr std::__make_unsigned_t<Diff> reserve_hint(
+        const view_storage& v) {
+      return std::__make_unsigned_t<Diff>(
+          std::ranges::reserve_hint(*(v.template get_ptr<View>())));
     }
   };
 
   struct empty_view_ {
     static consteval any_view_vtable get_vtable() {
       any_view_vtable t;
-      t.begin_ = [](view_storage &) -> iterator {
+      t.begin_ = [](view_storage&) -> iterator {
         return any_iterator(&empty_iterator::vtable, empty_iterator{});
       };
-      t.end_ = [](view_storage &) -> sentinel {
+      t.end_ = [](view_storage&) -> sentinel {
         return any_sentinel(&empty_sentinel::vtable, empty_sentinel{});
       };
-      if constexpr ((Opts & any_view_options::sized) !=
-                    any_view_options::none) {
-        t.size_ = [](const view_storage &) -> std::__make_unsigned_t<Diff> {
+      if constexpr (is_sized) {
+        t.size_ = [](const view_storage&) -> std::__make_unsigned_t<Diff> {
+          return 0;
+        };
+      } else if constexpr (is_approximately_sized) {
+        t.reserve_hint_ =
+            [](const view_storage&) -> std::__make_unsigned_t<Diff> {
           return 0;
         };
       }
@@ -605,8 +634,12 @@ class any_view {
 
   template <class View>
   consteval static bool view_options_constraint() {
-    if constexpr (__flag_is_set(Opts, any_view_options::sized) &&
-                  !std::ranges::sized_range<View>) {
+    if constexpr (is_sized && !std::ranges::sized_range<View>) {
+      return false;
+    }
+
+    if constexpr (is_approximately_sized &&
+                  !std::ranges::approximately_sized_range<View>) {
       return false;
     }
 
@@ -659,25 +692,25 @@ class any_view {
     requires(!std::same_as<remove_cvref_t<Range>, any_view> &&
              std::ranges::viewable_range<Range> &&
              view_options_constraint<views::all_t<Range>>())
-  constexpr any_view(Range &&range)
+  constexpr any_view(Range&& range)
       : view_vtable_(&view_vtable<views::all_t<Range>>),
         view_(detail::type<views::all_t<Range>>{},
               views::all(std::forward<Range>(range))) {}
 
-  constexpr any_view(const any_view &)
+  constexpr any_view(const any_view&)
     requires is_view_copyable
   = default;
 
-  constexpr any_view(any_view &&other) noexcept
+  constexpr any_view(any_view&& other) noexcept
       : view_vtable_(other.view_vtable_), view_(std::move(other.view_)) {
     other.view_vtable_ = &empty_view_::vtable;
   }
 
-  constexpr any_view &operator=(const any_view &)
+  constexpr any_view& operator=(const any_view&)
     requires is_view_copyable
   = default;
 
-  constexpr any_view &operator=(any_view &&other) noexcept {
+  constexpr any_view& operator=(any_view&& other) noexcept {
     if (this != &other) {
       any_view(std::move(other)).swap(*this);
     }
@@ -690,16 +723,26 @@ class any_view {
   constexpr sentinel end() { return (*(view_vtable_->end_))(view_); }
 
   constexpr std::__make_unsigned_t<Diff> size() const
-    requires((Opts & any_view_options::sized) != any_view_options::none)
+    requires(is_sized)
   {
     return (*(view_vtable_->size_))(view_);
   }
 
-  constexpr void swap(any_view &other) noexcept {
+  constexpr std::__make_unsigned_t<Diff> reserve_hint() const
+    requires(is_approximately_sized)
+  {
+    if constexpr (is_sized) {
+      return size();
+    } else {
+      return (*(view_vtable_->reserve_hint_))(view_);
+    }
+  }
+
+  constexpr void swap(any_view& other) noexcept {
     view_.swap(other.view_);
     std::swap(view_vtable_, other.view_vtable_);
   }
-  constexpr friend void swap(any_view &x, any_view &y) noexcept { x.swap(y); }
+  constexpr friend void swap(any_view& x, any_view& y) noexcept { x.swap(y); }
 
  private:
   template <class Iter>
@@ -714,7 +757,7 @@ class any_view {
   static constexpr any_view_vtable view_vtable =
       view_vtable_gen::template generate<View>();
 
-  const any_view_vtable *view_vtable_;
+  const any_view_vtable* view_vtable_;
   view_storage view_;
 };
 

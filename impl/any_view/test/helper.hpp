@@ -98,6 +98,8 @@ struct test_iter {
   friend constexpr auto operator<=>(const test_iter &,
                                     const test_iter &) = default;
 
+  constexpr Iter base() const { return iter_; }
+
  private:
   Iter iter_;
 };
