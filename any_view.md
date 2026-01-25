@@ -1,7 +1,7 @@
 ---
 title: "`any_view`"
-document: P3411R4
-date: 2025-10-04
+document: P3411R5
+date: 2026-01-25
 audience: SG9, LEWG
 author:
   - name: Hui Xie
@@ -17,6 +17,10 @@ toc-depth: 2
 ---
 
 # Revision History
+
+## R5
+
+- Support `approximately_sized` customisation
 
 ## R4
 
@@ -221,9 +225,10 @@ enum class any_view_options {
     bidirectional = 7,
     random_access = 15,
     contiguous = 31,
-    sized = 32,
-    borrowed = 64,
-    copyable = 128
+    approximately_sized = 32,
+    sized = 96,
+    borrowed = 128,
+    copyable = 256
 };
 
 template <class T> struct @*rvalue-ref*@ { using type = T; };
@@ -564,6 +569,16 @@ Having support for `borrowed_range` is simple enough:
 
 Therefore, we recommend conditional support for `borrowed_range`. However, since `borrowed_range` is not a very useful concept in general, this design point is open for discussion.
 
+## `approximately_sized` and `reserve_hint` support
+
+SG9 has voted in favour of supporting `approximately_sized` and `reserve_hint` in Kona
+
+> We also want an `approximately_sized` option for `any_view` to conditionally provide a `reserve_hint` member function.
+
+|SF	|F	|N	|A	|SA|
+|---|---|---|---|--|
+|0	|3	|3	|0	|0|
+
 ## Valueless state of `any_view`
 
 We propose providing the strong exception safety guarantee in the following operations: swap, copy-assignment, move-assignment and move-construction. This means that if the operation fails, the two `any_view` objects will be in their original states.
@@ -871,9 +886,10 @@ namespace std::ranges {
       bidirectional = 7,
       random_access = 15,
       contiguous = 31,
-      sized = 32,
-      borrowed = 64,
-      copyable = 128
+      approximately_sized = 32,
+      sized = 96,
+      borrowed = 128,
+      copyable = 256
   };
 
   constexpr any_view_options operator|(any_view_options, any_view_options) noexcept;
@@ -963,6 +979,7 @@ public:
   constexpr @*sentinel*@ end();
 
   constexpr @*make-unsigned-like-t*@<Diff> size() const;
+  constexpr @*make-unsigned-like-t*@<Diff> reserve_hint() const;
 
   // [range.any.swap], swap
   constexpr void swap(any_view&) noexcept;
@@ -1057,34 +1074,37 @@ template <class Rng> constexpr any_view(Rng&& rng);
 
 - [2.2]{.pnum} `Rng` models `viewable_range`, and
 
-- [2.3]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::sized)` is `false`, or `Rng`
+- [2.3]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::approximately_sized)` is `false`, or `Rng`
+  models `approximately_sized_range`, and
+
+- [2.4]{.pnum} either `Opts & any_view_options::sized` is not `sized`, or `Rng`
   models `sized_range`, and
 
-- [2.4]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::borrowed)` is `false`, or `Rng`
+- [2.5]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::borrowed)` is `false`, or `Rng`
   models `borrowed_range`, and
 
-- [2.5]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::copyable)` is `false`, or `all_t<Rng>`
+- [2.6]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::copyable)` is `false`, or `all_t<Rng>`
   models `copyable`, and
 
-- [2.6]{.pnum} `is_convertible_v<range_reference_t<all_t<Rng>>, Ref>` is `true`, and
+- [2.7]{.pnum} `is_convertible_v<range_reference_t<all_t<Rng>>, Ref>` is `true`, and
 
-- [2.7]{.pnum} `is_convertible_v<range_value_t<all_t<Rng>>, remove_cv_t<Element>>` is `true`, and
+- [2.8]{.pnum} `is_convertible_v<range_value_t<all_t<Rng>>, remove_cv_t<Element>>` is `true`, and
 
-- [2.8]{.pnum} `is_convertible_v<range_rvalue_reference_t<all_t<Rng>>, RValueRef>` is `true`, and
+- [2.9]{.pnum} `is_convertible_v<range_rvalue_reference_t<all_t<Rng>>, RValueRef>` is `true`, and
 
-- [2.9]{.pnum} `is_convertible_v<range_difference_t<all_t<Rng>>, Diff>` is `true`, and
+- [2.10]{.pnum} `is_convertible_v<range_difference_t<all_t<Rng>>, Diff>` is `true`, and
 
-- [2.10]{.pnum} Let `CAT` be `Opts & any_view_options::contiguous`, `R` be `all_t<Rng>`,
+- [2.11]{.pnum} Let `CAT` be `Opts & any_view_options::contiguous`, `R` be `all_t<Rng>`,
 
-  - [2.10.1]{.pnum} If `CAT` is `any_views_options::contiguous`, `R` models `contiguous_range`
+  - [2.11.1]{.pnum} If `CAT` is `any_views_options::contiguous`, `R` models `contiguous_range`
 
-  - [2.10.2]{.pnum} Otherwise, if `CAT` is `any_views_options::random_access`, `R` models `random_access_range`,
+  - [2.11.2]{.pnum} Otherwise, if `CAT` is `any_views_options::random_access`, `R` models `random_access_range`,
 
-  - [2.10.3]{.pnum} Otherwise, if `CAT` is `any_views_options::bidirectional`, `R` models `bidirectional_range`,
+  - [2.11.3]{.pnum} Otherwise, if `CAT` is `any_views_options::bidirectional`, `R` models `bidirectional_range`,
 
-  - [2.10.4]{.pnum} Otherwise if `CAT` is `any_views_options::forward`, `R` models `forward_range`,
+  - [2.11.4]{.pnum} Otherwise if `CAT` is `any_views_options::forward`, `R` models `forward_range`,
 
-  - [2.10.5]{.pnum} Otherwise, `CAT` is `any_views_options::input`, and `R` models `input_range`
+  - [2.11.5]{.pnum} Otherwise, `CAT` is `any_views_options::input`, and `R` models `input_range`
 
 [3]{.pnum} *Postconditions*: `*this` has a *target view object* of type `all_t<Rng>` direct-non-list-initialized with `std​::​forward<Rng>(rng)`.
 
@@ -1184,6 +1204,24 @@ constexpr @*make-unsigned-like-t*@<Diff> size() const;
 
 ```cpp
 return @*make-unsigned-like-t*@<Diff>(ranges::size(v));
+```
+
+where `v` is an lvalue designating the *target view object* of `*this`
+
+:::
+
+```cpp
+constexpr @*make-unsigned-like-t*@<Diff> reserve_hint() const;
+```
+
+:::bq
+
+[5]{.pnum} *Constraints*: `Opts & any_view_options::approximately_sized` is `any_view_options::approximately_sized`
+
+[6]{.pnum} *Effects*: Equivalent to:
+
+```cpp
+return @*make-unsigned-like-t*@<Diff>(ranges::reserve_hint(v));
 ```
 
 where `v` is an lvalue designating the *target view object* of `*this`

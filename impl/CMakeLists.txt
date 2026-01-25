@@ -11,7 +11,13 @@ if (MSVC)
    add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
 endif()
 
+message(${CMAKE_CXX_COMPILER_ID})
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+   set(CXX_STANDARD_REQUIRED TRUE)
+	add_compile_options(-Wall -Wextra -Werror -stdlib=libc++ -std=c++23)
+	#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
    set(CXX_STANDARD_REQUIRED TRUE)
 	add_compile_options(-Wall -Wextra -Werror -stdlib=libc++ -std=c++2c)
 	#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
