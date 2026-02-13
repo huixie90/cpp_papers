@@ -21,6 +21,7 @@ toc-depth: 2
 ## R5
 
 - Support `approximately_sized` customisation
+- Derive from `view_interface`
 
 ## R4
 
@@ -959,7 +960,7 @@ template <class Element,
           class Ref = Element&,
           class RValueRef = @*rvalue-ref-t*@<Ref>,
           class Diff = ptrdiff_t>
-class any_view {
+class any_view : public view_interface<any_view<Element, Opts, Ref, RValueRef, Diff>> {
   class @*iterator*@; // exposition-only
   class @*sentinel*@; // exposition-only
 public:
