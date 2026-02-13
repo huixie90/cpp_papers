@@ -71,7 +71,7 @@ using __rvalue_ref_t = typename __rvalue_ref<T>::type;
 template <class Element, any_view_options Opts = any_view_options::input,
           class Ref = Element&, class RValueRef = __rvalue_ref_t<Ref>,
           class Diff = ptrdiff_t>
-class any_view {
+class any_view : public view_interface<any_view<Element, Opts, Ref, RValueRef, Diff>> {
  public:
   struct any_iterator;
   struct any_sentinel;

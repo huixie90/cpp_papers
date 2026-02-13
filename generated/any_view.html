@@ -545,6 +545,7 @@ Experience<span></span></a></li>
 <ul>
 <li>Support <code class="sourceCode cpp">approximately_sized</code>
 customisation</li>
+<li>Derive from <code class="sourceCode cpp">view_interface</code></li>
 </ul>
 <h2 data-number="1.2" id="r4"><span class="header-section-number">1.2</span> R4<a href="#r4" class="self-link"></a></h2>
 <ul>
@@ -1723,7 +1724,7 @@ satisfies <code class="sourceCode cpp">is_nothrow_move_constructible_v<span clas
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Ref <span class="op">=</span> Element<span class="op">&amp;</span>,</span>
 <span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> RValueRef <span class="op">=</span> <em>rvalue-ref-t</em><span class="op">&lt;</span>Ref<span class="op">&gt;</span>,</span>
 <span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Diff <span class="op">=</span> <span class="dt">ptrdiff_t</span><span class="op">&gt;</span></span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> any_view <span class="op">{</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> any_view <span class="op">:</span> <span class="kw">public</span> view_interface<span class="op">&lt;</span>any_view<span class="op">&lt;</span>Element, Opts, Ref, RValueRef, Diff<span class="op">&gt;&gt;</span> <span class="op">{</span></span>
 <span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>  <span class="kw">class</span> <em>iterator</em>; <span class="co">// exposition-only</span></span>
 <span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  <span class="kw">class</span> <em>sentinel</em>; <span class="co">// exposition-only</span></span>
 <span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="kw">public</span><span class="op">:</span></span>
