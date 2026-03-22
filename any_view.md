@@ -1,7 +1,7 @@
 ---
 title: "`any_view`"
-document: P3411R5
-date: 2026-01-25
+document: P3411R6
+date: 2026-03-22
 audience: SG9, LEWG
 author:
   - name: Hui Xie
@@ -17,6 +17,10 @@ toc-depth: 2
 ---
 
 # Revision History
+
+## R6
+
+- Prevent `reference_converts_from_temporary` when dereferencing
 
 ## R5
 
@@ -1089,23 +1093,25 @@ template <class Rng> constexpr any_view(Rng&& rng);
 
 - [2.7]{.pnum} `is_convertible_v<range_reference_t<all_t<Rng>>, Ref>` is `true`, and
 
-- [2.8]{.pnum} `is_convertible_v<range_value_t<all_t<Rng>>, remove_cv_t<Element>>` is `true`, and
+- [2.8]{.pnum} `reference_converts_from_temporary_v<Ref, range_reference_t<all_t<Rng>>` is `false`, and
 
-- [2.9]{.pnum} `is_convertible_v<range_rvalue_reference_t<all_t<Rng>>, RValueRef>` is `true`, and
+- [2.9]{.pnum} `is_convertible_v<range_value_t<all_t<Rng>>, remove_cv_t<Element>>` is `true`, and
 
-- [2.10]{.pnum} `is_convertible_v<range_difference_t<all_t<Rng>>, Diff>` is `true`, and
+- [2.10]{.pnum} `is_convertible_v<range_rvalue_reference_t<all_t<Rng>>, RValueRef>` is `true`, and
 
-- [2.11]{.pnum} Let `CAT` be `Opts & any_view_options::contiguous`, `R` be `all_t<Rng>`,
+- [2.11]{.pnum} `is_convertible_v<range_difference_t<all_t<Rng>>, Diff>` is `true`, and
 
-  - [2.11.1]{.pnum} If `CAT` is `any_views_options::contiguous`, `R` models `contiguous_range`
+- [2.12]{.pnum} Let `CAT` be `Opts & any_view_options::contiguous`, `R` be `all_t<Rng>`,
 
-  - [2.11.2]{.pnum} Otherwise, if `CAT` is `any_views_options::random_access`, `R` models `random_access_range`,
+  - [2.12.1]{.pnum} If `CAT` is `any_views_options::contiguous`, `R` models `contiguous_range`
 
-  - [2.11.3]{.pnum} Otherwise, if `CAT` is `any_views_options::bidirectional`, `R` models `bidirectional_range`,
+  - [2.12.2]{.pnum} Otherwise, if `CAT` is `any_views_options::random_access`, `R` models `random_access_range`,
 
-  - [2.11.4]{.pnum} Otherwise if `CAT` is `any_views_options::forward`, `R` models `forward_range`,
+  - [2.12.3]{.pnum} Otherwise, if `CAT` is `any_views_options::bidirectional`, `R` models `bidirectional_range`,
 
-  - [2.11.5]{.pnum} Otherwise, `CAT` is `any_views_options::input`, and `R` models `input_range`
+  - [2.12.4]{.pnum} Otherwise if `CAT` is `any_views_options::forward`, `R` models `forward_range`,
+
+  - [2.12.5]{.pnum} Otherwise, `CAT` is `any_views_options::input`, and `R` models `input_range`
 
 [3]{.pnum} *Postconditions*: `*this` has a *target view object* of type `all_t<Rng>` direct-non-list-initialized with `std​::​forward<Rng>(rng)`.
 
