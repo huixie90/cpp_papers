@@ -52,7 +52,11 @@ static_assert(!std::is_constructible_v<
                   ArrView<std::pair<int&, int&>*>>,
               "rvalue reference is not convertible");
 
-constexpr bool test() {
+static_assert(!std::is_constructible_v<std::ranges::any_view<const int>,
+                                       std::ranges::iota_view<int, int>>,
+              "range of prvalue is not convertible to range of const ref");
+
+    constexpr bool test() {
   test_ref_conv();
   return true;
 }

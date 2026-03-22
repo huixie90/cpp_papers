@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="mpark/wg21" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="dcterms.date" content="2026-01-25" />
+  <meta name="dcterms.date" content="2026-03-22" />
   <title>`any_view`</title>
   <style>
       code{white-space: pre-wrap;}
@@ -428,14 +428,14 @@ code.sourceCode > span { display: inline; }
   <tr>
     <td>Document #:</td>
     <td>
-      P3411R5
+      P3411R6
       [<a href="https://wg21.link/P3411">Latest</a>]
       [<a href="https://wg21.link/P3411/status">Status</a>]
     </td>
   </tr>
   <tr>
     <td>Date:</td>
-    <td>2026-01-25</td>
+    <td>2026-03-22</td>
   </tr>
   <tr>
     <td style="vertical-align:top">Project:</td>
@@ -464,12 +464,13 @@ code.sourceCode > span { display: inline; }
 <ul>
 <li><a href="#revision-history" id="toc-revision-history"><span class="toc-section-number">1</span> Revision History<span></span></a>
 <ul>
-<li><a href="#r5" id="toc-r5"><span class="toc-section-number">1.1</span> R5<span></span></a></li>
-<li><a href="#r4" id="toc-r4"><span class="toc-section-number">1.2</span> R4<span></span></a></li>
-<li><a href="#r3" id="toc-r3"><span class="toc-section-number">1.3</span> R3<span></span></a></li>
-<li><a href="#r2" id="toc-r2"><span class="toc-section-number">1.4</span> R2<span></span></a></li>
-<li><a href="#r1" id="toc-r1"><span class="toc-section-number">1.5</span> R1<span></span></a></li>
-<li><a href="#r0" id="toc-r0"><span class="toc-section-number">1.6</span> R0<span></span></a></li>
+<li><a href="#r6" id="toc-r6"><span class="toc-section-number">1.1</span> R6<span></span></a></li>
+<li><a href="#r5" id="toc-r5"><span class="toc-section-number">1.2</span> R5<span></span></a></li>
+<li><a href="#r4" id="toc-r4"><span class="toc-section-number">1.3</span> R4<span></span></a></li>
+<li><a href="#r3" id="toc-r3"><span class="toc-section-number">1.4</span> R3<span></span></a></li>
+<li><a href="#r2" id="toc-r2"><span class="toc-section-number">1.5</span> R2<span></span></a></li>
+<li><a href="#r1" id="toc-r1"><span class="toc-section-number">1.6</span> R1<span></span></a></li>
+<li><a href="#r0" id="toc-r0"><span class="toc-section-number">1.7</span> R0<span></span></a></li>
 </ul></li>
 <li><a href="#abstract" id="toc-abstract"><span class="toc-section-number">2</span> Abstract<span></span></a></li>
 <li><a href="#motivation" id="toc-motivation"><span class="toc-section-number">3</span> Motivation<span></span></a></li>
@@ -541,22 +542,28 @@ Experience<span></span></a></li>
 </ul>
 </div>
 <h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
-<h2 data-number="1.1" id="r5"><span class="header-section-number">1.1</span> R5<a href="#r5" class="self-link"></a></h2>
+<h2 data-number="1.1" id="r6"><span class="header-section-number">1.1</span> R6<a href="#r6" class="self-link"></a></h2>
+<ul>
+<li>Prevent
+<code class="sourceCode cpp">reference_converts_from_temporary</code>
+when dereferencing</li>
+</ul>
+<h2 data-number="1.2" id="r5"><span class="header-section-number">1.2</span> R5<a href="#r5" class="self-link"></a></h2>
 <ul>
 <li>Support <code class="sourceCode cpp">approximately_sized</code>
 customisation</li>
 <li>Derive from <code class="sourceCode cpp">view_interface</code></li>
 </ul>
-<h2 data-number="1.2" id="r4"><span class="header-section-number">1.2</span> R4<a href="#r4" class="self-link"></a></h2>
+<h2 data-number="1.3" id="r4"><span class="header-section-number">1.3</span> R4<a href="#r4" class="self-link"></a></h2>
 <ul>
 <li>Default constructed and moved-from object will be assigned to an
 empty view</li>
 </ul>
-<h2 data-number="1.3" id="r3"><span class="header-section-number">1.3</span> R3<a href="#r3" class="self-link"></a></h2>
+<h2 data-number="1.4" id="r3"><span class="header-section-number">1.4</span> R3<a href="#r3" class="self-link"></a></h2>
 <ul>
 <li>Fix <code class="sourceCode cpp">contiguous</code> range</li>
 </ul>
-<h2 data-number="1.4" id="r2"><span class="header-section-number">1.4</span> R2<a href="#r2" class="self-link"></a></h2>
+<h2 data-number="1.5" id="r2"><span class="header-section-number">1.5</span> R2<a href="#r2" class="self-link"></a></h2>
 <ul>
 <li>Add
 <code class="sourceCode cpp"><span class="kw">constexpr</span></code>
@@ -566,7 +573,7 @@ support</li>
 <li>Second reference implementation</li>
 <li>Various fixes</li>
 </ul>
-<h2 data-number="1.5" id="r1"><span class="header-section-number">1.5</span> R1<a href="#r1" class="self-link"></a></h2>
+<h2 data-number="1.6" id="r1"><span class="header-section-number">1.6</span> R1<a href="#r1" class="self-link"></a></h2>
 <ul>
 <li>Performance tests update
 <ul>
@@ -586,7 +593,7 @@ should just work</li>
 <li>4 Different alternative designs</li>
 </ul></li>
 </ul>
-<h2 data-number="1.6" id="r0"><span class="header-section-number">1.6</span> R0<a href="#r0" class="self-link"></a></h2>
+<h2 data-number="1.7" id="r0"><span class="header-section-number">1.7</span> R0<a href="#r0" class="self-link"></a></h2>
 <ul>
 <li>Initial revision.</li>
 </ul>
@@ -1834,38 +1841,42 @@ models <code class="sourceCode cpp">copyable</code>, and</p></li>
 is <code class="sourceCode cpp"><span class="kw">true</span></code>,
 and</p></li>
 <li><p><span class="marginalizedparent"><a class="marginalized">(2.8)</a></span>
+<code class="sourceCode cpp">reference_converts_from_temporary_v<span class="op">&lt;</span>Ref, range_reference_t<span class="op">&lt;</span>all_t<span class="op">&lt;</span>Rng<span class="op">&gt;&gt;</span></code>
+is <code class="sourceCode cpp"><span class="kw">false</span></code>,
+and</p></li>
+<li><p><span class="marginalizedparent"><a class="marginalized">(2.9)</a></span>
 <code class="sourceCode cpp">is_convertible_v<span class="op">&lt;</span>range_value_t<span class="op">&lt;</span>all_t<span class="op">&lt;</span>Rng<span class="op">&gt;&gt;</span>, remove_cv_t<span class="op">&lt;</span>Element<span class="op">&gt;&gt;</span></code>
 is <code class="sourceCode cpp"><span class="kw">true</span></code>,
 and</p></li>
-<li><p><span class="marginalizedparent"><a class="marginalized">(2.9)</a></span>
+<li><p><span class="marginalizedparent"><a class="marginalized">(2.10)</a></span>
 <code class="sourceCode cpp">is_convertible_v<span class="op">&lt;</span>range_rvalue_reference_t<span class="op">&lt;</span>all_t<span class="op">&lt;</span>Rng<span class="op">&gt;&gt;</span>, RValueRef<span class="op">&gt;</span></code>
 is <code class="sourceCode cpp"><span class="kw">true</span></code>,
 and</p></li>
-<li><p><span class="marginalizedparent"><a class="marginalized">(2.10)</a></span>
+<li><p><span class="marginalizedparent"><a class="marginalized">(2.11)</a></span>
 <code class="sourceCode cpp">is_convertible_v<span class="op">&lt;</span>range_difference_t<span class="op">&lt;</span>all_t<span class="op">&lt;</span>Rng<span class="op">&gt;&gt;</span>, Diff<span class="op">&gt;</span></code>
 is <code class="sourceCode cpp"><span class="kw">true</span></code>,
 and</p></li>
-<li><p><span class="marginalizedparent"><a class="marginalized">(2.11)</a></span> Let
+<li><p><span class="marginalizedparent"><a class="marginalized">(2.12)</a></span> Let
 <code class="sourceCode cpp">CAT</code> be <code class="sourceCode cpp">Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>contiguous</code>,
 <code class="sourceCode cpp">R</code> be <code class="sourceCode cpp">all_t<span class="op">&lt;</span>Rng<span class="op">&gt;</span></code>,</p>
 <ul>
-<li><p><span class="marginalizedparent"><a class="marginalized">(2.11.1)</a></span>
+<li><p><span class="marginalizedparent"><a class="marginalized">(2.12.1)</a></span>
 If <code class="sourceCode cpp">CAT</code> is <code class="sourceCode cpp">any_views_options<span class="op">::</span>contiguous</code>,
 <code class="sourceCode cpp">R</code> models
 <code class="sourceCode cpp">contiguous_range</code></p></li>
-<li><p><span class="marginalizedparent"><a class="marginalized">(2.11.2)</a></span>
+<li><p><span class="marginalizedparent"><a class="marginalized">(2.12.2)</a></span>
 Otherwise, if <code class="sourceCode cpp">CAT</code> is <code class="sourceCode cpp">any_views_options<span class="op">::</span>random_access</code>,
 <code class="sourceCode cpp">R</code> models
 <code class="sourceCode cpp">random_access_range</code>,</p></li>
-<li><p><span class="marginalizedparent"><a class="marginalized">(2.11.3)</a></span>
+<li><p><span class="marginalizedparent"><a class="marginalized">(2.12.3)</a></span>
 Otherwise, if <code class="sourceCode cpp">CAT</code> is <code class="sourceCode cpp">any_views_options<span class="op">::</span>bidirectional</code>,
 <code class="sourceCode cpp">R</code> models
 <code class="sourceCode cpp">bidirectional_range</code>,</p></li>
-<li><p><span class="marginalizedparent"><a class="marginalized">(2.11.4)</a></span>
+<li><p><span class="marginalizedparent"><a class="marginalized">(2.12.4)</a></span>
 Otherwise if <code class="sourceCode cpp">CAT</code> is <code class="sourceCode cpp">any_views_options<span class="op">::</span>forward</code>,
 <code class="sourceCode cpp">R</code> models
 <code class="sourceCode cpp">forward_range</code>,</p></li>
-<li><p><span class="marginalizedparent"><a class="marginalized">(2.11.5)</a></span>
+<li><p><span class="marginalizedparent"><a class="marginalized">(2.12.5)</a></span>
 Otherwise, <code class="sourceCode cpp">CAT</code> is <code class="sourceCode cpp">any_views_options<span class="op">::</span>input</code>,
 and <code class="sourceCode cpp">R</code> models
 <code class="sourceCode cpp">input_range</code></p></li>
