@@ -1,6 +1,6 @@
 ---
 title: "`any_view`"
-document: P3411R6
+document: D3411R6
 date: 2026-03-22
 audience: SG9, LEWG
 author:
@@ -865,6 +865,69 @@ OVERALL_GEOMEAN                                            -0.8364             0
 
 We can see the `any_view` version is 4 times faster. This is a very common pattern in the real world code.
 `vector` has been used in API boundaries as a type-erasure tool.
+
+## Constructor `movable` depends on itself
+
+There was a bug report on the beman project implementation which is based on the R5 wording.
+
+```cpp
+static_assert(ranges::view<ranges::common_view<ranges::any_view>>);
+```
+
+The above `static_assert` triggers a hard error on the self dependence of `movable<common_view<any_view>>`.
+Here is a simple reproducer:
+
+```cpp
+template <class T>
+struct CommonView {
+    CommonView(T) {}
+
+    int* begin();
+    int* end();
+};
+
+struct AnyView {
+    template <class T> 
+      requires (!std::same_as<std::remove_cvref_t<T>, AnyView>
+                 && std::ranges::viewable_range<T>)
+    AnyView(T&&){}
+};
+
+static_assert(std::ranges::view<CommonView<AnyView>>);
+```
+
+There is a logic loop
+
+```cpp
+static_assert(ranges::view<CommonView<AnyView>>)
+-> testing movable<CommonView<AnyView>>
+-> testing CommonView<AnyView> is constructible from CommonView<AnyView>&&
+-> try this constructor CommonView<T>::CommonView(T) where T is AnyView with argument is CommonView<AnyView>&&
+-> try converting CommonView<AnyView>&& to T. where T is AnyView
+-> try this constructor AnyView::AnyView(T&&) where its constraint is
+   template <class T> 
+      requires (!std::same_as<std::remove_cvref_t<T>, AnyView>
+                 && std::ranges::viewable_range<T>)
+    AnyView(T&&)
+-> try evaluating std::ranges::viewable_range<T> where T is CommonView<AnyView>
+-> depends on movable<CommonView<AnyView>>
+```
+
+One solution suggested by Eric Niebler 
+
+> i usually see this sort of thing when the type-erasing wrapper has a constructor template that can be confused with the copy/move ctor. additionally, that constructor needs to be constrained (requires) to accept only copy/move-constructible types.
+the solution is to not constrain the constructor on copy/move-ability of the argument, but rather to static_assert the requirement in the body of the ctor.
+
+Essentially, the solution is to move the `movable` check from "Constraints" to "Mandate"
+
+```cpp
+    template <class T> 
+      requires (!std::same_as<std::remove_cvref_t<T>, AnyView>
+                 && std::ranges::range<T>)
+    AnyView(T&&){
+      static_assert(std::ranges::viewable_range<T>);
+    }
+```
 
 # Implementation Experience
 
