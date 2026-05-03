@@ -15,7 +15,7 @@ namespace std::ranges {
 
 inline namespace __any_view {
 
-enum class any_view_options {
+enum class any_view_options : uint_least32_t {
   none = 0,
   input = 1,
   forward = 3,
@@ -548,11 +548,11 @@ class any_view
       detail::storage<4 * sizeof(void*), sizeof(void*), is_view_copyable>;
 
   struct sized_vtable {
-    std::__make_unsigned_t<Diff> (*size_)(const view_storage&);
+    std::__make_unsigned_t<Diff> (*size_)(view_storage&);
   };
 
   struct approximately_sized_vtable {
-    std::__make_unsigned_t<Diff> (*reserve_hint_)(const view_storage&);
+    std::__make_unsigned_t<Diff> (*reserve_hint_)(view_storage&);
   };
 
   struct unsized {};
@@ -596,14 +596,14 @@ class any_view
     }
 
     template <class View>
-    static constexpr std::__make_unsigned_t<Diff> size(const view_storage& v) {
+    static constexpr std::__make_unsigned_t<Diff> size(view_storage& v) {
       return std::__make_unsigned_t<Diff>(
           std::ranges::size(*(v.template get_ptr<View>())));
     }
 
     template <class View>
     static constexpr std::__make_unsigned_t<Diff> reserve_hint(
-        const view_storage& v) {
+        view_storage& v) {
       return std::__make_unsigned_t<Diff>(
           std::ranges::reserve_hint(*(v.template get_ptr<View>())));
     }
@@ -619,12 +619,11 @@ class any_view
         return any_sentinel(&empty_sentinel::vtable, empty_sentinel{});
       };
       if constexpr (is_sized) {
-        t.size_ = [](const view_storage&) -> std::__make_unsigned_t<Diff> {
+        t.size_ = [](view_storage&) -> std::__make_unsigned_t<Diff> {
           return 0;
         };
       } else if constexpr (is_approximately_sized) {
-        t.reserve_hint_ =
-            [](const view_storage&) -> std::__make_unsigned_t<Diff> {
+        t.reserve_hint_ = [](view_storage&) -> std::__make_unsigned_t<Diff> {
           return 0;
         };
       }
@@ -647,10 +646,6 @@ class any_view
 
     if constexpr (__flag_is_set(Opts, any_view_options::borrowed) &&
                   !std::ranges::borrowed_range<View>) {
-      return false;
-    }
-
-    if constexpr (is_view_copyable && !std::copyable<View>) {
       return false;
     }
 
@@ -694,12 +689,16 @@ class any_view
 
   template <class Range>
     requires(!std::same_as<remove_cvref_t<Range>, any_view> &&
-             std::ranges::viewable_range<Range> &&
-             view_options_constraint<views::all_t<Range>>())
+             std::ranges::range<Range> && view_options_constraint<Range>())
   constexpr any_view(Range&& range)
       : view_vtable_(&view_vtable<views::all_t<Range>>),
         view_(detail::type<views::all_t<Range>>{},
-              views::all(std::forward<Range>(range))) {}
+              views::all(std::forward<Range>(range))) {
+    static_assert(std::ranges::viewable_range<Range>);
+    if constexpr (is_view_copyable) {
+      static_assert(std::copyable<views::all_t<Range>>);
+    }
+  }
 
   constexpr any_view(const any_view&)
     requires is_view_copyable
@@ -726,13 +725,13 @@ class any_view
   constexpr iterator begin() { return (*(view_vtable_->begin_))(view_); }
   constexpr sentinel end() { return (*(view_vtable_->end_))(view_); }
 
-  constexpr std::__make_unsigned_t<Diff> size() const
+  constexpr std::__make_unsigned_t<Diff> size()
     requires(is_sized)
   {
     return (*(view_vtable_->size_))(view_);
   }
 
-  constexpr std::__make_unsigned_t<Diff> reserve_hint() const
+  constexpr std::__make_unsigned_t<Diff> reserve_hint()
     requires(is_approximately_sized)
   {
     if constexpr (is_sized) {
