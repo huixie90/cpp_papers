@@ -23,12 +23,23 @@ struct ApproxiSizedView : std::ranges::view_base {
   int* begin_iter;
   int* end_iter;
 
-  constexpr ApproxiSizedView(int* first, int* last) : begin_iter(first), end_iter(last) {}
+  constexpr ApproxiSizedView(int* first, int* last)
+      : begin_iter(first), end_iter(last) {}
 
   constexpr auto reserve_hint() const { return end_iter - begin_iter; }
 
   constexpr auto begin() const { return Iter(begin_iter); }
   constexpr auto end() const { return Iter(end_iter); }
+};
+
+struct WeirdView : std::ranges::view_base {
+  using Iter = test_iter<int*, std::input_iterator_tag>;
+  constexpr Iter begin() { return Iter(nullptr); }
+  constexpr Iter begin() const { return Iter(nullptr); }
+  constexpr Iter end() { return Iter(nullptr); }
+  constexpr Iter end() const { return Iter(nullptr); }
+  constexpr std::size_t reserve_hint() { return 5; }
+  constexpr std::size_t reserve_hint() const { return 6; }
 };
 
 static_assert(std::ranges::approximately_sized_range<ApproxiSizedView>);
@@ -50,6 +61,12 @@ constexpr bool test() {
 
     AnyView view(std::views::all(as));
     assert(std::ranges::reserve_hint(view) == 5);
+  }
+
+  {
+    WeirdView view;
+    AnyView any_view(view);
+    assert(std::ranges::reserve_hint(any_view) == 5);
   }
 
   return true;

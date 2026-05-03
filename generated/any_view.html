@@ -550,6 +550,14 @@ Experience<span></span></a></li>
 <li>Prevent
 <code class="sourceCode cpp">reference_converts_from_temporary</code>
 when dereferencing</li>
+<li>Remove <code class="sourceCode cpp">movable</code> and
+<code class="sourceCode cpp">copyable</code> from the Constraints and
+make them Mandates</li>
+<li>Specify <code class="sourceCode cpp"><span class="dt">uint_least32_t</span></code> as
+underlying type of
+<code class="sourceCode cpp">any_view_options</code></li>
+<li>Make <code class="sourceCode cpp">size</code> and
+<code class="sourceCode cpp">reserve_hint</code> non-const</li>
 </ul>
 <h2 data-number="1.2" id="r5"><span class="header-section-number">1.2</span> R5<a href="#r5" class="self-link"></a></h2>
 <ul>
@@ -1344,6 +1352,43 @@ unspecified state. Assigning
 <code class="sourceCode cpp">any_view</code>’s moved-from state to be an
 empty view adds unnecessary complexity and goes against “don’t pay for
 what you don’t use” philosophy.</p>
+<p>LEWG polled on the similar topic with no consensus to change</p>
+<blockquote>
+<p>POLL: The moved-from state should leave an object that can only be
+assigned to or destroyed or queried about its state (in contrast to
+moved-from state and the default constructed state be of valid but empty
+range).</p>
+</blockquote>
+<table>
+<thead>
+<tr class="header">
+<th><div style="text-align:center">
+<strong>SF</strong>
+</div></th>
+<th><div style="text-align:center">
+<strong>F</strong>
+</div></th>
+<th><div style="text-align:center">
+<strong>N</strong>
+</div></th>
+<th><div style="text-align:center">
+<strong>A</strong>
+</div></th>
+<th><div style="text-align:center">
+<strong>SA</strong>
+</div></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>5</td>
+<td>0</td>
+<td>3</td>
+<td>3</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
 <h2 data-number="7.12" id="abi-stability"><span class="header-section-number">7.12</span> ABI Stability<a href="#abi-stability" class="self-link"></a></h2>
 <p>As a type intended to exist at ABI boundaries, ensuring the ABI
 stability of <code class="sourceCode cpp">any_view</code> is extremely
@@ -1689,7 +1734,7 @@ follows the proposed wording below without any issue <span class="citation" data
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="co">// [...]</span></span>
 <span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>  <span class="co">// [range.any], any view</span></span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">enum</span> <span class="kw">class</span> any_view_options</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="kw">enum</span> <span class="kw">class</span> any_view_options <span class="op">:</span> <span class="dt">uint_least32_t</span></span>
 <span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">{</span></span>
 <span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>      input <span class="op">=</span> <span class="dv">1</span>,</span>
 <span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>      forward <span class="op">=</span> <span class="dv">3</span>,</span>
@@ -1808,8 +1853,8 @@ satisfies <code class="sourceCode cpp">is_nothrow_move_constructible_v<span clas
 <span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <em>iterator</em> begin<span class="op">()</span>;</span>
 <span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <em>sentinel</em> end<span class="op">()</span>;</span>
 <span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <em>make-unsigned-like-t</em><span class="op">&lt;</span>Diff<span class="op">&gt;</span> size<span class="op">()</span> <span class="kw">const</span>;</span>
-<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <em>make-unsigned-like-t</em><span class="op">&lt;</span>Diff<span class="op">&gt;</span> reserve_hint<span class="op">()</span> <span class="kw">const</span>;</span>
+<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <em>make-unsigned-like-t</em><span class="op">&lt;</span>Diff<span class="op">&gt;</span> size<span class="op">()</span>;</span>
+<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <em>make-unsigned-like-t</em><span class="op">&lt;</span>Diff<span class="op">&gt;</span> reserve_hint<span class="op">()</span>;</span>
 <span id="cb36-27"><a href="#cb36-27" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb36-28"><a href="#cb36-28" aria-hidden="true" tabindex="-1"></a>  <span class="co">// [range.any.swap], swap</span></span>
 <span id="cb36-29"><a href="#cb36-29" aria-hidden="true" tabindex="-1"></a>  <span class="kw">constexpr</span> <span class="dt">void</span> swap<span class="op">(</span>any_view<span class="op">&amp;)</span> <span class="kw">noexcept</span>;</span>
@@ -1872,7 +1917,7 @@ is not the same type as <code class="sourceCode cpp">any_view</code>,
 and</p></li>
 <li><p><span class="marginalizedparent"><a class="marginalized">(2.2)</a></span>
 <code class="sourceCode cpp">Rng</code> models
-<code class="sourceCode cpp">viewable_range</code>, and</p></li>
+<code class="sourceCode cpp">range</code>, and</p></li>
 <li><p><span class="marginalizedparent"><a class="marginalized">(2.3)</a></span>
 either <code class="sourceCode cpp"><em>any-view-flag-is-set</em><span class="op">(</span>Opts, any_view_options<span class="op">::</span>approximately_sized<span class="op">)</span></code>
 is <code class="sourceCode cpp"><span class="kw">false</span></code>, or
@@ -1890,61 +1935,67 @@ is <code class="sourceCode cpp"><span class="kw">false</span></code>, or
 <code class="sourceCode cpp">Rng</code> models
 <code class="sourceCode cpp">borrowed_range</code>, and</p></li>
 <li><p><span class="marginalizedparent"><a class="marginalized">(2.6)</a></span>
-either <code class="sourceCode cpp"><em>any-view-flag-is-set</em><span class="op">(</span>Opts, any_view_options<span class="op">::</span>copyable<span class="op">)</span></code>
-is <code class="sourceCode cpp"><span class="kw">false</span></code>, or
-<code class="sourceCode cpp">all_t<span class="op">&lt;</span>Rng<span class="op">&gt;</span></code>
-models <code class="sourceCode cpp">copyable</code>, and</p></li>
-<li><p><span class="marginalizedparent"><a class="marginalized">(2.7)</a></span>
-<code class="sourceCode cpp">is_convertible_v<span class="op">&lt;</span>range_reference_t<span class="op">&lt;</span>all_t<span class="op">&lt;</span>Rng<span class="op">&gt;&gt;</span>, Ref<span class="op">&gt;</span></code>
+<code class="sourceCode cpp">is_convertible_v<span class="op">&lt;</span>range_reference_t<span class="op">&lt;</span>Rng<span class="op">&gt;</span>, Ref<span class="op">&gt;</span></code>
 is <code class="sourceCode cpp"><span class="kw">true</span></code>,
 and</p></li>
-<li><p><span class="marginalizedparent"><a class="marginalized">(2.8)</a></span>
-<code class="sourceCode cpp">reference_converts_from_temporary_v<span class="op">&lt;</span>Ref, range_reference_t<span class="op">&lt;</span>all_t<span class="op">&lt;</span>Rng<span class="op">&gt;&gt;</span></code>
+<li><p><span class="marginalizedparent"><a class="marginalized">(2.7)</a></span>
+<code class="sourceCode cpp">reference_converts_from_temporary_v<span class="op">&lt;</span>Ref, range_reference_t<span class="op">&lt;</span>Rng<span class="op">&gt;</span></code>
 is <code class="sourceCode cpp"><span class="kw">false</span></code>,
 and</p></li>
+<li><p><span class="marginalizedparent"><a class="marginalized">(2.8)</a></span>
+<code class="sourceCode cpp">is_convertible_v<span class="op">&lt;</span>range_value_t<span class="op">&lt;</span>Rng<span class="op">&gt;</span>, remove_cv_t<span class="op">&lt;</span>Element<span class="op">&gt;&gt;</span></code>
+is <code class="sourceCode cpp"><span class="kw">true</span></code>,
+and</p></li>
 <li><p><span class="marginalizedparent"><a class="marginalized">(2.9)</a></span>
-<code class="sourceCode cpp">is_convertible_v<span class="op">&lt;</span>range_value_t<span class="op">&lt;</span>all_t<span class="op">&lt;</span>Rng<span class="op">&gt;&gt;</span>, remove_cv_t<span class="op">&lt;</span>Element<span class="op">&gt;&gt;</span></code>
+<code class="sourceCode cpp">is_convertible_v<span class="op">&lt;</span>range_rvalue_reference_t<span class="op">&lt;</span>Rng<span class="op">&gt;</span>, RValueRef<span class="op">&gt;</span></code>
 is <code class="sourceCode cpp"><span class="kw">true</span></code>,
 and</p></li>
 <li><p><span class="marginalizedparent"><a class="marginalized">(2.10)</a></span>
-<code class="sourceCode cpp">is_convertible_v<span class="op">&lt;</span>range_rvalue_reference_t<span class="op">&lt;</span>all_t<span class="op">&lt;</span>Rng<span class="op">&gt;&gt;</span>, RValueRef<span class="op">&gt;</span></code>
+<code class="sourceCode cpp">is_convertible_v<span class="op">&lt;</span>range_difference_t<span class="op">&lt;</span>Rng<span class="op">&gt;</span>, Diff<span class="op">&gt;</span></code>
 is <code class="sourceCode cpp"><span class="kw">true</span></code>,
 and</p></li>
-<li><p><span class="marginalizedparent"><a class="marginalized">(2.11)</a></span>
-<code class="sourceCode cpp">is_convertible_v<span class="op">&lt;</span>range_difference_t<span class="op">&lt;</span>all_t<span class="op">&lt;</span>Rng<span class="op">&gt;&gt;</span>, Diff<span class="op">&gt;</span></code>
-is <code class="sourceCode cpp"><span class="kw">true</span></code>,
-and</p></li>
-<li><p><span class="marginalizedparent"><a class="marginalized">(2.12)</a></span> Let
-<code class="sourceCode cpp">CAT</code> be <code class="sourceCode cpp">Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>contiguous</code>,
-<code class="sourceCode cpp">R</code> be <code class="sourceCode cpp">all_t<span class="op">&lt;</span>Rng<span class="op">&gt;</span></code>,</p>
+<li><p><span class="marginalizedparent"><a class="marginalized">(2.11)</a></span> Let
+<code class="sourceCode cpp">CAT</code> be <code class="sourceCode cpp">Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>contiguous</code>,</p>
 <ul>
-<li><p><span class="marginalizedparent"><a class="marginalized">(2.12.1)</a></span>
+<li><p><span class="marginalizedparent"><a class="marginalized">(2.11.1)</a></span>
 If <code class="sourceCode cpp">CAT</code> is <code class="sourceCode cpp">any_views_options<span class="op">::</span>contiguous</code>,
-<code class="sourceCode cpp">R</code> models
+<code class="sourceCode cpp">Rng</code> models
 <code class="sourceCode cpp">contiguous_range</code></p></li>
-<li><p><span class="marginalizedparent"><a class="marginalized">(2.12.2)</a></span>
+<li><p><span class="marginalizedparent"><a class="marginalized">(2.11.2)</a></span>
 Otherwise, if <code class="sourceCode cpp">CAT</code> is <code class="sourceCode cpp">any_views_options<span class="op">::</span>random_access</code>,
-<code class="sourceCode cpp">R</code> models
+<code class="sourceCode cpp">Rng</code> models
 <code class="sourceCode cpp">random_access_range</code>,</p></li>
-<li><p><span class="marginalizedparent"><a class="marginalized">(2.12.3)</a></span>
+<li><p><span class="marginalizedparent"><a class="marginalized">(2.11.3)</a></span>
 Otherwise, if <code class="sourceCode cpp">CAT</code> is <code class="sourceCode cpp">any_views_options<span class="op">::</span>bidirectional</code>,
-<code class="sourceCode cpp">R</code> models
+<code class="sourceCode cpp">Rng</code> models
 <code class="sourceCode cpp">bidirectional_range</code>,</p></li>
-<li><p><span class="marginalizedparent"><a class="marginalized">(2.12.4)</a></span>
+<li><p><span class="marginalizedparent"><a class="marginalized">(2.11.4)</a></span>
 Otherwise if <code class="sourceCode cpp">CAT</code> is <code class="sourceCode cpp">any_views_options<span class="op">::</span>forward</code>,
-<code class="sourceCode cpp">R</code> models
+<code class="sourceCode cpp">Rng</code> models
 <code class="sourceCode cpp">forward_range</code>,</p></li>
-<li><p><span class="marginalizedparent"><a class="marginalized">(2.12.5)</a></span>
+<li><p><span class="marginalizedparent"><a class="marginalized">(2.11.5)</a></span>
 Otherwise, <code class="sourceCode cpp">CAT</code> is <code class="sourceCode cpp">any_views_options<span class="op">::</span>input</code>,
-and <code class="sourceCode cpp">R</code> models
+and <code class="sourceCode cpp">Rng</code> models
 <code class="sourceCode cpp">input_range</code></p></li>
 </ul></li>
 </ul>
 <p><span class="marginalizedparent"><a class="marginalized">3</a></span>
+<em>Mandates</em>:</p>
+<ul>
+<li><p><span class="marginalizedparent"><a class="marginalized">(3.1)</a></span>
+<code class="sourceCode cpp">Rng</code> models
+<code class="sourceCode cpp">viewable_range</code>, and</p></li>
+<li><p><span class="marginalizedparent"><a class="marginalized">(3.2)</a></span>
+either <code class="sourceCode cpp"><em>any-view-flag-is-set</em><span class="op">(</span>Opts, any_view_options<span class="op">::</span>copyable<span class="op">)</span></code>
+is <code class="sourceCode cpp"><span class="kw">false</span></code>, or
+<code class="sourceCode cpp">all_t<span class="op">&lt;</span>Rng<span class="op">&gt;</span></code>
+models <code class="sourceCode cpp">copyable</code></p></li>
+</ul>
+<p><span class="marginalizedparent"><a class="marginalized">4</a></span>
 <em>Postconditions</em>: <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code>
 has a <em>target view object</em> of type <code class="sourceCode cpp">all_t<span class="op">&lt;</span>Rng<span class="op">&gt;</span></code>
-direct-non-list-initialized with <code class="sourceCode cpp">std​<span class="op">::</span>​forward<span class="op">&lt;</span>Rng<span class="op">&gt;(</span>rng<span class="op">)</span></code>.</p>
-<p><span class="marginalizedparent"><a class="marginalized">4</a></span>
+direct-non-list-initialized with <code class="sourceCode cpp">std<span class="op">::</span>forward<span class="op">&lt;</span>Rng<span class="op">&gt;(</span>rng<span class="op">)</span></code>.</p>
+<p><span class="marginalizedparent"><a class="marginalized">5</a></span>
 <em>Throws</em>: Any exception thrown by the initialization of the
 <em>target view object</em>. May throw
 <code class="sourceCode cpp">bad_alloc</code>.</p>
@@ -2012,7 +2063,7 @@ returns an object of <em>sentinel wrapper type</em>
 <code class="sourceCode cpp"><em>sentinel</em></code>, which holds a
 <em>target sentinel object</em> of <code class="sourceCode cpp">ranges<span class="op">::</span>end<span class="op">(</span>v<span class="op">)</span></code></p>
 </div>
-<div class="sourceCode" id="cb53"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>make-unsigned-like-t</em><span class="op">&lt;</span>Diff<span class="op">&gt;</span> size<span class="op">()</span> <span class="kw">const</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>make-unsigned-like-t</em><span class="op">&lt;</span>Diff<span class="op">&gt;</span> size<span class="op">()</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">3</a></span>
 <em>Constraints</em>: <code class="sourceCode cpp">Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>sized</code>
@@ -2023,7 +2074,7 @@ is <code class="sourceCode cpp">any_view_options<span class="op">::</span>sized<
 <p>where <code class="sourceCode cpp">v</code> is an lvalue designating
 the <em>target view object</em> of <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code></p>
 </div>
-<div class="sourceCode" id="cb55"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>make-unsigned-like-t</em><span class="op">&lt;</span>Diff<span class="op">&gt;</span> reserve_hint<span class="op">()</span> <span class="kw">const</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb55"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>make-unsigned-like-t</em><span class="op">&lt;</span>Diff<span class="op">&gt;</span> reserve_hint<span class="op">()</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">5</a></span>
 <em>Constraints</em>: <code class="sourceCode cpp">Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>approximately_sized</code>

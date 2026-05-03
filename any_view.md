@@ -21,6 +21,9 @@ toc-depth: 2
 ## R6
 
 - Prevent `reference_converts_from_temporary` when dereferencing
+- Remove `movable` and `copyable` from the Constraints and make them Mandates
+- Specify `uint_least32_t` as underlying type of `any_view_options`
+- Make `size` and `reserve_hint` non-const
 
 ## R5
 
@@ -601,6 +604,15 @@ In the original design, we proposed any operations, other than assignment or des
 This revision (R4) follows SG9's recommendation to make the moved-from state as an empty view. However, the authors still believe that this is a wrong decision.
 This is an unprecedented design in the standard library type erasure facilities. All existing type erasure utilities in the library leave the moved-from object in a valid but unspecified state. Assigning `any_view`'s moved-from state to be an empty view adds unnecessary complexity and goes against "don't pay for what you don't use" philosophy.
 
+LEWG polled on the similar topic with no consensus to change
+
+> POLL: The moved-from state should leave an object that can only be assigned to or destroyed or queried about its state (in contrast to moved-from state and the default constructed state be of valid but empty range).
+
+|SF	|F	|N	|A	|SA|
+|---|---|---|---|--|
+|5	|0	|3	|3  |3 |	
+
+
 ## ABI Stability
 
 As a type intended to exist at ABI boundaries, ensuring the ABI stability of `any_view` is extremely important. However, since almost any change to the API of `any_view` will require a modification to the vtable, this makes `any_view` somewhat fragile to incremental evolution.
@@ -947,7 +959,7 @@ namespace std::ranges {
   // [...]
 
   // [range.any], any view
-  enum class any_view_options
+  enum class any_view_options : uint_least32_t
   {
       input = 1,
       forward = 3,
@@ -1046,8 +1058,8 @@ public:
   constexpr @*iterator*@ begin();
   constexpr @*sentinel*@ end();
 
-  constexpr @*make-unsigned-like-t*@<Diff> size() const;
-  constexpr @*make-unsigned-like-t*@<Diff> reserve_hint() const;
+  constexpr @*make-unsigned-like-t*@<Diff> size();
+  constexpr @*make-unsigned-like-t*@<Diff> reserve_hint();
 
   // [range.any.swap], swap
   constexpr void swap(any_view&) noexcept;
@@ -1140,7 +1152,7 @@ template <class Rng> constexpr any_view(Rng&& rng);
 
 - [2.1]{.pnum} `remove_cvref_t<Rng>` is not the same type as `any_view`, and
 
-- [2.2]{.pnum} `Rng` models `viewable_range`, and
+- [2.2]{.pnum} `Rng` models `range`, and
 
 - [2.3]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::approximately_sized)` is `false`, or `Rng`
   models `approximately_sized_range`, and
@@ -1151,34 +1163,38 @@ template <class Rng> constexpr any_view(Rng&& rng);
 - [2.5]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::borrowed)` is `false`, or `Rng`
   models `borrowed_range`, and
 
-- [2.6]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::copyable)` is `false`, or `all_t<Rng>`
-  models `copyable`, and
+- [2.6]{.pnum} `is_convertible_v<range_reference_t<Rng>, Ref>` is `true`, and
 
-- [2.7]{.pnum} `is_convertible_v<range_reference_t<all_t<Rng>>, Ref>` is `true`, and
+- [2.7]{.pnum} `reference_converts_from_temporary_v<Ref, range_reference_t<Rng>` is `false`, and
 
-- [2.8]{.pnum} `reference_converts_from_temporary_v<Ref, range_reference_t<all_t<Rng>>` is `false`, and
+- [2.8]{.pnum} `is_convertible_v<range_value_t<Rng>, remove_cv_t<Element>>` is `true`, and
 
-- [2.9]{.pnum} `is_convertible_v<range_value_t<all_t<Rng>>, remove_cv_t<Element>>` is `true`, and
+- [2.9]{.pnum} `is_convertible_v<range_rvalue_reference_t<Rng>, RValueRef>` is `true`, and
 
-- [2.10]{.pnum} `is_convertible_v<range_rvalue_reference_t<all_t<Rng>>, RValueRef>` is `true`, and
+- [2.10]{.pnum} `is_convertible_v<range_difference_t<Rng>, Diff>` is `true`, and
 
-- [2.11]{.pnum} `is_convertible_v<range_difference_t<all_t<Rng>>, Diff>` is `true`, and
+- [2.11]{.pnum} Let `CAT` be `Opts & any_view_options::contiguous`,
 
-- [2.12]{.pnum} Let `CAT` be `Opts & any_view_options::contiguous`, `R` be `all_t<Rng>`,
+  - [2.11.1]{.pnum} If `CAT` is `any_views_options::contiguous`, `Rng` models `contiguous_range`
 
-  - [2.12.1]{.pnum} If `CAT` is `any_views_options::contiguous`, `R` models `contiguous_range`
+  - [2.11.2]{.pnum} Otherwise, if `CAT` is `any_views_options::random_access`, `Rng` models `random_access_range`,
 
-  - [2.12.2]{.pnum} Otherwise, if `CAT` is `any_views_options::random_access`, `R` models `random_access_range`,
+  - [2.11.3]{.pnum} Otherwise, if `CAT` is `any_views_options::bidirectional`, `Rng` models `bidirectional_range`,
 
-  - [2.12.3]{.pnum} Otherwise, if `CAT` is `any_views_options::bidirectional`, `R` models `bidirectional_range`,
+  - [2.11.4]{.pnum} Otherwise if `CAT` is `any_views_options::forward`, `Rng` models `forward_range`,
 
-  - [2.12.4]{.pnum} Otherwise if `CAT` is `any_views_options::forward`, `R` models `forward_range`,
+  - [2.11.5]{.pnum} Otherwise, `CAT` is `any_views_options::input`, and `Rng` models `input_range`
 
-  - [2.12.5]{.pnum} Otherwise, `CAT` is `any_views_options::input`, and `R` models `input_range`
+[3]{.pnum} *Mandates*:
 
-[3]{.pnum} *Postconditions*: `*this` has a *target view object* of type `all_t<Rng>` direct-non-list-initialized with `std​::​forward<Rng>(rng)`.
+- [3.1]{.pnum} `Rng` models `viewable_range`, and
 
-[4]{.pnum} *Throws*: Any exception thrown by the initialization of the *target view object*. May throw `bad_alloc`.
+- [3.2]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::copyable)` is `false`, or `all_t<Rng>`
+  models `copyable`
+
+[4]{.pnum} *Postconditions*: `*this` has a *target view object* of type `all_t<Rng>` direct-non-list-initialized with `std::forward<Rng>(rng)`.
+
+[5]{.pnum} *Throws*: Any exception thrown by the initialization of the *target view object*. May throw `bad_alloc`.
 
 :::
 
@@ -1263,7 +1279,7 @@ constexpr @*sentinel*@ end();
 :::
 
 ```cpp
-constexpr @*make-unsigned-like-t*@<Diff> size() const;
+constexpr @*make-unsigned-like-t*@<Diff> size();
 ```
 
 :::bq
@@ -1281,7 +1297,7 @@ where `v` is an lvalue designating the *target view object* of `*this`
 :::
 
 ```cpp
-constexpr @*make-unsigned-like-t*@<Diff> reserve_hint() const;
+constexpr @*make-unsigned-like-t*@<Diff> reserve_hint();
 ```
 
 :::bq

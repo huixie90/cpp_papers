@@ -540,7 +540,7 @@ a reference type
 <code class="sourceCode cpp">T<span class="op">&amp;</span></code>.</p>
 <h1 data-number="3" id="motivation-and-examples"><span class="header-section-number">3</span> Motivation and Examples<a href="#motivation-and-examples" class="self-link"></a></h1>
 <p>C++20 introduced the meta-programming utility
-<code class="sourceCode cpp">common_reference</code> <span>21.3.9.7
+<code class="sourceCode cpp">common_reference</code> <span>21.3.8.7
 <a href="https://wg21.link/meta.trans.other">[meta.trans.other]</a></span>
 in order to programmatically determine a common reference type to which
 one or more types can be converted or bound.</p>
@@ -889,13 +889,13 @@ Types<a href="#section4_4" class="self-link"></a></h2>
 <code class="sourceCode cpp">common_reference</code> trait are such that
 any <code class="sourceCode cpp">basic_common_reference</code>
 specialization is consulted only if some ternary expression of the pair
-of arguments is ill-formed (see <span>21.3.9.7
+of arguments is ill-formed (see <span>21.3.8.7
 <a href="https://wg21.link/meta.trans.other">[meta.trans.other]</a></span>/5.3.1).</p>
 <p>More precisely, that ternary expression is denoted by <code class="sourceCode cpp"><em>COMMON-REF</em><span class="op">(</span>T1, T2<span class="op">)</span></code>,
 where <code class="sourceCode cpp">T1</code> and
 <code class="sourceCode cpp">T2</code> are the two arguments of the
 trait, and <code class="sourceCode cpp"><em>COMMON-REF</em></code> is a
-complex macro defined in <span>21.3.9.7
+complex macro defined in <span>21.3.8.7
 <a href="https://wg21.link/meta.trans.other">[meta.trans.other]</a></span>/2.
 For the cases where both <code class="sourceCode cpp">T1</code> and
 <code class="sourceCode cpp">T2</code> are lvalue references, their
@@ -1040,7 +1040,7 @@ issue<span class="citation" data-cites="ours"><a href="https://github.com/huixie
 and all libc++ tests passed.<span class="citation" data-cites="libcxx"><a href="https://reviews.llvm.org/D141200" role="doc-biblioref">[libcxx]</a></span></p></li>
 </ul>
 <h1 data-number="6" id="wording"><span class="header-section-number">6</span> Wording<a href="#wording" class="self-link"></a></h1>
-<p>Modify <span>21.3.9.7
+<p>Modify <span>21.3.8.7
 <a href="https://wg21.link/meta.trans.other">[meta.trans.other]</a></span>
 section (5.3.1) as</p>
 <ul>

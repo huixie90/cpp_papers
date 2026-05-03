@@ -15,7 +15,9 @@ using AnyView =
     std::ranges::any_view<int, std::ranges::any_view_options::input |
                                    std::ranges::any_view_options::copyable>;
 
-static_assert(!std::is_constructible_v<AnyView, MoveOnlyInputView>);
+// this will trigger static_assert instead
+static_assert(std::is_constructible_v<AnyView, MoveOnlyInputView>);
+
 static_assert(std::is_constructible_v<AnyView, CopyableInputView>);
 
 constexpr bool test() {
