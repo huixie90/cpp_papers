@@ -644,9 +644,16 @@ class any_view
       return false;
     }
 
-    if constexpr (__flag_is_set(Opts, any_view_options::borrowed) &&
-                  !std::ranges::borrowed_range<View>) {
-      return false;
+    if constexpr (__flag_is_set(Opts, any_view_options::borrowed)) {
+      if constexpr (ranges::enable_view<remove_cvref_t<View>>) {
+        if constexpr (!ranges::enable_borrowed_range<remove_cvref_t<View>>) {
+          return false;
+        }
+      } else if constexpr (!is_lvalue_reference_v<View>) {
+        if constexpr (!std::ranges::enable_borrowed_range<remove_cvref_t<View>>) {
+          return false;
+        }
+      }
     }
 
     if constexpr (!std::convertible_to<std::ranges::range_reference_t<View>,
