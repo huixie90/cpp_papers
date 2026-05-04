@@ -1929,11 +1929,24 @@ either <code class="sourceCode cpp">Opts <span class="op">&amp;</span> any_view_
 is not <code class="sourceCode cpp">sized</code>, or
 <code class="sourceCode cpp">Rng</code> models
 <code class="sourceCode cpp">sized_range</code>, and</p></li>
-<li><p><span class="marginalizedparent"><a class="marginalized">(2.5)</a></span>
-either <code class="sourceCode cpp"><em>any-view-flag-is-set</em><span class="op">(</span>Opts, any_view_options<span class="op">::</span>borrowed<span class="op">)</span></code>
-is <code class="sourceCode cpp"><span class="kw">false</span></code>, or
-<code class="sourceCode cpp">Rng</code> models
-<code class="sourceCode cpp">borrowed_range</code>, and</p></li>
+<li><p><span class="marginalizedparent"><a class="marginalized">(2.5)</a></span> If
+<code class="sourceCode cpp"><em>any-view-flag-is-set</em><span class="op">(</span>Opts, any_view_options<span class="op">::</span>borrowed<span class="op">)</span></code>
+is <code class="sourceCode cpp"><span class="kw">true</span></code>, let
+<code class="sourceCode cpp">R</code> be <code class="sourceCode cpp">remove_cvref_t<span class="op">&lt;</span>Rng<span class="op">&gt;</span></code>,</p>
+<ul>
+<li><p><span class="marginalizedparent"><a class="marginalized">(2.5.1)</a></span> If
+<code class="sourceCode cpp">enable_view<span class="op">&lt;</span>R<span class="op">&gt;</span></code>
+is <code class="sourceCode cpp"><span class="kw">true</span></code>,
+<code class="sourceCode cpp">borrowed_range<span class="op">&lt;</span>R<span class="op">&gt;</span></code>
+must be
+<code class="sourceCode cpp"><span class="kw">true</span></code>,</p></li>
+<li><p><span class="marginalizedparent"><a class="marginalized">(2.5.2)</a></span>
+Otherwise, if <code class="sourceCode cpp">is_lvalue_reference_v<span class="op">&lt;</span>Rng<span class="op">&gt;</span></code>
+is <code class="sourceCode cpp"><span class="kw">false</span></code>,
+<code class="sourceCode cpp">borrowed_range<span class="op">&lt;</span>R<span class="op">&gt;</span></code>
+must be
+<code class="sourceCode cpp"><span class="kw">true</span></code></p></li>
+</ul></li>
 <li><p><span class="marginalizedparent"><a class="marginalized">(2.6)</a></span>
 <code class="sourceCode cpp">is_convertible_v<span class="op">&lt;</span>range_reference_t<span class="op">&lt;</span>Rng<span class="op">&gt;</span>, Ref<span class="op">&gt;</span></code>
 is <code class="sourceCode cpp"><span class="kw">true</span></code>,

@@ -1160,8 +1160,11 @@ template <class Rng> constexpr any_view(Rng&& rng);
 - [2.4]{.pnum} either `Opts & any_view_options::sized` is not `sized`, or `Rng`
   models `sized_range`, and
 
-- [2.5]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::borrowed)` is `false`, or `Rng`
-  models `borrowed_range`, and
+- [2.5]{.pnum} If `@*any-view-flag-is-set*@(Opts, any_view_options::borrowed)` is `true`, let `R` be `remove_cvref_t<Rng>`,
+
+  - [2.5.1]{.pnum} If `enable_view<R>` is `true`, `borrowed_range<R>` must be `true`,
+
+  - [2.5.2]{.pnum} Otherwise, if `is_lvalue_reference_v<Rng>` is `false`, `borrowed_range<R>` must be `true`
 
 - [2.6]{.pnum} `is_convertible_v<range_reference_t<Rng>, Ref>` is `true`, and
 
