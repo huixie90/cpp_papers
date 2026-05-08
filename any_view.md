@@ -991,7 +991,7 @@ namespace std::ranges {
             class Diff>
   inline constexpr bool
       enable_borrowed_range<any_view<Element, Opts, Ref, RValueRef, Diff>> =
-          (Opts & any_view_options::borrowed) == any_view_options::borrowed;
+          @*any-view-flag-is-set*@(Opts, any_view_options::borrowed);
 }
 ```
 
@@ -1125,7 +1125,7 @@ constexpr bool @*any-view-flag-is-set*@(any_view_options opts, any_view_options 
 [4]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-  return (opts & flag) != any_view_options(0);
+  return (opts & flag) == flag;
 ```
 
 :::
@@ -1157,7 +1157,7 @@ template <class Rng> constexpr any_view(Rng&& rng);
 - [2.3]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::approximately_sized)` is `false`, or `Rng`
   models `approximately_sized_range`, and
 
-- [2.4]{.pnum} either `Opts & any_view_options::sized` is not `sized`, or `Rng`
+- [2.4]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::sized)` is `false`, or `Rng`
   models `sized_range`, and
 
 - [2.5]{.pnum} If `@*any-view-flag-is-set*@(Opts, any_view_options::borrowed)` is `true`, let `R` be `remove_cvref_t<Rng>`,

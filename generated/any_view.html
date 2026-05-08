@@ -1766,7 +1766,7 @@ follows the proposed wording below without any issue <span class="citation" data
 <span id="cb35-35"><a href="#cb35-35" aria-hidden="true" tabindex="-1"></a>            <span class="kw">class</span> Diff<span class="op">&gt;</span></span>
 <span id="cb35-36"><a href="#cb35-36" aria-hidden="true" tabindex="-1"></a>  <span class="kw">inline</span> <span class="kw">constexpr</span> <span class="dt">bool</span></span>
 <span id="cb35-37"><a href="#cb35-37" aria-hidden="true" tabindex="-1"></a>      enable_borrowed_range<span class="op">&lt;</span>any_view<span class="op">&lt;</span>Element, Opts, Ref, RValueRef, Diff<span class="op">&gt;&gt;</span> <span class="op">=</span></span>
-<span id="cb35-38"><a href="#cb35-38" aria-hidden="true" tabindex="-1"></a>          <span class="op">(</span>Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>borrowed<span class="op">)</span> <span class="op">==</span> any_view_options<span class="op">::</span>borrowed;</span>
+<span id="cb35-38"><a href="#cb35-38" aria-hidden="true" tabindex="-1"></a>          <em>any-view-flag-is-set</em><span class="op">(</span>Opts, any_view_options<span class="op">::</span>borrowed<span class="op">)</span>;</span>
 <span id="cb35-39"><a href="#cb35-39" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 <h2 data-number="9.2" id="any_view"><span class="header-section-number">9.2</span>
 <code class="sourceCode cpp">any_view</code><a href="#any_view" class="self-link"></a></h2>
@@ -1894,7 +1894,7 @@ to:</p>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">4</a></span>
 <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="op">(</span>opts <span class="op">&amp;</span> flag<span class="op">)</span> <span class="op">!=</span> any_view_options<span class="op">(</span><span class="dv">0</span><span class="op">)</span>;</span></code></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="op">(</span>opts <span class="op">&amp;</span> flag<span class="op">)</span> <span class="op">==</span> flag;</span></code></pre></div>
 </div>
 <h4 class="unnumbered" id="constructors-assignment-and-destructor-range.any.ctor">?.?.?.4
 Constructors, assignment, and destructor [range.any.ctor]<a href="#constructors-assignment-and-destructor-range.any.ctor" class="self-link"></a></h4>
@@ -1925,8 +1925,8 @@ is <code class="sourceCode cpp"><span class="kw">false</span></code>, or
 <code class="sourceCode cpp">approximately_sized_range</code>,
 and</p></li>
 <li><p><span class="marginalizedparent"><a class="marginalized">(2.4)</a></span>
-either <code class="sourceCode cpp">Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>sized</code>
-is not <code class="sourceCode cpp">sized</code>, or
+either <code class="sourceCode cpp"><em>any-view-flag-is-set</em><span class="op">(</span>Opts, any_view_options<span class="op">::</span>sized<span class="op">)</span></code>
+is <code class="sourceCode cpp"><span class="kw">false</span></code>, or
 <code class="sourceCode cpp">Rng</code> models
 <code class="sourceCode cpp">sized_range</code>, and</p></li>
 <li><p><span class="marginalizedparent"><a class="marginalized">(2.5)</a></span> If
