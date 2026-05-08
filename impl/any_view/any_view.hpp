@@ -51,7 +51,7 @@ constexpr auto operator<=>(any_view_options lhs,
 
 constexpr bool __flag_is_set(any_view_options opts,
                              any_view_options flag) noexcept {
-  return (opts & flag) != any_view_options::none;
+  return (opts & flag) == flag;
 }
 
 }  // namespace __any_view
@@ -80,16 +80,15 @@ class any_view
 
   static constexpr any_view_options Traversal =
       Opts & any_view_options::category_mask;
-  static constexpr bool is_view_copyable =
-      (Opts & any_view_options::copyable) != any_view_options::none;
   static constexpr bool is_iterator_copyable =
       Traversal >= any_view_options::forward;
 
+  static constexpr bool is_view_copyable =
+      __any_view::__flag_is_set(Opts, any_view_options::copyable);
   static constexpr bool is_sized =
-      (Opts & any_view_options::sized) == any_view_options::sized;
+      __any_view::__flag_is_set(Opts, any_view_options::sized);
   static constexpr bool is_approximately_sized =
-      (Opts & any_view_options::approximately_sized) ==
-      any_view_options::approximately_sized;
+      __any_view::__flag_is_set(Opts, any_view_options::approximately_sized);
 
   template <class T, bool HasT>
   struct maybe_t : T {};
@@ -650,7 +649,8 @@ class any_view
           return false;
         }
       } else if constexpr (!is_lvalue_reference_v<View>) {
-        if constexpr (!std::ranges::enable_borrowed_range<remove_cvref_t<View>>) {
+        if constexpr (!std::ranges::enable_borrowed_range<
+                          remove_cvref_t<View>>) {
           return false;
         }
       }
@@ -775,7 +775,7 @@ template <class Value, any_view_options Opts, class Ref, class RValueRef,
           class Diff>
 inline constexpr bool
     enable_borrowed_range<any_view<Value, Opts, Ref, RValueRef, Diff>> =
-        (Opts & any_view_options::borrowed) != any_view_options::none;
+        __any_view::__flag_is_set(Opts, any_view_options::borrowed);
 
 }  // namespace std::ranges
 
