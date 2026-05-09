@@ -1,7 +1,7 @@
 ---
 title: "`any_view`"
-document: D3411R6
-date: 2026-03-22
+document: P3411R6
+date: 2026-05-09
 audience: SG9, LEWG
 author:
   - name: Hui Xie
@@ -1207,7 +1207,7 @@ constexpr any_view(const any_view& other);
 
 :::bq
 
-[5]{.pnum} *Constraints*: `Opts & any_view_options::copyable` is `any_view_options::copyable`
+[5]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::copyable)` is `true`
 
 [6]{.pnum} *Postconditions*: The *target view object* of `*this` is a copy of the *target view object* of `other`.
 
@@ -1229,7 +1229,7 @@ constexpr any_view &operator=(const any_view& other)
 
 :::bq
 
-[8]{.pnum} *Constraints*: `Opts & any_view_options::copyable` is `any_view_options::copyable`
+[8]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::copyable)` is `true`
 
 [9]{.pnum} *Effects*: Equivalent to: `any_view(other).swap(*this);`
 

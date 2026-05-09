@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="mpark/wg21" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="dcterms.date" content="2026-03-22" />
+  <meta name="dcterms.date" content="2026-05-09" />
   <title>`any_view`</title>
   <style>
       code{white-space: pre-wrap;}
@@ -428,14 +428,14 @@ code.sourceCode > span { display: inline; }
   <tr>
     <td>Document #:</td>
     <td>
-      D3411R6
+      P3411R6
       [<a href="https://wg21.link/P3411">Latest</a>]
       [<a href="https://wg21.link/P3411/status">Status</a>]
     </td>
   </tr>
   <tr>
     <td>Date:</td>
-    <td>2026-03-22</td>
+    <td>2026-05-09</td>
   </tr>
   <tr>
     <td style="vertical-align:top">Project:</td>
@@ -2016,8 +2016,8 @@ direct-non-list-initialized with <code class="sourceCode cpp">std<span class="op
 <div class="sourceCode" id="cb46"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> any_view<span class="op">(</span><span class="kw">const</span> any_view<span class="op">&amp;</span> other<span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">5</a></span>
-<em>Constraints</em>: <code class="sourceCode cpp">Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>copyable</code>
-is <code class="sourceCode cpp">any_view_options<span class="op">::</span>copyable</code></p>
+<em>Constraints</em>: <code class="sourceCode cpp"><em>any-view-flag-is-set</em><span class="op">(</span>Opts, any_view_options<span class="op">::</span>copyable<span class="op">)</span></code>
+is <code class="sourceCode cpp"><span class="kw">true</span></code></p>
 <p><span class="marginalizedparent"><a class="marginalized">6</a></span>
 <em>Postconditions</em>: The <em>target view object</em> of <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code>
 is a copy of the <em>target view object</em> of
@@ -2037,8 +2037,8 @@ is <code class="sourceCode cpp"><span class="kw">true</span></code></p>
 <div class="sourceCode" id="cb48"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> any_view <span class="op">&amp;</span><span class="kw">operator</span><span class="op">=(</span><span class="kw">const</span> any_view<span class="op">&amp;</span> other<span class="op">)</span></span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">8</a></span>
-<em>Constraints</em>: <code class="sourceCode cpp">Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>copyable</code>
-is <code class="sourceCode cpp">any_view_options<span class="op">::</span>copyable</code></p>
+<em>Constraints</em>: <code class="sourceCode cpp"><em>any-view-flag-is-set</em><span class="op">(</span>Opts, any_view_options<span class="op">::</span>copyable<span class="op">)</span></code>
+is <code class="sourceCode cpp"><span class="kw">true</span></code></p>
 <p><span class="marginalizedparent"><a class="marginalized">9</a></span>
 <em>Effects</em>: Equivalent to: <code class="sourceCode cpp">any_view<span class="op">(</span>other<span class="op">).</span>swap<span class="op">(*</span><span class="kw">this</span><span class="op">)</span>;</code></p>
 <p><span class="marginalizedparent"><a class="marginalized">10</a></span>
