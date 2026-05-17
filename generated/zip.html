@@ -700,6 +700,22 @@ matrix.</p>
 justification that the cardinality of
 <code class="sourceCode cpp">zip<span class="op">()</span></code> cannot
 be known.</p>
+<p>The author has contacted the creator of Python, Guido van Rossum, and
+here is the reply from him about the design decision:</p>
+<blockquote>
+<p>To be honest, I don’t recall how the decision around this detail
+went. I assume it was literally that people showed me the specific
+example given in the PEP and argued that it should work that way, and I
+found I didn’t feel like arguing against the treatment of such a minor
+edge case.</p>
+<p>The edge case actually reminds me of the debate about the meaning of
+0**0 (see Wikipedia). I think the same reasoning may apply here? Python
+chose the more useful outcome, for some applications.</p>
+</blockquote>
+<blockquote>
+<p>In any case, if you want to change C++’s zip to make this an error,
+you have my blessing.</p>
+</blockquote>
 <h3 data-number="3.3.6" id="conclusion-of-other-languages"><span class="header-section-number">3.3.6</span> Conclusion of other
 languages<a href="#conclusion-of-other-languages" class="self-link"></a></h3>
 <p>Majority of the languages do not support null-ary
