@@ -64,7 +64,6 @@ TODO: explain the main diagonal and identity yield same results
 - explain any_of/all_of's identity
 - explain cartesian_product
 - explain the identify component of "minimum" operation should be infinity
-- we prefer the result to be infinite range. if this cannot be agreed on, at the minimum, zip() should be ill-formed
 
 ## Other Languages
 
@@ -90,7 +89,7 @@ Haskell documentation [@haskell_doc] clearly stated that
 
 Rust's compiler actively rejects `multizip` or `izip!` calls with no argument. This is much better than giving the wrong results.
 
-### Java, C#
+### Java, C\#
 
 These languages either only supports a zip with two ranges, or provide zip3, zip4, ... functions for more ranges, possibly due to
 lack of support for variadic arguments. However, they don't provide a zip0, for a good reason.
@@ -205,7 +204,7 @@ I think to answer "Have people run into issues with either Python or C++ *not* p
 
 ## Conclusion
 
-The authors propose to change the current incorrect results of `zip()` to `repeat(tuple())`. If the resistance of this change is too significant, the authors believe a compromise is to make `zip()` ill-formed.
+The authors propose to change `zip()` to be ill-formed.
 
 # Implementation Experience
 
@@ -232,9 +231,6 @@ references:
     citation-label: pep0201
     title: "PEP 201 – Lockstep Iteration"
     URL: https://peps.python.org/pep-0201/#subsequent-change-to-zip
-
-    
-
 
   - id: haskell_doc
     citation-label: haskell_doc
