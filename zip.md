@@ -129,6 +129,15 @@ This example uses `zip(*s)` to transpose a matrix. When the input, say, is `[[1,
 
 This motivating example is not only "not working", but also a justification that the cardinality of `zip()` cannot be known.
 
+The author has contacted the creator of Python, Guido van Rossum, and here is the reply from him about the design decision:
+
+> To be honest, I don't recall how the decision around this detail went. I assume it was literally that people showed me the specific example given in the PEP and argued that it should work that way, and I found I didn't feel like arguing against the treatment of such a minor edge case.
+>
+> The edge case actually reminds me of the debate about the meaning of 0**0 (see Wikipedia).  I think the same reasoning may apply here? Python chose the more useful outcome, for some applications.
+
+> In any case, if you want to change C++'s zip to make this an error, you have my blessing.
+
+
 ### Conclusion of other languages
 
 Majority of the languages do not support null-ary `zip`. Julia makes it an infinite range, which is more mathematically correct. Python makes it an empty range.
