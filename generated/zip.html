@@ -700,7 +700,11 @@ matrix.</p>
 justification that the cardinality of
 <code class="sourceCode cpp">zip<span class="op">()</span></code> cannot
 be known.</p>
-<p>The author has contacted the creator of Python, Guido van Rossum, and
+<h4 data-number="3.3.5.1" id="comments-from-guido-van-rossum-bdfl"><span class="header-section-number">3.3.5.1</span> Comments from Guido van
+Rossum (BDFL)<a href="#comments-from-guido-van-rossum-bdfl" class="self-link"></a></h4>
+<p>The author has contacted the creator of Python, Guido van Rossum,
+about the design decision of
+<code class="sourceCode cpp">zip<span class="op">()</span></code> and
 here is the reply from him about the design decision:</p>
 <blockquote>
 <p>To be honest, I don’t recall how the decision around this detail
@@ -711,11 +715,52 @@ edge case.</p>
 <p>The edge case actually reminds me of the debate about the meaning of
 0**0 (see Wikipedia). I think the same reasoning may apply here? Python
 chose the more useful outcome, for some applications.</p>
-</blockquote>
-<blockquote>
 <p>In any case, if you want to change C++’s zip to make this an error,
 you have my blessing.</p>
 </blockquote>
+<h4 data-number="3.3.5.2" id="comments-from-barry-warsaw"><span class="header-section-number">3.3.5.2</span> Comments from Barry
+Warsaw<a href="#comments-from-barry-warsaw" class="self-link"></a></h4>
+<p>The author has also contacted Barry Warsaw, the author of <span class="citation" data-cites="pep0201"><a href="https://peps.python.org/pep-0201/#subsequent-change-to-zip" role="doc-biblioref">[pep0201]</a></span>, who introduced
+<code class="sourceCode cpp">zip</code> to Python 2.0. And here is his
+reply:</p>
+<blockquote>
+<p>I don’t remember the discussion leading to the change either, but the
+Zen of Python does favor practicality over purity. Guido’s recollection
+is likely right; folks had some real-world experience where it was more
+practical to return an empty sequence rather than have to write code to
+handle an exception.</p>
+<p>For example:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> <span class="kw">def</span> ab(<span class="op">*</span>seq):</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>...     <span class="cf">for</span> a, b <span class="kw">in</span> <span class="bu">zip</span>(<span class="op">*</span>seq):</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>...         <span class="bu">print</span>(a, b)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>...</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> ab([<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>], [<span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">6</span>])</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span> <span class="dv">4</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span> <span class="dv">5</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="dv">3</span> <span class="dv">6</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> ab()</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span></span></code></pre></div>
+<p>Totally contrived of course, but it is nice at least here not to have
+to handle an exception. Defining that as repeat(()) would also be much
+less useful as it would infinite loop, so you’d probably have to add
+some value checking before the zip() call to avoid that.</p>
+</blockquote>
+<p>The authors of this C++ paper agree with the “Zen of Python”,
+however, this example seems a bit contrived. The function
+<code class="sourceCode cpp">ab</code> accepts either exactly two lists,
+or exactly zero list. It still needs to handle the
+<code class="sourceCode cpp">ValueError</code> if the user passes any
+other number of lists, for example one list. See this truncated
+error:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="op">&gt;&gt;&gt;</span> ab([<span class="dv">1</span>,<span class="dv">2</span>])</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="pp">ValueError</span>: <span class="kw">not</span> enough values to unpack (expected <span class="dv">2</span>, got <span class="dv">1</span>)</span></code></pre></div>
+<p>And this very example would not work in C++’s
+<code class="sourceCode cpp">zip</code>, because C++ is a statically
+typed language, the line</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> <span class="op">[</span>a, b<span class="op">]</span> <span class="op">:</span> zip<span class="op">(</span>rng<span class="op">...))</span></span></code></pre></div>
+<p>will fail to compile as we cannot bind <code class="sourceCode cpp"><span class="op">[</span>a, b<span class="op">]</span></code>
+to a 0-tuple, even we define <code class="sourceCode cpp">zip</code> as
+an empty range.</p>
 <h3 data-number="3.3.6" id="conclusion-of-other-languages"><span class="header-section-number">3.3.6</span> Conclusion of other
 languages<a href="#conclusion-of-other-languages" class="self-link"></a></h3>
 <p>Majority of the languages do not support null-ary
@@ -752,16 +797,16 @@ have consistency in terms of the size of the result range.</p>
 <p>The compelling use case for zip() empty range is a fold over it:</p>
 </blockquote>
 <blockquote>
-<div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">typename</span><span class="op">...</span> Rng<span class="op">&gt;</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">int</span> inner_product<span class="op">(</span>Rng<span class="op">&amp;&amp;...</span> rng<span class="op">)</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> result <span class="op">=</span> <span class="dv">0</span>;</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> tpl <span class="op">:</span> std<span class="op">::</span>views<span class="op">::</span>zip<span class="op">(</span>rng<span class="op">...))</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        std<span class="op">::</span>apply<span class="op">([&amp;](</span><span class="kw">auto</span><span class="op">&amp;&amp;...</span> x<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>            result <span class="op">+=</span> <span class="op">(</span>x <span class="op">*</span> <span class="op">...</span> <span class="op">*</span> <span class="dv">1</span><span class="op">)</span>;</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span>, tpl<span class="op">)</span>;</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result;</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">typename</span><span class="op">...</span> Rng<span class="op">&gt;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">int</span> inner_product<span class="op">(</span>Rng<span class="op">&amp;&amp;...</span> rng<span class="op">)</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">int</span> result <span class="op">=</span> <span class="dv">0</span>;</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> tpl <span class="op">:</span> std<span class="op">::</span>views<span class="op">::</span>zip<span class="op">(</span>rng<span class="op">...))</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        std<span class="op">::</span>apply<span class="op">([&amp;](</span><span class="kw">auto</span><span class="op">&amp;&amp;...</span> x<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>            result <span class="op">+=</span> <span class="op">(</span>x <span class="op">*</span> <span class="op">...</span> <span class="op">*</span> <span class="dv">1</span><span class="op">)</span>;</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span>, tpl<span class="op">)</span>;</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> result;</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
 </blockquote>
 <p>This example function implementation is actually incorrect
 mathematically. First of all, “inner product” space is <span class="math inline">\(\Re^n \times \Re^n \rightarrow \Re\)</span>. The
@@ -827,9 +872,8 @@ range here? I would like to see concrete evidence thereof.</p>
 <p>I think to answer “Have people run into issues with either Python or
 C++ <em>not</em> providing an infinite range here?”, we should also
 answer “Have people used <code class="sourceCode cpp">zip</code> with no
-arguments here”. We seem to provide a tool that has questionable use
-cases, and at the same time questioning whether we have evidence that
-whether people have issues with its mathematical incorrectness.</p>
+arguments” first. The author of this paper is no longer pursuing the
+“infinite range” option.</p>
 <h2 data-number="3.5" id="conclusion"><span class="header-section-number">3.5</span> Conclusion<a href="#conclusion" class="self-link"></a></h2>
 <p>The authors propose to change
 <code class="sourceCode cpp">zip<span class="op">()</span></code> to be
@@ -838,11 +882,15 @@ ill-formed.</p>
 <h1 data-number="5" id="wording"><span class="header-section-number">5</span> Wording<a href="#wording" class="self-link"></a></h1>
 <p>Modify <span>25.7.25.1
 <a href="https://wg21.link/range.zip.overview">[range.zip.overview]</a></span>
-section (2.1) as</p>
+section 2 as</p>
+<p>The name views::zip denotes a customization point object
+([customization.point.object]). Given a pack of subexpressions Es…, the
+expression views::zip(Es…) is expression-equivalent to</p>
 <ul>
-<li>(2.1) <span class="rm" style="color: #bf0303"><del><span><code class="sourceCode default">auto(views​::​empty&lt;tuple&lt;&gt;&gt;)</code></span></del></span>
-<span class="add" style="color: #006e28"><ins><span><code class="sourceCode default">views::repeat(tuple())</code></span></ins></span>
-if <code class="sourceCode cpp">Es</code> is an empty pack,</li>
+<li>(2.1) <span class="rm" style="color: #bf0303"><del><span><code class="sourceCode default">auto(views::empty&lt;tuple&lt;&gt;&gt;)</code></span>
+if <span><code class="sourceCode default">Es</code></span> is an empty
+pack,</del></span></li>
+<li>(2.2) <span class="rm" style="color: #bf0303"><del>otherwise,</del></span><code class="sourceCode cpp">zip_view<span class="op">&lt;</span>views<span class="op">::</span>all_t<span class="op">&lt;</span><span class="kw">decltype</span><span class="op">((</span>Es<span class="op">))&gt;...&gt;(</span>Es<span class="op">...)</span></code>.</li>
 </ul>
 <h2 data-number="5.1" id="feature-test-macro"><span class="header-section-number">5.1</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
 <p>Bump the FTM
