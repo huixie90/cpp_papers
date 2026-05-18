@@ -129,13 +129,54 @@ This example uses `zip(*s)` to transpose a matrix. When the input, say, is `[[1,
 
 This motivating example is not only "not working", but also a justification that the cardinality of `zip()` cannot be known.
 
-The author has contacted the creator of Python, Guido van Rossum, and here is the reply from him about the design decision:
+#### Comments from Guido van Rossum (BDFL)
+
+The author has contacted the creator of Python, Guido van Rossum, about the design decision of `zip()` and here is the reply from him about the design decision:
 
 > To be honest, I don't recall how the decision around this detail went. I assume it was literally that people showed me the specific example given in the PEP and argued that it should work that way, and I found I didn't feel like arguing against the treatment of such a minor edge case.
 >
 > The edge case actually reminds me of the debate about the meaning of 0**0 (see Wikipedia).  I think the same reasoning may apply here? Python chose the more useful outcome, for some applications.
-
+>
 > In any case, if you want to change C++'s zip to make this an error, you have my blessing.
+
+#### Comments from Barry Warsaw
+
+The author has also contacted Barry Warsaw, the author of [@pep0201], who introduced `zip` to Python 2.0. And here is his reply:
+
+> I don't remember the discussion leading to the change either, but the Zen of Python does favor practicality over purity.  Guido's recollection is likely right; folks had some real-world experience where it was more practical to return an empty sequence rather than have to write code to handle an exception.
+>
+> For example:
+>
+> ```python
+> >>> def ab(*seq):
+> ...     for a, b in zip(*seq):
+> ...         print(a, b)
+> ...
+> >>> ab([1, 2, 3], [4, 5, 6])
+> 1 4
+> 2 5
+> 3 6
+> >>> ab()
+> >>>
+> ```
+>
+> Totally contrived of course, but it is nice at least here not to have to handle an exception.  Defining that as repeat(()) would also be much less useful as it would infinite loop, so you'd probably have to add some value checking before the zip() call to avoid that.
+
+The authors of this C++ paper agree with the "Zen of Python", however, this example seems a bit contrived. The function `ab` accepts either exactly two lists, or exactly zero list. It still needs to handle the `ValueError` if the user passes any other number of lists, for example one list. See this truncated error:
+
+```python
+>>> ab([1,2])
+ValueError: not enough values to unpack (expected 2, got 1)
+```
+
+And this very example would not work in C++'s `zip`, because C++ is a statically typed language, the line
+
+```cpp
+for (auto [a, b] : zip(rng...))
+```
+
+will fail to compile as we cannot bind `[a, b]` to a 0-tuple, even we define `zip` as an empty range.
+
 
 
 ### Conclusion of other languages
@@ -209,7 +250,7 @@ This "compelling use case of `zip()`" simply does not return a mathematically co
 
 > An infinite range is clearly mathematically the correct identity element. But that's entirely separate from the question of whether it's the correct programming solution. I have yet to see a compelling argument for why looping over `zip(rs...)` should degenerate into an infinite loop when an empty range is a perfectly reasonable, useful, and practical solution. Have people run into issues with either Python or C++ *not* providing an infinite range here? I would like to see concrete evidence thereof.
 
-I think to answer "Have people run into issues with either Python or C++ *not* providing an infinite range here?", we should also answer "Have people used `zip` with no arguments here". We seem to provide a tool that has questionable use cases, and at the same time questioning whether we have evidence that whether people have issues with its mathematical incorrectness.
+I think to answer "Have people run into issues with either Python or C++ *not* providing an infinite range here?", we should also answer "Have people used `zip` with no arguments" first. The author of this paper is no longer pursuing the "infinite range" option.
 
 ## Conclusion
 
@@ -220,9 +261,12 @@ The authors propose to change `zip()` to be ill-formed.
 
 # Wording
 
-Modify [range.zip.overview]{.sref} section (2.1) as
+Modify [range.zip.overview]{.sref} section 2 as
 
-- (2.1) [`auto(views​::​empty<tuple<>>)`]{.rm} [`views::repeat(tuple())`]{.add} if `Es` is an empty pack,
+The name views::zip denotes a customization point object ([customization.point.object]). Given a pack of subexpressions Es..., the expression views::zip(Es...) is expression-equivalent to
+
+- (2.1) [`auto(views::empty<tuple<>>)` if `Es` is an empty pack, ]{.rm}
+- (2.2) [otherwise, ]{.rm}`zip_view<views::all_t<decltype((Es))>...>(Es...)`.
 
 
 ## Feature Test Macro
