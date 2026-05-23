@@ -50,16 +50,15 @@ The main reason behind this decision was
 > In particular, `zip` has the property that it is the inner join of the indexed sets, and is the main diagonal of the Cartesian product. However, the identity element for `zip` is `repeat(tuple<>)`, the infinite range of repeated empty tuples.
 > If we allowed zip of an empty range of ranges to be its identity element, we would be introducing an inconsistency into the system, where two different formulations of notionally the same thing produces different answers.
 
-However, the authors believe that the above conclusion is flawed.
-
-TODO: explain the main diagonal and identity yield same results
+However, the authors believe that the above conclusion is flawed. First of all, main diagonal does not exist for zero-dimension. Python `numpy.diagonal` only accepts arrays with more than two dimensions. The author of that paper seemed to extend the concept of main diagonal to zero dimensions without specifying how.
+. When it is zero dimension, `all_of` yields always `true`, therefore an infinite range is correct. Howedndex[0], uthors of this paper no longer purindex[0] == index[1] == index[2] == ...fusions to users. A compiler error is more appropriate.
 
 ## Identity
 
 There are precedences of returning identity of an operation when there is no input in the library
 
 - `std::all_of` of an empty range returns `true`, because the identity of operation `&&` is `true`
-- `std::any_of` of an empty range returns `false`, because the identity of operation `&&` is `false`
+- `std::any_of` of an empty range returns `false`, because the identity of operation `||` is `false`
 - `std::conjunction` is `true_type`
 - `std::disjunction` is `false_type`
 - `std::views::cartesian_product` is `views::single<std::tuple()>`. The reason why the `size` of the result is `1` is because the identity of multiplication is `1`

@@ -594,8 +594,17 @@ introducing an inconsistency into the system, where two different
 formulations of notionally the same thing produces different
 answers.</p>
 </blockquote>
-<p>However, the authors believe that the above conclusion is flawed.</p>
-<p>TODO: explain the main diagonal and identity yield same results</p>
+<p>However, the authors believe that the above conclusion is flawed.
+First of all, main diagonal does not exist for zero-dimension. Python
+<code class="sourceCode cpp">numpy<span class="op">.</span>diagonal</code>
+only accepts arrays with more than two dimensions. The author of that
+paper seemed to extend the concept of main diagonal to zero dimensions
+without specifying how. . When it is zero dimension,
+<code class="sourceCode cpp">all_of</code> yields always
+<code class="sourceCode cpp"><span class="kw">true</span></code>,
+therefore an infinite range is correct. Howedndex[0], uthors of this
+paper no longer purindex[0] == index[1] == index[2] == …fusions to
+users. A compiler error is more appropriate.</p>
 <h2 data-number="2.2" id="identity"><span class="header-section-number">2.2</span> Identity<a href="#identity" class="self-link"></a></h2>
 <p>There are precedences of returning identity of an operation when
 there is no input in the library</p>
@@ -610,8 +619,7 @@ is <code class="sourceCode cpp"><span class="kw">true</span></code></li>
 of an empty range returns
 <code class="sourceCode cpp"><span class="kw">false</span></code>,
 because the identity of operation
-<code class="sourceCode cpp"><span class="op">&amp;&amp;</span></code>
-is
+<code class="sourceCode cpp"><span class="op">||</span></code> is
 <code class="sourceCode cpp"><span class="kw">false</span></code></li>
 <li><code class="sourceCode cpp">std<span class="op">::</span>conjunction</code>
 is <code class="sourceCode cpp">true_type</code></li>
