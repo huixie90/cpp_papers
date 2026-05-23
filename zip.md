@@ -1,6 +1,6 @@
 ---
 title: "`zip()` Should Be Ill-formed"
-document: DXXXXR0
+document: P4242R0
 date: 2025-05-31
 audience: SG9, LEWG
 author:
