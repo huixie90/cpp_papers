@@ -7,15 +7,9 @@ author:
   - name: Hui Xie
     email: <hui.xie1990@gmail.com>
   - name: Tristan Melen
-    email: <>
+    email: <tpmelen@hotmail.com>
 toc: true
 ---
-
-# Revision History
-
-## R0
-
-- Initial revision.
 
 # Abstract
 
@@ -23,7 +17,7 @@ This paper proposes a fix that makes the `views::zip()` ill-formed instead of th
 
 # Design Considerations
 
-The authors believe that the only reasonable result of `zip()` is an infinite range `views::repeat(tuple<>())`. However, due to
+The authors believe that the correct result of `zip()` is an infinite range `views::repeat(tuple<>())`. However, because
 infinite ranges sometimes cause confusions to some users, we believe it should be ill-formed. The current `views::empty<tuple<>>`
 is mathematically incorrect.
 
@@ -49,21 +43,26 @@ The discussion on the [@reflector] indicated that `cartesian_product()` should b
 
 Luckily, [@P2540R1] fixed `cartesian_product`. So it no longer follows the "range-v3" behaviour but the correct one `views::single(tuple())`.
 
-However, the paper intentionally left `zip`'s behaviour unchanged, after . 
+However, the paper intentionally left `zip`'s behaviour unchanged.
 
 The main reason behind this decision was
 
-> In particular, `zip` has the property that it is the inner join of the indexed sets, and is the main diagonal of the Cartesian product. However, the identity element for `zip` is `repeat(tuple<>)`, the infinite range of repeated empty tuples. 
-> If we allowed zip of an empty range of ranges to be its identity element, we would be introducing an inconsistency into the system, where two different formulations of notionally the same thing produces different answers. 
+> In particular, `zip` has the property that it is the inner join of the indexed sets, and is the main diagonal of the Cartesian product. However, the identity element for `zip` is `repeat(tuple<>)`, the infinite range of repeated empty tuples.
+> If we allowed zip of an empty range of ranges to be its identity element, we would be introducing an inconsistency into the system, where two different formulations of notionally the same thing produces different answers.
 
 However, the authors believe that the above conclusion is flawed.
 
 TODO: explain the main diagonal and identity yield same results
 
-## TODO
-- explain any_of/all_of's identity
-- explain cartesian_product
-- explain the identify component of "minimum" operation should be infinity
+## Identity
+
+There are precedences of returning identity of an operation when there is no input in the library
+
+- `std::all_of` of an empty range returns `true`, because the identity of operation `&&` is `true`
+- `std::any_of` of an empty range returns `false`, because the identity of operation `&&` is `false`
+- `std::conjunction` is `true_type`
+- `std::disjunction` is `false_type`
+- `std::views::cartesian_product` is `views::single<std::tuple()>`. The reason why the `size` of the result is `1` is because the identity of multiplication is `1`
 
 ## Other Languages
 
@@ -175,14 +174,12 @@ And this very example would not work in C++'s `zip`, because C++ is a statically
 for (auto [a, b] : zip(rng...))
 ```
 
-will fail to compile as we cannot bind `[a, b]` to a 0-tuple, even we define `zip` as an empty range.
-
-
+will fail to compile as we cannot bind `[a, b]` to a 0-tuple, even we define `zip` as an empty range, whereas in Python, the a sequence is empty, the body of the for loop is not evaluated.
 
 ### Conclusion of other languages
 
 Majority of the languages do not support null-ary `zip`. Julia makes it an infinite range, which is more mathematically correct. Python makes it an empty range.
-
+It is understandable in Python there can be practical use cases as in Python one can dynamically turn a `Tuple` into a `List`, and allows ill formed for loop body if the sequence is empty.
 
 ## Counter Arguments
 
@@ -234,7 +231,9 @@ There are two possible mathematical definition of this function
 
    With this definition, let's assume we are in $R^2$ space, and each vector has exactly two elements `(x, y)`. The result of `inner_product(r0, r1, r2, ...)` is
 
-   `(x0 * x1 * x2 * ... * 1) + (y1 * y1 * y2 * ... * 1)`
+   `(x0 * x1 * x2 * ... * 1) + (y0 * y1 * y2 * ... * 1)`
+
+   given `r0` is `(x0, y0)`,  `r1` is `(x1, y1)`, `r2` is `(x2, y2)`, ...
 
    and when the input is null-ary, the result is `1 + 1 = 2`. We can see that the function should return `2` instead of `0` when the problem space is $R^2$. Similarly, the result of this function in $R^n$ space should be `n`. The result of this function depends on the space we are in, i.e, the `n` in the precondition. We cannot infer `n` with
    null-ary inputs. Therefore, there isn't any meaningful definition

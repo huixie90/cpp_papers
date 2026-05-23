@@ -484,7 +484,7 @@ Should Be Ill-formed</h1>
     <td style="vertical-align:top">Reply-to:</td>
     <td>
       Hui Xie<br>&lt;<a href="mailto:hui.xie1990@gmail.com" class="email">hui.xie1990@gmail.com</a>&gt;<br>
-      Tristan Melen<br>&lt;&lt;&gt;&gt;<br>
+      Tristan Melen<br>&lt;<a href="mailto:tpmelen@hotmail.com" class="email">tpmelen@hotmail.com</a>&gt;<br>
     </td>
   </tr>
 </table>
@@ -493,72 +493,63 @@ Should Be Ill-formed</h1>
 <div id="TOC" role="doc-toc">
 <h1 id="toctitle">Contents</h1>
 <ul>
-<li><a href="#revision-history" id="toc-revision-history"><span class="toc-section-number">1</span> Revision History<span></span></a>
-<ul>
-<li><a href="#r0" id="toc-r0"><span class="toc-section-number">1.1</span> R0<span></span></a></li>
-</ul></li>
-<li><a href="#abstract" id="toc-abstract"><span class="toc-section-number">2</span> Abstract<span></span></a></li>
-<li><a href="#design-considerations" id="toc-design-considerations"><span class="toc-section-number">3</span>
+<li><a href="#abstract" id="toc-abstract"><span class="toc-section-number">1</span> Abstract<span></span></a></li>
+<li><a href="#design-considerations" id="toc-design-considerations"><span class="toc-section-number">2</span>
 Design Considerations<span></span></a>
 <ul>
-<li><a href="#rationale-for-the-current-zip-design" id="toc-rationale-for-the-current-zip-design"><span class="toc-section-number">3.1</span> Rationale for the Current
+<li><a href="#rationale-for-the-current-zip-design" id="toc-rationale-for-the-current-zip-design"><span class="toc-section-number">2.1</span> Rationale for the Current
 <code class="sourceCode cpp">zip<span class="op">()</span></code>
 Design<span></span></a>
 <ul>
-<li><a href="#p2321r2" id="toc-p2321r2"><span class="toc-section-number">3.1.1</span> P2321R2<span></span></a></li>
-<li><a href="#p2540r1" id="toc-p2540r1"><span class="toc-section-number">3.1.2</span> P2540R1<span></span></a></li>
+<li><a href="#p2321r2" id="toc-p2321r2"><span class="toc-section-number">2.1.1</span> P2321R2<span></span></a></li>
+<li><a href="#p2540r1" id="toc-p2540r1"><span class="toc-section-number">2.1.2</span> P2540R1<span></span></a></li>
 </ul></li>
-<li><a href="#todo" id="toc-todo"><span class="toc-section-number">3.2</span> TODO<span></span></a></li>
-<li><a href="#other-languages" id="toc-other-languages"><span class="toc-section-number">3.3</span> Other Languages<span></span></a>
+<li><a href="#identity" id="toc-identity"><span class="toc-section-number">2.2</span> Identity<span></span></a></li>
+<li><a href="#other-languages" id="toc-other-languages"><span class="toc-section-number">2.3</span> Other Languages<span></span></a>
 <ul>
-<li><a href="#julia" id="toc-julia"><span class="toc-section-number">3.3.1</span> Julia<span></span></a></li>
-<li><a href="#haskell" id="toc-haskell"><span class="toc-section-number">3.3.2</span> Haskell<span></span></a></li>
-<li><a href="#rust" id="toc-rust"><span class="toc-section-number">3.3.3</span> Rust<span></span></a></li>
-<li><a href="#java-c" id="toc-java-c"><span class="toc-section-number">3.3.4</span> Java, C#<span></span></a></li>
-<li><a href="#python" id="toc-python"><span class="toc-section-number">3.3.5</span> Python<span></span></a></li>
-<li><a href="#conclusion-of-other-languages" id="toc-conclusion-of-other-languages"><span class="toc-section-number">3.3.6</span> Conclusion of other
+<li><a href="#julia" id="toc-julia"><span class="toc-section-number">2.3.1</span> Julia<span></span></a></li>
+<li><a href="#haskell" id="toc-haskell"><span class="toc-section-number">2.3.2</span> Haskell<span></span></a></li>
+<li><a href="#rust" id="toc-rust"><span class="toc-section-number">2.3.3</span> Rust<span></span></a></li>
+<li><a href="#java-c" id="toc-java-c"><span class="toc-section-number">2.3.4</span> Java, C#<span></span></a></li>
+<li><a href="#python" id="toc-python"><span class="toc-section-number">2.3.5</span> Python<span></span></a></li>
+<li><a href="#conclusion-of-other-languages" id="toc-conclusion-of-other-languages"><span class="toc-section-number">2.3.6</span> Conclusion of other
 languages<span></span></a></li>
 </ul></li>
-<li><a href="#counter-arguments" id="toc-counter-arguments"><span class="toc-section-number">3.4</span> Counter Arguments<span></span></a>
+<li><a href="#counter-arguments" id="toc-counter-arguments"><span class="toc-section-number">2.4</span> Counter Arguments<span></span></a>
 <ul>
-<li><a href="#consistency" id="toc-consistency"><span class="toc-section-number">3.4.1</span>
+<li><a href="#consistency" id="toc-consistency"><span class="toc-section-number">2.4.1</span>
 Consistency<span></span></a></li>
-<li><a href="#inner-product" id="toc-inner-product"><span class="toc-section-number">3.4.2</span> Inner
+<li><a href="#inner-product" id="toc-inner-product"><span class="toc-section-number">2.4.2</span> Inner
 product<span></span></a></li>
-<li><a href="#there-are-no-complaints-of-being-empty-range" id="toc-there-are-no-complaints-of-being-empty-range"><span class="toc-section-number">3.4.3</span> There are no complaints of being
+<li><a href="#there-are-no-complaints-of-being-empty-range" id="toc-there-are-no-complaints-of-being-empty-range"><span class="toc-section-number">2.4.3</span> There are no complaints of being
 empty range<span></span></a></li>
 </ul></li>
-<li><a href="#conclusion" id="toc-conclusion"><span class="toc-section-number">3.5</span> Conclusion<span></span></a></li>
+<li><a href="#conclusion" id="toc-conclusion"><span class="toc-section-number">2.5</span> Conclusion<span></span></a></li>
 </ul></li>
-<li><a href="#implementation-experience" id="toc-implementation-experience"><span class="toc-section-number">4</span> Implementation
+<li><a href="#implementation-experience" id="toc-implementation-experience"><span class="toc-section-number">3</span> Implementation
 Experience<span></span></a></li>
-<li><a href="#wording" id="toc-wording"><span class="toc-section-number">5</span> Wording<span></span></a>
+<li><a href="#wording" id="toc-wording"><span class="toc-section-number">4</span> Wording<span></span></a>
 <ul>
-<li><a href="#feature-test-macro" id="toc-feature-test-macro"><span class="toc-section-number">5.1</span> Feature Test
+<li><a href="#feature-test-macro" id="toc-feature-test-macro"><span class="toc-section-number">4.1</span> Feature Test
 Macro<span></span></a></li>
 </ul></li>
-<li><a href="#bibliography" id="toc-bibliography"><span class="toc-section-number">6</span> References<span></span></a></li>
+<li><a href="#bibliography" id="toc-bibliography"><span class="toc-section-number">5</span> References<span></span></a></li>
 </ul>
 </div>
-<h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
-<h2 data-number="1.1" id="r0"><span class="header-section-number">1.1</span> R0<a href="#r0" class="self-link"></a></h2>
-<ul>
-<li>Initial revision.</li>
-</ul>
-<h1 data-number="2" id="abstract"><span class="header-section-number">2</span> Abstract<a href="#abstract" class="self-link"></a></h1>
+<h1 data-number="1" id="abstract"><span class="header-section-number">1</span> Abstract<a href="#abstract" class="self-link"></a></h1>
 <p>This paper proposes a fix that makes the <code class="sourceCode cpp">views<span class="op">::</span>zip<span class="op">()</span></code>
 ill-formed instead of the current <code class="sourceCode cpp">views<span class="op">::</span>empty<span class="op">&lt;</span>tuple<span class="op">&lt;&gt;&gt;</span></code>.</p>
-<h1 data-number="3" id="design-considerations"><span class="header-section-number">3</span> Design Considerations<a href="#design-considerations" class="self-link"></a></h1>
-<p>The authors believe that the only reasonable result of
+<h1 data-number="2" id="design-considerations"><span class="header-section-number">2</span> Design Considerations<a href="#design-considerations" class="self-link"></a></h1>
+<p>The authors believe that the correct result of
 <code class="sourceCode cpp">zip<span class="op">()</span></code> is an
 infinite range <code class="sourceCode cpp">views<span class="op">::</span>repeat<span class="op">(</span>tuple<span class="op">&lt;&gt;())</span></code>.
-However, due to infinite ranges sometimes cause confusions to some
+However, because infinite ranges sometimes cause confusions to some
 users, we believe it should be ill-formed. The current <code class="sourceCode cpp">views<span class="op">::</span>empty<span class="op">&lt;</span>tuple<span class="op">&lt;&gt;&gt;</span></code>
 is mathematically incorrect.</p>
-<h2 data-number="3.1" id="rationale-for-the-current-zip-design"><span class="header-section-number">3.1</span> Rationale for the Current
+<h2 data-number="2.1" id="rationale-for-the-current-zip-design"><span class="header-section-number">2.1</span> Rationale for the Current
 <code class="sourceCode cpp">zip<span class="op">()</span></code>
 Design<a href="#rationale-for-the-current-zip-design" class="self-link"></a></h2>
-<h3 data-number="3.1.1" id="p2321r2"><span class="header-section-number">3.1.1</span> P2321R2<a href="#p2321r2" class="self-link"></a></h3>
+<h3 data-number="2.1.1" id="p2321r2"><span class="header-section-number">2.1.1</span> P2321R2<a href="#p2321r2" class="self-link"></a></h3>
 <p>According to <span class="citation" data-cites="P2321R2"><a href="https://wg21.link/p2321r2" role="doc-biblioref">[P2321R2]</a></span>, the reason for the current
 behaviour of
 <code class="sourceCode cpp">zip<span class="op">()</span></code>
@@ -581,7 +572,7 @@ rationale for this commit was</p>
 </blockquote>
 <p>In conclusion, this behaviour did not seem to be a result of careful
 design, but just chosen to work around a “nasty MSVC special case”.</p>
-<h3 data-number="3.1.2" id="p2540r1"><span class="header-section-number">3.1.2</span> P2540R1<a href="#p2540r1" class="self-link"></a></h3>
+<h3 data-number="2.1.2" id="p2540r1"><span class="header-section-number">2.1.2</span> P2540R1<a href="#p2540r1" class="self-link"></a></h3>
 <p>The discussion on the <span class="citation" data-cites="reflector"><a href="https://lists.isocpp.org/lib-ext/2022/01/22023.php" role="doc-biblioref">[reflector]</a></span> indicated that <code class="sourceCode cpp">cartesian_product<span class="op">()</span></code>
 should be <code class="sourceCode cpp">single<span class="op">(</span>tuple<span class="op">())</span></code>
 and <code class="sourceCode cpp">zip<span class="op">()</span></code>
@@ -590,8 +581,7 @@ should be <code class="sourceCode cpp">repeat<span class="op">(</span>tuple<span
 <code class="sourceCode cpp">cartesian_product</code>. So it no longer
 follows the “range-v3” behaviour but the correct one <code class="sourceCode cpp">views<span class="op">::</span>single<span class="op">(</span>tuple<span class="op">())</span></code>.</p>
 <p>However, the paper intentionally left
-<code class="sourceCode cpp">zip</code>’s behaviour unchanged, after
-.</p>
+<code class="sourceCode cpp">zip</code>’s behaviour unchanged.</p>
 <p>The main reason behind this decision was</p>
 <blockquote>
 <p>In particular, <code class="sourceCode cpp">zip</code> has the
@@ -606,20 +596,41 @@ answers.</p>
 </blockquote>
 <p>However, the authors believe that the above conclusion is flawed.</p>
 <p>TODO: explain the main diagonal and identity yield same results</p>
-<h2 data-number="3.2" id="todo"><span class="header-section-number">3.2</span> TODO<a href="#todo" class="self-link"></a></h2>
+<h2 data-number="2.2" id="identity"><span class="header-section-number">2.2</span> Identity<a href="#identity" class="self-link"></a></h2>
+<p>There are precedences of returning identity of an operation when
+there is no input in the library</p>
 <ul>
-<li>explain any_of/all_of’s identity</li>
-<li>explain cartesian_product</li>
-<li>explain the identify component of “minimum” operation should be
-infinity</li>
+<li><code class="sourceCode cpp">std<span class="op">::</span>all_of</code>
+of an empty range returns
+<code class="sourceCode cpp"><span class="kw">true</span></code>,
+because the identity of operation
+<code class="sourceCode cpp"><span class="op">&amp;&amp;</span></code>
+is <code class="sourceCode cpp"><span class="kw">true</span></code></li>
+<li><code class="sourceCode cpp">std<span class="op">::</span>any_of</code>
+of an empty range returns
+<code class="sourceCode cpp"><span class="kw">false</span></code>,
+because the identity of operation
+<code class="sourceCode cpp"><span class="op">&amp;&amp;</span></code>
+is
+<code class="sourceCode cpp"><span class="kw">false</span></code></li>
+<li><code class="sourceCode cpp">std<span class="op">::</span>conjunction</code>
+is <code class="sourceCode cpp">true_type</code></li>
+<li><code class="sourceCode cpp">std<span class="op">::</span>disjunction</code>
+is <code class="sourceCode cpp">false_type</code></li>
+<li><code class="sourceCode cpp">std<span class="op">::</span>views<span class="op">::</span>cartesian_product</code>
+is <code class="sourceCode cpp">views<span class="op">::</span>single<span class="op">&lt;</span>std<span class="op">::</span>tuple<span class="op">()&gt;</span></code>.
+The reason why the <code class="sourceCode cpp">size</code> of the
+result is <code class="sourceCode cpp"><span class="dv">1</span></code>
+is because the identity of multiplication is
+<code class="sourceCode cpp"><span class="dv">1</span></code></li>
 </ul>
-<h2 data-number="3.3" id="other-languages"><span class="header-section-number">3.3</span> Other Languages<a href="#other-languages" class="self-link"></a></h2>
-<h3 data-number="3.3.1" id="julia"><span class="header-section-number">3.3.1</span> Julia<a href="#julia" class="self-link"></a></h3>
+<h2 data-number="2.3" id="other-languages"><span class="header-section-number">2.3</span> Other Languages<a href="#other-languages" class="self-link"></a></h2>
+<h3 data-number="2.3.1" id="julia"><span class="header-section-number">2.3.1</span> Julia<a href="#julia" class="self-link"></a></h3>
 <p>Julia’s
 <code class="sourceCode cpp">zip<span class="op">()</span></code>
 produces an infinite range of empty tuples, which is in line with the
 authors’ view in mathematically sense.</p>
-<h3 data-number="3.3.2" id="haskell"><span class="header-section-number">3.3.2</span> Haskell<a href="#haskell" class="self-link"></a></h3>
+<h3 data-number="2.3.2" id="haskell"><span class="header-section-number">2.3.2</span> Haskell<a href="#haskell" class="self-link"></a></h3>
 <p>Haskell’s <code class="sourceCode cpp">ZipList</code>’s
 <code class="sourceCode cpp">pure</code> implementation is <span class="citation" data-cites="haskell_source"><a href="https://hackage.haskell.org/package/ghc-internal-9.1201.0/docs/src/GHC.Internal.Functor.ZipList.html" role="doc-biblioref">[haskell_source]</a></span></p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode haskell"><code class="sourceCode haskell"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pure</span> x <span class="ot">=</span> <span class="dt">ZipList</span> (<span class="fu">repeat</span> x)</span></code></pre></div>
@@ -630,17 +641,17 @@ authors’ view in mathematically sense.</p>
 never removes elements is making <code class="sourceCode cpp">fs</code>
 infinite.</p>
 </blockquote>
-<h3 data-number="3.3.3" id="rust"><span class="header-section-number">3.3.3</span> Rust<a href="#rust" class="self-link"></a></h3>
+<h3 data-number="2.3.3" id="rust"><span class="header-section-number">2.3.3</span> Rust<a href="#rust" class="self-link"></a></h3>
 <p>Rust’s compiler actively rejects
 <code class="sourceCode cpp">multizip</code> or
 <code class="sourceCode cpp">izip<span class="op">!</span></code> calls
 with no argument. This is much better than giving the wrong results.</p>
-<h3 data-number="3.3.4" id="java-c"><span class="header-section-number">3.3.4</span> Java, C#<a href="#java-c" class="self-link"></a></h3>
+<h3 data-number="2.3.4" id="java-c"><span class="header-section-number">2.3.4</span> Java, C#<a href="#java-c" class="self-link"></a></h3>
 <p>These languages either only supports a zip with two ranges, or
 provide zip3, zip4, … functions for more ranges, possibly due to lack of
 support for variadic arguments. However, they don’t provide a zip0, for
 a good reason.</p>
-<h3 data-number="3.3.5" id="python"><span class="header-section-number">3.3.5</span> Python<a href="#python" class="self-link"></a></h3>
+<h3 data-number="2.3.5" id="python"><span class="header-section-number">2.3.5</span> Python<a href="#python" class="self-link"></a></h3>
 <p><code class="sourceCode cpp">zip<span class="op">()</span></code> is
 an empty iterable.</p>
 <p>Before Python 2.4,
@@ -700,7 +711,7 @@ matrix.</p>
 justification that the cardinality of
 <code class="sourceCode cpp">zip<span class="op">()</span></code> cannot
 be known.</p>
-<h4 data-number="3.3.5.1" id="comments-from-guido-van-rossum-bdfl"><span class="header-section-number">3.3.5.1</span> Comments from Guido van
+<h4 data-number="2.3.5.1" id="comments-from-guido-van-rossum-bdfl"><span class="header-section-number">2.3.5.1</span> Comments from Guido van
 Rossum (BDFL)<a href="#comments-from-guido-van-rossum-bdfl" class="self-link"></a></h4>
 <p>The author has contacted the creator of Python, Guido van Rossum,
 about the design decision of
@@ -718,7 +729,7 @@ chose the more useful outcome, for some applications.</p>
 <p>In any case, if you want to change C++’s zip to make this an error,
 you have my blessing.</p>
 </blockquote>
-<h4 data-number="3.3.5.2" id="comments-from-barry-warsaw"><span class="header-section-number">3.3.5.2</span> Comments from Barry
+<h4 data-number="2.3.5.2" id="comments-from-barry-warsaw"><span class="header-section-number">2.3.5.2</span> Comments from Barry
 Warsaw<a href="#comments-from-barry-warsaw" class="self-link"></a></h4>
 <p>The author has also contacted Barry Warsaw, the author of <span class="citation" data-cites="pep0201"><a href="https://peps.python.org/pep-0201/#subsequent-change-to-zip" role="doc-biblioref">[pep0201]</a></span>, who introduced
 <code class="sourceCode cpp">zip</code> to Python 2.0. And here is his
@@ -760,18 +771,23 @@ typed language, the line</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> <span class="op">(</span><span class="kw">auto</span> <span class="op">[</span>a, b<span class="op">]</span> <span class="op">:</span> zip<span class="op">(</span>rng<span class="op">...))</span></span></code></pre></div>
 <p>will fail to compile as we cannot bind <code class="sourceCode cpp"><span class="op">[</span>a, b<span class="op">]</span></code>
 to a 0-tuple, even we define <code class="sourceCode cpp">zip</code> as
-an empty range.</p>
-<h3 data-number="3.3.6" id="conclusion-of-other-languages"><span class="header-section-number">3.3.6</span> Conclusion of other
+an empty range, whereas in Python, the a sequence is empty, the body of
+the for loop is not evaluated.</p>
+<h3 data-number="2.3.6" id="conclusion-of-other-languages"><span class="header-section-number">2.3.6</span> Conclusion of other
 languages<a href="#conclusion-of-other-languages" class="self-link"></a></h3>
 <p>Majority of the languages do not support null-ary
 <code class="sourceCode cpp">zip</code>. Julia makes it an infinite
 range, which is more mathematically correct. Python makes it an empty
-range.</p>
-<h2 data-number="3.4" id="counter-arguments"><span class="header-section-number">3.4</span> Counter Arguments<a href="#counter-arguments" class="self-link"></a></h2>
+range. It is understandable in Python there can be practical use cases
+as in Python one can dynamically turn a
+<code class="sourceCode cpp">Tuple</code> into a
+<code class="sourceCode cpp">List</code>, and allows ill formed for loop
+body if the sequence is empty.</p>
+<h2 data-number="2.4" id="counter-arguments"><span class="header-section-number">2.4</span> Counter Arguments<a href="#counter-arguments" class="self-link"></a></h2>
 <p>There were discussions on the reflector and some of them are
 defending the current design <code class="sourceCode cpp">views<span class="op">::</span>empty<span class="op">&lt;</span>std<span class="op">::</span>tuple<span class="op">&lt;&gt;&gt;</span></code>.
 And I will go through all of them I have seen on the reflector</p>
-<h3 data-number="3.4.1" id="consistency"><span class="header-section-number">3.4.1</span> Consistency<a href="#consistency" class="self-link"></a></h3>
+<h3 data-number="2.4.1" id="consistency"><span class="header-section-number">2.4.1</span> Consistency<a href="#consistency" class="self-link"></a></h3>
 <blockquote>
 <ul>
 <li>zip(empty_range, empty_range, empty_range) is an empty range</li>
@@ -792,7 +808,7 @@ other ranges will break this “consistency”. For example</p>
 <p>Inconsistency.</p>
 <p>This is actually a great example to prove that there is no way to
 have consistency in terms of the size of the result range.</p>
-<h3 data-number="3.4.2" id="inner-product"><span class="header-section-number">3.4.2</span> Inner product<a href="#inner-product" class="self-link"></a></h3>
+<h3 data-number="2.4.2" id="inner-product"><span class="header-section-number">2.4.2</span> Inner product<a href="#inner-product" class="self-link"></a></h3>
 <blockquote>
 <p>The compelling use case for zip() empty range is a fold over it:</p>
 </blockquote>
@@ -822,7 +838,11 @@ ranges must be of the same length
 two elements <code class="sourceCode cpp"><span class="op">(</span>x, y<span class="op">)</span></code>.
 The result of <code class="sourceCode cpp">inner_product<span class="op">(</span>r0, r1, r2, <span class="op">...)</span></code>
 is</p>
-<p><code class="sourceCode cpp"><span class="op">(</span>x0 <span class="op">*</span> x1 <span class="op">*</span> x2 <span class="op">*</span> <span class="op">...</span> <span class="op">*</span> <span class="dv">1</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span>y1 <span class="op">*</span> y1 <span class="op">*</span> y2 <span class="op">*</span> <span class="op">...</span> <span class="op">*</span> <span class="dv">1</span><span class="op">)</span></code></p>
+<p><code class="sourceCode cpp"><span class="op">(</span>x0 <span class="op">*</span> x1 <span class="op">*</span> x2 <span class="op">*</span> <span class="op">...</span> <span class="op">*</span> <span class="dv">1</span><span class="op">)</span> <span class="op">+</span> <span class="op">(</span>y0 <span class="op">*</span> y1 <span class="op">*</span> y2 <span class="op">*</span> <span class="op">...</span> <span class="op">*</span> <span class="dv">1</span><span class="op">)</span></code></p>
+<p>given <code class="sourceCode cpp">r0</code> is <code class="sourceCode cpp"><span class="op">(</span>x0, y0<span class="op">)</span></code>,
+<code class="sourceCode cpp">r1</code> is <code class="sourceCode cpp"><span class="op">(</span>x1, y1<span class="op">)</span></code>,
+<code class="sourceCode cpp">r2</code> is <code class="sourceCode cpp"><span class="op">(</span>x2, y2<span class="op">)</span></code>,
+…</p>
 <p>and when the input is null-ary, the result is <code class="sourceCode cpp"><span class="dv">1</span> <span class="op">+</span> <span class="dv">1</span> <span class="op">=</span> <span class="dv">2</span></code>.
 We can see that the function should return
 <code class="sourceCode cpp"><span class="dv">2</span></code> instead of
@@ -857,7 +877,7 @@ behaviour is undefined.</p></li>
 <code class="sourceCode cpp">zip<span class="op">()</span></code>”
 simply does not return a mathematically correct answer, no matter how we
 interpret its intent.</p>
-<h3 data-number="3.4.3" id="there-are-no-complaints-of-being-empty-range"><span class="header-section-number">3.4.3</span> There are no complaints of
+<h3 data-number="2.4.3" id="there-are-no-complaints-of-being-empty-range"><span class="header-section-number">2.4.3</span> There are no complaints of
 being empty range<a href="#there-are-no-complaints-of-being-empty-range" class="self-link"></a></h3>
 <blockquote>
 <p>An infinite range is clearly mathematically the correct identity
@@ -874,12 +894,12 @@ C++ <em>not</em> providing an infinite range here?”, we should also
 answer “Have people used <code class="sourceCode cpp">zip</code> with no
 arguments” first. The author of this paper is no longer pursuing the
 “infinite range” option.</p>
-<h2 data-number="3.5" id="conclusion"><span class="header-section-number">3.5</span> Conclusion<a href="#conclusion" class="self-link"></a></h2>
+<h2 data-number="2.5" id="conclusion"><span class="header-section-number">2.5</span> Conclusion<a href="#conclusion" class="self-link"></a></h2>
 <p>The authors propose to change
 <code class="sourceCode cpp">zip<span class="op">()</span></code> to be
 ill-formed.</p>
-<h1 data-number="4" id="implementation-experience"><span class="header-section-number">4</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
-<h1 data-number="5" id="wording"><span class="header-section-number">5</span> Wording<a href="#wording" class="self-link"></a></h1>
+<h1 data-number="3" id="implementation-experience"><span class="header-section-number">3</span> Implementation Experience<a href="#implementation-experience" class="self-link"></a></h1>
+<h1 data-number="4" id="wording"><span class="header-section-number">4</span> Wording<a href="#wording" class="self-link"></a></h1>
 <p>Modify <span>25.7.25.1
 <a href="https://wg21.link/range.zip.overview">[range.zip.overview]</a></span>
 section 2 as</p>
@@ -892,7 +912,7 @@ if <span><code class="sourceCode default">Es</code></span> is an empty
 pack,</del></span></li>
 <li>(2.2) <span class="rm" style="color: #bf0303"><del>otherwise,</del></span><code class="sourceCode cpp">zip_view<span class="op">&lt;</span>views<span class="op">::</span>all_t<span class="op">&lt;</span><span class="kw">decltype</span><span class="op">((</span>Es<span class="op">))&gt;...&gt;(</span>Es<span class="op">...)</span></code>.</li>
 </ul>
-<h2 data-number="5.1" id="feature-test-macro"><span class="header-section-number">5.1</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
+<h2 data-number="4.1" id="feature-test-macro"><span class="header-section-number">4.1</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
 <p>Bump the FTM
 <code class="sourceCode cpp">__cpp_lib_ranges_zip</code></p>
 <style>
@@ -904,7 +924,7 @@ pack,</del></span></li>
     margin-inline-end: 40px;
 }
 </style>
-<h1 data-number="6" id="bibliography"><span class="header-section-number">6</span> References<a href="#bibliography" class="self-link"></a></h1>
+<h1 data-number="5" id="bibliography"><span class="header-section-number">5</span> References<a href="#bibliography" class="self-link"></a></h1>
 <div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="1" role="doc-bibliography">
 <div id="ref-haskell_doc" class="csl-entry" role="doc-biblioentry">
 [haskell_doc] Haskell ZipList Documentation. <a href="https://en.wikibooks.org/wiki/Haskell/Applicative_functors#ZipList"><div class="csl-block">https://en.wikibooks.org/wiki/Haskell/Applicative_functors#ZipList</div></a>
