@@ -1,6 +1,6 @@
 ---
 title: "`any_view`"
-document: P3411R6
+document: P3411R7
 date: 2026-05-09
 audience: SG9, LEWG
 author:
@@ -17,6 +17,10 @@ toc-depth: 2
 ---
 
 # Revision History
+
+## R7
+
+- Constrain default constructor of `iterator` on `forward` iterator category
 
 ## R6
 
@@ -1414,7 +1418,9 @@ constexpr @*iterator*@();
 
 :::bq
 
-[3]{.pnum} *Postconditions*: `*this` has no *target iterator object*.
+[3]{.pnum} *Constraints*: `Opts & any_view_options::forward` is `any_view_options::forward`
+
+[4]{.pnum} *Postconditions*: `*this` has no *target iterator object*.
 
 :::
 
@@ -1424,9 +1430,9 @@ constexpr Ref operator*() const;
 
 :::bq
 
-[4]{.pnum} *Preconditions*: `*this` has a *target iterator object*.
+[5]{.pnum} *Preconditions*: `*this` has a *target iterator object*.
 
-[5]{.pnum} *Effects*: Equivalent to:
+[6]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return static_cast<Ref>(*it);
@@ -1442,9 +1448,9 @@ constexpr @*iterator*@& operator++();
 
 :::bq
 
-[6]{.pnum} *Preconditions*: `*this` has a *target iterator object*.
+[7]{.pnum} *Preconditions*: `*this` has a *target iterator object*.
 
-[7]{.pnum} *Effects*: Equivalent to:
+[8]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 ++it;
@@ -1461,7 +1467,7 @@ constexpr void operator++(int);
 
 :::bq
 
-[8]{.pnum} *Effects*: Equivalent to: `++(*this);`
+[9]{.pnum} *Effects*: Equivalent to: `++(*this);`
 
 :::
 
@@ -1471,7 +1477,7 @@ constexpr @*iterator*@ operator++(int) requires @*see below*@;
 
 :::bq
 
-[9]{.pnum} *Effects*: Equivalent to:
+[10]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 auto tmp = *this;
@@ -1479,7 +1485,7 @@ auto tmp = *this;
 return tmp;
 ```
 
-[10]{.pnum} *Remarks*: The expression in the requires-clause is equivalent to:
+[11]{.pnum} *Remarks*: The expression in the requires-clause is equivalent to:
 
 ```cpp
 Opts & any_view_options::forward == any_view_options::forward 
@@ -1492,11 +1498,11 @@ constexpr @*iterator*@& operator--();
 
 :::bq
 
-[11]{.pnum} *Constraints*: `Opts & any_view_options::bidirectional` is `any_view_options::bidirectional`
+[12]{.pnum} *Constraints*: `Opts & any_view_options::bidirectional` is `any_view_options::bidirectional`
 
-[12]{.pnum} *Preconditions*: `*this` has a *target iterator object*.
+[13]{.pnum} *Preconditions*: `*this` has a *target iterator object*.
 
-[13]{.pnum} *Effects*: Equivalent to:
+[14]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 --it;
@@ -1513,7 +1519,7 @@ constexpr @*iterator*@ operator--(int);
 
 :::bq
 
-[14]{.pnum} *Effects*: Equivalent to:
+[15]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 auto tmp = *this;
@@ -1529,11 +1535,11 @@ constexpr @*iterator*@& operator+=(difference_type n);
 
 :::bq
 
-[15]{.pnum} *Constraints*: `Opts & any_view_options::random_access` is `any_view_options::random_access`
+[16]{.pnum} *Constraints*: `Opts & any_view_options::random_access` is `any_view_options::random_access`
 
-[16]{.pnum} *Preconditions*: `*this` has a *target iterator object*.
+[17]{.pnum} *Preconditions*: `*this` has a *target iterator object*.
 
-[17]{.pnum} *Effects*: Equivalent to:
+[18]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 it += n;
@@ -1550,7 +1556,7 @@ constexpr @*iterator*@& operator-=(difference_type n);
 
 :::bq
 
-[18]{.pnum} *Effects*: Equivalent to:
+[19]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 auto tmp = *this;
@@ -1566,7 +1572,7 @@ constexpr Ref operator[](difference_type n) const;
 
 :::bq
 
-[19]{.pnum} *Effects*: Equivalent to:
+[20]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return *((*this) + n);
@@ -1580,11 +1586,11 @@ constexpr add_pointer_t<Ref> operator->() const;
 
 :::bq
 
-[20]{.pnum} *Constraints*: `Opts & any_view_options::contiguous` is `any_view_options::contiguous`
+[21]{.pnum} *Constraints*: `Opts & any_view_options::contiguous` is `any_view_options::contiguous`
 
-[21]{.pnum} *Preconditions*: `*this` has a *target iterator object*.
+[22]{.pnum} *Preconditions*: `*this` has a *target iterator object*.
 
-[22]{.pnum} *Effects*: Equivalent to:
+[23]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return to_address(it);
@@ -1600,31 +1606,31 @@ friend constexpr bool operator==(const @*iterator*@& x, const @*iterator*@& y);
 
 :::bq
 
-[20]{.pnum} *Constraints*: `Opts & any_view_options::forward` is `any_view_options::forward`
+[24]{.pnum} *Constraints*: `Opts & any_view_options::forward` is `any_view_options::forward`
 
-[21]{.pnum} *Effects*:
+[25]{.pnum} *Effects*:
 
-- [21.1]{.pnum} If both `x` and `y` have no *target iterator object*, equivalent to:
+- [25.1]{.pnum} If both `x` and `y` have no *target iterator object*, equivalent to:
 
 ```cpp
 return true;
 ```
 
-- [21.2]{.pnum} Otherwise, if `x` has no *target iterator object* and `y` has a *target iterator object*, or, `x` has a *target iterator object* and `y` has no *target iterator object*, equivalent to:
+- [25.2]{.pnum} Otherwise, if `x` has no *target iterator object* and `y` has a *target iterator object*, or, `x` has a *target iterator object* and `y` has no *target iterator object*, equivalent to:
 
 ```cpp
 return false;
 ```
 
-- [21.3]{.pnum} Otherwise, let `it1` be an lvalue designating the *target iterator object* of `x`, and `it2` be an lvalue designating the *target iterator object* of `y`.
+- [25.3]{.pnum} Otherwise, let `it1` be an lvalue designating the *target iterator object* of `x`, and `it2` be an lvalue designating the *target iterator object* of `y`.
 
-  - [21.3.1]{.pnum} If `is_same_v<decltype(it1), decltype(it2)>` is `false`, equivalent to
+  - [25.3.1]{.pnum} If `is_same_v<decltype(it1), decltype(it2)>` is `false`, equivalent to
 
     ```cpp
     return false;
     ```
 
-  - [21.3.2]{.pnum} Otherwise, equivalent to
+  - [25.3.2]{.pnum} Otherwise, equivalent to
 
     ```cpp
     return it1 == it2;
@@ -1638,7 +1644,7 @@ friend constexpr bool operator<(const @*iterator*@& x, const @*iterator*@& y);
 
 :::bq
 
-[22]{.pnum} *Effects*: Equivalent to:
+[26]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return (x - y) < 0;
@@ -1652,7 +1658,7 @@ friend constexpr bool operator>(const @*iterator*@& x, const @*iterator*@& y);
 
 :::bq
 
-[23]{.pnum} *Effects*: Equivalent to:
+[27]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return (x - y) > 0;
@@ -1666,7 +1672,7 @@ friend constexpr bool operator<=(const @*iterator*@& x, const @*iterator*@& y);
 
 :::bq
 
-[24]{.pnum} *Effects*: Equivalent to:
+[28]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return (x - y) <= 0;
@@ -1680,7 +1686,7 @@ friend constexpr bool operator>=(const @*iterator*@& x, const @*iterator*@& y);
 
 :::bq
 
-[25]{.pnum} *Effects*: Equivalent to:
+[29]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return (x - y) >= 0;
@@ -1694,7 +1700,7 @@ friend constexpr @*iterator*@ operator+(@*iterator*@ i, difference_type n);
 
 :::bq
 
-[26]{.pnum} *Effects*: Equivalent to:
+[30]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 auto temp = i;
@@ -1710,7 +1716,7 @@ friend constexpr @*iterator*@ operator+(difference_type n, @*iterator*@ i);
 
 :::bq
 
-[27]{.pnum} *Effects*: Equivalent to:
+[31]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return i + n;
@@ -1725,7 +1731,7 @@ friend constexpr @*iterator*@ operator-(@*iterator*@ i, difference_type n);
 
 :::bq
 
-[28]{.pnum} *Effects*: Equivalent to:
+[32]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 auto temp = i;
@@ -1741,11 +1747,11 @@ friend constexpr difference_type operator-(const @*iterator*@& x, const @*iterat
 
 :::bq
 
-[29]{.pnum} *Constraints*: `Opts & any_view_options::random_access` is `any_view_options::random_access`
+[33]{.pnum} *Constraints*: `Opts & any_view_options::random_access` is `any_view_options::random_access`
 
-[30]{.pnum} *Preconditions*: Both `x` and `y` have a *target iterator object*, and the two *target iterator object*s have the same type.
+[34]{.pnum} *Preconditions*: Both `x` and `y` have a *target iterator object*, and the two *target iterator object*s have the same type.
 
-[31]{.pnum} *Effects*: Equivalent to:
+[35]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return it1 - it2;
@@ -1761,15 +1767,15 @@ friend constexpr RValueRef iter_move(const @*iterator*@ &iter);
 
 :::bq
 
-[32]{.pnum} *Preconditions*: `*this` has a *target iterator object*.
+[36]{.pnum} *Preconditions*: `iter` has a *target iterator object*.
 
-[33]{.pnum} *Effects*: Equivalent to:
+[37]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 return static_cast<RValueRef>(ranges::iter_move(it));
 ```
 
-where `it` is an lvalue designating the *target iterator object* of `*this`
+where `it` is an lvalue designating the *target iterator object* of `iter`
 
 :::
 
@@ -1812,7 +1818,7 @@ friend constexpr bool operator==(const @*iterator*@& x, const @*sentinel*@& y);
 
 [2]{.pnum} *Effects*:
 
-- [2.1]{.pnum} If either `x` has no *target iterator object*, or `y` has a *target sentinel object*,  equivalent to:
+- [2.1]{.pnum} If either `x` has no *target iterator object*, or `y` has no *target sentinel object*,  equivalent to:
 
 ```cpp
 return false;
