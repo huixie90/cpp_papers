@@ -428,7 +428,7 @@ code.sourceCode > span { display: inline; }
   <tr>
     <td>Document #:</td>
     <td>
-      P3411R6
+      P3411R7
       [<a href="https://wg21.link/P3411">Latest</a>]
       [<a href="https://wg21.link/P3411/status">Status</a>]
     </td>
@@ -464,13 +464,14 @@ code.sourceCode > span { display: inline; }
 <ul>
 <li><a href="#revision-history" id="toc-revision-history"><span class="toc-section-number">1</span> Revision History<span></span></a>
 <ul>
-<li><a href="#r6" id="toc-r6"><span class="toc-section-number">1.1</span> R6<span></span></a></li>
-<li><a href="#r5" id="toc-r5"><span class="toc-section-number">1.2</span> R5<span></span></a></li>
-<li><a href="#r4" id="toc-r4"><span class="toc-section-number">1.3</span> R4<span></span></a></li>
-<li><a href="#r3" id="toc-r3"><span class="toc-section-number">1.4</span> R3<span></span></a></li>
-<li><a href="#r2" id="toc-r2"><span class="toc-section-number">1.5</span> R2<span></span></a></li>
-<li><a href="#r1" id="toc-r1"><span class="toc-section-number">1.6</span> R1<span></span></a></li>
-<li><a href="#r0" id="toc-r0"><span class="toc-section-number">1.7</span> R0<span></span></a></li>
+<li><a href="#r7" id="toc-r7"><span class="toc-section-number">1.1</span> R7<span></span></a></li>
+<li><a href="#r6" id="toc-r6"><span class="toc-section-number">1.2</span> R6<span></span></a></li>
+<li><a href="#r5" id="toc-r5"><span class="toc-section-number">1.3</span> R5<span></span></a></li>
+<li><a href="#r4" id="toc-r4"><span class="toc-section-number">1.4</span> R4<span></span></a></li>
+<li><a href="#r3" id="toc-r3"><span class="toc-section-number">1.5</span> R3<span></span></a></li>
+<li><a href="#r2" id="toc-r2"><span class="toc-section-number">1.6</span> R2<span></span></a></li>
+<li><a href="#r1" id="toc-r1"><span class="toc-section-number">1.7</span> R1<span></span></a></li>
+<li><a href="#r0" id="toc-r0"><span class="toc-section-number">1.8</span> R0<span></span></a></li>
 </ul></li>
 <li><a href="#abstract" id="toc-abstract"><span class="toc-section-number">2</span> Abstract<span></span></a></li>
 <li><a href="#motivation" id="toc-motivation"><span class="toc-section-number">3</span> Motivation<span></span></a></li>
@@ -545,7 +546,13 @@ Experience<span></span></a></li>
 </ul>
 </div>
 <h1 data-number="1" id="revision-history"><span class="header-section-number">1</span> Revision History<a href="#revision-history" class="self-link"></a></h1>
-<h2 data-number="1.1" id="r6"><span class="header-section-number">1.1</span> R6<a href="#r6" class="self-link"></a></h2>
+<h2 data-number="1.1" id="r7"><span class="header-section-number">1.1</span> R7<a href="#r7" class="self-link"></a></h2>
+<ul>
+<li>Constrain default constructor of
+<code class="sourceCode cpp">iterator</code> on
+<code class="sourceCode cpp">forward</code> iterator category</li>
+</ul>
+<h2 data-number="1.2" id="r6"><span class="header-section-number">1.2</span> R6<a href="#r6" class="self-link"></a></h2>
 <ul>
 <li>Prevent
 <code class="sourceCode cpp">reference_converts_from_temporary</code>
@@ -559,22 +566,22 @@ underlying type of
 <li>Make <code class="sourceCode cpp">size</code> and
 <code class="sourceCode cpp">reserve_hint</code> non-const</li>
 </ul>
-<h2 data-number="1.2" id="r5"><span class="header-section-number">1.2</span> R5<a href="#r5" class="self-link"></a></h2>
+<h2 data-number="1.3" id="r5"><span class="header-section-number">1.3</span> R5<a href="#r5" class="self-link"></a></h2>
 <ul>
 <li>Support <code class="sourceCode cpp">approximately_sized</code>
 customisation</li>
 <li>Derive from <code class="sourceCode cpp">view_interface</code></li>
 </ul>
-<h2 data-number="1.3" id="r4"><span class="header-section-number">1.3</span> R4<a href="#r4" class="self-link"></a></h2>
+<h2 data-number="1.4" id="r4"><span class="header-section-number">1.4</span> R4<a href="#r4" class="self-link"></a></h2>
 <ul>
 <li>Default constructed and moved-from object will be assigned to an
 empty view</li>
 </ul>
-<h2 data-number="1.4" id="r3"><span class="header-section-number">1.4</span> R3<a href="#r3" class="self-link"></a></h2>
+<h2 data-number="1.5" id="r3"><span class="header-section-number">1.5</span> R3<a href="#r3" class="self-link"></a></h2>
 <ul>
 <li>Fix <code class="sourceCode cpp">contiguous</code> range</li>
 </ul>
-<h2 data-number="1.5" id="r2"><span class="header-section-number">1.5</span> R2<a href="#r2" class="self-link"></a></h2>
+<h2 data-number="1.6" id="r2"><span class="header-section-number">1.6</span> R2<a href="#r2" class="self-link"></a></h2>
 <ul>
 <li>Add
 <code class="sourceCode cpp"><span class="kw">constexpr</span></code>
@@ -584,7 +591,7 @@ support</li>
 <li>Second reference implementation</li>
 <li>Various fixes</li>
 </ul>
-<h2 data-number="1.6" id="r1"><span class="header-section-number">1.6</span> R1<a href="#r1" class="self-link"></a></h2>
+<h2 data-number="1.7" id="r1"><span class="header-section-number">1.7</span> R1<a href="#r1" class="self-link"></a></h2>
 <ul>
 <li>Performance tests update
 <ul>
@@ -604,7 +611,7 @@ should just work</li>
 <li>4 Different alternative designs</li>
 </ul></li>
 </ul>
-<h2 data-number="1.7" id="r0"><span class="header-section-number">1.7</span> R0<a href="#r0" class="self-link"></a></h2>
+<h2 data-number="1.8" id="r0"><span class="header-section-number">1.8</span> R0<a href="#r0" class="self-link"></a></h2>
 <ul>
 <li>Initial revision.</li>
 </ul>
@@ -2215,15 +2222,18 @@ Otherwise, <code class="sourceCode cpp">iterator_category</code> denotes
 <div class="sourceCode" id="cb60"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">()</span>;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a class="marginalized">3</a></span>
+<em>Constraints</em>: <code class="sourceCode cpp">Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>forward</code>
+is <code class="sourceCode cpp">any_view_options<span class="op">::</span>forward</code></p>
+<p><span class="marginalizedparent"><a class="marginalized">4</a></span>
 <em>Postconditions</em>: <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code>
 has no <em>target iterator object</em>.</p>
 </div>
 <div class="sourceCode" id="cb61"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> Ref <span class="kw">operator</span><span class="op">*()</span> <span class="kw">const</span>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">4</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">5</a></span>
 <em>Preconditions</em>: <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code>
 has a <em>target iterator object</em>.</p>
-<p><span class="marginalizedparent"><a class="marginalized">5</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">6</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb62"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="kw">static_cast</span><span class="op">&lt;</span>Ref<span class="op">&gt;(*</span>it<span class="op">)</span>;</span></code></pre></div>
 <p>where <code class="sourceCode cpp">it</code> is an lvalue designating
@@ -2231,10 +2241,10 @@ the <em>target iterator object</em> of <code class="sourceCode cpp"><span class=
 </div>
 <div class="sourceCode" id="cb63"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">++()</span>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">6</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">7</a></span>
 <em>Preconditions</em>: <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code>
 has a <em>target iterator object</em>.</p>
-<p><span class="marginalizedparent"><a class="marginalized">7</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">8</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb64"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a><span class="op">++</span>it;</span>
 <span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">*</span><span class="kw">this</span>;</span></code></pre></div>
@@ -2243,30 +2253,30 @@ the <em>target iterator object</em> of <code class="sourceCode cpp"><span class=
 </div>
 <div class="sourceCode" id="cb65"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <span class="dt">void</span> <span class="kw">operator</span><span class="op">++(</span><span class="dt">int</span><span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">8</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">9</a></span>
 <em>Effects</em>: Equivalent to: <code class="sourceCode cpp"><span class="op">++(*</span><span class="kw">this</span><span class="op">)</span>;</code></p>
 </div>
 <div class="sourceCode" id="cb66"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">++(</span><span class="dt">int</span><span class="op">)</span> <span class="kw">requires</span> <em>see below</em>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">9</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">10</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb67"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> tmp <span class="op">=</span> <span class="op">*</span><span class="kw">this</span>;</span>
 <span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="op">++(*</span><span class="kw">this</span><span class="op">)</span>;</span>
 <span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> tmp;</span></code></pre></div>
-<p><span class="marginalizedparent"><a class="marginalized">10</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">11</a></span>
 <em>Remarks</em>: The expression in the requires-clause is equivalent
 to:</p>
 <div class="sourceCode" id="cb68"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>forward <span class="op">==</span> any_view_options<span class="op">::</span>forward </span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb69"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">--()</span>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">11</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">12</a></span>
 <em>Constraints</em>: <code class="sourceCode cpp">Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>bidirectional</code>
 is <code class="sourceCode cpp">any_view_options<span class="op">::</span>bidirectional</code></p>
-<p><span class="marginalizedparent"><a class="marginalized">12</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">13</a></span>
 <em>Preconditions</em>: <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code>
 has a <em>target iterator object</em>.</p>
-<p><span class="marginalizedparent"><a class="marginalized">13</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">14</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb70"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="op">--</span>it;</span>
 <span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">*</span><span class="kw">this</span>;</span></code></pre></div>
@@ -2275,7 +2285,7 @@ the <em>target iterator object</em> of <code class="sourceCode cpp"><span class=
 </div>
 <div class="sourceCode" id="cb71"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">--(</span><span class="dt">int</span><span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">14</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">15</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb72"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> tmp <span class="op">=</span> <span class="op">*</span><span class="kw">this</span>;</span>
 <span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="op">--(*</span><span class="kw">this</span><span class="op">)</span>;</span>
@@ -2283,13 +2293,13 @@ the <em>target iterator object</em> of <code class="sourceCode cpp"><span class=
 </div>
 <div class="sourceCode" id="cb73"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">+=(</span>difference_type n<span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">15</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">16</a></span>
 <em>Constraints</em>: <code class="sourceCode cpp">Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>random_access</code>
 is <code class="sourceCode cpp">any_view_options<span class="op">::</span>random_access</code></p>
-<p><span class="marginalizedparent"><a class="marginalized">16</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">17</a></span>
 <em>Preconditions</em>: <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code>
 has a <em>target iterator object</em>.</p>
-<p><span class="marginalizedparent"><a class="marginalized">17</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">18</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb74"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>it <span class="op">+=</span> n;</span>
 <span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">*</span><span class="kw">this</span>;</span></code></pre></div>
@@ -2298,7 +2308,7 @@ the <em>target iterator object</em> of <code class="sourceCode cpp"><span class=
 </div>
 <div class="sourceCode" id="cb75"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> <em>iterator</em><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">-=(</span>difference_type n<span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">18</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">19</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb76"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> tmp <span class="op">=</span> <span class="op">*</span><span class="kw">this</span>;</span>
 <span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a><span class="op">--(*</span><span class="kw">this</span><span class="op">)</span>;</span>
@@ -2306,19 +2316,19 @@ the <em>target iterator object</em> of <code class="sourceCode cpp"><span class=
 </div>
 <div class="sourceCode" id="cb77"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> Ref <span class="kw">operator</span><span class="op">[](</span>difference_type n<span class="op">)</span> <span class="kw">const</span>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">19</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">20</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb78"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">*((*</span><span class="kw">this</span><span class="op">)</span> <span class="op">+</span> n<span class="op">)</span>;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb79"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="kw">constexpr</span> add_pointer_t<span class="op">&lt;</span>Ref<span class="op">&gt;</span> <span class="kw">operator</span><span class="op">-&gt;()</span> <span class="kw">const</span>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">20</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">21</a></span>
 <em>Constraints</em>: <code class="sourceCode cpp">Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>contiguous</code>
 is <code class="sourceCode cpp">any_view_options<span class="op">::</span>contiguous</code></p>
-<p><span class="marginalizedparent"><a class="marginalized">21</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">22</a></span>
 <em>Preconditions</em>: <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code>
 has a <em>target iterator object</em>.</p>
-<p><span class="marginalizedparent"><a class="marginalized">22</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">23</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb80"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> to_address<span class="op">(</span>it<span class="op">)</span>;</span></code></pre></div>
 <p>where <code class="sourceCode cpp">it</code> is an lvalue designating
@@ -2326,20 +2336,20 @@ the <em>target iterator object</em> of <code class="sourceCode cpp"><span class=
 </div>
 <div class="sourceCode" id="cb81"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">==(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">20</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">24</a></span>
 <em>Constraints</em>: <code class="sourceCode cpp">Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>forward</code>
 is <code class="sourceCode cpp">any_view_options<span class="op">::</span>forward</code></p>
-<p><span class="marginalizedparent"><a class="marginalized">21</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">25</a></span>
 <em>Effects</em>:</p>
 <ul>
-<li><span class="marginalizedparent"><a class="marginalized">(21.1)</a></span> If
+<li><span class="marginalizedparent"><a class="marginalized">(25.1)</a></span> If
 both <code class="sourceCode cpp">x</code> and
 <code class="sourceCode cpp">y</code> have no <em>target iterator
 object</em>, equivalent to:</li>
 </ul>
 <div class="sourceCode" id="cb82"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="kw">true</span>;</span></code></pre></div>
 <ul>
-<li><span class="marginalizedparent"><a class="marginalized">(21.2)</a></span>
+<li><span class="marginalizedparent"><a class="marginalized">(25.2)</a></span>
 Otherwise, if <code class="sourceCode cpp">x</code> has no <em>target
 iterator object</em> and <code class="sourceCode cpp">y</code> has a
 <em>target iterator object</em>, or,
@@ -2349,7 +2359,7 @@ iterator object</em>, equivalent to:</li>
 </ul>
 <div class="sourceCode" id="cb83"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="kw">false</span>;</span></code></pre></div>
 <ul>
-<li><p><span class="marginalizedparent"><a class="marginalized">(21.3)</a></span>
+<li><p><span class="marginalizedparent"><a class="marginalized">(25.3)</a></span>
 Otherwise, let <code class="sourceCode cpp">it1</code> be an lvalue
 designating the <em>target iterator object</em> of
 <code class="sourceCode cpp">x</code>, and
@@ -2357,12 +2367,12 @@ designating the <em>target iterator object</em> of
 <em>target iterator object</em> of
 <code class="sourceCode cpp">y</code>.</p>
 <ul>
-<li><p><span class="marginalizedparent"><a class="marginalized">(21.3.1)</a></span>
+<li><p><span class="marginalizedparent"><a class="marginalized">(25.3.1)</a></span>
 If <code class="sourceCode cpp">is_same_v<span class="op">&lt;</span><span class="kw">decltype</span><span class="op">(</span>it1<span class="op">)</span>, <span class="kw">decltype</span><span class="op">(</span>it2<span class="op">)&gt;</span></code>
 is <code class="sourceCode cpp"><span class="kw">false</span></code>,
 equivalent to</p>
 <div class="sourceCode" id="cb84"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="kw">false</span>;</span></code></pre></div></li>
-<li><p><span class="marginalizedparent"><a class="marginalized">(21.3.2)</a></span>
+<li><p><span class="marginalizedparent"><a class="marginalized">(25.3.2)</a></span>
 Otherwise, equivalent to</p>
 <div class="sourceCode" id="cb85"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> it1 <span class="op">==</span> it2;</span></code></pre></div></li>
 </ul></li>
@@ -2370,31 +2380,31 @@ Otherwise, equivalent to</p>
 </div>
 <div class="sourceCode" id="cb86"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&lt;(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">22</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">26</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb87"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">(</span>x <span class="op">-</span> y<span class="op">)</span> <span class="op">&lt;</span> <span class="dv">0</span>;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb88"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&gt;(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">23</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">27</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb89"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">(</span>x <span class="op">-</span> y<span class="op">)</span> <span class="op">&gt;</span> <span class="dv">0</span>;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb90"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&lt;=(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">24</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">28</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb91"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">(</span>x <span class="op">-</span> y<span class="op">)</span> <span class="op">&lt;=</span> <span class="dv">0</span>;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb92"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <span class="dt">bool</span> <span class="kw">operator</span><span class="op">&gt;=(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">25</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">29</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb93"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb93-1"><a href="#cb93-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="op">(</span>x <span class="op">-</span> y<span class="op">)</span> <span class="op">&gt;=</span> <span class="dv">0</span>;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb94"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">+(</span><em>iterator</em> i, difference_type n<span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">26</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">30</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb95"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> temp <span class="op">=</span> i;</span>
 <span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a>temp <span class="op">+=</span> n;</span>
@@ -2402,13 +2412,13 @@ Otherwise, equivalent to</p>
 </div>
 <div class="sourceCode" id="cb96"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">+(</span>difference_type n, <em>iterator</em> i<span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">27</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">31</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb97"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> i <span class="op">+</span> n;</span></code></pre></div>
 </div>
 <div class="sourceCode" id="cb98"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb98-1"><a href="#cb98-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">-(</span><em>iterator</em> i, difference_type n<span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">28</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">32</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb99"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="kw">auto</span> temp <span class="op">=</span> i;</span>
 <span id="cb99-2"><a href="#cb99-2" aria-hidden="true" tabindex="-1"></a>temp <span class="op">-=</span> n;</span>
@@ -2416,15 +2426,15 @@ Otherwise, equivalent to</p>
 </div>
 <div class="sourceCode" id="cb100"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb100-1"><a href="#cb100-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> difference_type <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> x, <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> y<span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">29</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">33</a></span>
 <em>Constraints</em>: <code class="sourceCode cpp">Opts <span class="op">&amp;</span> any_view_options<span class="op">::</span>random_access</code>
 is <code class="sourceCode cpp">any_view_options<span class="op">::</span>random_access</code></p>
-<p><span class="marginalizedparent"><a class="marginalized">30</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">34</a></span>
 <em>Preconditions</em>: Both <code class="sourceCode cpp">x</code> and
 <code class="sourceCode cpp">y</code> have a <em>target iterator
 object</em>, and the two <em>target iterator object</em>s have the same
 type.</p>
-<p><span class="marginalizedparent"><a class="marginalized">31</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">35</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb101"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> it1 <span class="op">-</span> it2;</span></code></pre></div>
 <p>where <code class="sourceCode cpp">it1</code> is an lvalue
@@ -2436,14 +2446,15 @@ of <code class="sourceCode cpp">y</code>.</p>
 </div>
 <div class="sourceCode" id="cb102"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb102-1"><a href="#cb102-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> RValueRef iter_move<span class="op">(</span><span class="kw">const</span> <em>iterator</em> <span class="op">&amp;</span>iter<span class="op">)</span>;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a class="marginalized">32</a></span>
-<em>Preconditions</em>: <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code>
-has a <em>target iterator object</em>.</p>
-<p><span class="marginalizedparent"><a class="marginalized">33</a></span>
+<p><span class="marginalizedparent"><a class="marginalized">36</a></span>
+<em>Preconditions</em>: <code class="sourceCode cpp">iter</code> has a
+<em>target iterator object</em>.</p>
+<p><span class="marginalizedparent"><a class="marginalized">37</a></span>
 <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb103"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="kw">static_cast</span><span class="op">&lt;</span>RValueRef<span class="op">&gt;(</span>ranges<span class="op">::</span>iter_move<span class="op">(</span>it<span class="op">))</span>;</span></code></pre></div>
 <p>where <code class="sourceCode cpp">it</code> is an lvalue designating
-the <em>target iterator object</em> of <code class="sourceCode cpp"><span class="op">*</span><span class="kw">this</span></code></p>
+the <em>target iterator object</em> of
+<code class="sourceCode cpp">iter</code></p>
 </div>
 <h4 class="unnumbered" id="class-any_viewsentinel-range.any.sentinel">?.?.?.8 Class
 any_view::sentinel [range.any.sentinel]<a href="#class-any_viewsentinel-range.any.sentinel" class="self-link"></a></h4>
@@ -2474,7 +2485,7 @@ has no <em>target sentinel object</em>.</p>
 <ul>
 <li><span class="marginalizedparent"><a class="marginalized">(2.1)</a></span> If
 either <code class="sourceCode cpp">x</code> has no <em>target iterator
-object</em>, or <code class="sourceCode cpp">y</code> has a <em>target
+object</em>, or <code class="sourceCode cpp">y</code> has no <em>target
 sentinel object</em>, equivalent to:</li>
 </ul>
 <div class="sourceCode" id="cb107"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> <span class="kw">false</span>;</span></code></pre></div>
