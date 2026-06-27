@@ -31,22 +31,37 @@ enum class any_view_options : uint_least32_t {
 
 constexpr any_view_options operator&(any_view_options lhs,
                                      any_view_options rhs) noexcept {
-  return static_cast<any_view_options>(
-      static_cast<std::underlying_type_t<any_view_options>>(lhs) &
-      static_cast<std::underlying_type_t<any_view_options>>(rhs));
+  return any_view_options(std::to_underlying(lhs) & std::to_underlying(rhs));
 }
 
 constexpr any_view_options operator|(any_view_options lhs,
                                      any_view_options rhs) noexcept {
-  return static_cast<any_view_options>(
-      static_cast<std::underlying_type_t<any_view_options>>(lhs) |
-      static_cast<std::underlying_type_t<any_view_options>>(rhs));
+  return any_view_options(std::to_underlying(lhs) | std::to_underlying(rhs));
 }
 
-constexpr auto operator<=>(any_view_options lhs,
-                           any_view_options rhs) noexcept {
-  return static_cast<std::underlying_type_t<any_view_options>>(lhs) <=>
-         static_cast<std::underlying_type_t<any_view_options>>(rhs);
+constexpr any_view_options operator^(any_view_options lhs,
+                                     any_view_options rhs) noexcept {
+  return any_view_options(std::to_underlying(lhs) ^ std::to_underlying(rhs));
+}
+
+constexpr any_view_options operator~(any_view_options o) noexcept {
+  return any_view_options(~std::to_underlying(o));
+}
+
+constexpr any_view_options& operator|=(any_view_options& lhs,
+                                       any_view_options rhs) noexcept {
+  lhs = lhs | rhs;
+  return lhs;
+}
+constexpr any_view_options& operator&=(any_view_options& lhs,
+                                       any_view_options rhs) noexcept {
+  lhs = lhs & rhs;
+  return lhs;
+}
+constexpr any_view_options& operator^=(any_view_options& lhs,
+                                       any_view_options rhs) noexcept {
+  lhs = lhs ^ rhs;
+  return lhs;
 }
 
 constexpr bool __flag_is_set(any_view_options opts,
@@ -256,7 +271,9 @@ class any_view
     using value_type = remove_cv_t<Element>;
     using difference_type = Diff;
 
-    constexpr any_iterator() = default;
+    constexpr any_iterator()
+      requires(Traversal >= any_view_options::forward)
+    = default;
 
     constexpr any_iterator(const any_iterator&)
       requires is_iterator_copyable

@@ -978,6 +978,11 @@ namespace std::ranges {
 
   constexpr any_view_options operator|(any_view_options, any_view_options) noexcept;
   constexpr any_view_options operator&(any_view_options, any_view_options) noexcept;
+  constexpr any_view_options operator^(any_view_options, any_view_options) noexcept;
+  constexpr any_view_options operator~(any_view_options) noexcept;
+  constexpr any_view_options& operator|=(any_view_options&, any_view_options) noexcept;
+  constexpr any_view_options& operator&=(any_view_options&, any_view_options) noexcept;
+  constexpr any_view_options& operator^=(any_view_options&, any_view_options) noexcept;
 
   constexpr bool @*any-view-flag-is-set*@(any_view_options opts, any_view_options flag); // exposition-only
 
@@ -1094,20 +1099,22 @@ using @*rvalue-ref-t*@ = typename @*rvalue-ref*@<T>::type;
 
 ```cpp
 constexpr any_view_options operator|(any_view_options lhs, any_view_options rhs) noexcept;
+constexpr any_view_options operator&(any_view_options lhs, any_view_options rhs) noexcept;
+constexpr any_view_options operator^(any_view_options lhs, any_view_options rhs) noexcept;
 ```
 
 :::bq
 
-[2]{.pnum} *Effects*: Equivalent to:
+[2]{.pnum} *Effects*: Let *op* be the operator, equivalent to:
 
 ```cpp
-  return any_view_options(to_underlying(lhs) | to_underlying(rhs));
+  return any_view_options(to_underlying(lhs) @*op*@ to_underlying(rhs));
 ```
 
 :::
 
 ```cpp
-constexpr any_view_options operator&(any_view_options, any_view_options) noexcept;
+constexpr any_view_options operator~(any_view_options o) noexcept;
 ```
 
 :::bq
@@ -1115,7 +1122,24 @@ constexpr any_view_options operator&(any_view_options, any_view_options) noexcep
 [3]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-  return any_view_options(to_underlying(lhs) & to_underlying(rhs));
+  return any_view_options(~to_underlying(o));
+```
+
+:::
+
+```cpp
+constexpr any_view_options& operator|=(any_view_options& lhs, any_view_options rhs) noexcept;
+constexpr any_view_options& operator&=(any_view_options& lhs, any_view_options rhs) noexcept;
+constexpr any_view_options& operator^=(any_view_options& lhs, any_view_options rhs) noexcept;
+```
+
+:::bq
+
+[4]{.pnum} *Effects*: Let *op* be the operator, equivalent to:
+
+```cpp
+  lhs = lhs @*op*@ rhs;
+  return lhs;
 ```
 
 :::
@@ -1126,7 +1150,7 @@ constexpr bool @*any-view-flag-is-set*@(any_view_options opts, any_view_options 
 
 :::bq
 
-[4]{.pnum} *Effects*: Equivalent to:
+[5]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
   return (opts & flag) == flag;
@@ -1490,6 +1514,7 @@ return tmp;
 ```cpp
 Opts & any_view_options::forward == any_view_options::forward 
 ```
+
 :::
 
 ```cpp
