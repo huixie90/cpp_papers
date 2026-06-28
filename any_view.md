@@ -21,6 +21,7 @@ toc-depth: 2
 ## R7
 
 - Constrain default constructor of `iterator` on `forward` iterator category
+- Add full set of bitwise operators to `any_view_options`
 
 ## R6
 
