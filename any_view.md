@@ -1204,21 +1204,17 @@ constexpr ~any_view();
 
 ```cpp
 constexpr @*iterator*@ begin();
-```
-
-:::bq
-
-[1]{.pnum} *Effects*: Let `v` be an lvalue designating the *target view object* of `*this`, returns an object of *iterator wrapper type* `@*iterator*@`, which holds a *target iterator object* of `ranges::begin(v)`
-
-:::
-
-```cpp
 constexpr @*sentinel*@ end();
 ```
 
 :::bq
 
-[2]{.pnum} *Effects*: Let `v` be an lvalue designating the *target view object* of `*this`, returns an object of *sentinel wrapper type* `@*sentinel*@`, which holds a *target sentinel object* of `ranges::end(v)`
+[1]{.pnum} *Effects*: Let `v` be an lvalue designating the *target view object* of `*this`,
+
+- [1.1]{.pnum} `begin()` returns an object which holds a *target iterator object* of `ranges::begin(v)`.
+- [1.2]{.pnum} Let `@*ai*@` be the return value of `begin()`, `@*as*@` be the return value of `end()`, `@*i*@` be `ranges::begin(v)`, and `@*s*@` be `ranges::end(v)`, `@*ai*@ == @*as*@` is equivalent to `@*i*@ == @*s*@`.
+
+[2]{.pnum} *Note*: Implementation is permitted to call `ranges::end(v)` in `begin()`.
 
 :::
 
