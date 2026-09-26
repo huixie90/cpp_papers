@@ -1788,11 +1788,22 @@ return false;
   - [2.3.1]{.pnum} If `sentinel_for<decay_t<decltype(st)>, decay_t<decltype(it)>>` is `false`, the return value is unspecified
 
   - [2.3.2]{.pnum} Otherwise, equivalent to:
+
 ```cpp
 return it == st;
 ```
 
 :::
+
+## Feature Test Macro
+
+Add the following macro definition to [version.syn]{.sref}, header `<version>`
+synopsis, with the value selected by the editor to reflect the date of adoption
+of this paper:
+
+```cpp
+#define __cpp_lib_any_view  20XXXXL // also in <ranges>
+```
 
 ---
 references:

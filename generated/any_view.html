@@ -1618,6 +1618,7 @@ Needed ?</a></li>
 <code class="sourceCode cpp"><span class="op">&lt;</span>ranges<span class="op">&gt;</span></code></a></li>
 <li><a href="#any_view" id="toc-any_view"><span class="toc-section-number">9.2</span>
 <code class="sourceCode cpp">any_view</code></a></li>
+<li><a href="#feature-test-macro" id="toc-feature-test-macro"><span class="toc-section-number">9.3</span> Feature Test Macro</a></li>
 </ul></li>
 <li><a href="#bibliography" id="toc-bibliography"><span class="toc-section-number">10</span> References</a></li>
 </ul>
@@ -3679,10 +3680,18 @@ is <code class="sourceCode cpp"><span class="kw">false</span></code>,
 the return value is unspecified</p></li>
 <li><p><span class="marginalizedparent"><a href="#pnum-112" id="pnum-112" class="marginalized">(2.3.2)</a></span> Otherwise,
 equivalent to:</p></li>
+</ul></li>
 </ul>
-<div class="sourceCode" id="cb103"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> it <span class="op">==</span> st<span class="op">;</span></span></code></pre></div></li>
-</ul>
+<div class="sourceCode" id="cb103"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a><span class="cf">return</span> it <span class="op">==</span> st<span class="op">;</span></span></code></pre></div>
 </div>
+<h2 data-number="9.3" id="feature-test-macro"><span class="header-section-number">9.3</span> Feature Test Macro<a href="#feature-test-macro" class="self-link"></a></h2>
+<p>Add the following macro definition to <span>17.3.2 Header
+&lt;version&gt; synopsis <a href="https://eel.is/c++draft/version.syn" title="17.3.2 Header &lt;version&gt; synopsis">[version.syn]</a></span>,
+header
+<code class="sourceCode cpp"><span class="op">&lt;</span>version<span class="op">&gt;</span></code>
+synopsis, with the value selected by the editor to reflect the date of
+adoption of this paper:</p>
+<div class="sourceCode" id="cb104"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define __cpp_lib_any_view  </span><span class="dv">20</span><span class="er">XXXXL</span><span class="pp"> </span><span class="co">// also in &lt;ranges&gt;</span></span></code></pre></div>
 <style>
 .bq{
 display: block;
