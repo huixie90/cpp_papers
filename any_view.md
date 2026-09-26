@@ -989,36 +989,15 @@ Add the following subclause to [range.utility]{.sref}
 
 ### ?.?.? Any view [range.any] {-}
 
-#### ?.?.?.1 Definition [range.any.def] {-}
+#### ?.?.?.1 General [range.any.general] {-}
 
-[1]{.pnum} The following definitions apply to this Clause:
+[1]{.pnum} The `any_view` class is a wrapper that can store, move, and traverse an arbitrary object that models `view`. The wrapped object is referred to as the *target view object*.
 
-[2]{.pnum} A *view object* is an object of a type that models the `ranges::view` ([range.view]{.sref}) concept.
+[2]{.pnum} Recommended practice: Implementations should avoid the use of dynamically allocated memory for a small contained *target view object* of type `T` which satisfies `is_nothrow_move_constructible_v<T>`.
 
-[3]{.pnum} A *view wrapper type* is a type that holds a *view object* and supports `ranges::begin` and `ranges::end` operations that forward to that object.
+[3]{.pnum} The `any_view::@*iterator*@` class and `any_view::@*sentinel*@` class are wrappers that can forward iterator and sentinel operations to an arbitrary iterator `@*i*@` of type `@*I*@` and sentinel `@*s*@` of type `@*S*@`, which model `sentinel_for<@*S*@, @*I*@>`. The wrapped objects are referred to as the *target iterator object* and the *target sentinel object*.
 
-[4]{.pnum} A *target view object* is the *view object* held by an object of a *view wrapper type*.
-
-[5]{.pnum} An *iterator object* is an object of a type that models the `input_iterator` ([iterator.concept.input]{.sref}) concept.
-
-[6]{.pnum} An *iterator wrapper type* is a type that holds an *iterator object* and forward operations to that object.
-
-[7]{.pnum} A *target iterator object* is the *iterator object* held by an object of a *iterator wrapper type*.
-
-[8]{.pnum} A *sentinel object* is an object of a type that models `sentinel_for<Iter>` ([iterator.concept.sentinel]{.sref}) concept for some `Iter`.
-
-[9]{.pnum} A *sentinel wrapper type* is a type that holds an *sentinel object* and forwards operations to that object.
-
-[10]{.pnum} A *target sentinel object* is the *sentinel object* held by an object of a *sentinel wrapper type*.
-
-#### ?.?.?.2 General [range.any.general] {-}
-
-
-[1]{.pnum} The `any_view` class template provides polymorphic wrappers that generalize the notion of a *view object*. These wrappers can store, move, and traverse arbitrary *view object*s, given a view element type and a view category.
-
-[2]{.pnum} Recommended practice: Implementations should avoid the use of dynamically allocated memory for a small contained _target view object_ of type `T` which satisfies `is_nothrow_move_constructible_v<T>`.
-
-#### ?.?.?.3 Enum class `any_view_options` [range.any.options] {-}
+#### ?.?.?.2 Enum class `any_view_options` [range.any.options] {-}
 
 The enum class type `any_view_options` is a bitmask type ([bitmask.types]) that specifies bitmask constants used to control the concepts that `any_view` satisfies, with the meanings listed in Table ?.
 
