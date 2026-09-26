@@ -964,26 +964,7 @@ namespace std::ranges {
   // [...]
 
   // [range.any], any view
-  enum class any_view_options : uint_least32_t
-  {
-      input = 1,
-      forward = 3,
-      bidirectional = 7,
-      random_access = 15,
-      contiguous = 31,
-      approximately_sized = 32,
-      sized = 96,
-      borrowed = 128,
-      copyable = 256
-  };
-
-  constexpr any_view_options operator|(any_view_options, any_view_options) noexcept;
-  constexpr any_view_options operator&(any_view_options, any_view_options) noexcept;
-  constexpr any_view_options operator^(any_view_options, any_view_options) noexcept;
-  constexpr any_view_options operator~(any_view_options) noexcept;
-  constexpr any_view_options& operator|=(any_view_options&, any_view_options) noexcept;
-  constexpr any_view_options& operator&=(any_view_options&, any_view_options) noexcept;
-  constexpr any_view_options& operator^=(any_view_options&, any_view_options) noexcept;
+  enum class any_view_options;
 
   constexpr bool @*any-view-flag-is-set*@(any_view_options opts, any_view_options flag); // exposition-only
 
@@ -1040,6 +1021,23 @@ Add the following subclause to [range.utility]{.sref}
 
 [2]{.pnum} Recommended practice: Implementations should avoid the use of dynamically allocated memory for a small contained _target view object_ of type `T` which satisfies `is_nothrow_move_constructible_v<T>`.
 
+#### ?.?.?.3 Enum class `any_view_options` [range.any.options] {-}
+
+The enum class type `any_view_options` is a bitmask type ([bitmask.types]) that specifies bitmask constants used to control the concepts that `any_view` satisfies, with the meanings listed in Table ?.
+
+: Table ? — Enum class `any_view_options` [tab:range.any.options]{- .sref}
+
+Name                      Value      Concept
+-----                     -------    -------------
+`input`                     `1`      `input_range`
+`forward`                   `3`      `forward_range`
+`bidirectional`             `7`      `bidirectional_range`
+`random_access`             `15`     `random_access_range`
+`contiguous`                `31`     `contiguous_range`
+`approximately_sized`       `32`     `approximately_sized_range`
+`sized`                     `64`     `sized_range`
+`borrowed`                  `128`    `borrowed_range`
+`copyable`                  `256`    `copyable`
 
 #### ?.?.?.3 Class template `any_view` [range.any.class] {-}
 
@@ -1099,59 +1097,12 @@ using @*rvalue-ref-t*@ = typename @*rvalue-ref*@<T>::type;
 :::
 
 ```cpp
-constexpr any_view_options operator|(any_view_options lhs, any_view_options rhs) noexcept;
-constexpr any_view_options operator&(any_view_options lhs, any_view_options rhs) noexcept;
-constexpr any_view_options operator^(any_view_options lhs, any_view_options rhs) noexcept;
-```
-
-:::bq
-
-[2]{.pnum} *Effects*: Let *op* be the operator, equivalent to:
-
-```cpp
-  return any_view_options(to_underlying(lhs) @*op*@ to_underlying(rhs));
-```
-
-:::
-
-```cpp
-constexpr any_view_options operator~(any_view_options o) noexcept;
-```
-
-:::bq
-
-[3]{.pnum} *Effects*: Equivalent to:
-
-```cpp
-  return any_view_options(~to_underlying(o));
-```
-
-:::
-
-```cpp
-constexpr any_view_options& operator|=(any_view_options& lhs, any_view_options rhs) noexcept;
-constexpr any_view_options& operator&=(any_view_options& lhs, any_view_options rhs) noexcept;
-constexpr any_view_options& operator^=(any_view_options& lhs, any_view_options rhs) noexcept;
-```
-
-:::bq
-
-[4]{.pnum} *Effects*: Let *op* be the operator, equivalent to:
-
-```cpp
-  lhs = lhs @*op*@ rhs;
-  return lhs;
-```
-
-:::
-
-```cpp
 constexpr bool @*any-view-flag-is-set*@(any_view_options opts, any_view_options flag); // exposition-only
 ```
 
 :::bq
 
-[5]{.pnum} *Effects*: Equivalent to:
+[2]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
   return (opts & flag) == flag;
