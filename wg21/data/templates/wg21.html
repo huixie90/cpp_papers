@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="$lang$" xml:lang="$lang$"$if(dir)$ dir="$dir$"$endif$>
+<html xmlns="http://www.w3.org/1999/xhtml"$if(lang)$ lang="$lang$" xml:lang="$lang$"$endif$$if(dir)$ dir="$dir$"$endif$>
 <head>
   <meta charset="utf-8" />
   <meta name="generator" content="mpark/wg21" />
@@ -18,37 +18,54 @@ $if(description-meta)$
 $endif$
   <title>$if(title-prefix)$$title-prefix$ – $endif$$pagetitle$</title>
   <style>
-      code{white-space: pre-wrap;}
-      span.smallcaps{font-variant: small-caps;}
-      span.underline{text-decoration: underline;}
-      div.column{display: inline-block; vertical-align: top; width: 50%;}
-      div.csl-block{margin-left: 1.5em;}
-      ul.task-list{list-style: none;}
-$if(quotes)$
-      q { quotes: "“" "”" "‘" "’"; }
-$endif$
-$if(highlighting-css)$
-      $highlighting-css$
-      code.diff {color: #$uccolor$}
-      code.diff span.va {color: #$addcolor$}
-      code.diff span.st {color: #$rmcolor$}
-$endif$
+    $styles.html()$
   </style>
 $for(css)$
   <link rel="stylesheet" href="$css$" />
 $endfor$
-  <link rel="icon" href="$datadir$/favicon.ico" />
+  <style id="dark-theme-styles" media="screen and (prefers-color-scheme: dark)">
+    $dark.css()$
+  </style>
+  <script>
+    $theme.js()$
+  </script>
+  <link rel="icon" href="favicon.ico" />
 $for(header-includes)$
   $header-includes$
 $endfor$
 $if(math)$
   $math$
 $endif$
-  <!--[if lt IE 9]>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
-  <![endif]-->
 </head>
-<body>
+<body$if(toc)$ class="has-toc"$endif$ data-syntax-highlighting="on" data-deleted-text="show">
+$if(toc)$
+<header class="toc-mobile-bar">
+<div class="toc-mobile-title">$title$</div>
+$view-controls.html()$
+
+<button class="toc-mobile-trigger" type="button"
+        aria-label="Open table of contents" aria-expanded="false"
+        aria-controls="$idprefix$toc-dialog">
+<span class="toc-menu-icon" aria-hidden="true"></span>
+<span class="toc-mobile-trigger-label">Contents</span>
+</button>
+</header>
+<dialog id="$idprefix$toc-dialog" class="toc-dialog" aria-modal="true"
+        aria-labelledby="$idprefix$toc-dialog-title">
+<header class="toc-dialog-header">
+<div class="toc-dialog-heading">
+<div class="toc-dialog-eyebrow">Contents</div>
+<h2 id="$idprefix$toc-dialog-title" class="toc-dialog-title">$title$</h2>
+</div>
+<button class="toc-dialog-close" type="button"
+        aria-label="Close table of contents">&times;</button>
+</header>
+<nav class="toc-dialog-nav" aria-label="Table of contents">
+</nav>
+</dialog>
+$else$
+$view-controls.html()$
+$endif$
 <div class="wrapper">
 $for(include-before)$
 $include-before$
@@ -59,7 +76,7 @@ $if(title)$
 $if(subtitle)$
 <h3 class="subtitle" style="text-align:center">$subtitle$</h3>
 $endif$
-<table style="border:none;float:right">
+<table>
   <tr>
     <td>Document #:</td>
     <td>
@@ -105,10 +122,18 @@ $endfor$
 $endif$
 <div style="clear:both">
 $if(toc)$
-<div id="$idprefix$TOC" role="doc-toc">
-<h1 id="$idprefix$toctitle">Contents</h1>
-$table-of-contents$
+<nav id="$idprefix$TOC" class="table-of-contents" role="doc-toc"
+     aria-label="Table of contents">
+<div class="toc-chrome">
+<div class="toc-title-row">
+<h1 id="$idprefix$toctitle" class="table-of-contents-title">Contents</h1>
+<button class="toc-expand-toggle" type="button" hidden
+        aria-expanded="false">Expand</button>
 </div>
+<div class="toc-progress" aria-hidden="true"><span class="toc-progress-bar"></span></div>
+</div>
+$table-of-contents$
+</nav>
 $endif$
 $body$
 $for(include-after)$
@@ -116,5 +141,22 @@ $include-after$
 $endfor$
 </div>
 </div>
+<script>
+const body = document.body;
+const noSyntaxHighlightingCheckbox = document.getElementById('no-syntax-highlighting-toggle');
+noSyntaxHighlightingCheckbox.checked = false;
+noSyntaxHighlightingCheckbox.addEventListener('change', () => {
+  body.dataset.syntaxHighlighting = noSyntaxHighlightingCheckbox.checked ? 'off' : 'on';
+});
+
+const hideDeletedTextCheckbox = document.getElementById('hide-deleted-text-toggle');
+hideDeletedTextCheckbox.checked = false;
+hideDeletedTextCheckbox.addEventListener('change', () => {
+  body.dataset.deletedText = hideDeletedTextCheckbox.checked ? 'hide' : 'show';
+});
+$if(toc)$
+$toc.js()$
+$endif$
+</script>
 </body>
 </html>

@@ -8,14 +8,6 @@ body {
 	hyphens: auto;
 	line-height: 1.35;
 	text-align: justify;
-		/* Some browsers, particularly mobile Safari, implement text inflation
-		   algorithms intended to improve readability of text on small display
-		   sizes. This interacts badly with papers because it can lead to
-		   different font size settings being applied to each individual line of
-		   code. These properties disable the text inflation algorithm. */
-	-webkit-text-size-adjust: none;
-	-moz-text-size-adjust: none;
-	text-size-adjust: none;
 }
 
 @media screen and (max-width: 30em) {
@@ -81,9 +73,17 @@ ul > li:before {
 	margin-left: -1.5em;
 }
 
-:target { background-color: #C9FBC9; }
-:target .codeblock { background-color: #C9FBC9; }
-:target ul { background-color: #C9FBC9; }
+:target { background-color: yellow; }
+:target .codeblock { background-color: yellow; }
+:target .sourceCode { background-color: yellow; }
+:target ul { background-color: yellow; }
+
+p:has(> span.marginalizedparent > a.marginalized:target),
+li:has(> span.marginalizedparent > a.marginalized:target) {
+	background-color: yellow;
+}
+
+a.marginalized:target { background-color: transparent; }
 
 .abbr_ref { float: right; }
 
@@ -407,6 +407,5 @@ span.indented {
 ol.enumeratea { list-style-type: none; background: inherit; }
 ol.enumerate { list-style-type: none; background: inherit; }
 
-/* With `display: inline-block` from <https://github.com/jgm/skylighting>,
-   Strikeout in ~~foo `constexpr`{.cpp} bar~~ doesn't go through `constexpr`. */
-code.sourceCode > span { display: inline; }
+/* Dark-theme rules are maintained in dark.css so the document can switch
+   between system, light, and dark themes. */

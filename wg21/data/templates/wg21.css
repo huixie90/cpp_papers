@@ -1,0 +1,98 @@
+:root {
+  color-scheme: light;
+  --unchanged-color: #898887;
+  --add-color: #006e28;
+  --rm-color: #bf0303;
+  --note-color: #0000ff;
+  --not-proposed-color: #7151a8;
+  --not-proposed-bg-color: rgba(113, 81, 168, 0.06);
+}
+
+table thead tr {
+  border-bottom: 3px solid black;
+  border-bottom-style: double;
+}
+
+table tbody tr {
+  border-bottom: 1px solid black;
+}
+
+.cmptable {
+  width: 100%;
+}
+
+/* Handle document information table in title header */
+
+#title-block-header > table {
+  border: none;
+  float: right;
+}
+
+#title-block-header > table tbody tr {
+  border-bottom: none;
+}
+
+/* Make the thickness of strikeout and underline consistent in different contexts */
+ins, del {
+  text-decoration-thickness: 1px;
+}
+
+/* Move underline down slightly as to not overlap with underscore */
+ins {
+  text-underline-offset: 3.5px;
+}
+
+.add {
+  color: var(--add-color);
+}
+
+.rm {
+  color: var(--rm-color);
+}
+
+code.diff {
+  color: var(--unchanged-color);
+}
+
+code.diff span.va {
+  color: var(--add-color);
+}
+
+code.diff span.st {
+  color: var(--rm-color);
+}
+
+.ednote,
+.draftnote {
+  color: var(--note-color);
+}
+
+/* Leave room for underline/strikeout decorations in code blocks. */
+div.sourceCode {
+  padding: 0.5em;
+}
+
+div.sourceCode:has(> pre.not_proposed) {
+  padding: 0.65em 0.8em 0.65em 1.1em;
+  border-left: 0.25em solid var(--not-proposed-color);
+  background-color: var(--not-proposed-bg-color);
+}
+
+div.sourceCode:has(> pre.not_proposed)::before {
+  content: "\2298\2002 Not proposed";
+  display: block;
+  margin-bottom: 0.8em;
+  color: var(--not-proposed-color);
+  font: 600 0.95rem/1.2 sans-serif;
+}
+
+body[data-syntax-highlighting="off"] code.sourceCode:not(.diff) span:not(.add, .rm, .co, .cv, .do, .in) {
+  color: inherit !important;
+  font-style: inherit !important;
+  font-weight: inherit !important;
+  text-decoration: inherit !important;
+}
+
+body[data-deleted-text="hide"] .rm del {
+  display: none !important;
+}

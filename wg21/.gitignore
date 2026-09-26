@@ -1,5 +1,10 @@
 data/defaults.yaml
 data/csl.json
+data/srefs.json
+data/srefs.defs
 data/annex-f
 deps/pandoc
 deps/python
+generated/
+tests/actual
+tests/paper/actual

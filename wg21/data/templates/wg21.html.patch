@@ -1,9 +1,9 @@
 diff --git a/data/templates/default.html b/data/templates/wg21.html
-index dda7e8c..e0b6c1c 100644
+index 7dfa95e..0b55daa 100644
 --- a/data/templates/default.html
 +++ b/data/templates/wg21.html
 @@ -2,7 +2,7 @@
- <html xmlns="http://www.w3.org/1999/xhtml" lang="$lang$" xml:lang="$lang$"$if(dir)$ dir="$dir$"$endif$>
+ <html xmlns="http://www.w3.org/1999/xhtml"$if(lang)$ lang="$lang$" xml:lang="$lang$"$endif$$if(dir)$ dir="$dir$"$endif$>
  <head>
    <meta charset="utf-8" />
 -  <meta name="generator" content="pandoc" />
@@ -11,38 +11,34 @@ index dda7e8c..e0b6c1c 100644
    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
  $for(author-meta)$
    <meta name="author" content="$author-meta$" />
-@@ -18,11 +18,26 @@ $if(description-meta)$
- $endif$
+@@ -19,10 +19,11 @@ $endif$
    <title>$if(title-prefix)$$title-prefix$ – $endif$$pagetitle$</title>
    <style>
--    $styles.html()$
-+      code{white-space: pre-wrap;}
-+      span.smallcaps{font-variant: small-caps;}
-+      span.underline{text-decoration: underline;}
-+      div.column{display: inline-block; vertical-align: top; width: 50%;}
-+      div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
-+      ul.task-list{list-style: none;}
-+$if(quotes)$
-+      q { quotes: "“" "”" "‘" "’"; }
-+$endif$
-+$if(highlighting-css)$
-+      $highlighting-css$
-+      code.diff {color: #$uccolor$}
-+      code.diff span.va {color: #$addcolor$}
-+      code.diff span.st {color: #$rmcolor$}
-+$endif$
+     $styles.html()$
    </style>
  $for(css)$
    <link rel="stylesheet" href="$css$" />
  $endfor$
-+  <link rel="icon" href="$datadir$/favicon.ico" />
++  <link rel="icon" href="favicon.ico" />
  $for(header-includes)$
    $header-includes$
  $endfor$
-@@ -34,40 +49,66 @@ $endif$
-   <![endif]-->
+@@ -30,41 +34,97 @@ $if(math)$
+   $math$
+ $endif$
  </head>
- <body>
+-<body>
++<body data-syntax-highlighting="on" data-deleted-text="show">
++<form class="view-controls">
++<label for="no-syntax-highlighting-toggle">
++<input id="no-syntax-highlighting-toggle" type="checkbox" />
++<span>No syntax highlighting</span>
++</label>
++<label for="hide-deleted-text-toggle">
++<input id="hide-deleted-text-toggle" type="checkbox" />
++<span>Hide deleted text</span>
++</label>
++</form>
 +<div class="wrapper">
  $for(include-before)$
  $include-before$
@@ -57,10 +53,24 @@ index dda7e8c..e0b6c1c 100644
  $endif$
 -$for(author)$
 -<p class="author">$author$</p>
-+<table style="border:none;float:right">
+-$endfor$
+-$if(date)$
+-<p class="date">$date$</p>
++<table>
 +  <tr>
 +    <td>Document #:</td>
-+    <td>$document$</td>
++    <td>
++      $document$
++$if(number)$
++      [<a href="https://wg21.link/P$number$">Latest</a>]
++      [<a href="https://wg21.link/P$number$/status">Status</a>]
+ $endif$
+-$if(abstract)$
+-<div class="abstract">
+-<div class="abstract-title">$abstract-title$</div>
+-$abstract$
+-</div>
++    </td>
 +  </tr>
 +  <tr>
 +    <td>Date:</td>
@@ -75,15 +85,7 @@ index dda7e8c..e0b6c1c 100644
 +    <td>
 +$for(audience)$
 +      $audience$<br>
- $endfor$
--$if(date)$
--<p class="date">$date$</p>
--$endif$
--$if(abstract)$
--<div class="abstract">
--<div class="abstract-title">$abstract-title$</div>
--$abstract$
--</div>
++$endfor$
 +    </td>
 +  </tr>
 +$if(revises)$
@@ -121,5 +123,19 @@ index dda7e8c..e0b6c1c 100644
  $endfor$
 +</div>
 +</div>
++<script>
++const body = document.body;
++const noSyntaxHighlightingCheckbox = document.getElementById('no-syntax-highlighting-toggle');
++noSyntaxHighlightingCheckbox.checked = false;
++noSyntaxHighlightingCheckbox.addEventListener('change', () => {
++  body.dataset.syntaxHighlighting = noSyntaxHighlightingCheckbox.checked ? 'off' : 'on';
++});
++
++const hideDeletedTextCheckbox = document.getElementById('hide-deleted-text-toggle');
++hideDeletedTextCheckbox.checked = false;
++hideDeletedTextCheckbox.addEventListener('change', () => {
++  body.dataset.deletedText = hideDeletedTextCheckbox.checked ? 'hide' : 'show';
++});
++</script>
  </body>
  </html>

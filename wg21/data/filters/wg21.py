@@ -7,269 +7,338 @@
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
-import datetime
-import html
-import os.path
+import json
 import panflute as pf
 import re
+import tempfile
+import yaml
+from contextlib import contextmanager
+from pathlib import Path
+from xml.sax.saxutils import escape
 
-embedded_md = re.compile('@@(.*?)@@|@(.*?)@')
-classes_with_embedded_md = ('cpp', 'default', 'diff', 'nasm', 'rust')
-stable_names = {}
-refs = {}
+document_pattern = r"[PD]([0-9]+)R[0-9]+"
+nonnormative_classes = {'example', 'note'}
+editorial_classes = {'ednote', 'draftnote'}
+note_classes = nonnormative_classes | editorial_classes
+code_modifiers = {'embed_md', 'raw', 'numberLines', 'lineAnchors', 'not_proposed'}
+
+srefs = {}
+
 headers = {}
+refs = {}
+pnum_count = 0
+nonnormative_count = { c : 0 for c in nonnormative_classes }
+
+def prepend_elem(elem, *prefix):
+    assert(all(isinstance(e, pf.Inline) for e in prefix))
+
+    if elem.content and isinstance(elem.content[0], pf.Para):
+        elem.content[0].content[0:0] = prefix
+    elif elem.content and isinstance(elem.content[0], pf.Plain):
+        elem.content[0] = pf.Para(*prefix, *elem.content[0].content)
+    else:
+        elem.content.insert(0, pf.Plain(*prefix))
+
+def append_elem(elem, *suffix):
+    assert(all(isinstance(e, pf.Inline) for e in suffix))
+
+    if elem.content and isinstance(elem.content[-1], pf.Para):
+        elem.content[-1].content.extend(suffix)
+    elif elem.content and isinstance(elem.content[-1], pf.Plain):
+        elem.content[-1] = pf.Para(*elem.content[-1].content, *suffix)
+    else:
+        elem.content.append(pf.Plain(*suffix))
 
 def wrap_elem(opening, elem, closing):
     if isinstance(elem, pf.Div):
-        if elem.content and isinstance(elem.content[0], pf.Para):
-            elem.content[0].content.insert(0, opening)
-        else:
-            elem.content.insert(0, pf.Plain(opening))
-        if elem.content and isinstance(elem.content[-1], pf.Para):
-            elem.content[-1].content.append(closing)
-        else:
-            elem.content.append(pf.Plain(closing))
+        prepend_elem(elem, opening)
+        append_elem(elem, closing)
     elif isinstance(elem, pf.Span):
         elem.content.insert(0, opening)
         elem.content.append(closing)
 
+def convert_fragments(fragments, input_format):
+    """
+    Converts a list of (text, emphasize) fragments into panflute elements
+    in a single invocation of `pf.convert_text`.
+
+    A fragment is essentially a piece of raw Markdown text that we need to parse
+    ourselves. Examples are embedded Markdown in code elements within @, and
+    the "new text" portion of [old text](new text){.sub} syntax.
+    """
+    # This separates the fragments structurally in a list, and
+    # injects an empty span []{} in front of the fragment such that a fragment
+    # that starts with a - (dash) doesn't get interpreted as a nested list.
+    result = pf.convert_text(
+               '\n'.join(f'- []{{}}{text}' for text, _ in fragments),
+               input_format=input_format,
+               output_format='panflute')
+    assert(len(result) == 1)
+    lst = result[0]
+    assert(isinstance(lst, pf.BulletList))
+    assert(len(lst.content) == len(fragments))
+    process_subs(lst, input_format)
+    for item, (_, emphasize) in zip(lst.content, fragments):
+        assert(len(item.content) == 1)
+        plain = item.content[0]
+        assert(isinstance(plain, pf.Plain))
+        marker = plain.content.pop(0)
+        assert(isinstance(marker, pf.Span) and not marker.content)
+        if emphasize:
+            plain.content = [pf.Emph(*plain.content)]
+        yield plain
+
+def process_subs(elem, input_format):
+    """
+    Processes [old text](new text){.sub} elements under a given element
+    by essentially producing [old text]{.rm}[new text]{.add}.
+
+    The complexity is in the fact that (new text) is interpreted as a URL,
+    so we unquote/unescape and treat it as a fragment.
+    """
+    adds = []
+    fragments = []
+    def subs(elem, doc):
+        if not (isinstance(elem, pf.Link) and 'sub' in elem.classes):
+            return None
+
+        classes = [c for c in elem.classes if c != 'sub']
+        rm = pf.Span(*elem.content, classes=['rm']+classes)
+        add = pf.Span(classes=['add']+classes)
+        adds.append(add)
+
+        import html, urllib.parse
+        fragments.append((html.unescape(urllib.parse.unquote(elem.url)), False))
+        return pf.Span(rm, add)
+
+    elem.walk(subs)
+    assert(len(adds) == len(fragments))
+    if adds:
+        for add, item in zip(adds, convert_fragments(fragments, input_format)):
+            add.content = item.content
+
 def prepare(doc):
     if doc.get_metadata('date') == 'today':
+        import datetime
         doc.metadata['date'] = datetime.date.today().isoformat()
 
     document = doc.get_metadata('document')
-    number = re.match("[PD]([0-9]+)R[0-9]+", document.upper())
+    number = re.match(document_pattern, document.upper())
     if number is not None:
         doc.metadata['number'] = number.group(1)
     else:
-        pf.debug('mpark/wg21: document ', document, 'is in an unrecognized format')
-    doc.metadata['pagetitle'] = pf.convert_text(
+        pf.debug(f"""[WARNING] mpark/wg21: Document number '{document}' is an unrecognized format; expected "{document_pattern}".
+          This just means that [Latest] and [Status] links will be missing.""")
+
+    title = pf.convert_text(
         pf.Plain(*doc.metadata['title'].content),
         input_format='panflute',
         output_format='markdown')
+    doc.metadata['pagetitle'] = title   # HTML
+    doc.metadata['title-meta'] = title  # PDF
 
-    datadir = doc.get_metadata('datadir')
+    datadir = doc.get_metadata('data-dir')
 
-    with open(os.path.join(datadir, 'annex-f'), 'r') as f:
-        stable_names.update(line.split(maxsplit=1) for line in f)
+    with Path(datadir, 'defaults', 'doc.yaml').open() as f:
+        doc.metadata['from'] = yaml.safe_load(f)['from']
 
-    def highlighting(output_format):
-        return pf.convert_text(
-            '`-`{.default}',
-            output_format=output_format,
-            extra_args=[
-              '--highlight-style', os.path.join(datadir, 'syntax', 'wg21.theme'),
-              '--template', os.path.join(datadir, 'templates', 'highlighting'),
-              '--metadata', 'title="-"',
-            ])
+    with Path(datadir, 'srefs.json').open() as f:
+        srefs.update(json.load(f))
 
-    doc.metadata['highlighting-macros'] = pf.MetaBlocks(
-        pf.RawBlock(highlighting('latex'), 'latex'))
-    doc.metadata['highlighting-css'] = pf.MetaBlocks(
-        pf.RawBlock(highlighting('html'), 'html'))
+    process_subs(doc, doc.get_metadata('from'))
 
-    def collect_refs(elem, doc):
-        if not (isinstance(elem, pf.Div) and elem.identifier.startswith('ref-')):
-            return None
-
-        def find_urls(elem, doc):
-            if isinstance(elem, pf.Link):
-                urls.append(elem.url)
-            return None
-
-        urls = []
-        elem.walk(find_urls)
-        if len(urls) == 1:
-            refs[f'#{elem.identifier}'] = urls[0]
-
-    doc.walk(collect_refs)
-
-def finalize(doc):
-    def init_code_elems(elem, doc):
-        if isinstance(elem, pf.Header) and doc.format == 'latex':
-            elem.walk(lambda elem, doc:
-                elem.classes.append('raw')
-                if any(isinstance(elem, cls) for cls in [pf.Code, pf.CodeBlock])
-                else None)
-
-        # Mark code elements within colored divspan as default.
-        if any(isinstance(elem, cls) for cls in [pf.Div, pf.Span]) and \
-           any(cls in elem.classes for cls in ['add', 'rm', 'ednote', 'draftnote']):
-            elem.walk(lambda elem, doc:
-                elem.classes.insert(0, 'default')
-                if any(isinstance(elem, cls) for cls in [pf.Code, pf.CodeBlock])
-                else None)
-
-        if not any(isinstance(elem, cls) for cls in [pf.Code, pf.CodeBlock]):
-            return None
-
-        # As `walk` performs post-order traversal, this is
-        # guaranteed to run before the 'raw' code path.
-        if not elem.classes:
-            if isinstance(elem, pf.Code):
-                cls = doc.get_metadata('highlighting.inline-code', 'default')
-            elif isinstance(elem, pf.CodeBlock):
-                cls = doc.get_metadata('highlighting.code-block', 'default')
-            elem.classes.append(cls)
-
-    doc.walk(init_code_elems)
-
-    def collect_code_elems(elem, doc):
-        if not any(isinstance(elem, cls) for cls in [pf.Code, pf.CodeBlock]):
-            return None
-
-        if 'raw' in elem.classes:
-            return None
-
-        if not any(cls in elem.classes for cls in classes_with_embedded_md):
-            return None
-
-        code_elems.append(elem)
-
-    code_elems = []
-    doc.walk(collect_code_elems)
-    if not code_elems:
-        return
-
-    def intersperse(lst, item):
-        result = [item] * (len(lst) * 2 - 1)
-        result[0::2] = lst
-        return result
-
-    datadir = doc.get_metadata('datadir')
-    text = pf.convert_text(
-        intersperse(
-            [pf.Plain(elem) if isinstance(elem, pf.Code) else elem for elem in code_elems],
-            pf.Plain(pf.RawInline('---', doc.format))),
-        input_format='panflute',
-        output_format=doc.format,
-        extra_args=['--syntax-definition', os.path.join(datadir, 'syntax', 'isocpp.xml')])
-
-    # Workaround for https://github.com/jgm/skylighting/issues/91.
-    if doc.format == 'latex':
-        text = text.replace('<', '\\textless{}') \
-                   .replace('>', '\\textgreater{}')
-
-    if doc.format == 'latex':
-        texts = text.split('\n\n---\n\n')
-    elif doc.format == 'html':
-        texts = text.split('\n---\n')
-
-    assert(len(code_elems) == len(texts))
-
-    def convert(elem, text):
-        def repl2(match):
-            if match.isspace():  # @  @
-                return match
-
-            result = convert.cache.get(match)
-            if result is not None:
-                return result
-
-            if doc.format == 'latex':
-                # Undo `escapeLaTeX` from https://github.com/jgm/skylighting
-                match = match.replace('\\textbackslash{}', '\\') \
-                             .replace('\\{', '{') \
-                             .replace('\\}', '}') \
-                             .replace('\\VerbBar{}', '|') \
-                             .replace('\\_', '_') \
-                             .replace('\\&', '&') \
-                             .replace('\\%', '%') \
-                             .replace('\\#', '#') \
-                             .replace('\\textasciigrave{}', '`') \
-                             .replace('\\textquotesingle{}', '\'') \
-                             .replace('{-}', '-') \
-                             .replace('\\textasciitilde{}', '~') \
-                             .replace('\\^{}', '^')
-
-                # Undo the workaround escaping.
-                match = match.replace('\\textless{}', '<') \
-                             .replace('\\textgreater{}', '>')
-            elif doc.format == 'html':
-                match = html.unescape(match)
-
-            result = pf.convert_text(
-                pf.Plain(*pf.convert_text(match)[0].content)
-                    .walk(divspan, doc)
-                    .walk(init_code_elems, doc),
-                input_format='panflute',
-                output_format=doc.format,
-                extra_args=['--syntax-definition', os.path.join(datadir, 'syntax', 'isocpp.xml')])
-
-            convert.cache[match] = result
-            return result
-
-        def repl(match_obj):
-            groups = match_obj.groups()
-            if not any(groups):
-                return match_obj.group()
-
-            group = groups[0]
-            if group is not None:
-                return embedded_md.sub(repl, repl2(group))
-
-            group = groups[1]
-            if group is not None:
-                return repl2(group)
-
-        if isinstance(elem, pf.Code):
-            result = pf.RawInline(embedded_md.sub(repl, text), doc.format)
-        elif isinstance(elem, pf.CodeBlock):
-            result = pf.RawBlock(embedded_md.sub(repl, text), doc.format)
-
-        if 'diff' not in elem.classes:
-            return result
-
-        # For HTML, this is handled via CSS in `data/templates/wg21.html`.
-        command = '\\renewcommand{{\\{}}}[1]{{\\textcolor[HTML]{{{}}}{{#1}}}}'
-
-        uc = command.format('NormalTok', doc.get_metadata('uccolor'))
-        add = command.format('VariableTok', doc.get_metadata('addcolor'))
-        rm = command.format('StringTok', doc.get_metadata('rmcolor'))
-
-        if isinstance(elem, pf.Code):
-            return pf.Span(
-                pf.RawInline(uc, 'latex'),
-                pf.RawInline(add, 'latex'),
-                pf.RawInline(rm, 'latex'),
-                result)
-        elif isinstance(elem, pf.CodeBlock):
-            return pf.Div(
-                pf.RawBlock('{', 'latex'),
-                pf.RawBlock(uc, 'latex'),
-                pf.RawBlock(add, 'latex'),
-                pf.RawBlock(rm, 'latex'),
-                result,
-                pf.RawBlock('}', 'latex'))
-
-    convert.cache = {}
-
-    def code_elem(elem, doc):
-        if not any(isinstance(elem, cls) for cls in [pf.Code, pf.CodeBlock]):
-            return None
-
-        if 'raw' in elem.classes:
-            return None
-
-        if not any(cls in elem.classes for cls in classes_with_embedded_md):
-            return None
-
-        return convert(*next(converted))
-
-    converted = zip(code_elems, texts)
-    doc.walk(code_elem)
-
-def header(elem, doc):
-    if not isinstance(elem, pf.Header):
+def soul(elem, doc):
+    # Pandoc 3.x uses the soul package to do strikeouts with \st, underlines
+    # with \ul, and highlighting with \hl. This requires code elements within
+    # them to be protected via mbox. Pandoc handles this explicitly, but
+    # since we handle the code elements rendering manually, we need to inject
+    # the protection manually.
+    if not (doc.format == 'latex' and (
+            isinstance(elem, (pf.Strikeout, pf.Underline)) or
+            (isinstance(elem, pf.Span) and 'mark' in elem.classes))):
         return None
 
-    if elem.identifier == 'bibliography':
-        elem.classes.remove('unnumbered')
+    # On any strikeout, underline, or highlight, this traverses the subtree and
+    # protects the inline code elements. We keep it simple here and don't do any
+    # kind of early termination, because it turns out `soul` elements don't nest
+    # at all: <https://github.com/jgm/pandoc/issues/11692>, so the cases that
+    # would be inefficient end up being ill-formed anyway.
+    elem.walk(lambda e, _:
+        pf.Span(pf.RawInline(r'\mbox{', 'latex'), e, pf.RawInline('}', 'latex'))
+        if isinstance(e, pf.Code)
+        else None)
 
-    url = f'#{elem.identifier}'
-    headers[url] = pf.stringify(elem)
+def sref(elem, doc):
+    if not (isinstance(elem, (pf.Link, pf.Span)) and 'sref' in elem.classes):
+        return None
 
-    elem.content.append(pf.Link(url=url, classes=['self-link']))
+    target = pf.stringify(elem)
+    # Support paragraph numbers (deprecated): e.g. [basic.scope.scope#2.1]{.sref}
+    name, _, pnum = target.partition('#')
+    # Support paragraph numbers as a suffix: e.g. [basic.scope.scope]/2.1
+    # If the paragraph number is specified via #, it takes precedence over
+    # the suffix. e.g. [basic.life#1]{.sref}/2, the /2 is left as plain text.
+    if (
+        not pnum and
+        isinstance(elem.next, pf.Str) and
+        (match := re.match(r'/([0-9]+(?:\.[0-9]+)*)(.*)',
+                           elem.next.text))
+    ):
+        pnum, elem.next.text = match.groups()
+        target = f'{name}#{pnum}'
+
+    link = pf.Link(
+        pf.Str(f'[{name}]' + (f'/{pnum}' if pnum else '')),
+        url=f'https://eel.is/c++draft/{target}')
+    info = srefs.get(name)
+    if info is None:
+        pf.debug(f"""[WARNING] mpark/wg21: stable name {name} not found.
+          Tip: run `make update` to refresh the local databases, including stable names""")
+        return link
+
+    number, title = info
+    link.title = f'{number} {title}' + (f', paragraph {pnum}' if pnum else '')
+    if isinstance(elem, pf.Link):
+        return link
+
+    result = pf.Span()
+    if doc.get_metadata('number-srefs') and 'unnumbered' not in elem.classes:
+        result.content.append(pf.Str(number))
+        result.content.append(pf.Space())
+
+    result.content.append(pf.Str(title))
+    result.content.append(pf.Space())
+    result.content.append(link)
+    return result
+
+def wording(elem, doc):
+    if not (isinstance(elem, pf.Div) and 'wording' in elem.classes):
+        return None
+
+    # Keeps track of automatic pnum assignment state.
+    pnum_state = []
+    nonnormative_state = { c : 0 for c in nonnormative_classes }
+
+    def process_pnum(elem, doc):
+        if not (isinstance(elem, pf.Span) and 'pnum' in elem.classes):
+            return None
+
+        parts = pf.stringify(elem).split('.')
+
+        # Normalize to match pnum_state to the parts length.
+        del pnum_state[len(parts):]
+        pnum_state.extend([(0, None)] * (len(parts) - len(pnum_state)))
+        assert(len(pnum_state) == len(parts))
+
+        for i, part in enumerate(parts):
+            prev, prev_literal = pnum_state[i]
+            cur = prev
+            literal = None
+            if part.isdecimal():
+                cur = int(part)
+            elif part == '#':
+                if (
+                    i == len(parts) - 1 or   # bump on last #
+                    cur == 0 or              # missing parent, default to 1
+                    prev_literal is not None # 'x' -> # transition, bump
+                ):
+                    cur += 1
+            else:
+                literal = part
+
+            pnum_state[i] = cur, literal
+            if cur != prev or literal != prev_literal:
+                # clear the deeper slots on num change or 'x' entrance and exit
+                pnum_state[i+1:] = [(0, None)] * (len(parts) - i - 1)
+
+        pnum = '.'.join(
+            literal if literal is not None else str(cur)
+            for cur, literal in pnum_state)
+        elem.content = [pf.Str(pnum)]
+
+    def process_nonnormative(elem, doc):
+        if not isinstance(elem, (pf.Div, pf.Span)):
+            return None
+
+        if 'unnumbered' in elem.classes:
+            return None
+
+        note_cls = next(iter(c for c in elem.classes if c in note_classes), None)
+        if note_cls is None or note_cls not in nonnormative_classes:
+            return None
+
+        num = elem.attributes.get('num')
+        if num is not None:
+            nonnormative_state[note_cls] = int(num)
+        else:
+            nonnormative_state[note_cls] += 1
+            elem.attributes['num'] = str(nonnormative_state[note_cls])
+
+    def get_list_type(elem):
+        if isinstance(elem, pf.OrderedList):
+            if elem.style == 'DefaultStyle':                      return '#'
+            elif elem.style == 'Decimal':                         return '1'
+            elif elem.style == 'LowerAlpha' and elem.start == 24: return 'x'
+            return None
+        elif isinstance(elem, pf.BulletList):
+            return '-'
+        return None
+
+    def process_list(elem, parents, start):
+        list_type = get_list_type(elem)
+        if list_type is None:
+            return None
+
+        # '#' is only supported at the top-level, '-' is only supported nested.
+        if list_type == '#' and parents:
+            return None
+
+        if list_type == '-' and not parents:
+            return None
+
+        if list_type == '1':
+            start = elem.start - 1
+
+        for item in elem.content:
+            number = parents
+            if list_type == 'x':
+                number += ('x',)
+            else:
+                start += 1
+                number += (start,)
+
+            process_block(item, number)
+            pnum = pf.Span(pf.Str('.'.join(map(str, number))), classes=['pnum'])
+            prepend_elem(item, pnum, pf.Space())
+
+        result = []
+        if not parents:
+            result.extend(block for item in elem.content for block in item.content)
+        elif isinstance(elem, pf.OrderedList):
+            result.append(pf.BulletList(*elem.content))
+        else:
+            result.append(elem)
+
+        return start, result
+
+    def process_block(elem, parents=(), start=0):
+        content = []
+        for block in elem.content:
+            result = process_list(block, parents, start)
+            if result is not None:
+                start, blocks = result
+                content.extend(blocks)
+                continue
+            if isinstance(block, (pf.BlockQuote, pf.Div)):
+                start = process_block(block, parents, start)
+            content.append(block)
+        elem.content = content
+        return start
+
+    process_block(elem)
+    elem.walk(process_pnum)
+    elem.walk(process_nonnormative)
+    return elem
 
 def divspan(elem, doc):
     """
@@ -297,27 +366,32 @@ def divspan(elem, doc):
     > The return type is `decltype(`_e_(`m`)`)` [for the first form]{.add}.
     """
 
-    def _color(html_color):
-        wrap_elem(
-            pf.RawInline(f'{{\\color[HTML]{{{html_color}}}', 'latex'),
-            elem,
-            pf.RawInline('}', 'latex'))
-        elem.attributes['style'] = f'color: #{html_color}'
+    def _color(hex_color):
+        if doc.format == 'latex':
+            wrap_elem(
+                pf.RawInline(f'{{\\color[HTML]{{{hex_color}}}', 'latex'),
+                elem,
+                pf.RawInline('}', 'latex'))
 
-    def _nonnormative(name):
+    def _nonnormative(name, num):
+        label = [pf.Str(name.title())]
+        if num is not None:
+            label.append(pf.Space())
+            if doc.format == 'html':
+                if not elem.identifier:
+                    nonnormative_count[name] += 1
+                    elem.identifier = f'{name}-{nonnormative_count[name]}'
+                label.append(pf.Link(pf.Str(num), url=f'#{elem.identifier}'))
+            else:
+                label.append(pf.Str(num))
+
         wrap_elem(
-            pf.Span(pf.Str('[ '), pf.Emph(pf.Str(f'{name.title()}:')), pf.Space),
+            pf.Span(pf.Str('[ '), pf.Emph(*label, pf.Str(':')), pf.Space()),
             elem,
             pf.Span(pf.Str(' — '), pf.Emph(pf.Str(f'end {name.lower()}')), pf.Str(' ]')))
 
     def _diff(color, latex_tag, html_tag):
         if isinstance(elem, pf.Span):
-            def protect_code(elem, doc):
-                if isinstance(elem, pf.Code):
-                    return pf.Span(pf.RawInline('\\mbox{', 'latex'),
-                                   elem,
-                                   pf.RawInline('}', 'latex'))
-            elem.walk(protect_code)
             wrap_elem(
                 pf.RawInline(f'\\{latex_tag}{{', 'latex'),
                 elem,
@@ -330,6 +404,9 @@ def divspan(elem, doc):
 
     def pnum():
         num = pf.stringify(elem)
+        if '#' in num.split('.'):
+            pf.debug(
+                f'[WARNING] mpark/wg21: automatic paragraph number {num} ignored outside of ::: wording')
 
         if '.' in num:
             num = f'({num})'
@@ -337,14 +414,18 @@ def divspan(elem, doc):
         if doc.format == 'latex':
             return pf.RawInline(f'\\pnum{{{num}}}', 'latex')
         elif doc.format == 'html':
+            global pnum_count
+            pnum_count += 1
+            anchor_id = f'pnum-{pnum_count}'
             return pf.Span(
-                pf.RawInline(f'<a class="marginalized">{num}</a>', 'html'),
+                pf.Link(pf.Str(num), url=f'#{anchor_id}',
+                        identifier=anchor_id, classes=['marginalized']),
                 classes=['marginalizedparent'])
 
         return pf.Superscript(pf.Str(num))
 
-    def example(): _nonnormative('example')
-    def note():    _nonnormative('note')
+    def example(): _nonnormative('example', elem.attributes.get('num'))
+    def note():    _nonnormative('note', elem.attributes.get('num'))
     def ednote():
         wrap_elem(pf.Str("[ Editor's note: "), elem, pf.Str(' ]'))
         _color('0000ff')
@@ -354,36 +435,38 @@ def divspan(elem, doc):
         wrap_elem(pf.Str(f'[ {text}: '), elem, pf.Str(' ]'))
         _color('0000ff')
 
+    # We need to stick to using 'uline' and 'sout' from the ulem package rather
+    # than migrating to the soul package like Pandoc 3.x specifically for cases
+    # where we want to strikeout/underline **within** a highlighted code block.
+    # We could use the soul package for other cases, but keeping it consistent
+    # seems simpler at least for now.
     def add(): _diff('addcolor', 'uline', 'ins')
     def rm():  _diff('rmcolor', 'sout', 'del')
 
-    if not any(isinstance(elem, cls) for cls in [pf.Div, pf.Span]):
+    def mark():
+        if doc.format == 'latex' and isinstance(elem, pf.Span):
+            elem.classes.remove('mark')
+            wrap_elem(
+                pf.RawInline(r'{\setlength{\fboxsep}{1pt}\colorbox{yellow}{', 'latex'),
+                elem,
+                pf.RawInline('}}', 'latex'))
+
+    if not isinstance(elem, (pf.Div, pf.Span)):
         return None
 
     if 'pnum' in elem.classes and isinstance(elem, pf.Span):
         return pnum()
 
-    if 'sref' in elem.classes and isinstance(elem, pf.Span):
-        target = pf.stringify(elem)
-        number = stable_names.get(target)
-        link = pf.Link(
-            pf.Str(f'[{target}]'),
-            url=f'https://wg21.link/{target}')
-        if number is not None:
-            return pf.Span(link) if 'unnumbered' in elem.classes else pf.Span(pf.Str(number), pf.Space(), link)
-        else:
-            pf.debug('mpark/wg21: stable name', target, 'not found')
-            return link
-
-    note_cls = next(iter(cls for cls in elem.classes if cls in {'example', 'note', 'ednote', 'draftnote'}), None)
+    note_cls = next(iter(c for c in elem.classes if c in note_classes), None)
     if note_cls == 'example':  example()
     elif note_cls == 'note':   note()
     elif note_cls == 'ednote': ednote(); return
     elif note_cls == 'draftnote': draftnote(); return
 
-    diff_cls = next(iter(cls for cls in elem.classes if cls in {'add', 'rm'}), None)
-    if diff_cls == 'add':  add()
-    elif diff_cls == 'rm': rm()
+    color_cls = next(iter(c for c in elem.classes if c in {'add', 'rm', 'mark'}), None)
+    if color_cls == 'add':  add()
+    elif color_cls == 'rm': rm()
+    elif color_cls == 'mark': mark()
 
 def cmptable(table, doc):
     """
@@ -465,7 +548,7 @@ def cmptable(table, doc):
     if not isinstance(table, pf.Div):
         return None
 
-    if not any(cls in table.classes for cls in ['cmptable', 'tonytable']):
+    if not any(c in {'cmptable', 'tonytable'} for c in table.classes):
         return None
 
     rows = []
@@ -477,13 +560,13 @@ def cmptable(table, doc):
 
     header = pf.Null()
     caption = None
-    width = 'ColWidthDefault'
+    width = None
 
     first_row = True
     table.content.append(pf.HorizontalRule())
 
     def warn(elem):
-        pf.debug('mpark/wg21:', type(elem), pf.stringify(elem, newlines=False),
+        pf.debug('[WARNING] mpark/wg21:', type(elem), pf.stringify(elem, newlines=False),
                  'in a comparison table is ignored')
 
     for elem in table.content:
@@ -493,9 +576,7 @@ def cmptable(table, doc):
 
             if first_row:
                 header = pf.Plain(*elem.content)
-                width = (float(elem.attributes['width'])
-                         if 'width' in elem.attributes else
-                         'ColWidthDefault')
+                width = float(elem.attributes['width']) if 'width' in elem.attributes else None
             else:
                 warn(elem)
         elif isinstance(elem, pf.BlockQuote):
@@ -509,15 +590,9 @@ def cmptable(table, doc):
                 widths.append(width)
 
                 header = pf.Null()
-                width = 'ColWidthDefault'
+                width = None
 
-            codeblock = pf.Div(elem)
-            wrap_elem(
-                pf.RawInline('\\begin{minipage}[t]{\\linewidth}\\raggedright', 'latex'),
-                codeblock,
-                pf.RawInline('\\end{minipage}', 'latex'));
-
-            examples.append(codeblock)
+            examples.append(elem)
         elif isinstance(elem, pf.HorizontalRule) and examples:
             first_row = False
 
@@ -529,9 +604,35 @@ def cmptable(table, doc):
     if not all(isinstance(header, pf.Null) for header in headers):
         kwargs['head'] = pf.TableHead(pf.TableRow(*[pf.TableCell(header) for header in headers]))
 
+    if all(width is not None for width in widths):
+        total_width = sum(widths)
+        widths = [width / total_width for width in widths]
+    else:
+        if not all(width is None for width in widths):
+            pf.debug(f"""[WARNING] mpark/wg21: cmptable widths must be specified for all columns or none.
+          {table}
+
+          Ignoring the specified widths and defaulting to even column widths.""")
+        widths = [1 / len(widths) for _ in widths]
+
     kwargs['caption'] = pf.Caption() if caption is None else caption
     kwargs['colspec'] = [('AlignDefault', w) for w in widths]
-    return pf.Table(pf.TableBody(*rows), **kwargs)
+    return pf.Table(
+        pf.TableBody(*rows),
+        classes=table.classes,
+        **kwargs)
+
+def header(elem, doc):
+    if not isinstance(elem, pf.Header):
+        return None
+
+    if elem.identifier == 'bibliography':
+        elem.classes.remove('unnumbered')
+
+    url = f'#{elem.identifier}'
+    headers[url] = pf.stringify(elem)
+
+    elem.content.append(pf.Link(url=url, classes=['self-link']))
 
 def table(elem, doc):
     if not isinstance(elem, pf.Table):
@@ -548,6 +649,32 @@ def table(elem, doc):
 
     if elem.head is not None:
         elem.head.walk(header)
+
+    if doc.format == 'html':
+        return pf.Div(elem, classes=['table-wrapper'])
+
+def caption(elem, doc):
+    # Code elements in table captions need to be protected.
+    # See https://github.com/jgm/pandoc/pull/11139
+    if doc.format == 'latex' and isinstance(elem, pf.Caption):
+        elem.walk(lambda e, _:
+            pf.Span(pf.RawInline(r'\protect', 'latex'), e)
+            if isinstance(e, pf.Code)
+            else None)
+
+def collect_refs(elem, doc):
+    if not (isinstance(elem, pf.Div) and elem.identifier.startswith('ref-')):
+        return None
+
+    def find_urls(elem, doc):
+        if isinstance(elem, pf.Link):
+            urls.append(elem.url)
+        return None
+
+    urls = []
+    elem.walk(find_urls)
+    if len(urls) == 1:
+        refs[f'#{elem.identifier}'] = urls[0]
 
 def citation_link(elem, doc):
     if not (isinstance(elem, pf.Link) and elem.url.startswith("#ref-")):
@@ -568,18 +695,398 @@ def automatic_header_link(elem, doc):
         return None
 
     if (header_text := headers.get(elem.url)) is None:
-        pf.debug('mpark/wg21: cannot find automatic text for link to:', elem.url)
+        pf.debug('[WARNING] mpark/wg21: cannot find automatic text for link to:', elem.url)
         return None
 
     return pf.Link(pf.Str(header_text), url=elem.url)
 
+def diff(elem, doc):
+    if not (doc.format == 'latex' and
+            isinstance(elem, (pf.Code, pf.CodeBlock)) and
+            'diff' in elem.classes):
+        return None
+
+    # For HTML, this is handled in `data/templates/wg21.css`.
+    command = '\\renewcommand{{\\{}}}[1]{{\\textcolor[HTML]{{{}}}{{#1}}}}'
+    colors = [
+      command.format('NormalTok', doc.get_metadata('uccolor')),
+      command.format('VariableTok', doc.get_metadata('addcolor')),
+      command.format('StringTok', doc.get_metadata('rmcolor')),
+    ]
+
+    if isinstance(elem, pf.Code):
+        return pf.Span(*(pf.RawInline(color, 'latex') for color in colors), elem)
+    elif isinstance(elem, pf.CodeBlock):
+        return pf.Div(
+            pf.RawBlock('{', 'latex'),
+            *(pf.RawBlock(color, 'latex') for color in colors),
+            elem,
+            pf.RawBlock('}', 'latex'))
+
+def code_init(elem, doc):
+    # Mark code elements within colored divspan as default.
+    if isinstance(elem, (pf.Div, pf.Span)) and \
+       any(c in {'add', 'rm', 'ednote', 'draftnote'} for c in elem.classes):
+        elem.walk(lambda elem, _:
+            elem.classes.insert(0, 'default')
+            if isinstance(elem, (pf.Code, pf.CodeBlock))
+            else None)
+
+    if not isinstance(elem, (pf.Code, pf.CodeBlock)):
+        return None
+
+    # As `walk` performs post-order traversal, this is
+    # guaranteed to run before the header and divspan handling.
+    if all(c in code_modifiers for c in elem.classes):
+        if isinstance(elem, pf.Code):
+            c = doc.get_metadata('highlighting.inline-code', 'cpp')
+        elif isinstance(elem, pf.CodeBlock):
+            c = doc.get_metadata('highlighting.code-block', 'default')
+        elem.classes.append(c)
+
+# Process embedded markdown configuration. We turn explicit .embed_md
+# and implicit classes (e.g. `cpp`) into attributes md='@' em='$',
+# and allow explicit md='A' and/or em='B' to override them.
+# After this, the md/em attributes capture the entire config.
+def embed_md_init(elem, doc):
+    if not isinstance(elem, (pf.Code, pf.CodeBlock)):
+        return None
+
+    implicit_classes = doc.get_metadata('embedded-md-code-classes')
+    enabled = (
+        'raw' not in elem.classes and
+        ('embed_md' in elem.classes or
+         any(c in implicit_classes for c in elem.classes)))
+    md, em = ('@', '$') if enabled else ('none', 'none')
+    md = elem.attributes.pop('md', md)
+    if md != 'none':
+        elem.attributes['md'] = md
+    em = elem.attributes.pop('em', em)
+    if em != 'none':
+        elem.attributes['em'] = em
+
+def not_proposed(elem, doc):
+    if not (
+        doc.format == 'latex' and
+        isinstance(elem, pf.CodeBlock) and
+        'not_proposed' in elem.classes
+    ):
+        return None
+
+    return pf.Div(
+        pf.RawBlock(r'\begin{notproposed}', 'latex'),
+        pf.RawBlock(
+            r'\noindent\textcolor{notproposedcolor}{'
+            r'$\oslash$\hspace{0.65em}\textbf{Not proposed}}'
+            r'\par\smallskip',
+            'latex'),
+        elem,
+        pf.RawBlock(r'\end{notproposed}', 'latex'))
+
+formatting = [
+    sref,
+    diff,
+    divspan,
+    *[code_init, embed_md_init, not_proposed]
+]
+
+class CodeElems:
+    """
+    High-level description of embedded markdown handling:
+
+      1. Collect relevant code elements
+      2. Pick a unique placeholder prefix
+      3. Replace embedded markdown fragment with a placeholder.
+         Same fragments are assigned the same placeholder.
+      4. All of the fragments are batched and converted in a single
+         `convert_text` invocation, and stored in `converted_fragments`.
+      5. All of the code elements are batched and converted in a single
+         `convert_text` invocation.
+      6. Restore the embedded markdown fragments into the batch converted
+         code text, by doing a recursive regex substitution with
+         `converted_fragments` as the look-up table.
+      7. Split the batch converted code text into individual elements, and
+         update the code elements with the fully processed elements.
+    """
+    keyword_defaults = None
+    placeholder_prefix = None
+
+    # Unique list of (text, emphasize) fragments, kept track in `fragment_idx`.
+    fragments = []
+
+    # Mapping from (text, emphasize) fragment to its index within `fragments`.
+    fragment_idx = {}
+
+    @staticmethod
+    @contextmanager
+    def _keyword_defaults(doc):
+        datadir = doc.get_metadata('data-dir')
+        keyword_languages = doc.get_metadata('highlighting.keywords', {})
+        with tempfile.TemporaryDirectory(prefix='wg21-keywords-') as directory:
+            syntax_definitions = []
+            for language, keywords in keyword_languages.items():
+                if not keywords:
+                    continue
+                if isinstance(keywords, str):
+                    keywords = [keywords]
+
+                if language == 'cpp':
+                    syntax = Path(datadir, 'syntax', 'wg21.xml').read_text()
+                    keywords_tag = '<list name="keywords">\n'
+                    items = ''.join(
+                        f'<item>{escape(keyword)}</item>\n' for keyword in keywords)
+                    assert keywords_tag in syntax
+                    syntax = syntax.replace(keywords_tag, keywords_tag + items, 1)
+
+                    syntax_definition = Path(directory, 'cpp.xml')
+                    syntax_definition.write_text(syntax)
+                    syntax_definitions.append(str(syntax_definition))
+
+            if not syntax_definitions:
+                yield None
+                return
+
+            defaults = Path(directory, 'keywords.yaml')
+            defaults.write_text(yaml.safe_dump({'syntax-definitions': syntax_definitions}))
+            yield defaults
+    
+    @staticmethod
+    def _compute_unique_placeholder(texts):
+        import uuid
+        while True:
+             placeholder = f'X{uuid.uuid4().hex.upper()}X'
+             if not any(placeholder in text for text in texts):
+                 return placeholder
+
+    @classmethod
+    def _convert_blocks(cls, blocks, token, doc):
+        def intersperse(lst, item):
+            result = [item] * (len(lst) * 2 - 1)
+            result[0::2] = lst
+            return result
+
+        text = pf.convert_text(
+            intersperse(blocks, pf.Plain(pf.RawInline(token, doc.format))),
+            input_format='panflute',
+            output_format=doc.format,
+            extra_args=[
+                '--data-dir', doc.get_metadata('data-dir'),
+                '--wrap', 'none',
+                '-d', 'formatting',
+                *([] if cls.keyword_defaults is None else ['-d', cls.keyword_defaults])])
+
+        if doc.format == 'latex':
+            # The normal text mode such as "template<class" gets translated
+            # to "template\textless class" rather than "text\textless{}class".
+            text = text.replace(r'\textless ', r'\textless{}') \
+                       .replace(r'\textgreater ', r'\textgreater{}') \
+                       .replace(r'\textasciitilde ', r'\textasciitilde{}') \
+                       .replace(r'\textbackslash ', r'\textbackslash{}') \
+                       .replace(r'\textbar ', r'\textbar{}') \
+                       .replace(r'\textquotesingle ', r'\textquotesingle{}')
+
+        sep = f'\n\n{token}\n\n' if doc.format == 'latex' else f'\n{token}\n'
+        return text, sep
+
+    @classmethod
+    def _convert_fragments(cls, fragments, doc):
+        if not fragments:
+            return []
+
+        # Handle nested inline code such as: @[`$foo$`]{.add}@ while leaving
+        # @$foo$@ be interpreted as inline math.
+        #
+        # `_replace_fragments_with_placeholders` can add to fragments,
+        # which is why we loop while converted is fewer than fragments.
+        def nested_code(elem, doc):
+            if not isinstance(elem, pf.Code):
+                return None
+
+            md = elem.attributes.pop('md', None)
+            em = elem.attributes.pop('em', None)
+
+            if md is None and em is None:
+                return None
+
+            elem.text = cls._replace_fragments_with_placeholders(elem.text, md, em)
+
+        converted = []
+        while len(converted) < len(fragments):
+            batch = fragments[len(converted):]
+            blocks = []
+            # -raw_html to avoid <T> in foo<T> to be interpreted as an HTML tag.
+            # -smart to avoid things like ... to get transformed into \dots
+            for plain in convert_fragments(
+                    batch, f"{doc.get_metadata('from')}-raw_html-smart"):
+                for f in formatting:
+                    plain = plain.walk(f, doc)
+                plain.walk(nested_code, doc)
+                blocks.append(plain)
+            token = cls._compute_unique_placeholder(text for text, _ in fragments)
+            text, sep = cls._convert_blocks(blocks, token, doc)
+            result = text.split(sep)
+            assert(len(result) == len(batch))
+            converted.extend(result)
+
+        return converted
+
+    @classmethod
+    def _store_fragment(cls, fragment):
+        idx = cls.fragment_idx.get(fragment)
+        if idx is None:
+            idx = len(cls.fragments)
+            cls.fragments.append(fragment)
+            cls.fragment_idx[fragment] = idx
+
+        # Spaces are added here to make the syntax highlighter parse properly.
+        # For example, given something like `constexpr$~opt~$`, the constexpr
+        # keyword will not be highlighted properly without the spaces.
+        return f' {cls.placeholder_prefix}{idx} '
+
+    @classmethod
+    def _process_fragment(cls, text, i, closing, emphasize=False):
+        """
+        Returns the placeholder for the parsed embedded Markdown region and
+        the index where parsing should continue.
+
+        For @@[`FOO @BAR@ BAZ`]{.add}@@, store the whole Markdown fragment:
+          PH -> [`FOO @BAR@ BAZ`]{.add}
+
+        Nested embedded Markdown inside code elements is handled after Pandoc
+        parses the outer fragment.
+        """
+        end = text.find(closing, i)
+        newline = text.find('\n', i)
+
+        if end < 0 or 0 <= newline < end:
+            return None
+
+        placeholder = cls._store_fragment((text[i:end], emphasize))
+        return placeholder, end + len(closing)
+
+    @classmethod
+    def _replace_fragments_with_placeholders(cls, text, md, em):
+        pieces = []
+        start = 0
+        i = 0
+
+        while i < len(text):
+            result = None
+            if md is not None and text.startswith(md * 2, i):
+                result = cls._process_fragment(text, i + len(md) * 2, md * 2)
+            elif md is not None and text.startswith(md, i):
+                result = cls._process_fragment(text, i + len(md), md)
+            elif em is not None and text.startswith(em, i):
+                result = cls._process_fragment(
+                    text, i + len(em), em, emphasize=True)
+
+            if result is not None:
+                pieces.append(text[start:i])
+                placeholder, i = result
+                pieces.append(placeholder)
+                start = i
+                continue
+
+            i += 1
+
+        pieces.append(text[start:])
+        return ''.join(pieces)
+
+    @classmethod
+    def run(cls, doc, keyword_defaults):
+        keyword_languages = doc.get_metadata('highlighting.keywords', {})
+        elems = []
+        containers = []
+        def code(elem, doc):
+            if not isinstance(elem, (pf.Code, pf.CodeBlock)):
+                return None
+
+            if (elem.attributes.get('md') is None and
+                elem.attributes.get('em') is None and
+                not any(c in keyword_languages for c in elem.classes)):
+                return None
+
+            elems.append(elem)
+            container = (
+                pf.RawInline('', doc.format)
+                if isinstance(elem, pf.Code)
+                else pf.RawBlock('', doc.format))
+            containers.append(container)
+            return container
+
+        doc.walk(code, stop_if=lambda elem: doc.format == 'latex' and isinstance(elem, pf.Header))
+        if not elems:
+            return
+
+        cls.keyword_defaults = keyword_defaults
+
+        cls.placeholder_prefix = cls._compute_unique_placeholder(
+            elem.text for elem in elems)
+
+        for elem in elems:
+            md = elem.attributes.pop('md', None)
+            em = elem.attributes.pop('em', None)
+            elem.text = cls._replace_fragments_with_placeholders(elem.text, md, em)
+
+        converted_fragments = cls._convert_fragments(cls.fragments, doc)
+
+        # Intersperse the separator and batch convert all of the code elements at once.
+        text, sep = cls._convert_blocks(
+            [pf.Plain(elem) if isinstance(elem, pf.Code) else elem for elem in elems],
+            cls._compute_unique_placeholder(elem.text for elem in elems),
+            doc)
+
+        # The spaces in the ends are optional because of situations like:
+        # `$unspecified$ f();` that ends up like ` PH  f();`, and the markdown
+        # parser ends up eating the leading space. The resulting snippet becomes
+        # somerthing ilke <code>PH  f();</code>, so optionally ignore the spaces.
+        placeholder_re = re.compile(fr' ?{cls.placeholder_prefix}(\d+) ?')
+        def restore_fragments(text):
+            return placeholder_re.sub(
+                lambda match: restore_fragments(converted_fragments[int(match.group(1))]),
+                text)
+
+        text = restore_fragments(text)
+        results = text.split(sep)
+        assert(len(results) == len(elems))
+
+        for container, result in zip(containers, results):
+            container.text = result
+
+def finalize(doc):
+    with CodeElems._keyword_defaults(doc) as keyword_defaults:
+        CodeElems.run(doc, keyword_defaults)
+
+    has_missing_citations = False
+    def find_missing_citation(elem, doc):
+        nonlocal has_missing_citations
+        if not isinstance(elem, pf.Cite):
+            return None
+
+        text = pf.stringify(elem)
+        for citation in elem.citations:
+            if f'{citation.id}?' not in text:
+                continue
+            if re.fullmatch(r'P\d+', citation.id):
+                pf.debug(f'[WARNING] mpark/wg21: citation {citation.id} requires a revision. (e.g. `[@{citation.id}R0]`)')
+            else:
+                has_missing_citations = True
+
+    doc.walk(find_missing_citation)
+    if has_missing_citations:
+        pf.debug("""[WARNING] mpark/wg21: missing citations may indicate a stale local paper index.
+          Tip: run `make update` to refresh it""")
+
 if __name__ == '__main__':
   pf.run_filters([
-      divspan,
+      soul,
+      wording,
       cmptable,
       # after `cmptable` because...
-      header, # doesn't apply to the "headers" in comparison table.
-      table,  # also applies to tables generated by `cmptable`.
-      citation_link,
-      automatic_header_link,
+      table,   # also applies to tables generated by `cmptable`.
+      caption, # also applies to captions generated by `cmptable`.
+      *[header, automatic_header_link], # does not apply to `cmptable` "headers"
+      # not necessarily after `cmptable`
+      *[collect_refs, citation_link],
+      *formatting,
   ], prepare, finalize)
