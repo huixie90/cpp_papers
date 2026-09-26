@@ -257,7 +257,7 @@ class any_view;
 
 template <class Element, any_view_options Opts, class Ref, class RValueRef,
           class Diff>
-inline constexpr bool
+constexpr bool
     enable_borrowed_range<any_view<Element, Opts, Ref, RValueRef, Diff>> =
         bool(Opts & any_view_options::borrowed);
 
@@ -980,7 +980,7 @@ namespace std::ranges {
 
   template <class Element, any_view_options Opts, class Ref, class RValueRef,
             class Diff>
-  inline constexpr bool
+  constexpr bool
       enable_borrowed_range<any_view<Element, Opts, Ref, RValueRef, Diff>> =
           @*any-view-flag-is-set*@(Opts, any_view_options::borrowed);
 }
