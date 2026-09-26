@@ -1109,7 +1109,7 @@ template <class Rng> constexpr any_view(Rng&& rng);
 
 - [2.6]{.pnum} `is_convertible_v<range_reference_t<Rng>, Ref>` is `true`, and
 
-- [2.7]{.pnum} `reference_converts_from_temporary_v<Ref, range_reference_t<Rng>` is `false`, and
+- [2.7]{.pnum} `reference_converts_from_temporary_v<Ref, range_reference_t<Rng>>` is `false`, and
 
 - [2.8]{.pnum} `is_convertible_v<range_value_t<Rng>, remove_cv_t<Element>>` is `true`, and
 
