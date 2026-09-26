@@ -968,13 +968,10 @@ namespace std::ranges {
 
   constexpr bool @*any-view-flag-is-set*@(any_view_options opts, any_view_options flag); // exposition-only
 
-  template <class T>
-  using @*rvalue-ref-t*@ = @*see below*@; // exposition-only
-
   template <class Element,
             any_view_options Opts = any_view_options::input,
             class Ref = Element&,
-            class RValueRef = @*rvalue-ref-t*@<Ref>,
+            class RValueRef = @*see below*@,
             class Diff = ptrdiff_t>
   class any_view;
 
@@ -1045,7 +1042,7 @@ Name                      Value      Concept
 template <class Element,
           any_view_options Opts = any_view_options::input,
           class Ref = Element&,
-          class RValueRef = @*rvalue-ref-t*@<Ref>,
+          class RValueRef = @*see below*@,
           class Diff = ptrdiff_t>
 class any_view : public view_interface<any_view<Element, Opts, Ref, RValueRef, Diff>> {
   class @*iterator*@; // exposition-only
@@ -1077,22 +1074,7 @@ public:
 
 :::bq
 
-[1]{.pnum} The exposition-only `@*rvalue-ref-t*@` is equivalent to:
-
-```cpp
-template <class T>
-struct @*rvalue-ref*@ { // exposition-only
-  using type = T;
-};
-
-template <class T>
-struct @*rvalue-ref*@<T&> {
-  using type = T&&;
-};
-
-template <class T>
-using @*rvalue-ref-t*@ = typename @*rvalue-ref*@<T>::type;
-```
+[1]{.pnum} The default argument of parameter `RValueRef` is `remove_reference_t<RValueRef>` if `is_lvalue_reference_v<Ref>` is `true`, and `Ref` otherwise.
 
 :::
 
@@ -1320,10 +1302,10 @@ constexpr friend void swap(any_view& lhs, any_view& rhs) noexcept;
 ```cpp
 namespace std::ranges {
   template <class Element,
-            any_view_options Opts = any_view_options::input,
-            class Ref = Element&,
-            class RValueRef = @*rvalue-ref-t*@<Ref>,
-            class Diff = ptrdiff_t>
+            any_view_options Opts,
+            class Ref,
+            class RValueRef,
+            class Diff>
   class any_view<Element, Opts, Ref, RValueRef, Diff>::@*iterator*@ {
     public:
     using iterator_concept  = @*see below*@;
@@ -1762,10 +1744,10 @@ where `it` is an lvalue designating the *target iterator object* of `iter`
 ```cpp
 namespace std::ranges {
   template <class Element,
-            any_view_options Opts = any_view_options::input,
-            class Ref = Element&,
-            class RValueRef = @*rvalue-ref-t*@<Ref>,
-            class Diff = ptrdiff_t>
+            any_view_options Opts,
+            class Ref,
+            class RValueRef,
+            class Diff>
   class any_view<Element, Opts, Ref, RValueRef, Diff>::@*sentinel*@ {
     public:
     constexpr @*sentinel*@();
