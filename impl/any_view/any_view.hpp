@@ -676,7 +676,9 @@ class any_view
     if constexpr (!std::convertible_to<std::ranges::range_reference_t<View>,
                                        Ref> ||
                   std::reference_converts_from_temporary_v<
-                      Ref, std::ranges::range_reference_t<View>>) {
+                      Ref, std::ranges::range_reference_t<View>> ||
+                  std::reference_converts_from_temporary_v<
+                      RValueRef, std::ranges::range_rvalue_reference_t<View>>) {
       return false;
     }
 
