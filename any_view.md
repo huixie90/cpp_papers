@@ -1011,7 +1011,7 @@ Name                      Value      Concept
 `random_access`             `15`     `random_access_range`
 `contiguous`                `31`     `contiguous_range`
 `approximately_sized`       `32`     `approximately_sized_range`
-`sized`                     `64`     `sized_range`
+`sized`                     `96`     `sized_range`
 `borrowed`                  `128`    `borrowed_range`
 `copyable`                  `256`    `copyable`
 
