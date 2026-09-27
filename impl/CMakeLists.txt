@@ -6,7 +6,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # enable MSVC specific multi-processor compilation option
 
 if (MSVC)
-   set(CMAKE_CXX_STANDARD 23)
+   set(CMAKE_CXX_STANDARD 26)
    # prevent MSVC/clang incompatible MP flag
    add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
 endif()
@@ -15,11 +15,11 @@ message(${CMAKE_CXX_COMPILER_ID})
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
    set(CXX_STANDARD_REQUIRED TRUE)
-	add_compile_options(-Wall -Wextra -Werror -stdlib=libc++ -std=c++23 -ftemplate-backtrace-limit=0)
+	add_compile_options(-Wall -Wextra -Werror -stdlib=libc++ -std=c++26 -ftemplate-backtrace-limit=0)
 	#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
    set(CXX_STANDARD_REQUIRED TRUE)
-	add_compile_options(-Wall -Wextra -Werror -stdlib=libc++ -std=c++2c -ftemplate-backtrace-limit=0)
+	add_compile_options(-Wall -Wextra -Werror -stdlib=libc++ -std=c++26 -ftemplate-backtrace-limit=0)
 	#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
    set(CXX_STANDARD_REQUIRED TRUE)
