@@ -1142,6 +1142,8 @@ template <class Rng> constexpr any_view(Rng&& rng);
 
 [5]{.pnum} *Throws*: Any exception thrown by the initialization of the *target view object*. May throw `bad_alloc`.
 
+[6]{.pnum} *Remarks*: If `remove_cvref_t<Rng>` is a specialization of `any_view`, an implementation may initialize the *target view object* of `*this` with the *target view object* of `std::forward<Rng>(rng)`.
+
 :::
 
 ```cpp
