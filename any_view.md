@@ -991,7 +991,7 @@ Add the following subclause to [range.utility]{.sref}
 
 #### ?.?.?.1 General [range.any.general] {-}
 
-[1]{.pnum} The `any_view` class is a wrapper that can store, move, and traverse a view object. The wrapped object is referred to as the *target view object*.
+[1]{.pnum} The `any_view` class is a wrapper that can store, move, and traverse an arbitrary object that models `view`. The wrapped object is referred to as the *target view object*.
 
 [2]{.pnum} Recommended practice: Implementations should avoid the use of dynamically allocated memory for a small contained *target view object* of type `T` which satisfies `is_nothrow_move_constructible_v<T>`.
 
