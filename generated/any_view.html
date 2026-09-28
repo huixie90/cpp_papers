@@ -2896,7 +2896,8 @@ header <code class="sourceCode cpp">ranges</code> synopsis:</p>
 [range.any.general]<a href="#general-range.any.general" class="self-link"></a></h4>
 <p><span class="marginalizedparent"><a href="#pnum-1" id="pnum-1" class="marginalized">1</a></span> The
 <code class="sourceCode cpp">any_view</code> class is a wrapper that can
-store, move, and traverse a view object. The wrapped object is referred
+store, move, and traverse an arbitrary object that models
+<code class="sourceCode cpp">view</code>. The wrapped object is referred
 to as the <em>target view object</em>.</p>
 <p><span class="marginalizedparent"><a href="#pnum-2" id="pnum-2" class="marginalized">2</a></span> Recommended practice: Implementations
 should avoid the use of dynamically allocated memory for a small
