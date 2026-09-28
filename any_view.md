@@ -1298,7 +1298,10 @@ namespace std::ranges {
 
     friend constexpr bool operator==(const @*iterator*@& x, const @*iterator*@& y);
 
-    friend constexpr partial_ordering operator<=>(const @*iterator*@& x, const @*iterator*@& y);
+    friend constexpr bool operator<(const @*iterator*@& x, const @*iterator*@& y);
+    friend constexpr bool operator>(const @*iterator*@& x, const @*iterator*@& y);
+    friend constexpr bool operator<=(const @*iterator*@& x, const @*iterator*@& y);
+    friend constexpr bool operator>=(const @*iterator*@& x, const @*iterator*@& y);
 
     friend constexpr @*iterator*@ operator+(const @*iterator*@& i, difference_type n);
     friend constexpr @*iterator*@ operator+(difference_type n, const @*iterator*@& i);
@@ -1554,34 +1557,50 @@ friend constexpr bool operator==(const @*iterator*@& x, const @*iterator*@& y);
 :::
 
 ```cpp
-friend constexpr partial_ordering operator<=>(const @*iterator*@& x, const @*iterator*@& y);
+friend constexpr bool operator<(const @*iterator*@& x, const @*iterator*@& y);
 ```
 
 :::bq
 
 [30]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
 
-[31]{.pnum} *Effects*:
+[31]{.pnum} *Returns*: `(x - y) < 0`.
 
-- [31.1]{.pnum} If `x` has no *target iterator object* or `y` has no *target iterator object*, equivalent to:
+:::
 
-  ```cpp
-  return partial_ordering::unordered;
-  ```
+```cpp
+friend constexpr bool operator>(const @*iterator*@& x, const @*iterator*@& y);
+```
 
-- [31.2]{.pnum} Otherwise, let `it1` be an lvalue designating the *target iterator object* of `x`, and `it2` be an lvalue designating the *target iterator object* of `y`.
+:::bq
 
-  - [31.2.1]{.pnum} If `is_same_v<decltype(it1), decltype(it2)>` is `false`, equivalent to:
+[32]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
 
-    ```cpp
-    return partial_ordering::unordered;
-    ```
+[33]{.pnum} *Returns*: `(x - y) > 0`.
 
-  - [31.2.2]{.pnum} Otherwise, equivalent to:
+:::
 
-    ```cpp
-    return compare_partial_order_fallback(it1, it2);
-    ```
+```cpp
+friend constexpr bool operator<=(const @*iterator*@& x, const @*iterator*@& y);
+```
+
+:::bq
+
+[34]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
+
+[35]{.pnum} *Returns*: `(x - y) <= 0`.
+
+:::
+
+```cpp
+friend constexpr bool operator>=(const @*iterator*@& x, const @*iterator*@& y);
+```
+
+:::bq
+
+[36]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
+
+[37]{.pnum} *Returns*: `(x - y) >= 0`.
 
 :::
 
@@ -1591,9 +1610,9 @@ friend constexpr @*iterator*@ operator+(const @*iterator*@& i, difference_type n
 
 :::bq
 
-[32]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
+[38]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
 
-[33]{.pnum} *Effects*: Equivalent to:
+[39]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 auto temp = i;
@@ -1609,9 +1628,9 @@ friend constexpr @*iterator*@ operator+(difference_type n, const @*iterator*@& i
 
 :::bq
 
-[34]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
+[40]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
 
-[35]{.pnum} *Returns*: `i + n`.
+[41]{.pnum} *Returns*: `i + n`.
 
 :::
 
@@ -1622,9 +1641,9 @@ friend constexpr @*iterator*@ operator-(const @*iterator*@& i, difference_type n
 
 :::bq
 
-[36]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
+[42]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
 
-[37]{.pnum} *Effects*: Equivalent to:
+[43]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
 auto temp = i;
@@ -1640,11 +1659,11 @@ friend constexpr difference_type operator-(const @*iterator*@& x, const @*iterat
 
 :::bq
 
-[38]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
+[44]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
 
-[39]{.pnum} *Preconditions*: Both `x` and `y` have a *target iterator object*, and the two *target iterator object*s have the same type.
+[45]{.pnum} *Preconditions*: Both `x` and `y` have a *target iterator object*, and the two *target iterator object*s have the same type.
 
-[40]{.pnum} *Returns*: `it1 - it2`, where `it1` is an lvalue designating the *target iterator object* of `x`, and `it2` is an lvalue designating the *target iterator object* of `y`.
+[46]{.pnum} *Returns*: `it1 - it2`, where `it1` is an lvalue designating the *target iterator object* of `x`, and `it2` is an lvalue designating the *target iterator object* of `y`.
 
 :::
 
@@ -1654,9 +1673,9 @@ friend constexpr RValueRef iter_move(const @*iterator*@& iter);
 
 :::bq
 
-[41]{.pnum} *Preconditions*: `iter` has a *target iterator object*.
+[47]{.pnum} *Preconditions*: `iter` has a *target iterator object*.
 
-[42]{.pnum} *Returns*: `static_cast<RValueRef>(ranges::iter_move(it))`, where `it` is an lvalue designating the *target iterator object* of `iter`.
+[48]{.pnum} *Returns*: `static_cast<RValueRef>(ranges::iter_move(it))`, where `it` is an lvalue designating the *target iterator object* of `iter`.
 
 :::
 
