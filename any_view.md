@@ -993,9 +993,23 @@ Add the following subclause to [range.utility]{.sref}
 
 [1]{.pnum} The `any_view` class is a wrapper that can store, move, and traverse an arbitrary object that models `view`. The wrapped object is referred to as the *target view object*.
 
-[2]{.pnum} Recommended practice: Implementations should avoid the use of dynamically allocated memory for a small contained *target view object* of type `T` which satisfies `is_nothrow_move_constructible_v<T>`.
+[2]{.pnum} A program that instantiates a specialization of `any_view` is ill-formed unless all the following are true:
 
-[3]{.pnum} The `any_view::@*iterator*@` class and `any_view::@*sentinel*@` class are wrappers that can forward iterator and sentinel operations to an arbitrary iterator `@*i*@` of type `@*I*@` and sentinel `@*s*@` of type `@*S*@`, which model `sentinel_for<@*S*@, @*I*@>`. The wrapped objects are referred to as the *target iterator object* and the *target sentinel object*.
+- [2.1]{.pnum} `Element` is an object type
+
+- [2.2]{.pnum} `@*any-view-flag-is-set*@(Opts, any_view_options::input)`
+
+- [2.3]{.pnum} `common_reference_with<Ref&&, remove_cv_t<Element>&>`
+
+- [2.4]{.pnum} `common_reference_with<RValueRef&&, const remove_cv_t<Element>&>`
+
+- [2.5]{.pnum} `@*is_signed-integer-like*@<Diff>`
+
+[These rules ensure that `@*iterator*@` may model `indirectly_readable`.]{.note}
+
+[3]{.pnum} Recommended practice: Implementations should avoid the use of dynamically allocated memory for a small contained *target view object* of type `T` which satisfies `is_nothrow_move_constructible_v<T>`.
+
+[4]{.pnum} The `any_view::@*iterator*@` class and `any_view::@*sentinel*@` class are wrappers that can forward iterator and sentinel operations to an arbitrary iterator `@*i*@` of type `@*I*@` and sentinel `@*s*@` of type `@*S*@`, which model `sentinel_for<@*S*@, @*I*@>`. The wrapped objects are referred to as the *target iterator object* and the *target sentinel object*.
 
 #### ?.?.?.2 Enum class `any_view_options` [range.any.options] {-}
 
