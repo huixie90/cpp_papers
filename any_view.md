@@ -1147,11 +1147,13 @@ template <class Rng> constexpr any_view(Rng&& rng);
 
 - [#.#]{.pnum} `reference_converts_from_temporary_v<RValueRef, range_rvalue_reference_t<Rng>>` is `false`.
 
+[#]{.pnum} *Hardened preconditions*: `Diff` is sufficiently wide to store the size of `rng`.
+
 [#]{.pnum} *Postconditions*: `*this` has a target view object of type `all_t<Rng>` direct-non-list-initialized with `std::forward<Rng>(rng)`.
 
 [#]{.pnum} *Throws*: Any exception thrown by the initialization of the target view object. May throw `bad_alloc`.
 
-[#]{.pnum} *Remarks*: If `remove_cvref_t<Rng>` is a specialization of `any_view`, an implementation may initialize the target view object of `*this` with the target view object of `std::forward<Rng>(rng)`.
+[#]{.pnum} *Remarks*: If `remove_cvref_t<Rng>` is a specialization of `any_view`, let the specialization be `any_view<Element2, Opts2, Ref2, RValueRef2, Diff2>`, an implementation shall initialize the target view object of `*this` with the target view object of `std::forward<Rng>(rng)`, if `Ref` and `Ref2` are similar types, and, `RValueRef` and `RValueRef2` are similar types.
 
 :::
 
