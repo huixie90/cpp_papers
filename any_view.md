@@ -1029,7 +1029,7 @@ Add the following subclause to [range.utility]{.sref}
 
 #### ?.?.?.2 Enum class `any_view_options` [range.any.options] {-}
 
-The enum class type `any_view_options` is a bitmask type ([bitmask.types]) that specifies bitmask constants used to control the concepts that `any_view` models, with the meanings listed in Table ?.
+The enum class type `any_view_options` is a bitmask type ([bitmask.types]) that specifies bitmask constants used to control the concepts that `any_view` models, with the meanings listed in [tab:range.any.options]{- .sref}.
 
 : Table ? — Enum class `any_view_options` [tab:range.any.options]{- .sref}
 
@@ -1122,21 +1122,9 @@ template <class Rng> constexpr any_view(Rng&& rng);
 
 [#]{.pnum} *Constraints*:
 
+- [#.#]{.pnum} For every bitmask element and constant `e` of enum class `any_view_options`, except for `copyable`, `Rng` models the corresponding concept listed in [tab:range.any.options]{- .sref}, if `@*any-view-flag-is-set*@(Opts, e)` is `true`, and
+
 - [#.#]{.pnum} `remove_cvref_t<Rng>` is not the same type as `any_view`, and
-
-- [#.#]{.pnum} `Rng` models `range`, and
-
-- [#.#]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::approximately_sized)` is `false`, or `Rng`
-  models `approximately_sized_range`, and
-
-- [#.#]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::sized)` is `false`, or `Rng`
-  models `sized_range`, and
-
-- [#.#]{.pnum} If `@*any-view-flag-is-set*@(Opts, any_view_options::borrowed)` is `true`, let `R` be `remove_cvref_t<Rng>`,
-
-  - [#.#.#]{.pnum} If `enable_view<R>` is `true`, `borrowed_range<R>` must be `true`,
-
-  - [#.#.#]{.pnum} Otherwise, if `is_lvalue_reference_v<Rng>` is `false`, `borrowed_range<R>` must be `true`
 
 - [#.#]{.pnum} `is_convertible_v<range_reference_t<Rng>, Ref>` is `true`, and
 
@@ -1144,18 +1132,9 @@ template <class Rng> constexpr any_view(Rng&& rng);
 
 - [#.#]{.pnum} `is_convertible_v<range_difference_t<Rng>, Diff>` is `true`, and
 
-- [#.#]{.pnum} Let `CAT` be `Opts & any_view_options::contiguous`,
+- [#.#]{.pnum} if `@*any-view-flag-is-set*@(Opts, any_view_options::contiguous)` is `true`, `@*uses-nonqualification-pointer-conversion*@<add_pointer_t<range_reference_t<Rng>>, add_pointer_t<Ref>>` is `false`, and
 
-  - [#.#.#]{.pnum} If `CAT` is `any_view_options::contiguous`, `Rng` models `contiguous_range` and
-    `@*uses-nonqualification-pointer-conversion*@<add_pointer_t<range_reference_t<Rng>>, add_pointer_t<Ref>>` is `false`,
-
-  - [#.#.#]{.pnum} Otherwise, if `CAT` is `any_view_options::random_access`, `Rng` models `random_access_range`,
-
-  - [#.#.#]{.pnum} Otherwise, if `CAT` is `any_view_options::bidirectional`, `Rng` models `bidirectional_range`,
-
-  - [#.#.#]{.pnum} Otherwise if `CAT` is `any_view_options::forward`, `Rng` models `forward_range`,
-
-  - [#.#.#]{.pnum} Otherwise, `CAT` is `any_view_options::input`, and `Rng` models `input_range`.
+- [#.#]{.pnum} let `R` be `remove_cvref_t<Rng>`, if `@*any-view-flag-is-set*@(Opts, any_view_options::borrowed)` is `true` and `enable_view<R>` is `true`, `borrowed_range<R>` is `true`.
 
 [#]{.pnum} *Mandates*:
 
@@ -1167,7 +1146,6 @@ template <class Rng> constexpr any_view(Rng&& rng);
 - [#.#]{.pnum} `reference_converts_from_temporary_v<Ref, range_reference_t<Rng>>` is `false`, and
 
 - [#.#]{.pnum} `reference_converts_from_temporary_v<RValueRef, range_rvalue_reference_t<Rng>>` is `false`.
-
 
 [#]{.pnum} *Postconditions*: `*this` has a target view object of type `all_t<Rng>` direct-non-list-initialized with `std::forward<Rng>(rng)`.
 
