@@ -1323,10 +1323,12 @@ namespace std::ranges {
 
     constexpr @*iterator*@& operator++();
     constexpr void operator++(int);
-    constexpr @*iterator*@ operator++(int) requires @*see below*@;
+    constexpr @*iterator*@ operator++(int) 
+      requires (@*any-view-flag-is-set*@(Opts, any_view_options::forward)) = default;
 
     constexpr @*iterator*@& operator--();
-    constexpr @*iterator*@ operator--(int);
+    constexpr @*iterator*@ operator--(int)
+      requires (@*any-view-flag-is-set*@(Opts, any_view_options::bidirectional)) = default;
 
     constexpr @*iterator*@& operator+=(difference_type n);
     constexpr @*iterator*@& operator-=(difference_type n);
@@ -1430,28 +1432,6 @@ constexpr void operator++(int);
 :::
 
 ```cpp
-constexpr @*iterator*@ operator++(int) requires @*see below*@;
-```
-
-:::bq
-
-[#]{.pnum} *Effects*: Equivalent to:
-
-```cpp
-auto tmp = *this;
-++(*this);
-return tmp;
-```
-
-[#]{.pnum} *Remarks*: The expression in the requires-clause is equivalent to:
-
-```cpp
-Opts & any_view_options::forward == any_view_options::forward 
-```
-
-:::
-
-```cpp
 constexpr @*iterator*@& operator--();
 ```
 
@@ -1469,24 +1449,6 @@ return *this;
 ```
 
 where `it` is an lvalue designating the target iterator object of `*this`.
-
-:::
-
-```cpp
-constexpr @*iterator*@ operator--(int);
-```
-
-:::bq
-
-[#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::bidirectional)` is `true`.
-
-[#]{.pnum} *Effects*: Equivalent to:
-
-```cpp
-auto tmp = *this;
---(*this);
-return tmp;
-```
 
 :::
 
