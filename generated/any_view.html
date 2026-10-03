@@ -2904,42 +2904,49 @@ that can store, move, and traverse an arbitrary object that models
 referred to as the <em>target view object</em>.</p>
 <p><span class="marginalizedparent"><a href="#pnum-2" id="pnum-2" class="marginalized">2</a></span> A program that instantiates a
 specialization of <code class="sourceCode default cpp">any_view</code>
-is ill-formed unless all the following are true:</p>
+is ill-formed unless all the followings are true:</p>
 <ul>
 <li><p><span class="marginalizedparent"><a href="#pnum-3" id="pnum-3" class="marginalized">(2.1)</a></span>
 <code class="sourceCode default cpp">Element</code> is an object
-type</p></li>
+type.</p></li>
 <li><p><span class="marginalizedparent"><a href="#pnum-4" id="pnum-4" class="marginalized">(2.2)</a></span>
-<code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::input)</code></p></li>
+<code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::input)</code>
+is <code class="sourceCode default cpp">true</code>.</p></li>
 <li><p><span class="marginalizedparent"><a href="#pnum-5" id="pnum-5" class="marginalized">(2.3)</a></span>
-<code class="sourceCode default cpp">common_reference_with&lt;Ref&amp;&amp;, remove_cv_t&lt;Element&gt;&amp;&gt;</code></p></li>
+<code class="sourceCode default cpp">common_reference_with&lt;Ref&amp;&amp;, remove_cv_t&lt;Element&gt;&amp;&gt;</code>
+is modeled.</p></li>
 <li><p><span class="marginalizedparent"><a href="#pnum-6" id="pnum-6" class="marginalized">(2.4)</a></span>
-<code class="sourceCode default cpp">common_reference_with&lt;RValueRef&amp;&amp;, const remove_cv_t&lt;Element&gt;&amp;&gt;</code></p></li>
+<code class="sourceCode default cpp">common_reference_with&lt;RValueRef&amp;&amp;, const remove_cv_t&lt;Element&gt;&amp;&gt;</code>
+is modeled.</p></li>
 <li><p><span class="marginalizedparent"><a href="#pnum-7" id="pnum-7" class="marginalized">(2.5)</a></span>
-<code class="sourceCode default cpp"><em>is_signed-integer-like</em>&lt;Diff&gt;</code></p></li>
+<code class="sourceCode default cpp"><em>is-signed-integer-like</em>&lt;Diff&gt;</code>
+is <code class="sourceCode default cpp">true</code>.</p></li>
 </ul>
 <p><span id="note-1" class="note" data-num="1"><span>[ <em>Note <a href="#note-1">1</a>:</em> </span>These rules ensure that
-<code class="sourceCode default cpp"><em>iterator</em></code> may model
+<code class="sourceCode default cpp">any_view::<em>iterator</em></code>
+models
 <code class="sourceCode default cpp">indirectly_readable</code>.<span> —
 <em>end note</em> ]</span></span></p>
 <p><span class="marginalizedparent"><a href="#pnum-8" id="pnum-8" class="marginalized">3</a></span> Recommended practice: Implementations
 should avoid the use of dynamically allocated memory for a small
-contained <em>target view object</em> of type
+contained target view object of type
 <code class="sourceCode default cpp">T</code> which satisfies
 <code class="sourceCode default cpp">is_nothrow_move_constructible_v&lt;T&gt;</code>.</p>
 <p><span class="marginalizedparent"><a href="#pnum-9" id="pnum-9" class="marginalized">4</a></span> The
 <code class="sourceCode default cpp">any_view::<em>iterator</em></code>
-class and
+and
 <code class="sourceCode default cpp">any_view::<em>sentinel</em></code>
-class are wrappers that can forward iterator and sentinel operations to
-an arbitrary iterator
+classes, together, wrap a pair of an iterator
 <code class="sourceCode default cpp"><em>i</em></code> of type
-<code class="sourceCode default cpp"><em>I</em></code> and sentinel
+<code class="sourceCode default cpp"><em>I</em></code> and a sentinel
 <code class="sourceCode default cpp"><em>s</em></code> of type
-<code class="sourceCode default cpp"><em>S</em></code>, which model
+<code class="sourceCode default cpp"><em>S</em></code>, that model
 <code class="sourceCode default cpp">sentinel_for&lt;<em>S</em>, <em>I</em>&gt;</code>.
-The wrapped objects are referred to as the <em>target iterator
-object</em> and the <em>target sentinel object</em>.</p>
+The wrapped objects
+<code class="sourceCode default cpp"><em>i</em></code> and
+<code class="sourceCode default cpp"><em>s</em></code> are referred to
+as the <em>target iterator object</em> and the <em>target sentinel
+object</em> respectively.</p>
 </div>
 <h4 class="unnumbered" id="enum-class-any_view_options-range.any.options">?.?.?.2 Enum class
 <code class="sourceCode default cpp">any_view_options</code>
@@ -2948,7 +2955,7 @@ object</em> and the <em>target sentinel object</em>.</p>
 <code class="sourceCode default cpp">any_view_options</code> is a
 bitmask type (<a href="https://eel.is/c++draft/bitmask.types" title="16.3.3.3.3 Bitmask types">[bitmask.types]</a>) that specifies
 bitmask constants used to control the concepts that
-<code class="sourceCode default cpp">any_view</code> satisfies, with the
+<code class="sourceCode default cpp">any_view</code> models, with the
 meanings listed in Table ?.</p>
 <div class="table-wrapper">
 <table>
@@ -3051,8 +3058,8 @@ meanings listed in Table ?.</p>
 <span id="cb36-31"><a href="#cb36-31" aria-hidden="true" tabindex="-1"></a>};</span></code></pre></div>
 <div class="wording">
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-10" id="pnum-10" class="marginalized">1</a></span> The default argument of parameter
-<code class="sourceCode default cpp">RValueRef</code> is
+<p><span class="marginalizedparent"><a href="#pnum-10" id="pnum-10" class="marginalized">1</a></span> The default argument for the template
+parameter <code class="sourceCode default cpp">RValueRef</code> is
 <code class="sourceCode default cpp">remove_reference_t&lt;Ref&gt;&amp;&amp;</code>
 if
 <code class="sourceCode default cpp">is_lvalue_reference_v&lt;Ref&gt;</code>
@@ -3071,8 +3078,8 @@ Constructors, assignment, and destructor [range.any.ctor]<a href="#constructors-
 <div class="sourceCode" id="cb38"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>constexpr any_view();</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a href="#pnum-12" id="pnum-12" class="marginalized">1</a></span> <em>Postconditions</em>:
-<code class="sourceCode default cpp">*this</code> holds a <em>target
-view object</em> <code class="sourceCode default cpp">v</code>, where
+<code class="sourceCode default cpp">*this</code> holds a target view
+object <code class="sourceCode default cpp">v</code>, where
 <code class="sourceCode default cpp">ranges::empty(v)</code> is
 <code class="sourceCode default cpp">true</code>.</p>
 </div>
@@ -3175,21 +3182,21 @@ is <code class="sourceCode default cpp">false</code>, or
 <code class="sourceCode default cpp">copyable</code></p></li>
 </ul>
 <p><span class="marginalizedparent"><a href="#pnum-35" id="pnum-35" class="marginalized">4</a></span> <em>Postconditions</em>:
-<code class="sourceCode default cpp">*this</code> has a <em>target view
-object</em> of type
+<code class="sourceCode default cpp">*this</code> has a target view
+object of type
 <code class="sourceCode default cpp">all_t&lt;Rng&gt;</code>
 direct-non-list-initialized with
 <code class="sourceCode default cpp">std::forward&lt;Rng&gt;(rng)</code>.</p>
 <p><span class="marginalizedparent"><a href="#pnum-36" id="pnum-36" class="marginalized">5</a></span> <em>Throws</em>: Any exception thrown
-by the initialization of the <em>target view object</em>. May throw
+by the initialization of the target view object. May throw
 <code class="sourceCode default cpp">bad_alloc</code>.</p>
 <p><span class="marginalizedparent"><a href="#pnum-37" id="pnum-37" class="marginalized">6</a></span> <em>Remarks</em>: If
 <code class="sourceCode default cpp">remove_cvref_t&lt;Rng&gt;</code> is
 a specialization of
 <code class="sourceCode default cpp">any_view</code>, an implementation
-may initialize the <em>target view object</em> of
-<code class="sourceCode default cpp">*this</code> with the <em>target
-view object</em> of
+may initialize the target view object of
+<code class="sourceCode default cpp">*this</code> with the target view
+object of
 <code class="sourceCode default cpp">std::forward&lt;Rng&gt;(rng)</code>.</p>
 </div>
 <div class="sourceCode" id="cb40"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>constexpr any_view(const any_view&amp; other);</span></code></pre></div>
@@ -3197,22 +3204,20 @@ view object</em> of
 <p><span class="marginalizedparent"><a href="#pnum-38" id="pnum-38" class="marginalized">7</a></span> <em>Constraints</em>:
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::copyable)</code>
 is <code class="sourceCode default cpp">true</code>.</p>
-<p><span class="marginalizedparent"><a href="#pnum-39" id="pnum-39" class="marginalized">8</a></span> <em>Postconditions</em>: The
-<em>target view object</em> of
-<code class="sourceCode default cpp">*this</code> is a copy of the
-<em>target view object</em> of
+<p><span class="marginalizedparent"><a href="#pnum-39" id="pnum-39" class="marginalized">8</a></span> <em>Postconditions</em>: The target
+view object of <code class="sourceCode default cpp">*this</code> is a
+copy of the target view object of
 <code class="sourceCode default cpp">other</code>.</p>
 </div>
 <div class="sourceCode" id="cb41"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>constexpr any_view(any_view&amp;&amp; other) noexcept;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-40" id="pnum-40" class="marginalized">9</a></span> <em>Postconditions</em>: The
-<em>target view object</em> of
-<code class="sourceCode default cpp">*this</code> is equivalent to the
-<em>target view object</em> of
+<p><span class="marginalizedparent"><a href="#pnum-40" id="pnum-40" class="marginalized">9</a></span> <em>Postconditions</em>: The target
+view object of <code class="sourceCode default cpp">*this</code> is
+equivalent to the target view object of
 <code class="sourceCode default cpp">other</code> before the
 construction of <code class="sourceCode default cpp">*this</code>, and
-<code class="sourceCode default cpp">other</code> holds a <em>target
-view object</em> <code class="sourceCode default cpp">v</code> where
+<code class="sourceCode default cpp">other</code> holds a target view
+object <code class="sourceCode default cpp">v</code> where
 <code class="sourceCode default cpp">ranges::empty(v)</code> is
 <code class="sourceCode default cpp">true</code>.</p>
 </div>
@@ -3235,9 +3240,8 @@ is <code class="sourceCode default cpp">true</code>.</p>
 </div>
 <div class="sourceCode" id="cb44"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>constexpr ~any_view();</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-46" id="pnum-46" class="marginalized">15</a></span> <em>Effects</em>: Destroys the
-<em>target view object</em> of
-<code class="sourceCode default cpp">*this</code>.</p>
+<p><span class="marginalizedparent"><a href="#pnum-46" id="pnum-46" class="marginalized">15</a></span> <em>Effects</em>: Destroys the target
+view object of <code class="sourceCode default cpp">*this</code>.</p>
 </div>
 </div>
 <h4 class="unnumbered" id="range-access-range.any.access">?.?.?.5 Range
@@ -3248,12 +3252,12 @@ access [range.any.access]<a href="#range-access-range.any.access" class="self-li
 <div class="bq">
 <p><span class="marginalizedparent"><a href="#pnum-47" id="pnum-47" class="marginalized">1</a></span> <em>Effects</em>: Let
 <code class="sourceCode default cpp">v</code> be an lvalue designating
-the <em>target view object</em> of
+the target view object of
 <code class="sourceCode default cpp">*this</code>,</p>
 <ul>
 <li><span class="marginalizedparent"><a href="#pnum-48" id="pnum-48" class="marginalized">(1.1)</a></span>
 <code class="sourceCode default cpp">begin()</code> returns an object
-which holds a <em>target iterator object</em> of
+which holds a target iterator object of
 <code class="sourceCode default cpp">ranges::begin(v)</code>.</li>
 <li><span class="marginalizedparent"><a href="#pnum-49" id="pnum-49" class="marginalized">(1.2)</a></span> Let
 <code class="sourceCode default cpp"><em>ai</em></code> be the return
@@ -3281,7 +3285,7 @@ is <code class="sourceCode default cpp">true</code>.</p>
 <p><span class="marginalizedparent"><a href="#pnum-52" id="pnum-52" class="marginalized">4</a></span> <em>Returns</em>:
 <code class="sourceCode default cpp"><em>make-unsigned-like-t</em>&lt;Diff&gt;(ranges::size(v))</code>,
 where <code class="sourceCode default cpp">v</code> is an lvalue
-designating the <em>target view object</em> of
+designating the target view object of
 <code class="sourceCode default cpp">*this</code>.</p>
 </div>
 <div class="sourceCode" id="cb47"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>make-unsigned-like-t</em>&lt;Diff&gt; reserve_hint();</span></code></pre></div>
@@ -3292,7 +3296,7 @@ is <code class="sourceCode default cpp">true</code>.</p>
 <p><span class="marginalizedparent"><a href="#pnum-54" id="pnum-54" class="marginalized">6</a></span> <em>Returns</em>:
 <code class="sourceCode default cpp"><em>make-unsigned-like-t</em>&lt;Diff&gt;(ranges::reserve_hint(v))</code>,
 where <code class="sourceCode default cpp">v</code> is an lvalue
-designating the <em>target view object</em> of
+designating the target view object of
 <code class="sourceCode default cpp">*this</code>.</p>
 </div>
 </div>
@@ -3301,9 +3305,8 @@ designating the <em>target view object</em> of
 <div class="sourceCode" id="cb48"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>constexpr void swap(any_view&amp; other) noexcept;</span></code></pre></div>
 <div class="wording">
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-55" id="pnum-55" class="marginalized">1</a></span> <em>Effects</em>: Exchanges the
-<em>target view object</em>s of
-<code class="sourceCode default cpp">*this</code> and
+<p><span class="marginalizedparent"><a href="#pnum-55" id="pnum-55" class="marginalized">1</a></span> <em>Effects</em>: Exchanges the target
+view objects of <code class="sourceCode default cpp">*this</code> and
 <code class="sourceCode default cpp">other</code>.</p>
 </div>
 <div class="sourceCode" id="cb49"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>constexpr friend void swap(any_view&amp; lhs, any_view&amp; rhs) noexcept;</span></code></pre></div>
@@ -3419,30 +3422,30 @@ denotes
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::forward)</code>
 is <code class="sourceCode default cpp">true</code>.</p>
 <p><span class="marginalizedparent"><a href="#pnum-68" id="pnum-68" class="marginalized">4</a></span> <em>Postconditions</em>:
-<code class="sourceCode default cpp">*this</code> has no <em>target
-iterator object</em>.</p>
+<code class="sourceCode default cpp">*this</code> has no target iterator
+object.</p>
 </div>
 <div class="sourceCode" id="cb52"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>constexpr Ref operator*() const;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a href="#pnum-69" id="pnum-69" class="marginalized">5</a></span> <em>Preconditions</em>:
-<code class="sourceCode default cpp">*this</code> has a <em>target
-iterator object</em>.</p>
+<code class="sourceCode default cpp">*this</code> has a target iterator
+object.</p>
 <p><span class="marginalizedparent"><a href="#pnum-70" id="pnum-70" class="marginalized">6</a></span> <em>Returns</em>:
 <code class="sourceCode default cpp">static_cast&lt;Ref&gt;(*it)</code>,
 where <code class="sourceCode default cpp">it</code> is an lvalue
-designating the <em>target iterator object</em> of
+designating the target iterator object of
 <code class="sourceCode default cpp">*this</code>.</p>
 </div>
 <div class="sourceCode" id="cb53"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>iterator</em>&amp; operator++();</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a href="#pnum-71" id="pnum-71" class="marginalized">7</a></span> <em>Preconditions</em>:
-<code class="sourceCode default cpp">*this</code> has a <em>target
-iterator object</em>.</p>
+<code class="sourceCode default cpp">*this</code> has a target iterator
+object.</p>
 <p><span class="marginalizedparent"><a href="#pnum-72" id="pnum-72" class="marginalized">8</a></span> <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb54"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>++it;</span>
 <span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>return *this;</span></code></pre></div>
 <p>where <code class="sourceCode default cpp">it</code> is an lvalue
-designating the <em>target iterator object</em> of
+designating the target iterator object of
 <code class="sourceCode default cpp">*this</code>.</p>
 </div>
 <div class="sourceCode" id="cb55"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>constexpr void operator++(int);</span></code></pre></div>
@@ -3466,13 +3469,13 @@ the requires-clause is equivalent to:</p>
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::bidirectional)</code>
 is <code class="sourceCode default cpp">true</code>.</p>
 <p><span class="marginalizedparent"><a href="#pnum-77" id="pnum-77" class="marginalized">13</a></span> <em>Preconditions</em>:
-<code class="sourceCode default cpp">*this</code> has a <em>target
-iterator object</em>.</p>
+<code class="sourceCode default cpp">*this</code> has a target iterator
+object.</p>
 <p><span class="marginalizedparent"><a href="#pnum-78" id="pnum-78" class="marginalized">14</a></span> <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb60"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>--it;</span>
 <span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>return *this;</span></code></pre></div>
 <p>where <code class="sourceCode default cpp">it</code> is an lvalue
-designating the <em>target iterator object</em> of
+designating the target iterator object of
 <code class="sourceCode default cpp">*this</code>.</p>
 </div>
 <div class="sourceCode" id="cb61"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>iterator</em> operator--(int);</span></code></pre></div>
@@ -3491,13 +3494,13 @@ is <code class="sourceCode default cpp">true</code>.</p>
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::random_access)</code>
 is <code class="sourceCode default cpp">true</code>.</p>
 <p><span class="marginalizedparent"><a href="#pnum-82" id="pnum-82" class="marginalized">18</a></span> <em>Preconditions</em>:
-<code class="sourceCode default cpp">*this</code> has a <em>target
-iterator object</em>.</p>
+<code class="sourceCode default cpp">*this</code> has a target iterator
+object.</p>
 <p><span class="marginalizedparent"><a href="#pnum-83" id="pnum-83" class="marginalized">19</a></span> <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb64"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>it += n;</span>
 <span id="cb64-2"><a href="#cb64-2" aria-hidden="true" tabindex="-1"></a>return *this;</span></code></pre></div>
 <p>where <code class="sourceCode default cpp">it</code> is an lvalue
-designating the <em>target iterator object</em> of
+designating the target iterator object of
 <code class="sourceCode default cpp">*this</code>.</p>
 </div>
 <div class="sourceCode" id="cb65"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>iterator</em>&amp; operator-=(difference_type n);</span></code></pre></div>
@@ -3506,13 +3509,13 @@ designating the <em>target iterator object</em> of
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::random_access)</code>
 is <code class="sourceCode default cpp">true</code>.</p>
 <p><span class="marginalizedparent"><a href="#pnum-85" id="pnum-85" class="marginalized">21</a></span> <em>Preconditions</em>:
-<code class="sourceCode default cpp">*this</code> has a <em>target
-iterator object</em>.</p>
+<code class="sourceCode default cpp">*this</code> has a target iterator
+object.</p>
 <p><span class="marginalizedparent"><a href="#pnum-86" id="pnum-86" class="marginalized">22</a></span> <em>Effects</em>: Equivalent to:</p>
 <div class="sourceCode" id="cb66"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>it -= n;</span>
 <span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>return *this;</span></code></pre></div>
 <p>where <code class="sourceCode default cpp">it</code> is an lvalue
-designating the <em>target iterator object</em> of
+designating the target iterator object of
 <code class="sourceCode default cpp">*this</code>.</p>
 </div>
 <div class="sourceCode" id="cb67"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>constexpr Ref operator[](difference_type n) const;</span></code></pre></div>
@@ -3529,12 +3532,12 @@ is <code class="sourceCode default cpp">true</code>.</p>
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::contiguous)</code>
 is <code class="sourceCode default cpp">true</code>.</p>
 <p><span class="marginalizedparent"><a href="#pnum-90" id="pnum-90" class="marginalized">26</a></span> <em>Preconditions</em>:
-<code class="sourceCode default cpp">*this</code> has a <em>target
-iterator object</em>.</p>
+<code class="sourceCode default cpp">*this</code> has a target iterator
+object.</p>
 <p><span class="marginalizedparent"><a href="#pnum-91" id="pnum-91" class="marginalized">27</a></span> <em>Returns</em>:
 <code class="sourceCode default cpp">to_address(it)</code>, where
 <code class="sourceCode default cpp">it</code> is an lvalue designating
-the <em>target iterator object</em> of
+the target iterator object of
 <code class="sourceCode default cpp">*this</code>.</p>
 </div>
 <div class="sourceCode" id="cb69"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>friend constexpr bool operator==(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span></code></pre></div>
@@ -3546,23 +3549,22 @@ is <code class="sourceCode default cpp">true</code>.</p>
 <ul>
 <li><p><span class="marginalizedparent"><a href="#pnum-94" id="pnum-94" class="marginalized">(29.1)</a></span> If both
 <code class="sourceCode default cpp">x</code> and
-<code class="sourceCode default cpp">y</code> have no <em>target
-iterator object</em>, equivalent to:</p>
+<code class="sourceCode default cpp">y</code> have no target iterator
+object, equivalent to:</p>
 <div class="sourceCode" id="cb70"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>return true;</span></code></pre></div></li>
 <li><p><span class="marginalizedparent"><a href="#pnum-95" id="pnum-95" class="marginalized">(29.2)</a></span> Otherwise, if
-<code class="sourceCode default cpp">x</code> has no <em>target iterator
-object</em> and <code class="sourceCode default cpp">y</code> has a
-<em>target iterator object</em>, or,
-<code class="sourceCode default cpp">x</code> has a <em>target iterator
-object</em> and <code class="sourceCode default cpp">y</code> has no
-<em>target iterator object</em>, equivalent to:</p>
+<code class="sourceCode default cpp">x</code> has no target iterator
+object and <code class="sourceCode default cpp">y</code> has a target
+iterator object, or, <code class="sourceCode default cpp">x</code> has a
+target iterator object and <code class="sourceCode default cpp">y</code>
+has no target iterator object, equivalent to:</p>
 <div class="sourceCode" id="cb71"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>return false;</span></code></pre></div></li>
 <li><p><span class="marginalizedparent"><a href="#pnum-96" id="pnum-96" class="marginalized">(29.3)</a></span> Otherwise, let
 <code class="sourceCode default cpp">it1</code> be an lvalue designating
-the <em>target iterator object</em> of
+the target iterator object of
 <code class="sourceCode default cpp">x</code>, and
 <code class="sourceCode default cpp">it2</code> be an lvalue designating
-the <em>target iterator object</em> of
+the target iterator object of
 <code class="sourceCode default cpp">y</code>.</p>
 <ul>
 <li><p><span class="marginalizedparent"><a href="#pnum-97" id="pnum-97" class="marginalized">(29.3.1)</a></span> If
@@ -3641,27 +3643,26 @@ is <code class="sourceCode default cpp">true</code>.</p>
 is <code class="sourceCode default cpp">true</code>.</p>
 <p><span class="marginalizedparent"><a href="#pnum-114" id="pnum-114" class="marginalized">45</a></span> <em>Preconditions</em>: Both
 <code class="sourceCode default cpp">x</code> and
-<code class="sourceCode default cpp">y</code> have a <em>target iterator
-object</em>, and the two <em>target iterator object</em>s have the same
-type.</p>
+<code class="sourceCode default cpp">y</code> have a target iterator
+object, and the two target iterator objects have the same type.</p>
 <p><span class="marginalizedparent"><a href="#pnum-115" id="pnum-115" class="marginalized">46</a></span> <em>Returns</em>:
 <code class="sourceCode default cpp">it1 - it2</code>, where
 <code class="sourceCode default cpp">it1</code> is an lvalue designating
-the <em>target iterator object</em> of
+the target iterator object of
 <code class="sourceCode default cpp">x</code>, and
 <code class="sourceCode default cpp">it2</code> is an lvalue designating
-the <em>target iterator object</em> of
+the target iterator object of
 <code class="sourceCode default cpp">y</code>.</p>
 </div>
 <div class="sourceCode" id="cb84"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>friend constexpr RValueRef iter_move(const <em>iterator</em>&amp; iter);</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a href="#pnum-116" id="pnum-116" class="marginalized">47</a></span> <em>Preconditions</em>:
-<code class="sourceCode default cpp">iter</code> has a <em>target
-iterator object</em>.</p>
+<code class="sourceCode default cpp">iter</code> has a target iterator
+object.</p>
 <p><span class="marginalizedparent"><a href="#pnum-117" id="pnum-117" class="marginalized">48</a></span> <em>Returns</em>:
 <code class="sourceCode default cpp">static_cast&lt;RValueRef&gt;(ranges::iter_move(it))</code>,
 where <code class="sourceCode default cpp">it</code> is an lvalue
-designating the <em>target iterator object</em> of
+designating the target iterator object of
 <code class="sourceCode default cpp">iter</code>.</p>
 </div>
 </div>
@@ -3685,24 +3686,24 @@ any_view::sentinel [range.any.sentinel]<a href="#class-any_viewsentinel-range.an
 <div class="wording">
 <div class="bq">
 <p><span class="marginalizedparent"><a href="#pnum-118" id="pnum-118" class="marginalized">1</a></span> <em>Postconditions</em>:
-<code class="sourceCode default cpp">*this</code> has no <em>target
-sentinel object</em>.</p>
+<code class="sourceCode default cpp">*this</code> has no target sentinel
+object.</p>
 </div>
 <div class="sourceCode" id="cb87"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a>friend constexpr bool operator==(const <em>iterator</em>&amp; x, const <em>sentinel</em>&amp; y);</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a href="#pnum-119" id="pnum-119" class="marginalized">2</a></span> <em>Effects</em>:</p>
 <ul>
 <li><p><span class="marginalizedparent"><a href="#pnum-120" id="pnum-120" class="marginalized">(2.1)</a></span> If either
-<code class="sourceCode default cpp">x</code> has no <em>target iterator
-object</em>, or <code class="sourceCode default cpp">y</code> has no
-<em>target sentinel object</em>, equivalent to:</p>
+<code class="sourceCode default cpp">x</code> has no target iterator
+object, or <code class="sourceCode default cpp">y</code> has no target
+sentinel object, equivalent to:</p>
 <div class="sourceCode" id="cb88"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>return false;</span></code></pre></div></li>
 <li><p><span class="marginalizedparent"><a href="#pnum-121" id="pnum-121" class="marginalized">(2.2)</a></span> Otherwise, let
 <code class="sourceCode default cpp">it</code> be an lvalue designating
-the <em>target iterator object</em> of
+the target iterator object of
 <code class="sourceCode default cpp">x</code>, and
 <code class="sourceCode default cpp">st</code> be an lvalue designating
-the <em>target sentinel object</em> of
+the target sentinel object of
 <code class="sourceCode default cpp">y</code>,</p>
 <ul>
 <li><p><span class="marginalizedparent"><a href="#pnum-122" id="pnum-122" class="marginalized">(2.2.1)</a></span> If

@@ -1001,29 +1001,29 @@ Add the following subclause to [range.utility]{.sref}
 
 [#]{.pnum} The `any_view` class is a wrapper that can store, move, and traverse an arbitrary object that models `view`. The wrapped object is referred to as the *target view object*.
 
-[#]{.pnum} A program that instantiates a specialization of `any_view` is ill-formed unless all the following are true:
+[#]{.pnum} A program that instantiates a specialization of `any_view` is ill-formed unless all the followings are true:
 
-- [#.#]{.pnum} `Element` is an object type
+- [#.#]{.pnum} `Element` is an object type.
 
-- [#.#]{.pnum} `@*any-view-flag-is-set*@(Opts, any_view_options::input)`
+- [#.#]{.pnum} `@*any-view-flag-is-set*@(Opts, any_view_options::input)` is `true`.
 
-- [#.#]{.pnum} `common_reference_with<Ref&&, remove_cv_t<Element>&>`
+- [#.#]{.pnum} `common_reference_with<Ref&&, remove_cv_t<Element>&>` is modeled.
 
-- [#.#]{.pnum} `common_reference_with<RValueRef&&, const remove_cv_t<Element>&>`
+- [#.#]{.pnum} `common_reference_with<RValueRef&&, const remove_cv_t<Element>&>` is modeled.
 
-- [#.#]{.pnum} `@*is_signed-integer-like*@<Diff>`
+- [#.#]{.pnum} `@*is-signed-integer-like*@<Diff>` is `true`.
 
-[These rules ensure that `@*iterator*@` may model `indirectly_readable`.]{.note}
+[These rules ensure that `any_view::@*iterator*@` models `indirectly_readable`.]{.note}
 
-[#]{.pnum} Recommended practice: Implementations should avoid the use of dynamically allocated memory for a small contained *target view object* of type `T` which satisfies `is_nothrow_move_constructible_v<T>`.
+[#]{.pnum} Recommended practice: Implementations should avoid the use of dynamically allocated memory for a small contained target view object of type `T` which satisfies `is_nothrow_move_constructible_v<T>`.
 
-[#]{.pnum} The `any_view::@*iterator*@` class and `any_view::@*sentinel*@` class are wrappers that can forward iterator and sentinel operations to an arbitrary iterator `@*i*@` of type `@*I*@` and sentinel `@*s*@` of type `@*S*@`, which model `sentinel_for<@*S*@, @*I*@>`. The wrapped objects are referred to as the *target iterator object* and the *target sentinel object*.
+[#]{.pnum} The `any_view::@*iterator*@` and `any_view::@*sentinel*@` classes, together, wrap a pair of an iterator `@*i*@` of type `@*I*@` and a sentinel `@*s*@` of type `@*S*@`, that model `sentinel_for<@*S*@, @*I*@>`. The wrapped objects `@*i*@` and `@*s*@` are referred to as the *target iterator object* and the *target sentinel object* respectively.
 
 :::
 
 #### ?.?.?.2 Enum class `any_view_options` [range.any.options] {-}
 
-The enum class type `any_view_options` is a bitmask type ([bitmask.types]) that specifies bitmask constants used to control the concepts that `any_view` satisfies, with the meanings listed in Table ?.
+The enum class type `any_view_options` is a bitmask type ([bitmask.types]) that specifies bitmask constants used to control the concepts that `any_view` models, with the meanings listed in Table ?.
 
 : Table ? — Enum class `any_view_options` [tab:range.any.options]{- .sref}
 
@@ -1079,7 +1079,7 @@ public:
 
 :::bq
 
-[#]{.pnum} The default argument of parameter `RValueRef` is `remove_reference_t<Ref>&&` if `is_lvalue_reference_v<Ref>` is `true`, and `Ref` otherwise.
+[#]{.pnum} The default argument for the template parameter `RValueRef` is `remove_reference_t<Ref>&&` if `is_lvalue_reference_v<Ref>` is `true`, and `Ref` otherwise.
 
 :::
 
@@ -1104,7 +1104,7 @@ constexpr any_view();
 
 :::bq
 
-[#]{.pnum} *Postconditions*: `*this` holds a *target view object* `v`, where `ranges::empty(v)` is `true`.
+[#]{.pnum} *Postconditions*: `*this` holds a target view object `v`, where `ranges::empty(v)` is `true`.
 
 :::
 
@@ -1162,11 +1162,11 @@ template <class Rng> constexpr any_view(Rng&& rng);
 - [#.#]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::copyable)` is `false`, or `all_t<Rng>`
   models `copyable`
 
-[#]{.pnum} *Postconditions*: `*this` has a *target view object* of type `all_t<Rng>` direct-non-list-initialized with `std::forward<Rng>(rng)`.
+[#]{.pnum} *Postconditions*: `*this` has a target view object of type `all_t<Rng>` direct-non-list-initialized with `std::forward<Rng>(rng)`.
 
-[#]{.pnum} *Throws*: Any exception thrown by the initialization of the *target view object*. May throw `bad_alloc`.
+[#]{.pnum} *Throws*: Any exception thrown by the initialization of the target view object. May throw `bad_alloc`.
 
-[#]{.pnum} *Remarks*: If `remove_cvref_t<Rng>` is a specialization of `any_view`, an implementation may initialize the *target view object* of `*this` with the *target view object* of `std::forward<Rng>(rng)`.
+[#]{.pnum} *Remarks*: If `remove_cvref_t<Rng>` is a specialization of `any_view`, an implementation may initialize the target view object of `*this` with the target view object of `std::forward<Rng>(rng)`.
 
 :::
 
@@ -1178,7 +1178,7 @@ constexpr any_view(const any_view& other);
 
 [#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::copyable)` is `true`.
 
-[#]{.pnum} *Postconditions*: The *target view object* of `*this` is a copy of the *target view object* of `other`.
+[#]{.pnum} *Postconditions*: The target view object of `*this` is a copy of the target view object of `other`.
 
 :::
 
@@ -1188,7 +1188,7 @@ constexpr any_view(any_view&& other) noexcept;
 
 :::bq
 
-[#]{.pnum} *Postconditions*: The *target view object* of `*this` is equivalent to the *target view object* of `other` before the construction of `*this`, and `other` holds a *target view object* `v` where `ranges::empty(v)` is `true`.
+[#]{.pnum} *Postconditions*: The target view object of `*this` is equivalent to the target view object of `other` before the construction of `*this`, and `other` holds a target view object `v` where `ranges::empty(v)` is `true`.
 
 :::
 
@@ -1224,7 +1224,7 @@ constexpr ~any_view();
 
 :::bq
 
-[#]{.pnum} *Effects*: Destroys the *target view object* of `*this`.
+[#]{.pnum} *Effects*: Destroys the target view object of `*this`.
 
 :::
 :::
@@ -1239,9 +1239,9 @@ constexpr @*sentinel*@ end();
 :::wording
 :::bq
 
-[#]{.pnum} *Effects*: Let `v` be an lvalue designating the *target view object* of `*this`,
+[#]{.pnum} *Effects*: Let `v` be an lvalue designating the target view object of `*this`,
 
-- [#.#]{.pnum} `begin()` returns an object which holds a *target iterator object* of `ranges::begin(v)`.
+- [#.#]{.pnum} `begin()` returns an object which holds a target iterator object of `ranges::begin(v)`.
 - [#.#]{.pnum} Let `@*ai*@` be the return value of `begin()`, `@*as*@` be the return value of `end()`, `@*i*@` be `ranges::begin(v)`, and `@*s*@` be `ranges::end(v)`, `@*ai*@ == @*as*@` is equivalent to `@*i*@ == @*s*@`.
 
 [#]{.pnum} *Note*: Implementation is permitted to call `ranges::end(v)` in `begin()`.
@@ -1256,7 +1256,7 @@ constexpr @*make-unsigned-like-t*@<Diff> size();
 
 [#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::sized)` is `true`.
 
-[#]{.pnum} *Returns*: `@*make-unsigned-like-t*@<Diff>(ranges::size(v))`, where `v` is an lvalue designating the *target view object* of `*this`.
+[#]{.pnum} *Returns*: `@*make-unsigned-like-t*@<Diff>(ranges::size(v))`, where `v` is an lvalue designating the target view object of `*this`.
 
 :::
 
@@ -1268,7 +1268,7 @@ constexpr @*make-unsigned-like-t*@<Diff> reserve_hint();
 
 [#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::approximately_sized)` is `true`.
 
-[#]{.pnum} *Returns*: `@*make-unsigned-like-t*@<Diff>(ranges::reserve_hint(v))`, where `v` is an lvalue designating the *target view object* of `*this`.
+[#]{.pnum} *Returns*: `@*make-unsigned-like-t*@<Diff>(ranges::reserve_hint(v))`, where `v` is an lvalue designating the target view object of `*this`.
 
 :::
 :::
@@ -1282,7 +1282,7 @@ constexpr void swap(any_view& other) noexcept;
 :::wording
 :::bq
 
-[#]{.pnum} *Effects*: Exchanges the *target view object*s of `*this` and `other`.
+[#]{.pnum} *Effects*: Exchanges the target view objects of `*this` and `other`.
 
 :::
 
@@ -1380,7 +1380,7 @@ constexpr @*iterator*@();
 
 [#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::forward)` is `true`.
 
-[#]{.pnum} *Postconditions*: `*this` has no *target iterator object*.
+[#]{.pnum} *Postconditions*: `*this` has no target iterator object.
 
 :::
 
@@ -1390,9 +1390,9 @@ constexpr Ref operator*() const;
 
 :::bq
 
-[#]{.pnum} *Preconditions*: `*this` has a *target iterator object*.
+[#]{.pnum} *Preconditions*: `*this` has a target iterator object.
 
-[#]{.pnum} *Returns*: `static_cast<Ref>(*it)`, where `it` is an lvalue designating the *target iterator object* of `*this`.
+[#]{.pnum} *Returns*: `static_cast<Ref>(*it)`, where `it` is an lvalue designating the target iterator object of `*this`.
 
 :::
 
@@ -1402,7 +1402,7 @@ constexpr @*iterator*@& operator++();
 
 :::bq
 
-[#]{.pnum} *Preconditions*: `*this` has a *target iterator object*.
+[#]{.pnum} *Preconditions*: `*this` has a target iterator object.
 
 [#]{.pnum} *Effects*: Equivalent to:
 
@@ -1411,7 +1411,7 @@ constexpr @*iterator*@& operator++();
 return *this;
 ```
 
-where `it` is an lvalue designating the *target iterator object* of `*this`.
+where `it` is an lvalue designating the target iterator object of `*this`.
 
 :::
 
@@ -1455,7 +1455,7 @@ constexpr @*iterator*@& operator--();
 
 [#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::bidirectional)` is `true`.
 
-[#]{.pnum} *Preconditions*: `*this` has a *target iterator object*.
+[#]{.pnum} *Preconditions*: `*this` has a target iterator object.
 
 [#]{.pnum} *Effects*: Equivalent to:
 
@@ -1464,7 +1464,7 @@ constexpr @*iterator*@& operator--();
 return *this;
 ```
 
-where `it` is an lvalue designating the *target iterator object* of `*this`.
+where `it` is an lvalue designating the target iterator object of `*this`.
 
 :::
 
@@ -1494,7 +1494,7 @@ constexpr @*iterator*@& operator+=(difference_type n);
 
 [#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
 
-[#]{.pnum} *Preconditions*: `*this` has a *target iterator object*.
+[#]{.pnum} *Preconditions*: `*this` has a target iterator object.
 
 [#]{.pnum} *Effects*: Equivalent to:
 
@@ -1503,7 +1503,7 @@ it += n;
 return *this;
 ```
 
-where `it` is an lvalue designating the *target iterator object* of `*this`.
+where `it` is an lvalue designating the target iterator object of `*this`.
 
 :::
 
@@ -1515,7 +1515,7 @@ constexpr @*iterator*@& operator-=(difference_type n);
 
 [#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
 
-[#]{.pnum} *Preconditions*: `*this` has a *target iterator object*.
+[#]{.pnum} *Preconditions*: `*this` has a target iterator object.
 
 [#]{.pnum} *Effects*: Equivalent to:
 
@@ -1524,7 +1524,7 @@ it -= n;
 return *this;
 ```
 
-where `it` is an lvalue designating the *target iterator object* of `*this`.
+where `it` is an lvalue designating the target iterator object of `*this`.
 
 :::
 
@@ -1548,9 +1548,9 @@ constexpr add_pointer_t<Ref> operator->() const;
 
 [#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::contiguous)` is `true`.
 
-[#]{.pnum} *Preconditions*: `*this` has a *target iterator object*.
+[#]{.pnum} *Preconditions*: `*this` has a target iterator object.
 
-[#]{.pnum} *Returns*: `to_address(it)`, where `it` is an lvalue designating the *target iterator object* of `*this`.
+[#]{.pnum} *Returns*: `to_address(it)`, where `it` is an lvalue designating the target iterator object of `*this`.
 
 :::
 
@@ -1564,19 +1564,19 @@ friend constexpr bool operator==(const @*iterator*@& x, const @*iterator*@& y);
 
 [#]{.pnum} *Effects*:
 
-- [#.#]{.pnum} If both `x` and `y` have no *target iterator object*, equivalent to:
+- [#.#]{.pnum} If both `x` and `y` have no target iterator object, equivalent to:
 
   ```cpp
   return true;
   ```
 
-- [#.#]{.pnum} Otherwise, if `x` has no *target iterator object* and `y` has a *target iterator object*, or, `x` has a *target iterator object* and `y` has no *target iterator object*, equivalent to:
+- [#.#]{.pnum} Otherwise, if `x` has no target iterator object and `y` has a target iterator object, or, `x` has a target iterator object and `y` has no target iterator object, equivalent to:
 
   ```cpp
   return false;
   ```
 
-- [#.#]{.pnum} Otherwise, let `it1` be an lvalue designating the *target iterator object* of `x`, and `it2` be an lvalue designating the *target iterator object* of `y`.
+- [#.#]{.pnum} Otherwise, let `it1` be an lvalue designating the target iterator object of `x`, and `it2` be an lvalue designating the target iterator object of `y`.
 
   - [#.#.#]{.pnum} If `is_same_v<decltype(it1), decltype(it2)>` is `false`, equivalent to:
 
@@ -1697,9 +1697,9 @@ friend constexpr difference_type operator-(const @*iterator*@& x, const @*iterat
 
 [#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
 
-[#]{.pnum} *Preconditions*: Both `x` and `y` have a *target iterator object*, and the two *target iterator object*s have the same type.
+[#]{.pnum} *Preconditions*: Both `x` and `y` have a target iterator object, and the two target iterator objects have the same type.
 
-[#]{.pnum} *Returns*: `it1 - it2`, where `it1` is an lvalue designating the *target iterator object* of `x`, and `it2` is an lvalue designating the *target iterator object* of `y`.
+[#]{.pnum} *Returns*: `it1 - it2`, where `it1` is an lvalue designating the target iterator object of `x`, and `it2` is an lvalue designating the target iterator object of `y`.
 
 :::
 
@@ -1709,9 +1709,9 @@ friend constexpr RValueRef iter_move(const @*iterator*@& iter);
 
 :::bq
 
-[#]{.pnum} *Preconditions*: `iter` has a *target iterator object*.
+[#]{.pnum} *Preconditions*: `iter` has a target iterator object.
 
-[#]{.pnum} *Returns*: `static_cast<RValueRef>(ranges::iter_move(it))`, where `it` is an lvalue designating the *target iterator object* of `iter`.
+[#]{.pnum} *Returns*: `static_cast<RValueRef>(ranges::iter_move(it))`, where `it` is an lvalue designating the target iterator object of `iter`.
 
 :::
 :::
@@ -1742,7 +1742,7 @@ constexpr @*sentinel*@();
 :::wording
 :::bq
 
-[#]{.pnum} *Postconditions*: `*this` has no *target sentinel object*.
+[#]{.pnum} *Postconditions*: `*this` has no target sentinel object.
 
 :::
 
@@ -1754,13 +1754,13 @@ friend constexpr bool operator==(const @*iterator*@& x, const @*sentinel*@& y);
 
 [#]{.pnum} *Effects*:
 
-- [#.#]{.pnum} If either `x` has no *target iterator object*, or `y` has no *target sentinel object*,  equivalent to:
+- [#.#]{.pnum} If either `x` has no target iterator object, or `y` has no target sentinel object,  equivalent to:
 
   ```cpp
   return false;
   ```
 
-- [#.#]{.pnum} Otherwise, let `it` be an lvalue designating the *target iterator object* of `x`, and `st` be an lvalue designating the *target sentinel object* of `y`,
+- [#.#]{.pnum} Otherwise, let `it` be an lvalue designating the target iterator object of `x`, and `st` be an lvalue designating the target sentinel object of `y`,
 
   - [#.#.#]{.pnum} If `sentinel_for<decay_t<decltype(st)>, decay_t<decltype(it)>>` is `false`, the return value is unspecified.
 
