@@ -1246,12 +1246,9 @@ constexpr @*sentinel*@ end();
 :::wording
 :::bq
 
-[#]{.pnum} *Effects*: Let `v` be an lvalue designating the target view object of `*this`,
+[#]{.pnum} *Effects*: Let `v` be an lvalue designating the target view object of `*this`, a pair of objects returned by `begin()` and `end()` together hold a pair of an iterator `ranges::begin(v)` and a sentinel `ranges::end(v)`.
 
-- [#.#]{.pnum} `begin()` returns an object which holds a target iterator object of `ranges::begin(v)`.
-- [#.#]{.pnum} Let `@*ai*@` be the return value of `begin()`, `@*as*@` be the return value of `end()`, `@*i*@` be `ranges::begin(v)`, and `@*s*@` be `ranges::end(v)`, `@*ai*@ == @*as*@` is equivalent to `@*i*@ == @*s*@`.
-
-[#]{.pnum} *Note*: Implementation is permitted to call `ranges::end(v)` in `begin()`.
+[An implementation is permitted to call `ranges::end(v)` in `begin()`.]{.note}
 
 :::
 
