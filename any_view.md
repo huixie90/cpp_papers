@@ -1013,6 +1013,12 @@ Add the following subclause to [range.utility]{.sref}
 
 - [#.#]{.pnum} `@*is-signed-integer-like*@<Diff>` is `true`.
 
+- [#.#]{.pnum} If `@*any-view-flag-is-set*@(Opts, any_view_options::contiguous)` is `true`, both of the followings are true:
+
+  - [#.#.#]{.pnum} `std::is_lvalue_reference_v<Ref>` is `true`, and
+
+  - [#.#.#]{.pnum} `std::same_as<remove_cv_t<Element>, std::remove_cvref_t<Ref>` is `true`.
+
 [These rules ensure that `any_view::@*iterator*@` models `indirectly_readable`.]{.note}
 
 [#]{.pnum} Recommended practice: Implementations should avoid the use of dynamically allocated memory for a small contained target view object of type `T` which satisfies `is_nothrow_move_constructible_v<T>`.
@@ -1134,10 +1140,6 @@ template <class Rng> constexpr any_view(Rng&& rng);
 
 - [#.#]{.pnum} `is_convertible_v<range_reference_t<Rng>, Ref>` is `true`, and
 
-- [#.#]{.pnum} `reference_converts_from_temporary_v<Ref, range_reference_t<Rng>>` is `false`, and
-
-- [#.#]{.pnum} `reference_converts_from_temporary_v<RValueRef, range_rvalue_reference_t<Rng>>` is `false`, and
-
 - [#.#]{.pnum} `is_convertible_v<range_rvalue_reference_t<Rng>, RValueRef>` is `true`, and
 
 - [#.#]{.pnum} `is_convertible_v<range_difference_t<Rng>, Diff>` is `true`, and
@@ -1160,7 +1162,12 @@ template <class Rng> constexpr any_view(Rng&& rng);
 - [#.#]{.pnum} `Rng` models `viewable_range`, and
 
 - [#.#]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::copyable)` is `false`, or `all_t<Rng>`
-  models `copyable`
+  models `copyable`, and
+
+- [#.#]{.pnum} `reference_converts_from_temporary_v<Ref, range_reference_t<Rng>>` is `false`, and
+
+- [#.#]{.pnum} `reference_converts_from_temporary_v<RValueRef, range_rvalue_reference_t<Rng>>` is `false`.
+
 
 [#]{.pnum} *Postconditions*: `*this` has a target view object of type `all_t<Rng>` direct-non-list-initialized with `std::forward<Rng>(rng)`.
 
