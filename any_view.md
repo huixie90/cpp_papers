@@ -1013,6 +1013,12 @@ Add the following subclause to [range.utility]{.sref}
 
 - [#.#]{.pnum} `@*is-signed-integer-like*@<Diff>` is `true`.
 
+- [#.#]{.pnum} If `@*any-view-flag-is-set*@(Opts, any_view_options::contiguous)` is `true`, both of the followings are true:
+
+  - [#.#.#]{.pnum} `std::is_lvalue_reference_v<Ref>` is `true`, and
+
+  - [#.#.#]{.pnum} `std::same_as<remove_cv_t<Element>, std::remove_cvref_t<Ref>` is `true`.
+
 [These rules ensure that `any_view::@*iterator*@` models `indirectly_readable`.]{.note}
 
 [#]{.pnum} Recommended practice: Implementations should avoid the use of dynamically allocated memory for a small contained target view object of type `T` which satisfies `is_nothrow_move_constructible_v<T>`.
@@ -1023,7 +1029,7 @@ Add the following subclause to [range.utility]{.sref}
 
 #### ?.?.?.2 Enum class `any_view_options` [range.any.options] {-}
 
-The enum class type `any_view_options` is a bitmask type ([bitmask.types]) that specifies bitmask constants used to control the concepts that `any_view` models, with the meanings listed in Table ?.
+The enum class type `any_view_options` is a bitmask type ([bitmask.types]) that specifies bitmask constants used to control the concepts that `any_view` models, with the meanings listed in [tab:range.any.options]{- .sref}.
 
 : Table ? — Enum class `any_view_options` [tab:range.any.options]{- .sref}
 
@@ -1116,51 +1122,30 @@ template <class Rng> constexpr any_view(Rng&& rng);
 
 [#]{.pnum} *Constraints*:
 
+- [#.#]{.pnum} For every bitmask element and constant `e` of enum class `any_view_options`, except for `copyable`, `Rng` models the corresponding concept listed in [tab:range.any.options]{- .sref}, if `@*any-view-flag-is-set*@(Opts, e)` is `true`, and
+
 - [#.#]{.pnum} `remove_cvref_t<Rng>` is not the same type as `any_view`, and
 
-- [#.#]{.pnum} `Rng` models `range`, and
-
-- [#.#]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::approximately_sized)` is `false`, or `Rng`
-  models `approximately_sized_range`, and
-
-- [#.#]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::sized)` is `false`, or `Rng`
-  models `sized_range`, and
-
-- [#.#]{.pnum} If `@*any-view-flag-is-set*@(Opts, any_view_options::borrowed)` is `true`, let `R` be `remove_cvref_t<Rng>`,
-
-  - [#.#.#]{.pnum} If `enable_view<R>` is `true`, `borrowed_range<R>` must be `true`,
-
-  - [#.#.#]{.pnum} Otherwise, if `is_lvalue_reference_v<Rng>` is `false`, `borrowed_range<R>` must be `true`
-
 - [#.#]{.pnum} `is_convertible_v<range_reference_t<Rng>, Ref>` is `true`, and
-
-- [#.#]{.pnum} `reference_converts_from_temporary_v<Ref, range_reference_t<Rng>>` is `false`, and
-
-- [#.#]{.pnum} `reference_converts_from_temporary_v<RValueRef, range_rvalue_reference_t<Rng>>` is `false`, and
 
 - [#.#]{.pnum} `is_convertible_v<range_rvalue_reference_t<Rng>, RValueRef>` is `true`, and
 
 - [#.#]{.pnum} `is_convertible_v<range_difference_t<Rng>, Diff>` is `true`, and
 
-- [#.#]{.pnum} Let `CAT` be `Opts & any_view_options::contiguous`,
+- [#.#]{.pnum} if `@*any-view-flag-is-set*@(Opts, any_view_options::contiguous)` is `true`, `@*uses-nonqualification-pointer-conversion*@<add_pointer_t<range_reference_t<Rng>>, add_pointer_t<Ref>>` is `false`, and
 
-  - [#.#.#]{.pnum} If `CAT` is `any_view_options::contiguous`, `Rng` models `contiguous_range` and
-    `@*uses-nonqualification-pointer-conversion*@<add_pointer_t<range_reference_t<Rng>>, add_pointer_t<Ref>>` is `false`,
-
-  - [#.#.#]{.pnum} Otherwise, if `CAT` is `any_view_options::random_access`, `Rng` models `random_access_range`,
-
-  - [#.#.#]{.pnum} Otherwise, if `CAT` is `any_view_options::bidirectional`, `Rng` models `bidirectional_range`,
-
-  - [#.#.#]{.pnum} Otherwise if `CAT` is `any_view_options::forward`, `Rng` models `forward_range`,
-
-  - [#.#.#]{.pnum} Otherwise, `CAT` is `any_view_options::input`, and `Rng` models `input_range`.
+- [#.#]{.pnum} let `R` be `remove_cvref_t<Rng>`, if `@*any-view-flag-is-set*@(Opts, any_view_options::borrowed)` is `true` and `enable_view<R>` is `true`, `borrowed_range<R>` is `true`.
 
 [#]{.pnum} *Mandates*:
 
 - [#.#]{.pnum} `Rng` models `viewable_range`, and
 
 - [#.#]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::copyable)` is `false`, or `all_t<Rng>`
-  models `copyable`
+  models `copyable`, and
+
+- [#.#]{.pnum} `reference_converts_from_temporary_v<Ref, range_reference_t<Rng>>` is `false`, and
+
+- [#.#]{.pnum} `reference_converts_from_temporary_v<RValueRef, range_rvalue_reference_t<Rng>>` is `false`.
 
 [#]{.pnum} *Postconditions*: `*this` has a target view object of type `all_t<Rng>` direct-non-list-initialized with `std::forward<Rng>(rng)`.
 
@@ -1239,12 +1224,9 @@ constexpr @*sentinel*@ end();
 :::wording
 :::bq
 
-[#]{.pnum} *Effects*: Let `v` be an lvalue designating the target view object of `*this`,
+[#]{.pnum} *Effects*: Let `v` be an lvalue designating the target view object of `*this`, a pair of objects returned by `begin()` and `end()` together hold a pair of an iterator `ranges::begin(v)` and a sentinel `ranges::end(v)`.
 
-- [#.#]{.pnum} `begin()` returns an object which holds a target iterator object of `ranges::begin(v)`.
-- [#.#]{.pnum} Let `@*ai*@` be the return value of `begin()`, `@*as*@` be the return value of `end()`, `@*i*@` be `ranges::begin(v)`, and `@*s*@` be `ranges::end(v)`, `@*ai*@ == @*as*@` is equivalent to `@*i*@ == @*s*@`.
-
-[#]{.pnum} *Note*: Implementation is permitted to call `ranges::end(v)` in `begin()`.
+[An implementation is permitted to call `ranges::end(v)` in `begin()`.]{.note}
 
 :::
 
@@ -1319,10 +1301,12 @@ namespace std::ranges {
 
     constexpr @*iterator*@& operator++();
     constexpr void operator++(int);
-    constexpr @*iterator*@ operator++(int) requires @*see below*@;
+    constexpr @*iterator*@ operator++(int) 
+      requires (@*any-view-flag-is-set*@(Opts, any_view_options::forward)) = default;
 
     constexpr @*iterator*@& operator--();
-    constexpr @*iterator*@ operator--(int);
+    constexpr @*iterator*@ operator--(int)
+      requires (@*any-view-flag-is-set*@(Opts, any_view_options::bidirectional)) = default;
 
     constexpr @*iterator*@& operator+=(difference_type n);
     constexpr @*iterator*@& operator-=(difference_type n);
@@ -1426,28 +1410,6 @@ constexpr void operator++(int);
 :::
 
 ```cpp
-constexpr @*iterator*@ operator++(int) requires @*see below*@;
-```
-
-:::bq
-
-[#]{.pnum} *Effects*: Equivalent to:
-
-```cpp
-auto tmp = *this;
-++(*this);
-return tmp;
-```
-
-[#]{.pnum} *Remarks*: The expression in the requires-clause is equivalent to:
-
-```cpp
-Opts & any_view_options::forward == any_view_options::forward 
-```
-
-:::
-
-```cpp
 constexpr @*iterator*@& operator--();
 ```
 
@@ -1465,24 +1427,6 @@ return *this;
 ```
 
 where `it` is an lvalue designating the target iterator object of `*this`.
-
-:::
-
-```cpp
-constexpr @*iterator*@ operator--(int);
-```
-
-:::bq
-
-[#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::bidirectional)` is `true`.
-
-[#]{.pnum} *Effects*: Equivalent to:
-
-```cpp
-auto tmp = *this;
---(*this);
-return tmp;
-```
 
 :::
 
