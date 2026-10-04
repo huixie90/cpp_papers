@@ -3099,15 +3099,15 @@ object <code class="sourceCode default cpp">v</code>, where
 <div class="bq">
 <p><span class="marginalizedparent"><a href="#pnum-16" id="pnum-16" class="marginalized">2</a></span> <em>Constraints</em>:</p>
 <ul>
-<li><p><span class="marginalizedparent"><a href="#pnum-17" id="pnum-17" class="marginalized">(2.1)</a></span> For every bitmask element and
-constant <code class="sourceCode default cpp">e</code> of enum class
-<code class="sourceCode default cpp">any_view_options</code>, except for
-<code class="sourceCode default cpp">copyable</code>,
+<li><p><span class="marginalizedparent"><a href="#pnum-17" id="pnum-17" class="marginalized">(2.1)</a></span> For every bitmask constant
+<code class="sourceCode default cpp">c</code> of the enum class
+<code class="sourceCode default cpp">any_view_options</code> except for
+<code class="sourceCode default cpp">copyable</code>, if
+<code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, c)</code>
+is <code class="sourceCode default cpp">true</code>,
 <code class="sourceCode default cpp">Rng</code> models the corresponding
 concept listed in <a href="https://eel.is/c++draft/tab:range.any.options">[tab:range.any.options]</a>,
-if
-<code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, e)</code>
-is <code class="sourceCode default cpp">true</code>, and</p></li>
+and</p></li>
 <li><p><span class="marginalizedparent"><a href="#pnum-18" id="pnum-18" class="marginalized">(2.2)</a></span>
 <code class="sourceCode default cpp">remove_cvref_t&lt;Rng&gt;</code> is
 not the same type as
