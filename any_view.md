@@ -1122,7 +1122,7 @@ template <class Rng> constexpr any_view(Rng&& rng);
 
 [#]{.pnum} *Constraints*:
 
-- [#.#]{.pnum} For every bitmask element and constant `e` of enum class `any_view_options`, except for `copyable`, `Rng` models the corresponding concept listed in [tab:range.any.options]{- .sref}, if `@*any-view-flag-is-set*@(Opts, e)` is `true`, and
+- [#.#]{.pnum} For every bitmask constant `c` of the enum class `any_view_options` except for `copyable`, if `@*any-view-flag-is-set*@(Opts, c)` is `true`, `Rng` models the corresponding concept listed in [tab:range.any.options]{- .sref},  and
 
 - [#.#]{.pnum} `remove_cvref_t<Rng>` is not the same type as `any_view`, and
 
