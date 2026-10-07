@@ -946,6 +946,16 @@ Essentially, the solution is to move the `movable` check from "Constraints" to "
     }
 ```
 
+## `reference_converts_from_temporary_v`
+
+In this design, two of the constraints of the constructor of `any_view` are:
+
+- `reference_converts_from_temporary_v<Ref, range_reference_t<Rng>>` is `false`, and
+
+- `reference_converts_from_temporary_v<RValueRef, range_rvalue_reference_t<Rng>>` is `false`.
+
+The purpose of these two constraints are to prevent dangling reference when `iterator::operator*` and `iter_move` are called. This is different from `optional<T&>`'s constructor constraint, where the `reference_converts_from_temporary_v` is to prevent the dangling reference at constructor call. This is why in this paper these two checks are constraints, whereas in `optional<T&>`, `=delete` is used.
+
 # Implementation Experience
 
 `any_view` has been implemented in [@rangev3], with equivalent semantics as
@@ -1001,7 +1011,7 @@ Add the following subclause to [range.utility]{.sref}
 
 [#]{.pnum} The `any_view` class is a wrapper that can store, move, and traverse an arbitrary object that models `view`. The wrapped object is referred to as the *target view object*.
 
-[#]{.pnum} A program that instantiates a specialization of `any_view` is ill-formed unless all the followings are true:
+[#]{.pnum} A program that instantiates a specialization of `any_view` is ill-formed unless all the following are true:
 
 - [#.#]{.pnum} `Element` is an object type.
 
@@ -1015,9 +1025,9 @@ Add the following subclause to [range.utility]{.sref}
 
 - [#.#]{.pnum} If `@*any-view-flag-is-set*@(Opts, any_view_options::contiguous)` is `true`, both of the followings are true:
 
-  - [#.#.#]{.pnum} `std::is_lvalue_reference_v<Ref>` is `true`, and
+  - [#.#.#]{.pnum} `std::same_as<Element&, Ref>` is `true`.
 
-  - [#.#.#]{.pnum} `std::same_as<remove_cv_t<Element>, std::remove_cvref_t<Ref>` is `true`.
+  - [#.#.#]{.pnum} `std::same_as<Element&&, RValueRef>` is `true`.
 
 [These rules ensure that `any_view::@*iterator*@` models `indirectly_readable`.]{.note}
 
@@ -1130,30 +1140,28 @@ template <class Rng> constexpr any_view(Rng&& rng);
 
 - [#.#]{.pnum} `is_convertible_v<range_rvalue_reference_t<Rng>, RValueRef>` is `true`, and
 
-- [#.#]{.pnum} `is_convertible_v<range_difference_t<Rng>, Diff>` is `true`, and
+- [#.#]{.pnum} the width of the type `range_difference_t<Rng>` is not greater than the width of the type `Diff`, and
 
 - [#.#]{.pnum} if `@*any-view-flag-is-set*@(Opts, any_view_options::contiguous)` is `true`, `@*uses-nonqualification-pointer-conversion*@<add_pointer_t<range_reference_t<Rng>>, add_pointer_t<Ref>>` is `false`, and
 
 - [#.#]{.pnum} let `R` be `remove_cvref_t<Rng>`, if `@*any-view-flag-is-set*@(Opts, any_view_options::borrowed)` is `true` and `enable_view<R>` is `true`, `borrowed_range<R>` is `true`.
+
+- [#.#]{.pnum} `reference_converts_from_temporary_v<Ref, range_reference_t<Rng>>` is `false`, and
+
+- [#.#]{.pnum} `reference_converts_from_temporary_v<RValueRef, range_rvalue_reference_t<Rng>>` is `false`.
 
 [#]{.pnum} *Mandates*:
 
 - [#.#]{.pnum} `Rng` models `viewable_range`, and
 
 - [#.#]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::copyable)` is `false`, or `all_t<Rng>`
-  models `copyable`, and
-
-- [#.#]{.pnum} `reference_converts_from_temporary_v<Ref, range_reference_t<Rng>>` is `false`, and
-
-- [#.#]{.pnum} `reference_converts_from_temporary_v<RValueRef, range_rvalue_reference_t<Rng>>` is `false`.
-
-[#]{.pnum} *Hardened preconditions*: `Diff` is sufficiently wide to store the size of `rng`.
+  models `copyable`.
 
 [#]{.pnum} *Postconditions*: `*this` has a target view object of type `all_t<Rng>` direct-non-list-initialized with `std::forward<Rng>(rng)`.
 
 [#]{.pnum} *Throws*: Any exception thrown by the initialization of the target view object. May throw `bad_alloc`.
 
-[#]{.pnum} *Remarks*: If `remove_cvref_t<Rng>` is a specialization of `any_view`, let the specialization be `any_view<Element2, Opts2, Ref2, RValueRef2, Diff2>`, an implementation shall initialize the target view object of `*this` with the target view object of `std::forward<Rng>(rng)`, if `Ref` and `Ref2` are similar types, and, `RValueRef` and `RValueRef2` are similar types.
+[#]{.pnum} *Remarks*: If `remove_cvref_t<Rng>` is a specialization of `any_view`, let the specialization be `any_view<Element2, Opts2, Ref2, RValueRef2, Diff2>`, an implementation shall initialize the target view object of `*this` with the target view object of `std::forward<Rng>(rng)`, if `Ref` and `Ref2` are similar types, `RValueRef` and `RValueRef2` are similar types, and `is_same_v<Diff, Diff2>` is `true`.
 
 :::
 
@@ -1440,16 +1448,16 @@ constexpr @*iterator*@& operator+=(difference_type n);
 
 [#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
 
-[#]{.pnum} *Preconditions*: `*this` has a target iterator object.
+[#]{.pnum} *Preconditions*: `*this` has a target iterator object, and let `I` be the type of the target iterator object and `D` be `iter_difference_t<I>`,  `in_range<D>(n)` is `true`.
 
 [#]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-it += n;
+it += static_cast<D>(n);
 return *this;
 ```
 
-where `it` is an lvalue designating the target iterator object of `*this`.
+where `it` is an lvalue designating the target iterator object of `*this`, and `D` is `iter_difference_t<remove_reference_t<decltype(it)>>`.
 
 :::
 
@@ -1461,16 +1469,16 @@ constexpr @*iterator*@& operator-=(difference_type n);
 
 [#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
 
-[#]{.pnum} *Preconditions*: `*this` has a target iterator object.
+[#]{.pnum} *Preconditions*: `*this` has a target iterator object, and let `I` be the type of the target iterator object and `D` be `iter_difference_t<I>`,  `in_range<D>(n)` is `true`.
 
 [#]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
-it -= n;
+it -= static_cast<D>(n);
 return *this;
 ```
 
-where `it` is an lvalue designating the target iterator object of `*this`.
+where `it` is an lvalue designating the target iterator object of `*this`, and `D` is `iter_difference_t<remove_reference_t<decltype(it)>>`.
 
 :::
 
@@ -1480,9 +1488,11 @@ constexpr Ref operator[](difference_type n) const;
 
 :::bq
 
-[#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
+[#]{.pnum} *Effect*: Equivalent to:
 
-[#]{.pnum} *Returns*: `*((*this) + n)`.
+```cpp
+return *((*this) + n);
+```
 
 :::
 
@@ -1540,49 +1550,20 @@ friend constexpr bool operator==(const @*iterator*@& x, const @*iterator*@& y);
 
 ```cpp
 friend constexpr bool operator<(const @*iterator*@& x, const @*iterator*@& y);
-```
-
-:::bq
-
-[#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
-
-[#]{.pnum} *Returns*: `(x - y) < 0`.
-
-:::
-
-```cpp
 friend constexpr bool operator>(const @*iterator*@& x, const @*iterator*@& y);
-```
-
-:::bq
-
-[#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
-
-[#]{.pnum} *Returns*: `(x - y) > 0`.
-
-:::
-
-```cpp
 friend constexpr bool operator<=(const @*iterator*@& x, const @*iterator*@& y);
-```
-
-:::bq
-
-[#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
-
-[#]{.pnum} *Returns*: `(x - y) <= 0`.
-
-:::
-
-```cpp
 friend constexpr bool operator>=(const @*iterator*@& x, const @*iterator*@& y);
 ```
 
 :::bq
 
-[#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
+[#]{.pnum} Let *op* be the operator.
 
-[#]{.pnum} *Returns*: `(x - y) >= 0`.
+[#]{.pnum} *Effects*: Equivalent to:
+
+```cpp
+return (x - y) @*op*@ 0;
+```
 
 :::
 
@@ -1591,8 +1572,6 @@ friend constexpr @*iterator*@ operator+(const @*iterator*@& i, difference_type n
 ```
 
 :::bq
-
-[#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
 
 [#]{.pnum} *Effects*: Equivalent to:
 
@@ -1610,20 +1589,19 @@ friend constexpr @*iterator*@ operator+(difference_type n, const @*iterator*@& i
 
 :::bq
 
-[#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
+[#]{.pnum} *Effects*: Equivalent to:
 
-[#]{.pnum} *Returns*: `i + n`.
+```cpp
+return i + n;
+```
 
 :::
-
 
 ```cpp
 friend constexpr @*iterator*@ operator-(const @*iterator*@& i, difference_type n);
 ```
 
 :::bq
-
-[#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
 
 [#]{.pnum} *Effects*: Equivalent to:
 
@@ -1726,9 +1704,13 @@ Add the following macro definition to [version.syn]{.sref}, header `<version>`
 synopsis, with the value selected by the editor to reflect the date of adoption
 of this paper:
 
+:::add
+
 ```cpp
 #define __cpp_lib_any_view  20XXXXL // also in <ranges>
 ```
+
+:::
 
 ---
 references:
