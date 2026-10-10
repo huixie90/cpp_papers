@@ -252,7 +252,7 @@ template <class Element,
           any_view_options Opts = any_view_options::input,
           class Ref = Element &,
           class RValueRef = @*rvalue-ref-t*@<Ref>,
-          class Diff = ptrdiff_t>
+          class Diff = @*IOTA-DIFF-T*(ptrdiff_t)@>
 class any_view;
 
 template <class Element, any_view_options Opts, class Ref, class RValueRef,
@@ -431,7 +431,7 @@ template <class Ref,
           class IterConcept = input_iterator_tag,
           class Value = decay_t<Ref>,
           class RValueRef = remove_reference_t<Ref>&&,
-          class Difference = ptrdiff_t>
+          class Difference = @*IOTA-DIFF-T*@(ptrdiff_t)>
 struct any_view_options {
     type_t<Ref> reference_type;
     type_t<IterConcept> iterator_concept = {};
@@ -984,7 +984,7 @@ namespace std::ranges {
             any_view_options Opts = any_view_options::input,
             class Ref = Element&,
             class RValueRef = @*see below*@,
-            class Diff = ptrdiff_t>
+            class Diff = @*IOTA-DIFF-T*@(ptrdiff_t)>
   class any_view;
 
   template <class Element, any_view_options Opts, class Ref, class RValueRef,
@@ -1021,19 +1021,19 @@ Add the following subclause to [range.utility]{.sref}
 
 - [#.#]{.pnum} `common_reference_with<RValueRef&&, const remove_cv_t<Element>&>` is modeled.
 
-- [#.#]{.pnum} `@*is-signed-integer-like*@<Diff>` is `true`.
+- [#.#]{.pnum} `@*is-signed-integer-like*@<Diff>` is `true`, and `same_as<Diff, remove_cv_t<Diff>>` is `true`.
 
-- [#.#]{.pnum} If `@*any-view-flag-is-set*@(Opts, any_view_options::contiguous)` is `true`, both of the followings are true:
+- [#.#]{.pnum} If `@*any-view-flag-is-set*@(Opts, any_view_options::contiguous)` is `true`, both of the following are true:
 
-  - [#.#.#]{.pnum} `std::same_as<Element&, Ref>` is `true`.
+  - [#.#.#]{.pnum} `same_as<Element&, Ref>` is `true`.
 
-  - [#.#.#]{.pnum} `std::same_as<Element&&, RValueRef>` is `true`.
+  - [#.#.#]{.pnum} `same_as<Element&&, RValueRef>` is `true`.
 
 [These rules ensure that `any_view::@*iterator*@` models `indirectly_readable`.]{.note}
 
 [#]{.pnum} Recommended practice: Implementations should avoid the use of dynamically allocated memory for a small contained target view object of type `T` which satisfies `is_nothrow_move_constructible_v<T>`.
 
-[#]{.pnum} The `any_view::@*iterator*@` and `any_view::@*sentinel*@` classes, together, wrap a pair of an iterator `@*i*@` of type `@*I*@` and a sentinel `@*s*@` of type `@*S*@`, that model `sentinel_for<@*S*@, @*I*@>`. The wrapped objects `@*i*@` and `@*s*@` are referred to as the *target iterator object* and the *target sentinel object* respectively.
+[#]{.pnum} The `any_view::@*iterator*@` wraps an iterator `@*i*@` of type `@*I*@` referred to as the *target iterator object*. Either `any_view::@*iterator*@` or `any_view::@*sentinel*@` wraps a single sentinel `@*s*@` of type `@*S*@`, that models `sentinel_for<@*S*@, @*I*@>`, referred to as the *target sentinel object*.
 
 :::
 
@@ -1062,13 +1062,13 @@ template <class Element,
           any_view_options Opts = any_view_options::input,
           class Ref = Element&,
           class RValueRef = @*see below*@,
-          class Diff = ptrdiff_t>
+          class Diff = @*IOTA-DIFF-T*@(ptrdiff_t)>
 class any_view : public view_interface<any_view<Element, Opts, Ref, RValueRef, Diff>> {
   class @*iterator*@; // exposition-only
   class @*sentinel*@; // exposition-only
 public:
   // [range.any.ctor], constructors, assignment, and destructor
-  constexpr any_view();
+  constexpr any_view() noexcept;
   template <class Rng> constexpr any_view(Rng&& rng);
   constexpr any_view(const any_view&);
   constexpr any_view(any_view&&) noexcept;
@@ -1115,7 +1115,7 @@ constexpr bool @*any-view-flag-is-set*@(any_view_options opts, any_view_options 
 :::wording
 
 ```cpp
-constexpr any_view();
+constexpr any_view() noexcept;
 ```
 
 :::bq
@@ -1157,11 +1157,13 @@ template <class Rng> constexpr any_view(Rng&& rng);
 - [#.#]{.pnum} either `@*any-view-flag-is-set*@(Opts, any_view_options::copyable)` is `false`, or `all_t<Rng>`
   models `copyable`.
 
-[#]{.pnum} *Postconditions*: `*this` has a target view object of type `all_t<Rng>` direct-non-list-initialized with `std::forward<Rng>(rng)`.
+[#]{.pnum} *Postconditions*:
+
+- [#.#]{.pnum} If `remove_cvref_t<Rng>` is a specialization of `any_view`, let the specialization be `any_view<Element2, Opts2, Ref2, RValueRef2, Diff2>`, if `Ref` and `Ref2` are similar types, `RValueRef` and `RValueRef2` are similar types, and `Diff` and `Diff2` are the same type, `*this` has a target view object direct-non-list-initialized with the target view object of `std::forward<Rng>(rng)`,
+
+- [#.#]{.pnum} otherwise, `*this` has a target view object of type `all_t<Rng>` direct-non-list-initialized with `std::forward<Rng>(rng)`.
 
 [#]{.pnum} *Throws*: Any exception thrown by the initialization of the target view object. May throw `bad_alloc`.
-
-[#]{.pnum} *Remarks*: If `remove_cvref_t<Rng>` is a specialization of `any_view`, let the specialization be `any_view<Element2, Opts2, Ref2, RValueRef2, Diff2>`, an implementation shall initialize the target view object of `*this` with the target view object of `std::forward<Rng>(rng)`, if `Ref` and `Ref2` are similar types, `RValueRef` and `RValueRef2` are similar types, and `is_same_v<Diff, Diff2>` is `true`.
 
 :::
 
@@ -1226,17 +1228,27 @@ constexpr ~any_view();
 
 #### ?.?.?.5 Range access [range.any.access] {-}
 
+:::wording
+
 ```cpp
 constexpr @*iterator*@ begin();
+```
+
+:::bq
+
+[#]{.pnum} *Effects*: Let `v` be an lvalue designating the target view object of `*this`, returns an object `o` that holds a target iterator object direct-non-list-initialized with `ranges::begin(v)` and if the iterator holds a target sentinel object, `o` holds a target sentinel object direct-non-list-initialized with `ranges::end(v)`.
+
+:::
+
+```cpp
 constexpr @*sentinel*@ end();
 ```
 
-:::wording
 :::bq
 
-[#]{.pnum} *Effects*: Let `v` be an lvalue designating the target view object of `*this`, a pair of objects returned by `begin()` and `end()` together hold a pair of an iterator `ranges::begin(v)` and a sentinel `ranges::end(v)`.
+[#]{.pnum} *Effects*: Let `v` be an lvalue designating the target view object of `*this`, returns an object `s` that holds a target sentinel object direct-non-list-initialized with `ranges::end(v)`, if an iterator does not hold a target sentinel object.
 
-[An implementation is permitted to call `ranges::end(v)` in `begin()`.]{.note}
+[Otherwise `s` does not hold any target sentinel objects. ]{.note}
 
 :::
 
@@ -1305,7 +1317,7 @@ namespace std::ranges {
     using value_type        = remove_cv_t<Element>;
     using difference_type   = Diff;
 
-    constexpr @*iterator*@();
+    constexpr @*iterator*@() noexcept;
 
     constexpr Ref operator*() const;
 
@@ -1330,6 +1342,8 @@ namespace std::ranges {
     friend constexpr bool operator>(const @*iterator*@& x, const @*iterator*@& y);
     friend constexpr bool operator<=(const @*iterator*@& x, const @*iterator*@& y);
     friend constexpr bool operator>=(const @*iterator*@& x, const @*iterator*@& y);
+
+    friend constexpr partial_ordering operator<=>(const @*iterator*@& x, const @*iterator*@& y);
 
     friend constexpr @*iterator*@ operator+(const @*iterator*@& i, difference_type n);
     friend constexpr @*iterator*@ operator+(difference_type n, const @*iterator*@& i);
@@ -1357,7 +1371,6 @@ namespace std::ranges {
 
 - [#.#]{.pnum} Otherwise, `iterator_concept` denotes `input_iterator_tag`.
 
-
 [#]{.pnum} The member typedef-name `iterator_category` is defined if and only if `@*any-view-flag-is-set*@(Opts, any_view_options::forward)` is `true`. In that case, `@*iterator*@::iterator_category` is defined as follows:
 
 - [#.#]{.pnum} If `iterator_concept` is `contiguous_iterator_tag`, then `iterator_category` denotes `random_access_iterator_tag`.
@@ -1367,7 +1380,7 @@ namespace std::ranges {
 - [#.#]{.pnum} Otherwise, `iterator_category` denotes `input_iterator_tag`.
 
 ```cpp
-constexpr @*iterator*@();
+constexpr @*iterator*@() noexcept;
 ```
 
 :::bq
@@ -1415,7 +1428,7 @@ constexpr void operator++(int);
 
 :::bq
 
-[#]{.pnum} *Effects*: Equivalent to: `++(*this);`.
+[#]{.pnum} *Effects*: Equivalent to: `++*this;`.
 
 :::
 
@@ -1488,10 +1501,12 @@ constexpr Ref operator[](difference_type n) const;
 
 :::bq
 
+[#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
+
 [#]{.pnum} *Effect*: Equivalent to:
 
 ```cpp
-return *((*this) + n);
+return *(*this + n);
 ```
 
 :::
@@ -1526,7 +1541,7 @@ friend constexpr bool operator==(const @*iterator*@& x, const @*iterator*@& y);
   return true;
   ```
 
-- [#.#]{.pnum} Otherwise, if `x` has no target iterator object and `y` has a target iterator object, or, `x` has a target iterator object and `y` has no target iterator object, equivalent to:
+- [#.#]{.pnum} Otherwise, if `x` has no target iterator object, or, `y` has no target iterator object, equivalent to:
 
   ```cpp
   return false;
@@ -1557,6 +1572,8 @@ friend constexpr bool operator>=(const @*iterator*@& x, const @*iterator*@& y);
 
 :::bq
 
+[#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
+
 [#]{.pnum} Let *op* be the operator.
 
 [#]{.pnum} *Effects*: Equivalent to:
@@ -1568,10 +1585,30 @@ return (x - y) @*op*@ 0;
 :::
 
 ```cpp
+friend constexpr partial_ordering operator<=>(const @*iterator*@& x, const @*iterator*@& y);
+```
+
+:::bq
+
+[#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
+
+[#]{.pnum} *Preconditions*: Both `x` and `y` have a target iterator object, and the two target iterator objects have the same type.
+
+[#]{.pnum} *Effects*: Let `it1` be an lvalue designating the target iterator object of `x`, and `it2` be an lvalue designating the target iterator object of `y`, equivalent to:
+
+```cpp
+return compare_partial_order_fallback(it1, it2);
+```
+
+:::
+
+```cpp
 friend constexpr @*iterator*@ operator+(const @*iterator*@& i, difference_type n);
 ```
 
 :::bq
+
+[#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
 
 [#]{.pnum} *Effects*: Equivalent to:
 
@@ -1589,6 +1626,8 @@ friend constexpr @*iterator*@ operator+(difference_type n, const @*iterator*@& i
 
 :::bq
 
+[#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
+
 [#]{.pnum} *Effects*: Equivalent to:
 
 ```cpp
@@ -1602,6 +1641,8 @@ friend constexpr @*iterator*@ operator-(const @*iterator*@& i, difference_type n
 ```
 
 :::bq
+
+[#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
 
 [#]{.pnum} *Effects*: Equivalent to:
 
@@ -1651,7 +1692,7 @@ namespace std::ranges {
             class Diff>
   class any_view<Element, Opts, Ref, RValueRef, Diff>::@*sentinel*@ {
     public:
-    constexpr @*sentinel*@();
+    constexpr @*sentinel*@() noexcept;
 
     friend constexpr bool operator==(const @*iterator*@& x, const @*sentinel*@& y);
 
@@ -1660,7 +1701,7 @@ namespace std::ranges {
 ```
 
 ```cpp
-constexpr @*sentinel*@();
+constexpr @*sentinel*@() noexcept;
 ```
 
 :::wording
@@ -1678,13 +1719,13 @@ friend constexpr bool operator==(const @*iterator*@& x, const @*sentinel*@& y);
 
 [#]{.pnum} *Effects*:
 
-- [#.#]{.pnum} If either `x` has no target iterator object, or `y` has no target sentinel object,  equivalent to:
+- [#.#]{.pnum} If either `x` has no target iterator object, or both `x` and `y` have no target sentinel object,  equivalent to:
 
   ```cpp
   return false;
   ```
 
-- [#.#]{.pnum} Otherwise, let `it` be an lvalue designating the target iterator object of `x`, and `st` be an lvalue designating the target sentinel object of `y`,
+- [#.#]{.pnum} Otherwise, let `it` be an lvalue designating the target iterator object of `x`, and `st` be an lvalue designating the target sentinel object of either `x` or `y`,
 
   - [#.#.#]{.pnum} If `sentinel_for<decay_t<decltype(st)>, decay_t<decltype(it)>>` is `false`, the return value is unspecified.
 
