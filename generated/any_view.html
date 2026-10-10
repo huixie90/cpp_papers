@@ -1914,7 +1914,7 @@ range-v3.</p>
 <span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>          any_view_options Opts <span class="op">=</span> any_view_options<span class="op">::</span>input<span class="op">,</span></span>
 <span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Ref <span class="op">=</span> Element <span class="op">&amp;,</span></span>
 <span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> RValueRef <span class="op">=</span> <em>rvalue-ref-t</em><span class="op">&lt;</span>Ref<span class="op">&gt;,</span></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Diff <span class="op">=</span> <span class="dt">ptrdiff_t</span><span class="op">&gt;</span></span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Diff <span class="op">=</span> <em>IOTA-DIFF-T</em>(ptrdiff_t)<span class="op">&gt;</span></span>
 <span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> any_view<span class="op">;</span></span>
 <span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="kw">template</span> <span class="op">&lt;</span><span class="kw">class</span> Element<span class="op">,</span> any_view_options Opts<span class="op">,</span> <span class="kw">class</span> Ref<span class="op">,</span> <span class="kw">class</span> RValueRef<span class="op">,</span></span>
@@ -2069,7 +2069,7 @@ Named Template Argument Approach<a href="#alternative-design-3-barrys-named-temp
 <span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> IterConcept <span class="op">=</span> input_iterator_tag<span class="op">,</span></span>
 <span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Value <span class="op">=</span> decay_t<span class="op">&lt;</span>Ref<span class="op">&gt;,</span></span>
 <span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> RValueRef <span class="op">=</span> remove_reference_t<span class="op">&lt;</span>Ref<span class="op">&gt;&amp;&amp;,</span></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Difference <span class="op">=</span> <span class="dt">ptrdiff_t</span><span class="op">&gt;</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>          <span class="kw">class</span> Difference <span class="op">=</span> <em>IOTA-DIFF-T</em><span class="op">(</span><span class="dt">ptrdiff_t</span><span class="op">)&gt;</span></span>
 <span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> any_view_options <span class="op">{</span></span>
 <span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>    type_t<span class="op">&lt;</span>Ref<span class="op">&gt;</span> reference_type<span class="op">;</span></span>
 <span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>    type_t<span class="op">&lt;</span>IterConcept<span class="op">&gt;</span> iterator_concept <span class="op">=</span> <span class="op">{};</span></span>
@@ -2906,7 +2906,7 @@ header <code class="sourceCode cpp">ranges</code> synopsis:</p>
 <span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>            any_view_options Opts = any_view_options::input,</span>
 <span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>            class Ref = Element&amp;,</span>
 <span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>            class RValueRef = <em>see below</em>,</span>
-<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>            class Diff = ptrdiff_t&gt;</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>            class Diff = <em>IOTA-DIFF-T</em>(ptrdiff_t)&gt;</span>
 <span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>  class any_view;</span>
 <span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>  template &lt;class Element, any_view_options Opts, class Ref, class RValueRef,</span>
@@ -2947,17 +2947,19 @@ is modeled.</p></li>
 is modeled.</p></li>
 <li><p><span class="marginalizedparent"><a href="#pnum-7" id="pnum-7" class="marginalized">(2.5)</a></span>
 <code class="sourceCode default cpp"><em>is-signed-integer-like</em>&lt;Diff&gt;</code>
+is <code class="sourceCode default cpp">true</code>, and
+<code class="sourceCode default cpp">same_as&lt;Diff, remove_cv_t&lt;Diff&gt;&gt;</code>
 is <code class="sourceCode default cpp">true</code>.</p></li>
 <li><p><span class="marginalizedparent"><a href="#pnum-8" id="pnum-8" class="marginalized">(2.6)</a></span> If
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::contiguous)</code>
 is <code class="sourceCode default cpp">true</code>, both of the
-followings are true:</p>
+following are true:</p>
 <ul>
 <li><p><span class="marginalizedparent"><a href="#pnum-9" id="pnum-9" class="marginalized">(2.6.1)</a></span>
-<code class="sourceCode default cpp">std::same_as&lt;Element&amp;, Ref&gt;</code>
+<code class="sourceCode default cpp">same_as&lt;Element&amp;, Ref&gt;</code>
 is <code class="sourceCode default cpp">true</code>.</p></li>
 <li><p><span class="marginalizedparent"><a href="#pnum-10" id="pnum-10" class="marginalized">(2.6.2)</a></span>
-<code class="sourceCode default cpp">std::same_as&lt;Element&amp;&amp;, RValueRef&gt;</code>
+<code class="sourceCode default cpp">same_as&lt;Element&amp;&amp;, RValueRef&gt;</code>
 is <code class="sourceCode default cpp">true</code>.</p></li>
 </ul></li>
 </ul>
@@ -2973,19 +2975,17 @@ contained target view object of type
 <code class="sourceCode default cpp">is_nothrow_move_constructible_v&lt;T&gt;</code>.</p>
 <p><span class="marginalizedparent"><a href="#pnum-12" id="pnum-12" class="marginalized">4</a></span> The
 <code class="sourceCode default cpp">any_view::<em>iterator</em></code>
-and
+wraps an iterator <code class="sourceCode default cpp"><em>i</em></code>
+of type <code class="sourceCode default cpp"><em>I</em></code> referred
+to as the <em>target iterator object</em>. Either
+<code class="sourceCode default cpp">any_view::<em>iterator</em></code>
+or
 <code class="sourceCode default cpp">any_view::<em>sentinel</em></code>
-classes, together, wrap a pair of an iterator
-<code class="sourceCode default cpp"><em>i</em></code> of type
-<code class="sourceCode default cpp"><em>I</em></code> and a sentinel
+wraps a single sentinel
 <code class="sourceCode default cpp"><em>s</em></code> of type
-<code class="sourceCode default cpp"><em>S</em></code>, that model
-<code class="sourceCode default cpp">sentinel_for&lt;<em>S</em>, <em>I</em>&gt;</code>.
-The wrapped objects
-<code class="sourceCode default cpp"><em>i</em></code> and
-<code class="sourceCode default cpp"><em>s</em></code> are referred to
-as the <em>target iterator object</em> and the <em>target sentinel
-object</em> respectively.</p>
+<code class="sourceCode default cpp"><em>S</em></code>, that models
+<code class="sourceCode default cpp">sentinel_for&lt;<em>S</em>, <em>I</em>&gt;</code>,
+referred to as the <em>target sentinel object</em>.</p>
 </div>
 <h4 class="unnumbered" id="enum-class-any_view_options-range.any.options">?.?.?.2 Enum class
 <code class="sourceCode default cpp">any_view_options</code>
@@ -3068,13 +3068,13 @@ meanings listed in <a href="https://eel.is/c++draft/tab:range.any.options">[tab:
 <span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>          any_view_options Opts = any_view_options::input,</span>
 <span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>          class Ref = Element&amp;,</span>
 <span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>          class RValueRef = <em>see below</em>,</span>
-<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>          class Diff = ptrdiff_t&gt;</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>          class Diff = <em>IOTA-DIFF-T</em>(ptrdiff_t)&gt;</span>
 <span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>class any_view : public view_interface&lt;any_view&lt;Element, Opts, Ref, RValueRef, Diff&gt;&gt; {</span>
 <span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>  class <em>iterator</em>; // exposition-only</span>
 <span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>  class <em>sentinel</em>; // exposition-only</span>
 <span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>public:</span>
 <span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>  // [range.any.ctor], constructors, assignment, and destructor</span>
-<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>  constexpr any_view();</span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>  constexpr any_view() noexcept;</span>
 <span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>  template &lt;class Rng&gt; constexpr any_view(Rng&amp;&amp; rng);</span>
 <span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>  constexpr any_view(const any_view&amp;);</span>
 <span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>  constexpr any_view(any_view&amp;&amp;) noexcept;</span>
@@ -3114,7 +3114,7 @@ is <code class="sourceCode default cpp">true</code>, and
 <h4 class="unnumbered" id="constructors-assignment-and-destructor-range.any.ctor">?.?.?.4
 Constructors, assignment, and destructor [range.any.ctor]<a href="#constructors-assignment-and-destructor-range.any.ctor" class="self-link"></a></h4>
 <div class="wording">
-<div class="sourceCode" id="cb38"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>constexpr any_view();</span></code></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>constexpr any_view() noexcept;</span></code></pre></div>
 <div class="bq">
 <p><span class="marginalizedparent"><a href="#pnum-15" id="pnum-15" class="marginalized">1</a></span> <em>Postconditions</em>:
 <code class="sourceCode default cpp">*this</code> holds a target view
@@ -3182,46 +3182,47 @@ is <code class="sourceCode default cpp">false</code>, or
 <code class="sourceCode default cpp">all_t&lt;Rng&gt;</code> models
 <code class="sourceCode default cpp">copyable</code>.</p></li>
 </ul>
-<p><span class="marginalizedparent"><a href="#pnum-29" id="pnum-29" class="marginalized">4</a></span> <em>Postconditions</em>:
-<code class="sourceCode default cpp">*this</code> has a target view
-object of type
-<code class="sourceCode default cpp">all_t&lt;Rng&gt;</code>
-direct-non-list-initialized with
-<code class="sourceCode default cpp">std::forward&lt;Rng&gt;(rng)</code>.</p>
-<p><span class="marginalizedparent"><a href="#pnum-30" id="pnum-30" class="marginalized">5</a></span> <em>Throws</em>: Any exception thrown
-by the initialization of the target view object. May throw
-<code class="sourceCode default cpp">bad_alloc</code>.</p>
-<p><span class="marginalizedparent"><a href="#pnum-31" id="pnum-31" class="marginalized">6</a></span> <em>Remarks</em>: If
+<p><span class="marginalizedparent"><a href="#pnum-29" id="pnum-29" class="marginalized">4</a></span> <em>Postconditions</em>:</p>
+<ul>
+<li><p><span class="marginalizedparent"><a href="#pnum-30" id="pnum-30" class="marginalized">(4.1)</a></span> If
 <code class="sourceCode default cpp">remove_cvref_t&lt;Rng&gt;</code> is
 a specialization of
 <code class="sourceCode default cpp">any_view</code>, let the
 specialization be
 <code class="sourceCode default cpp">any_view&lt;Element2, Opts2, Ref2, RValueRef2, Diff2&gt;</code>,
-an implementation shall initialize the target view object of
-<code class="sourceCode default cpp">*this</code> with the target view
-object of
-<code class="sourceCode default cpp">std::forward&lt;Rng&gt;(rng)</code>,
 if <code class="sourceCode default cpp">Ref</code> and
 <code class="sourceCode default cpp">Ref2</code> are similar types,
 <code class="sourceCode default cpp">RValueRef</code> and
 <code class="sourceCode default cpp">RValueRef2</code> are similar
-types, and
-<code class="sourceCode default cpp">is_same_v&lt;Diff, Diff2&gt;</code>
-is <code class="sourceCode default cpp">true</code>.</p>
+types, and <code class="sourceCode default cpp">Diff</code> and
+<code class="sourceCode default cpp">Diff2</code> are the same type,
+<code class="sourceCode default cpp">*this</code> has a target view
+object direct-non-list-initialized with the target view object of
+<code class="sourceCode default cpp">std::forward&lt;Rng&gt;(rng)</code>,</p></li>
+<li><p><span class="marginalizedparent"><a href="#pnum-31" id="pnum-31" class="marginalized">(4.2)</a></span> otherwise,
+<code class="sourceCode default cpp">*this</code> has a target view
+object of type
+<code class="sourceCode default cpp">all_t&lt;Rng&gt;</code>
+direct-non-list-initialized with
+<code class="sourceCode default cpp">std::forward&lt;Rng&gt;(rng)</code>.</p></li>
+</ul>
+<p><span class="marginalizedparent"><a href="#pnum-32" id="pnum-32" class="marginalized">5</a></span> <em>Throws</em>: Any exception thrown
+by the initialization of the target view object. May throw
+<code class="sourceCode default cpp">bad_alloc</code>.</p>
 </div>
 <div class="sourceCode" id="cb40"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>constexpr any_view(const any_view&amp; other);</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-32" id="pnum-32" class="marginalized">7</a></span> <em>Constraints</em>:
+<p><span class="marginalizedparent"><a href="#pnum-33" id="pnum-33" class="marginalized">6</a></span> <em>Constraints</em>:
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::copyable)</code>
 is <code class="sourceCode default cpp">true</code>.</p>
-<p><span class="marginalizedparent"><a href="#pnum-33" id="pnum-33" class="marginalized">8</a></span> <em>Postconditions</em>: The target
+<p><span class="marginalizedparent"><a href="#pnum-34" id="pnum-34" class="marginalized">7</a></span> <em>Postconditions</em>: The target
 view object of <code class="sourceCode default cpp">*this</code> is a
 copy of the target view object of
 <code class="sourceCode default cpp">other</code>.</p>
 </div>
 <div class="sourceCode" id="cb41"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>constexpr any_view(any_view&amp;&amp; other) noexcept;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-34" id="pnum-34" class="marginalized">9</a></span> <em>Postconditions</em>: The target
+<p><span class="marginalizedparent"><a href="#pnum-35" id="pnum-35" class="marginalized">8</a></span> <em>Postconditions</em>: The target
 view object of <code class="sourceCode default cpp">*this</code> is
 equivalent to the target view object of
 <code class="sourceCode default cpp">other</code> before the
@@ -3233,64 +3234,75 @@ object <code class="sourceCode default cpp">v</code> where
 </div>
 <div class="sourceCode" id="cb42"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>constexpr any_view &amp;operator=(const any_view&amp; other);</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-35" id="pnum-35" class="marginalized">10</a></span> <em>Constraints</em>:
+<p><span class="marginalizedparent"><a href="#pnum-36" id="pnum-36" class="marginalized">9</a></span> <em>Constraints</em>:
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::copyable)</code>
 is <code class="sourceCode default cpp">true</code>.</p>
-<p><span class="marginalizedparent"><a href="#pnum-36" id="pnum-36" class="marginalized">11</a></span> <em>Effects</em>: Equivalent to:
+<p><span class="marginalizedparent"><a href="#pnum-37" id="pnum-37" class="marginalized">10</a></span> <em>Effects</em>: Equivalent to:
 <code class="sourceCode default cpp">any_view(other).swap(*this);</code>.</p>
-<p><span class="marginalizedparent"><a href="#pnum-37" id="pnum-37" class="marginalized">12</a></span> <em>Returns</em>:
+<p><span class="marginalizedparent"><a href="#pnum-38" id="pnum-38" class="marginalized">11</a></span> <em>Returns</em>:
 <code class="sourceCode default cpp">*this</code>.</p>
 </div>
 <div class="sourceCode" id="cb43"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>constexpr any_view &amp;operator=(any_view&amp;&amp; other) noexcept;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-38" id="pnum-38" class="marginalized">13</a></span> <em>Effects</em>: Equivalent to:
+<p><span class="marginalizedparent"><a href="#pnum-39" id="pnum-39" class="marginalized">12</a></span> <em>Effects</em>: Equivalent to:
 <code class="sourceCode default cpp">any_view(std::move(other)).swap(*this);</code>.</p>
-<p><span class="marginalizedparent"><a href="#pnum-39" id="pnum-39" class="marginalized">14</a></span> <em>Returns</em>:
+<p><span class="marginalizedparent"><a href="#pnum-40" id="pnum-40" class="marginalized">13</a></span> <em>Returns</em>:
 <code class="sourceCode default cpp">*this</code>.</p>
 </div>
 <div class="sourceCode" id="cb44"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>constexpr ~any_view();</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-40" id="pnum-40" class="marginalized">15</a></span> <em>Effects</em>: Destroys the target
+<p><span class="marginalizedparent"><a href="#pnum-41" id="pnum-41" class="marginalized">14</a></span> <em>Effects</em>: Destroys the target
 view object of <code class="sourceCode default cpp">*this</code>.</p>
 </div>
 </div>
 <h4 class="unnumbered" id="range-access-range.any.access">?.?.?.5 Range
 access [range.any.access]<a href="#range-access-range.any.access" class="self-link"></a></h4>
-<div class="sourceCode" id="cb45"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>iterator</em> begin();</span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>constexpr <em>sentinel</em> end();</span></code></pre></div>
 <div class="wording">
+<div class="sourceCode" id="cb45"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>iterator</em> begin();</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-41" id="pnum-41" class="marginalized">1</a></span> <em>Effects</em>: Let
+<p><span class="marginalizedparent"><a href="#pnum-42" id="pnum-42" class="marginalized">1</a></span> <em>Effects</em>: Let
 <code class="sourceCode default cpp">v</code> be an lvalue designating
 the target view object of
-<code class="sourceCode default cpp">*this</code>, a pair of objects
-returned by <code class="sourceCode default cpp">begin()</code> and
-<code class="sourceCode default cpp">end()</code> together hold a pair
-of an iterator
-<code class="sourceCode default cpp">ranges::begin(v)</code> and a
-sentinel <code class="sourceCode default cpp">ranges::end(v)</code>.</p>
-<p><span id="note-2" class="note" data-num="1"><span>[ <em>Note <a href="#note-2">1</a>:</em> </span>An implementation is permitted to call
-<code class="sourceCode default cpp">ranges::end(v)</code> in
-<code class="sourceCode default cpp">begin()</code>.<span> — <em>end
-note</em> ]</span></span></p>
+<code class="sourceCode default cpp">*this</code>, returns an object
+<code class="sourceCode default cpp">o</code> that holds a target
+iterator object direct-non-list-initialized with
+<code class="sourceCode default cpp">ranges::begin(v)</code> and if the
+iterator holds a target sentinel object,
+<code class="sourceCode default cpp">o</code> holds a target sentinel
+object direct-non-list-initialized with
+<code class="sourceCode default cpp">ranges::end(v)</code>.</p>
 </div>
-<div class="sourceCode" id="cb46"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>make-unsigned-like-t</em>&lt;Diff&gt; size();</span></code></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>sentinel</em> end();</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-42" id="pnum-42" class="marginalized">2</a></span> <em>Constraints</em>:
+<p><span class="marginalizedparent"><a href="#pnum-43" id="pnum-43" class="marginalized">2</a></span> <em>Effects</em>: Let
+<code class="sourceCode default cpp">v</code> be an lvalue designating
+the target view object of
+<code class="sourceCode default cpp">*this</code>, returns an object
+<code class="sourceCode default cpp">s</code> that holds a target
+sentinel object direct-non-list-initialized with
+<code class="sourceCode default cpp">ranges::end(v)</code>, if an
+iterator does not hold a target sentinel object.</p>
+<p><span id="note-2" class="note" data-num="1"><span>[ <em>Note <a href="#note-2">1</a>:</em> </span>Otherwise
+<code class="sourceCode default cpp">s</code> does not hold any target
+sentinel objects.<span> — <em>end note</em> ]</span></span></p>
+</div>
+<div class="sourceCode" id="cb47"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>make-unsigned-like-t</em>&lt;Diff&gt; size();</span></code></pre></div>
+<div class="bq">
+<p><span class="marginalizedparent"><a href="#pnum-44" id="pnum-44" class="marginalized">3</a></span> <em>Constraints</em>:
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::sized)</code>
 is <code class="sourceCode default cpp">true</code>.</p>
-<p><span class="marginalizedparent"><a href="#pnum-43" id="pnum-43" class="marginalized">3</a></span> <em>Returns</em>:
+<p><span class="marginalizedparent"><a href="#pnum-45" id="pnum-45" class="marginalized">4</a></span> <em>Returns</em>:
 <code class="sourceCode default cpp"><em>make-unsigned-like-t</em>&lt;Diff&gt;(ranges::size(v))</code>,
 where <code class="sourceCode default cpp">v</code> is an lvalue
 designating the target view object of
 <code class="sourceCode default cpp">*this</code>.</p>
 </div>
-<div class="sourceCode" id="cb47"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>make-unsigned-like-t</em>&lt;Diff&gt; reserve_hint();</span></code></pre></div>
+<div class="sourceCode" id="cb48"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>make-unsigned-like-t</em>&lt;Diff&gt; reserve_hint();</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-44" id="pnum-44" class="marginalized">4</a></span> <em>Constraints</em>:
+<p><span class="marginalizedparent"><a href="#pnum-46" id="pnum-46" class="marginalized">5</a></span> <em>Constraints</em>:
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::approximately_sized)</code>
 is <code class="sourceCode default cpp">true</code>.</p>
-<p><span class="marginalizedparent"><a href="#pnum-45" id="pnum-45" class="marginalized">5</a></span> <em>Returns</em>:
+<p><span class="marginalizedparent"><a href="#pnum-47" id="pnum-47" class="marginalized">6</a></span> <em>Returns</em>:
 <code class="sourceCode default cpp"><em>make-unsigned-like-t</em>&lt;Diff&gt;(ranges::reserve_hint(v))</code>,
 where <code class="sourceCode default cpp">v</code> is an lvalue
 designating the target view object of
@@ -3299,100 +3311,102 @@ designating the target view object of
 </div>
 <h4 class="unnumbered" id="swap-range.any.swap">?.?.?.6 Swap
 [range.any.swap]<a href="#swap-range.any.swap" class="self-link"></a></h4>
-<div class="sourceCode" id="cb48"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>constexpr void swap(any_view&amp; other) noexcept;</span></code></pre></div>
+<div class="sourceCode" id="cb49"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>constexpr void swap(any_view&amp; other) noexcept;</span></code></pre></div>
 <div class="wording">
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-46" id="pnum-46" class="marginalized">1</a></span> <em>Effects</em>: Exchanges the target
+<p><span class="marginalizedparent"><a href="#pnum-48" id="pnum-48" class="marginalized">1</a></span> <em>Effects</em>: Exchanges the target
 view objects of <code class="sourceCode default cpp">*this</code> and
 <code class="sourceCode default cpp">other</code>.</p>
 </div>
-<div class="sourceCode" id="cb49"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>constexpr friend void swap(any_view&amp; lhs, any_view&amp; rhs) noexcept;</span></code></pre></div>
+<div class="sourceCode" id="cb50"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>constexpr friend void swap(any_view&amp; lhs, any_view&amp; rhs) noexcept;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-47" id="pnum-47" class="marginalized">2</a></span> <em>Effects</em>: Equivalent to:
+<p><span class="marginalizedparent"><a href="#pnum-49" id="pnum-49" class="marginalized">2</a></span> <em>Effects</em>: Equivalent to:
 <code class="sourceCode default cpp">lhs.swap(rhs)</code>.</p>
 </div>
 </div>
 <h4 class="unnumbered" id="class-any_viewiterator-range.any.iterator">?.?.?.7 Class
 any_view::iterator [range.any.iterator]<a href="#class-any_viewiterator-range.any.iterator" class="self-link"></a></h4>
-<div class="sourceCode" id="cb50"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>namespace std::ranges {</span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>  template &lt;class Element,</span>
-<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>            any_view_options Opts,</span>
-<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a>            class Ref,</span>
-<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>            class RValueRef,</span>
-<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>            class Diff&gt;</span>
-<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>  class any_view&lt;Element, Opts, Ref, RValueRef, Diff&gt;::<em>iterator</em> {</span>
-<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>    public:</span>
-<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>    using iterator_concept  = <em>see below</em>;</span>
-<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>    using iterator_category = <em>see below</em>;                        // not always present</span>
-<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>    using value_type        = remove_cv_t&lt;Element&gt;;</span>
-<span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a>    using difference_type   = Diff;</span>
-<span id="cb50-13"><a href="#cb50-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-14"><a href="#cb50-14" aria-hidden="true" tabindex="-1"></a>    constexpr <em>iterator</em>();</span>
-<span id="cb50-15"><a href="#cb50-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-16"><a href="#cb50-16" aria-hidden="true" tabindex="-1"></a>    constexpr Ref operator*() const;</span>
-<span id="cb50-17"><a href="#cb50-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-18"><a href="#cb50-18" aria-hidden="true" tabindex="-1"></a>    constexpr <em>iterator</em>&amp; operator++();</span>
-<span id="cb50-19"><a href="#cb50-19" aria-hidden="true" tabindex="-1"></a>    constexpr void operator++(int);</span>
-<span id="cb50-20"><a href="#cb50-20" aria-hidden="true" tabindex="-1"></a>    constexpr <em>iterator</em> operator++(int) </span>
-<span id="cb50-21"><a href="#cb50-21" aria-hidden="true" tabindex="-1"></a>      requires (<em>any-view-flag-is-set</em>(Opts, any_view_options::forward)) = default;</span>
-<span id="cb50-22"><a href="#cb50-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-23"><a href="#cb50-23" aria-hidden="true" tabindex="-1"></a>    constexpr <em>iterator</em>&amp; operator--();</span>
-<span id="cb50-24"><a href="#cb50-24" aria-hidden="true" tabindex="-1"></a>    constexpr <em>iterator</em> operator--(int)</span>
-<span id="cb50-25"><a href="#cb50-25" aria-hidden="true" tabindex="-1"></a>      requires (<em>any-view-flag-is-set</em>(Opts, any_view_options::bidirectional)) = default;</span>
-<span id="cb50-26"><a href="#cb50-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-27"><a href="#cb50-27" aria-hidden="true" tabindex="-1"></a>    constexpr <em>iterator</em>&amp; operator+=(difference_type n);</span>
-<span id="cb50-28"><a href="#cb50-28" aria-hidden="true" tabindex="-1"></a>    constexpr <em>iterator</em>&amp; operator-=(difference_type n);</span>
-<span id="cb50-29"><a href="#cb50-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-30"><a href="#cb50-30" aria-hidden="true" tabindex="-1"></a>    constexpr Ref operator[](difference_type n) const;</span>
-<span id="cb50-31"><a href="#cb50-31" aria-hidden="true" tabindex="-1"></a>    constexpr add_pointer_t&lt;Ref&gt; operator-&gt;() const;</span>
-<span id="cb50-32"><a href="#cb50-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-33"><a href="#cb50-33" aria-hidden="true" tabindex="-1"></a>    friend constexpr bool operator==(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span>
-<span id="cb50-34"><a href="#cb50-34" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-35"><a href="#cb50-35" aria-hidden="true" tabindex="-1"></a>    friend constexpr bool operator&lt;(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span>
-<span id="cb50-36"><a href="#cb50-36" aria-hidden="true" tabindex="-1"></a>    friend constexpr bool operator&gt;(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span>
-<span id="cb50-37"><a href="#cb50-37" aria-hidden="true" tabindex="-1"></a>    friend constexpr bool operator&lt;=(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span>
-<span id="cb50-38"><a href="#cb50-38" aria-hidden="true" tabindex="-1"></a>    friend constexpr bool operator&gt;=(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span>
-<span id="cb50-39"><a href="#cb50-39" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-40"><a href="#cb50-40" aria-hidden="true" tabindex="-1"></a>    friend constexpr <em>iterator</em> operator+(const <em>iterator</em>&amp; i, difference_type n);</span>
-<span id="cb50-41"><a href="#cb50-41" aria-hidden="true" tabindex="-1"></a>    friend constexpr <em>iterator</em> operator+(difference_type n, const <em>iterator</em>&amp; i);</span>
-<span id="cb50-42"><a href="#cb50-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-43"><a href="#cb50-43" aria-hidden="true" tabindex="-1"></a>    friend constexpr <em>iterator</em> operator-(const <em>iterator</em>&amp; i, difference_type n);</span>
-<span id="cb50-44"><a href="#cb50-44" aria-hidden="true" tabindex="-1"></a>    friend constexpr difference_type operator-(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span>
-<span id="cb50-45"><a href="#cb50-45" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-46"><a href="#cb50-46" aria-hidden="true" tabindex="-1"></a>    friend constexpr RValueRef iter_move(const <em>iterator</em>&amp; iter);</span>
-<span id="cb50-47"><a href="#cb50-47" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb50-48"><a href="#cb50-48" aria-hidden="true" tabindex="-1"></a>  };</span>
-<span id="cb50-49"><a href="#cb50-49" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb51"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>namespace std::ranges {</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>  template &lt;class Element,</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>            any_view_options Opts,</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>            class Ref,</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>            class RValueRef,</span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>            class Diff&gt;</span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>  class any_view&lt;Element, Opts, Ref, RValueRef, Diff&gt;::<em>iterator</em> {</span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>    public:</span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>    using iterator_concept  = <em>see below</em>;</span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a>    using iterator_category = <em>see below</em>;                        // not always present</span>
+<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a>    using value_type        = remove_cv_t&lt;Element&gt;;</span>
+<span id="cb51-12"><a href="#cb51-12" aria-hidden="true" tabindex="-1"></a>    using difference_type   = Diff;</span>
+<span id="cb51-13"><a href="#cb51-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-14"><a href="#cb51-14" aria-hidden="true" tabindex="-1"></a>    constexpr <em>iterator</em>() noexcept;</span>
+<span id="cb51-15"><a href="#cb51-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-16"><a href="#cb51-16" aria-hidden="true" tabindex="-1"></a>    constexpr Ref operator*() const;</span>
+<span id="cb51-17"><a href="#cb51-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-18"><a href="#cb51-18" aria-hidden="true" tabindex="-1"></a>    constexpr <em>iterator</em>&amp; operator++();</span>
+<span id="cb51-19"><a href="#cb51-19" aria-hidden="true" tabindex="-1"></a>    constexpr void operator++(int);</span>
+<span id="cb51-20"><a href="#cb51-20" aria-hidden="true" tabindex="-1"></a>    constexpr <em>iterator</em> operator++(int) </span>
+<span id="cb51-21"><a href="#cb51-21" aria-hidden="true" tabindex="-1"></a>      requires (<em>any-view-flag-is-set</em>(Opts, any_view_options::forward)) = default;</span>
+<span id="cb51-22"><a href="#cb51-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-23"><a href="#cb51-23" aria-hidden="true" tabindex="-1"></a>    constexpr <em>iterator</em>&amp; operator--();</span>
+<span id="cb51-24"><a href="#cb51-24" aria-hidden="true" tabindex="-1"></a>    constexpr <em>iterator</em> operator--(int)</span>
+<span id="cb51-25"><a href="#cb51-25" aria-hidden="true" tabindex="-1"></a>      requires (<em>any-view-flag-is-set</em>(Opts, any_view_options::bidirectional)) = default;</span>
+<span id="cb51-26"><a href="#cb51-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-27"><a href="#cb51-27" aria-hidden="true" tabindex="-1"></a>    constexpr <em>iterator</em>&amp; operator+=(difference_type n);</span>
+<span id="cb51-28"><a href="#cb51-28" aria-hidden="true" tabindex="-1"></a>    constexpr <em>iterator</em>&amp; operator-=(difference_type n);</span>
+<span id="cb51-29"><a href="#cb51-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-30"><a href="#cb51-30" aria-hidden="true" tabindex="-1"></a>    constexpr Ref operator[](difference_type n) const;</span>
+<span id="cb51-31"><a href="#cb51-31" aria-hidden="true" tabindex="-1"></a>    constexpr add_pointer_t&lt;Ref&gt; operator-&gt;() const;</span>
+<span id="cb51-32"><a href="#cb51-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-33"><a href="#cb51-33" aria-hidden="true" tabindex="-1"></a>    friend constexpr bool operator==(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span>
+<span id="cb51-34"><a href="#cb51-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-35"><a href="#cb51-35" aria-hidden="true" tabindex="-1"></a>    friend constexpr bool operator&lt;(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span>
+<span id="cb51-36"><a href="#cb51-36" aria-hidden="true" tabindex="-1"></a>    friend constexpr bool operator&gt;(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span>
+<span id="cb51-37"><a href="#cb51-37" aria-hidden="true" tabindex="-1"></a>    friend constexpr bool operator&lt;=(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span>
+<span id="cb51-38"><a href="#cb51-38" aria-hidden="true" tabindex="-1"></a>    friend constexpr bool operator&gt;=(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span>
+<span id="cb51-39"><a href="#cb51-39" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-40"><a href="#cb51-40" aria-hidden="true" tabindex="-1"></a>    friend constexpr partial_ordering operator&lt;=&gt;(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span>
+<span id="cb51-41"><a href="#cb51-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-42"><a href="#cb51-42" aria-hidden="true" tabindex="-1"></a>    friend constexpr <em>iterator</em> operator+(const <em>iterator</em>&amp; i, difference_type n);</span>
+<span id="cb51-43"><a href="#cb51-43" aria-hidden="true" tabindex="-1"></a>    friend constexpr <em>iterator</em> operator+(difference_type n, const <em>iterator</em>&amp; i);</span>
+<span id="cb51-44"><a href="#cb51-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-45"><a href="#cb51-45" aria-hidden="true" tabindex="-1"></a>    friend constexpr <em>iterator</em> operator-(const <em>iterator</em>&amp; i, difference_type n);</span>
+<span id="cb51-46"><a href="#cb51-46" aria-hidden="true" tabindex="-1"></a>    friend constexpr difference_type operator-(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span>
+<span id="cb51-47"><a href="#cb51-47" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-48"><a href="#cb51-48" aria-hidden="true" tabindex="-1"></a>    friend constexpr RValueRef iter_move(const <em>iterator</em>&amp; iter);</span>
+<span id="cb51-49"><a href="#cb51-49" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb51-50"><a href="#cb51-50" aria-hidden="true" tabindex="-1"></a>  };</span>
+<span id="cb51-51"><a href="#cb51-51" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
 <div class="wording">
-<p><span class="marginalizedparent"><a href="#pnum-48" id="pnum-48" class="marginalized">1</a></span>
+<p><span class="marginalizedparent"><a href="#pnum-50" id="pnum-50" class="marginalized">1</a></span>
 <code class="sourceCode default cpp"><em>iterator</em>::iterator_concept</code>
 is defined as follows:</p>
 <ul>
-<li><p><span class="marginalizedparent"><a href="#pnum-49" id="pnum-49" class="marginalized">(1.1)</a></span> If
+<li><p><span class="marginalizedparent"><a href="#pnum-51" id="pnum-51" class="marginalized">(1.1)</a></span> If
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::contiguous)</code>
 is <code class="sourceCode default cpp">true</code>, then
 <code class="sourceCode default cpp">iterator_concept</code> denotes
 <code class="sourceCode default cpp">contiguous_iterator_tag</code>.</p></li>
-<li><p><span class="marginalizedparent"><a href="#pnum-50" id="pnum-50" class="marginalized">(1.2)</a></span> Otherwise, if
+<li><p><span class="marginalizedparent"><a href="#pnum-52" id="pnum-52" class="marginalized">(1.2)</a></span> Otherwise, if
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::random_access)</code>
 is <code class="sourceCode default cpp">true</code>, then
 <code class="sourceCode default cpp">iterator_concept</code> denotes
 <code class="sourceCode default cpp">random_access_iterator_tag</code>.</p></li>
-<li><p><span class="marginalizedparent"><a href="#pnum-51" id="pnum-51" class="marginalized">(1.3)</a></span> Otherwise, if
+<li><p><span class="marginalizedparent"><a href="#pnum-53" id="pnum-53" class="marginalized">(1.3)</a></span> Otherwise, if
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::bidirectional)</code>
 is <code class="sourceCode default cpp">true</code>, then
 <code class="sourceCode default cpp">iterator_concept</code> denotes
 <code class="sourceCode default cpp">bidirectional_iterator_tag</code>.</p></li>
-<li><p><span class="marginalizedparent"><a href="#pnum-52" id="pnum-52" class="marginalized">(1.4)</a></span> Otherwise, if
+<li><p><span class="marginalizedparent"><a href="#pnum-54" id="pnum-54" class="marginalized">(1.4)</a></span> Otherwise, if
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::forward)</code>
 is <code class="sourceCode default cpp">true</code>, then
 <code class="sourceCode default cpp">iterator_concept</code> denotes
 <code class="sourceCode default cpp">forward_iterator_tag</code>.</p></li>
-<li><p><span class="marginalizedparent"><a href="#pnum-53" id="pnum-53" class="marginalized">(1.5)</a></span> Otherwise,
+<li><p><span class="marginalizedparent"><a href="#pnum-55" id="pnum-55" class="marginalized">(1.5)</a></span> Otherwise,
 <code class="sourceCode default cpp">iterator_concept</code> denotes
 <code class="sourceCode default cpp">input_iterator_tag</code>.</p></li>
 </ul>
-<p><span class="marginalizedparent"><a href="#pnum-54" id="pnum-54" class="marginalized">2</a></span> The member typedef-name
+<p><span class="marginalizedparent"><a href="#pnum-56" id="pnum-56" class="marginalized">2</a></span> The member typedef-name
 <code class="sourceCode default cpp">iterator_category</code> is defined
 if and only if
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::forward)</code>
@@ -3400,79 +3414,79 @@ is <code class="sourceCode default cpp">true</code>. In that case,
 <code class="sourceCode default cpp"><em>iterator</em>::iterator_category</code>
 is defined as follows:</p>
 <ul>
-<li><p><span class="marginalizedparent"><a href="#pnum-55" id="pnum-55" class="marginalized">(2.1)</a></span> If
+<li><p><span class="marginalizedparent"><a href="#pnum-57" id="pnum-57" class="marginalized">(2.1)</a></span> If
 <code class="sourceCode default cpp">iterator_concept</code> is
 <code class="sourceCode default cpp">contiguous_iterator_tag</code>,
 then <code class="sourceCode default cpp">iterator_category</code>
 denotes
 <code class="sourceCode default cpp">random_access_iterator_tag</code>.</p></li>
-<li><p><span class="marginalizedparent"><a href="#pnum-56" id="pnum-56" class="marginalized">(2.2)</a></span> Otherwise, if
+<li><p><span class="marginalizedparent"><a href="#pnum-58" id="pnum-58" class="marginalized">(2.2)</a></span> Otherwise, if
 <code class="sourceCode default cpp">is_reference_v&lt;Ref&gt;</code> is
 <code class="sourceCode default cpp">true</code>, then
 <code class="sourceCode default cpp">iterator_category</code> denotes
 <code class="sourceCode default cpp">iterator_concept</code>.</p></li>
-<li><p><span class="marginalizedparent"><a href="#pnum-57" id="pnum-57" class="marginalized">(2.3)</a></span> Otherwise,
+<li><p><span class="marginalizedparent"><a href="#pnum-59" id="pnum-59" class="marginalized">(2.3)</a></span> Otherwise,
 <code class="sourceCode default cpp">iterator_category</code> denotes
 <code class="sourceCode default cpp">input_iterator_tag</code>.</p></li>
 </ul>
-<div class="sourceCode" id="cb51"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>iterator</em>();</span></code></pre></div>
+<div class="sourceCode" id="cb52"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>iterator</em>() noexcept;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-58" id="pnum-58" class="marginalized">3</a></span> <em>Constraints</em>:
+<p><span class="marginalizedparent"><a href="#pnum-60" id="pnum-60" class="marginalized">3</a></span> <em>Constraints</em>:
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::forward)</code>
 is <code class="sourceCode default cpp">true</code>.</p>
-<p><span class="marginalizedparent"><a href="#pnum-59" id="pnum-59" class="marginalized">4</a></span> <em>Postconditions</em>:
+<p><span class="marginalizedparent"><a href="#pnum-61" id="pnum-61" class="marginalized">4</a></span> <em>Postconditions</em>:
 <code class="sourceCode default cpp">*this</code> has no target iterator
 object.</p>
 </div>
-<div class="sourceCode" id="cb52"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>constexpr Ref operator*() const;</span></code></pre></div>
+<div class="sourceCode" id="cb53"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>constexpr Ref operator*() const;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-60" id="pnum-60" class="marginalized">5</a></span> <em>Preconditions</em>:
+<p><span class="marginalizedparent"><a href="#pnum-62" id="pnum-62" class="marginalized">5</a></span> <em>Preconditions</em>:
 <code class="sourceCode default cpp">*this</code> has a target iterator
 object.</p>
-<p><span class="marginalizedparent"><a href="#pnum-61" id="pnum-61" class="marginalized">6</a></span> <em>Returns</em>:
+<p><span class="marginalizedparent"><a href="#pnum-63" id="pnum-63" class="marginalized">6</a></span> <em>Returns</em>:
 <code class="sourceCode default cpp">static_cast&lt;Ref&gt;(*it)</code>,
 where <code class="sourceCode default cpp">it</code> is an lvalue
 designating the target iterator object of
 <code class="sourceCode default cpp">*this</code>.</p>
 </div>
-<div class="sourceCode" id="cb53"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>iterator</em>&amp; operator++();</span></code></pre></div>
+<div class="sourceCode" id="cb54"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>iterator</em>&amp; operator++();</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-62" id="pnum-62" class="marginalized">7</a></span> <em>Preconditions</em>:
+<p><span class="marginalizedparent"><a href="#pnum-64" id="pnum-64" class="marginalized">7</a></span> <em>Preconditions</em>:
 <code class="sourceCode default cpp">*this</code> has a target iterator
 object.</p>
-<p><span class="marginalizedparent"><a href="#pnum-63" id="pnum-63" class="marginalized">8</a></span> <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb54"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>++it;</span>
-<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>return *this;</span></code></pre></div>
+<p><span class="marginalizedparent"><a href="#pnum-65" id="pnum-65" class="marginalized">8</a></span> <em>Effects</em>: Equivalent to:</p>
+<div class="sourceCode" id="cb55"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>++it;</span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>return *this;</span></code></pre></div>
 <p>where <code class="sourceCode default cpp">it</code> is an lvalue
 designating the target iterator object of
 <code class="sourceCode default cpp">*this</code>.</p>
 </div>
-<div class="sourceCode" id="cb55"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a>constexpr void operator++(int);</span></code></pre></div>
+<div class="sourceCode" id="cb56"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>constexpr void operator++(int);</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-64" id="pnum-64" class="marginalized">9</a></span> <em>Effects</em>: Equivalent to:
-<code class="sourceCode default cpp">++(*this);</code>.</p>
+<p><span class="marginalizedparent"><a href="#pnum-66" id="pnum-66" class="marginalized">9</a></span> <em>Effects</em>: Equivalent to:
+<code class="sourceCode default cpp">++*this;</code>.</p>
 </div>
-<div class="sourceCode" id="cb56"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>iterator</em>&amp; operator--();</span></code></pre></div>
+<div class="sourceCode" id="cb57"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>iterator</em>&amp; operator--();</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-65" id="pnum-65" class="marginalized">10</a></span> <em>Constraints</em>:
+<p><span class="marginalizedparent"><a href="#pnum-67" id="pnum-67" class="marginalized">10</a></span> <em>Constraints</em>:
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::bidirectional)</code>
 is <code class="sourceCode default cpp">true</code>.</p>
-<p><span class="marginalizedparent"><a href="#pnum-66" id="pnum-66" class="marginalized">11</a></span> <em>Preconditions</em>:
+<p><span class="marginalizedparent"><a href="#pnum-68" id="pnum-68" class="marginalized">11</a></span> <em>Preconditions</em>:
 <code class="sourceCode default cpp">*this</code> has a target iterator
 object.</p>
-<p><span class="marginalizedparent"><a href="#pnum-67" id="pnum-67" class="marginalized">12</a></span> <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb57"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a>--it;</span>
-<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>return *this;</span></code></pre></div>
+<p><span class="marginalizedparent"><a href="#pnum-69" id="pnum-69" class="marginalized">12</a></span> <em>Effects</em>: Equivalent to:</p>
+<div class="sourceCode" id="cb58"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>--it;</span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>return *this;</span></code></pre></div>
 <p>where <code class="sourceCode default cpp">it</code> is an lvalue
 designating the target iterator object of
 <code class="sourceCode default cpp">*this</code>.</p>
 </div>
-<div class="sourceCode" id="cb58"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>iterator</em>&amp; operator+=(difference_type n);</span></code></pre></div>
+<div class="sourceCode" id="cb59"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>iterator</em>&amp; operator+=(difference_type n);</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-68" id="pnum-68" class="marginalized">13</a></span> <em>Constraints</em>:
+<p><span class="marginalizedparent"><a href="#pnum-70" id="pnum-70" class="marginalized">13</a></span> <em>Constraints</em>:
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::random_access)</code>
 is <code class="sourceCode default cpp">true</code>.</p>
-<p><span class="marginalizedparent"><a href="#pnum-69" id="pnum-69" class="marginalized">14</a></span> <em>Preconditions</em>:
+<p><span class="marginalizedparent"><a href="#pnum-71" id="pnum-71" class="marginalized">14</a></span> <em>Preconditions</em>:
 <code class="sourceCode default cpp">*this</code> has a target iterator
 object, and let <code class="sourceCode default cpp">I</code> be the
 type of the target iterator object and
@@ -3480,21 +3494,21 @@ type of the target iterator object and
 <code class="sourceCode default cpp">iter_difference_t&lt;I&gt;</code>,
 <code class="sourceCode default cpp">in_range&lt;D&gt;(n)</code> is
 <code class="sourceCode default cpp">true</code>.</p>
-<p><span class="marginalizedparent"><a href="#pnum-70" id="pnum-70" class="marginalized">15</a></span> <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb59"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>it += static_cast&lt;D&gt;(n);</span>
-<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>return *this;</span></code></pre></div>
+<p><span class="marginalizedparent"><a href="#pnum-72" id="pnum-72" class="marginalized">15</a></span> <em>Effects</em>: Equivalent to:</p>
+<div class="sourceCode" id="cb60"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>it += static_cast&lt;D&gt;(n);</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>return *this;</span></code></pre></div>
 <p>where <code class="sourceCode default cpp">it</code> is an lvalue
 designating the target iterator object of
 <code class="sourceCode default cpp">*this</code>, and
 <code class="sourceCode default cpp">D</code> is
 <code class="sourceCode default cpp">iter_difference_t&lt;remove_reference_t&lt;decltype(it)&gt;&gt;</code>.</p>
 </div>
-<div class="sourceCode" id="cb60"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>iterator</em>&amp; operator-=(difference_type n);</span></code></pre></div>
+<div class="sourceCode" id="cb61"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>iterator</em>&amp; operator-=(difference_type n);</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-71" id="pnum-71" class="marginalized">16</a></span> <em>Constraints</em>:
+<p><span class="marginalizedparent"><a href="#pnum-73" id="pnum-73" class="marginalized">16</a></span> <em>Constraints</em>:
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::random_access)</code>
 is <code class="sourceCode default cpp">true</code>.</p>
-<p><span class="marginalizedparent"><a href="#pnum-72" id="pnum-72" class="marginalized">17</a></span> <em>Preconditions</em>:
+<p><span class="marginalizedparent"><a href="#pnum-74" id="pnum-74" class="marginalized">17</a></span> <em>Preconditions</em>:
 <code class="sourceCode default cpp">*this</code> has a target iterator
 object, and let <code class="sourceCode default cpp">I</code> be the
 type of the target iterator object and
@@ -3502,54 +3516,55 @@ type of the target iterator object and
 <code class="sourceCode default cpp">iter_difference_t&lt;I&gt;</code>,
 <code class="sourceCode default cpp">in_range&lt;D&gt;(n)</code> is
 <code class="sourceCode default cpp">true</code>.</p>
-<p><span class="marginalizedparent"><a href="#pnum-73" id="pnum-73" class="marginalized">18</a></span> <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb61"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb61-1"><a href="#cb61-1" aria-hidden="true" tabindex="-1"></a>it -= static_cast&lt;D&gt;(n);</span>
-<span id="cb61-2"><a href="#cb61-2" aria-hidden="true" tabindex="-1"></a>return *this;</span></code></pre></div>
+<p><span class="marginalizedparent"><a href="#pnum-75" id="pnum-75" class="marginalized">18</a></span> <em>Effects</em>: Equivalent to:</p>
+<div class="sourceCode" id="cb62"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>it -= static_cast&lt;D&gt;(n);</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>return *this;</span></code></pre></div>
 <p>where <code class="sourceCode default cpp">it</code> is an lvalue
 designating the target iterator object of
 <code class="sourceCode default cpp">*this</code>, and
 <code class="sourceCode default cpp">D</code> is
 <code class="sourceCode default cpp">iter_difference_t&lt;remove_reference_t&lt;decltype(it)&gt;&gt;</code>.</p>
 </div>
-<div class="sourceCode" id="cb62"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>constexpr Ref operator[](difference_type n) const;</span></code></pre></div>
+<div class="sourceCode" id="cb63"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>constexpr Ref operator[](difference_type n) const;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-74" id="pnum-74" class="marginalized">19</a></span> <em>Effect</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb63"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a>return *((*this) + n);</span></code></pre></div>
+<p><span class="marginalizedparent"><a href="#pnum-76" id="pnum-76" class="marginalized">19</a></span> <em>Constraints</em>:
+<code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::random_access)</code>
+is <code class="sourceCode default cpp">true</code>.</p>
+<p><span class="marginalizedparent"><a href="#pnum-77" id="pnum-77" class="marginalized">20</a></span> <em>Effect</em>: Equivalent to:</p>
+<div class="sourceCode" id="cb64"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>return *(*this + n);</span></code></pre></div>
 </div>
-<div class="sourceCode" id="cb64"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>constexpr add_pointer_t&lt;Ref&gt; operator-&gt;() const;</span></code></pre></div>
+<div class="sourceCode" id="cb65"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>constexpr add_pointer_t&lt;Ref&gt; operator-&gt;() const;</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-75" id="pnum-75" class="marginalized">20</a></span> <em>Constraints</em>:
+<p><span class="marginalizedparent"><a href="#pnum-78" id="pnum-78" class="marginalized">21</a></span> <em>Constraints</em>:
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::contiguous)</code>
 is <code class="sourceCode default cpp">true</code>.</p>
-<p><span class="marginalizedparent"><a href="#pnum-76" id="pnum-76" class="marginalized">21</a></span> <em>Preconditions</em>:
+<p><span class="marginalizedparent"><a href="#pnum-79" id="pnum-79" class="marginalized">22</a></span> <em>Preconditions</em>:
 <code class="sourceCode default cpp">*this</code> has a target iterator
 object.</p>
-<p><span class="marginalizedparent"><a href="#pnum-77" id="pnum-77" class="marginalized">22</a></span> <em>Returns</em>:
+<p><span class="marginalizedparent"><a href="#pnum-80" id="pnum-80" class="marginalized">23</a></span> <em>Returns</em>:
 <code class="sourceCode default cpp">to_address(it)</code>, where
 <code class="sourceCode default cpp">it</code> is an lvalue designating
 the target iterator object of
 <code class="sourceCode default cpp">*this</code>.</p>
 </div>
-<div class="sourceCode" id="cb65"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>friend constexpr bool operator==(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span></code></pre></div>
+<div class="sourceCode" id="cb66"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>friend constexpr bool operator==(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-78" id="pnum-78" class="marginalized">23</a></span> <em>Constraints</em>:
+<p><span class="marginalizedparent"><a href="#pnum-81" id="pnum-81" class="marginalized">24</a></span> <em>Constraints</em>:
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::forward)</code>
 is <code class="sourceCode default cpp">true</code>.</p>
-<p><span class="marginalizedparent"><a href="#pnum-79" id="pnum-79" class="marginalized">24</a></span> <em>Effects</em>:</p>
+<p><span class="marginalizedparent"><a href="#pnum-82" id="pnum-82" class="marginalized">25</a></span> <em>Effects</em>:</p>
 <ul>
-<li><p><span class="marginalizedparent"><a href="#pnum-80" id="pnum-80" class="marginalized">(24.1)</a></span> If both
+<li><p><span class="marginalizedparent"><a href="#pnum-83" id="pnum-83" class="marginalized">(25.1)</a></span> If both
 <code class="sourceCode default cpp">x</code> and
 <code class="sourceCode default cpp">y</code> have no target iterator
 object, equivalent to:</p>
-<div class="sourceCode" id="cb66"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a>return true;</span></code></pre></div></li>
-<li><p><span class="marginalizedparent"><a href="#pnum-81" id="pnum-81" class="marginalized">(24.2)</a></span> Otherwise, if
+<div class="sourceCode" id="cb67"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>return true;</span></code></pre></div></li>
+<li><p><span class="marginalizedparent"><a href="#pnum-84" id="pnum-84" class="marginalized">(25.2)</a></span> Otherwise, if
 <code class="sourceCode default cpp">x</code> has no target iterator
-object and <code class="sourceCode default cpp">y</code> has a target
-iterator object, or, <code class="sourceCode default cpp">x</code> has a
-target iterator object and <code class="sourceCode default cpp">y</code>
-has no target iterator object, equivalent to:</p>
-<div class="sourceCode" id="cb67"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>return false;</span></code></pre></div></li>
-<li><p><span class="marginalizedparent"><a href="#pnum-82" id="pnum-82" class="marginalized">(24.3)</a></span> Otherwise, let
+object, or, <code class="sourceCode default cpp">y</code> has no target
+iterator object, equivalent to:</p>
+<div class="sourceCode" id="cb68"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>return false;</span></code></pre></div></li>
+<li><p><span class="marginalizedparent"><a href="#pnum-85" id="pnum-85" class="marginalized">(25.3)</a></span> Otherwise, let
 <code class="sourceCode default cpp">it1</code> be an lvalue designating
 the target iterator object of
 <code class="sourceCode default cpp">x</code>, and
@@ -3557,53 +3572,83 @@ the target iterator object of
 the target iterator object of
 <code class="sourceCode default cpp">y</code>.</p>
 <ul>
-<li><p><span class="marginalizedparent"><a href="#pnum-83" id="pnum-83" class="marginalized">(24.3.1)</a></span> If
+<li><p><span class="marginalizedparent"><a href="#pnum-86" id="pnum-86" class="marginalized">(25.3.1)</a></span> If
 <code class="sourceCode default cpp">is_same_v&lt;decltype(it1), decltype(it2)&gt;</code>
 is <code class="sourceCode default cpp">false</code>, equivalent to:</p>
-<div class="sourceCode" id="cb68"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a>return false;</span></code></pre></div></li>
-<li><p><span class="marginalizedparent"><a href="#pnum-84" id="pnum-84" class="marginalized">(24.3.2)</a></span> Otherwise, equivalent to:</p>
-<div class="sourceCode" id="cb69"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>return it1 == it2;</span></code></pre></div></li>
+<div class="sourceCode" id="cb69"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>return false;</span></code></pre></div></li>
+<li><p><span class="marginalizedparent"><a href="#pnum-87" id="pnum-87" class="marginalized">(25.3.2)</a></span> Otherwise, equivalent to:</p>
+<div class="sourceCode" id="cb70"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>return it1 == it2;</span></code></pre></div></li>
 </ul></li>
 </ul>
 </div>
-<div class="sourceCode" id="cb70"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>friend constexpr bool operator&lt;(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span>
-<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>friend constexpr bool operator&gt;(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span>
-<span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>friend constexpr bool operator&lt;=(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span>
-<span id="cb70-4"><a href="#cb70-4" aria-hidden="true" tabindex="-1"></a>friend constexpr bool operator&gt;=(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span></code></pre></div>
+<div class="sourceCode" id="cb71"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>friend constexpr bool operator&lt;(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>friend constexpr bool operator&gt;(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>friend constexpr bool operator&lt;=(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>friend constexpr bool operator&gt;=(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-85" id="pnum-85" class="marginalized">25</a></span> Let <em>op</em> be the operator.</p>
-<p><span class="marginalizedparent"><a href="#pnum-86" id="pnum-86" class="marginalized">26</a></span> <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb71"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>return (x - y) <em>op</em> 0;</span></code></pre></div>
-</div>
-<div class="sourceCode" id="cb72"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>friend constexpr <em>iterator</em> operator+(const <em>iterator</em>&amp; i, difference_type n);</span></code></pre></div>
-<div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-87" id="pnum-87" class="marginalized">27</a></span> <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb73"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>auto temp = i;</span>
-<span id="cb73-2"><a href="#cb73-2" aria-hidden="true" tabindex="-1"></a>temp += n;</span>
-<span id="cb73-3"><a href="#cb73-3" aria-hidden="true" tabindex="-1"></a>return temp;</span></code></pre></div>
-</div>
-<div class="sourceCode" id="cb74"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>friend constexpr <em>iterator</em> operator+(difference_type n, const <em>iterator</em>&amp; i);</span></code></pre></div>
-<div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-88" id="pnum-88" class="marginalized">28</a></span> <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb75"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>return i + n;</span></code></pre></div>
-</div>
-<div class="sourceCode" id="cb76"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>friend constexpr <em>iterator</em> operator-(const <em>iterator</em>&amp; i, difference_type n);</span></code></pre></div>
-<div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-89" id="pnum-89" class="marginalized">29</a></span> <em>Effects</em>: Equivalent to:</p>
-<div class="sourceCode" id="cb77"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>auto temp = i;</span>
-<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a>temp -= n;</span>
-<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>return temp;</span></code></pre></div>
-</div>
-<div class="sourceCode" id="cb78"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>friend constexpr difference_type operator-(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span></code></pre></div>
-<div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-90" id="pnum-90" class="marginalized">30</a></span> <em>Constraints</em>:
+<p><span class="marginalizedparent"><a href="#pnum-88" id="pnum-88" class="marginalized">26</a></span> <em>Constraints</em>:
 <code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::random_access)</code>
 is <code class="sourceCode default cpp">true</code>.</p>
-<p><span class="marginalizedparent"><a href="#pnum-91" id="pnum-91" class="marginalized">31</a></span> <em>Preconditions</em>: Both
+<p><span class="marginalizedparent"><a href="#pnum-89" id="pnum-89" class="marginalized">27</a></span> Let <em>op</em> be the operator.</p>
+<p><span class="marginalizedparent"><a href="#pnum-90" id="pnum-90" class="marginalized">28</a></span> <em>Effects</em>: Equivalent to:</p>
+<div class="sourceCode" id="cb72"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>return (x - y) <em>op</em> 0;</span></code></pre></div>
+</div>
+<div class="sourceCode" id="cb73"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>friend constexpr partial_ordering operator&lt;=&gt;(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span></code></pre></div>
+<div class="bq">
+<p><span class="marginalizedparent"><a href="#pnum-91" id="pnum-91" class="marginalized">29</a></span> <em>Constraints</em>:
+<code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::random_access)</code>
+is <code class="sourceCode default cpp">true</code>.</p>
+<p><span class="marginalizedparent"><a href="#pnum-92" id="pnum-92" class="marginalized">30</a></span> <em>Preconditions</em>: Both
 <code class="sourceCode default cpp">x</code> and
 <code class="sourceCode default cpp">y</code> have a target iterator
 object, and the two target iterator objects have the same type.</p>
-<p><span class="marginalizedparent"><a href="#pnum-92" id="pnum-92" class="marginalized">32</a></span> <em>Returns</em>:
+<p><span class="marginalizedparent"><a href="#pnum-93" id="pnum-93" class="marginalized">31</a></span> <em>Effects</em>: Let
+<code class="sourceCode default cpp">it1</code> be an lvalue designating
+the target iterator object of
+<code class="sourceCode default cpp">x</code>, and
+<code class="sourceCode default cpp">it2</code> be an lvalue designating
+the target iterator object of
+<code class="sourceCode default cpp">y</code>, equivalent to:</p>
+<div class="sourceCode" id="cb74"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>return compare_partial_order_fallback(it1, it2);</span></code></pre></div>
+</div>
+<div class="sourceCode" id="cb75"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>friend constexpr <em>iterator</em> operator+(const <em>iterator</em>&amp; i, difference_type n);</span></code></pre></div>
+<div class="bq">
+<p><span class="marginalizedparent"><a href="#pnum-94" id="pnum-94" class="marginalized">32</a></span> <em>Constraints</em>:
+<code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::random_access)</code>
+is <code class="sourceCode default cpp">true</code>.</p>
+<p><span class="marginalizedparent"><a href="#pnum-95" id="pnum-95" class="marginalized">33</a></span> <em>Effects</em>: Equivalent to:</p>
+<div class="sourceCode" id="cb76"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>auto temp = i;</span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>temp += n;</span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a>return temp;</span></code></pre></div>
+</div>
+<div class="sourceCode" id="cb77"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>friend constexpr <em>iterator</em> operator+(difference_type n, const <em>iterator</em>&amp; i);</span></code></pre></div>
+<div class="bq">
+<p><span class="marginalizedparent"><a href="#pnum-96" id="pnum-96" class="marginalized">34</a></span> <em>Constraints</em>:
+<code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::random_access)</code>
+is <code class="sourceCode default cpp">true</code>.</p>
+<p><span class="marginalizedparent"><a href="#pnum-97" id="pnum-97" class="marginalized">35</a></span> <em>Effects</em>: Equivalent to:</p>
+<div class="sourceCode" id="cb78"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>return i + n;</span></code></pre></div>
+</div>
+<div class="sourceCode" id="cb79"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>friend constexpr <em>iterator</em> operator-(const <em>iterator</em>&amp; i, difference_type n);</span></code></pre></div>
+<div class="bq">
+<p><span class="marginalizedparent"><a href="#pnum-98" id="pnum-98" class="marginalized">36</a></span> <em>Constraints</em>:
+<code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::random_access)</code>
+is <code class="sourceCode default cpp">true</code>.</p>
+<p><span class="marginalizedparent"><a href="#pnum-99" id="pnum-99" class="marginalized">37</a></span> <em>Effects</em>: Equivalent to:</p>
+<div class="sourceCode" id="cb80"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>auto temp = i;</span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>temp -= n;</span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>return temp;</span></code></pre></div>
+</div>
+<div class="sourceCode" id="cb81"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>friend constexpr difference_type operator-(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span></code></pre></div>
+<div class="bq">
+<p><span class="marginalizedparent"><a href="#pnum-100" id="pnum-100" class="marginalized">38</a></span> <em>Constraints</em>:
+<code class="sourceCode default cpp"><em>any-view-flag-is-set</em>(Opts, any_view_options::random_access)</code>
+is <code class="sourceCode default cpp">true</code>.</p>
+<p><span class="marginalizedparent"><a href="#pnum-101" id="pnum-101" class="marginalized">39</a></span> <em>Preconditions</em>: Both
+<code class="sourceCode default cpp">x</code> and
+<code class="sourceCode default cpp">y</code> have a target iterator
+object, and the two target iterator objects have the same type.</p>
+<p><span class="marginalizedparent"><a href="#pnum-102" id="pnum-102" class="marginalized">40</a></span> <em>Returns</em>:
 <code class="sourceCode default cpp">it1 - it2</code>, where
 <code class="sourceCode default cpp">it1</code> is an lvalue designating
 the target iterator object of
@@ -3612,12 +3657,12 @@ the target iterator object of
 the target iterator object of
 <code class="sourceCode default cpp">y</code>.</p>
 </div>
-<div class="sourceCode" id="cb79"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>friend constexpr RValueRef iter_move(const <em>iterator</em>&amp; iter);</span></code></pre></div>
+<div class="sourceCode" id="cb82"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>friend constexpr RValueRef iter_move(const <em>iterator</em>&amp; iter);</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-93" id="pnum-93" class="marginalized">33</a></span> <em>Preconditions</em>:
+<p><span class="marginalizedparent"><a href="#pnum-103" id="pnum-103" class="marginalized">41</a></span> <em>Preconditions</em>:
 <code class="sourceCode default cpp">iter</code> has a target iterator
 object.</p>
-<p><span class="marginalizedparent"><a href="#pnum-94" id="pnum-94" class="marginalized">34</a></span> <em>Returns</em>:
+<p><span class="marginalizedparent"><a href="#pnum-104" id="pnum-104" class="marginalized">42</a></span> <em>Returns</em>:
 <code class="sourceCode default cpp">static_cast&lt;RValueRef&gt;(ranges::iter_move(it))</code>,
 where <code class="sourceCode default cpp">it</code> is an lvalue
 designating the target iterator object of
@@ -3626,51 +3671,53 @@ designating the target iterator object of
 </div>
 <h4 class="unnumbered" id="class-any_viewsentinel-range.any.sentinel">?.?.?.8 Class
 any_view::sentinel [range.any.sentinel]<a href="#class-any_viewsentinel-range.any.sentinel" class="self-link"></a></h4>
-<div class="sourceCode" id="cb80"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>namespace std::ranges {</span>
-<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>  template &lt;class Element,</span>
-<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>            any_view_options Opts,</span>
-<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a>            class Ref,</span>
-<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a>            class RValueRef,</span>
-<span id="cb80-6"><a href="#cb80-6" aria-hidden="true" tabindex="-1"></a>            class Diff&gt;</span>
-<span id="cb80-7"><a href="#cb80-7" aria-hidden="true" tabindex="-1"></a>  class any_view&lt;Element, Opts, Ref, RValueRef, Diff&gt;::<em>sentinel</em> {</span>
-<span id="cb80-8"><a href="#cb80-8" aria-hidden="true" tabindex="-1"></a>    public:</span>
-<span id="cb80-9"><a href="#cb80-9" aria-hidden="true" tabindex="-1"></a>    constexpr <em>sentinel</em>();</span>
-<span id="cb80-10"><a href="#cb80-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb80-11"><a href="#cb80-11" aria-hidden="true" tabindex="-1"></a>    friend constexpr bool operator==(const <em>iterator</em>&amp; x, const <em>sentinel</em>&amp; y);</span>
-<span id="cb80-12"><a href="#cb80-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb80-13"><a href="#cb80-13" aria-hidden="true" tabindex="-1"></a>  };</span>
-<span id="cb80-14"><a href="#cb80-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
-<div class="sourceCode" id="cb81"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>sentinel</em>();</span></code></pre></div>
+<div class="sourceCode" id="cb83"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>namespace std::ranges {</span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a>  template &lt;class Element,</span>
+<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a>            any_view_options Opts,</span>
+<span id="cb83-4"><a href="#cb83-4" aria-hidden="true" tabindex="-1"></a>            class Ref,</span>
+<span id="cb83-5"><a href="#cb83-5" aria-hidden="true" tabindex="-1"></a>            class RValueRef,</span>
+<span id="cb83-6"><a href="#cb83-6" aria-hidden="true" tabindex="-1"></a>            class Diff&gt;</span>
+<span id="cb83-7"><a href="#cb83-7" aria-hidden="true" tabindex="-1"></a>  class any_view&lt;Element, Opts, Ref, RValueRef, Diff&gt;::<em>sentinel</em> {</span>
+<span id="cb83-8"><a href="#cb83-8" aria-hidden="true" tabindex="-1"></a>    public:</span>
+<span id="cb83-9"><a href="#cb83-9" aria-hidden="true" tabindex="-1"></a>    constexpr <em>sentinel</em>() noexcept;</span>
+<span id="cb83-10"><a href="#cb83-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb83-11"><a href="#cb83-11" aria-hidden="true" tabindex="-1"></a>    friend constexpr bool operator==(const <em>iterator</em>&amp; x, const <em>sentinel</em>&amp; y);</span>
+<span id="cb83-12"><a href="#cb83-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb83-13"><a href="#cb83-13" aria-hidden="true" tabindex="-1"></a>  };</span>
+<span id="cb83-14"><a href="#cb83-14" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb84"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>constexpr <em>sentinel</em>() noexcept;</span></code></pre></div>
 <div class="wording">
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-95" id="pnum-95" class="marginalized">1</a></span> <em>Postconditions</em>:
+<p><span class="marginalizedparent"><a href="#pnum-105" id="pnum-105" class="marginalized">1</a></span> <em>Postconditions</em>:
 <code class="sourceCode default cpp">*this</code> has no target sentinel
 object.</p>
 </div>
-<div class="sourceCode" id="cb82"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a>friend constexpr bool operator==(const <em>iterator</em>&amp; x, const <em>sentinel</em>&amp; y);</span></code></pre></div>
+<div class="sourceCode" id="cb85"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>friend constexpr bool operator==(const <em>iterator</em>&amp; x, const <em>sentinel</em>&amp; y);</span></code></pre></div>
 <div class="bq">
-<p><span class="marginalizedparent"><a href="#pnum-96" id="pnum-96" class="marginalized">2</a></span> <em>Effects</em>:</p>
+<p><span class="marginalizedparent"><a href="#pnum-106" id="pnum-106" class="marginalized">2</a></span> <em>Effects</em>:</p>
 <ul>
-<li><p><span class="marginalizedparent"><a href="#pnum-97" id="pnum-97" class="marginalized">(2.1)</a></span> If either
+<li><p><span class="marginalizedparent"><a href="#pnum-107" id="pnum-107" class="marginalized">(2.1)</a></span> If either
 <code class="sourceCode default cpp">x</code> has no target iterator
-object, or <code class="sourceCode default cpp">y</code> has no target
-sentinel object, equivalent to:</p>
-<div class="sourceCode" id="cb83"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>return false;</span></code></pre></div></li>
-<li><p><span class="marginalizedparent"><a href="#pnum-98" id="pnum-98" class="marginalized">(2.2)</a></span> Otherwise, let
+object, or both <code class="sourceCode default cpp">x</code> and
+<code class="sourceCode default cpp">y</code> have no target sentinel
+object, equivalent to:</p>
+<div class="sourceCode" id="cb86"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>return false;</span></code></pre></div></li>
+<li><p><span class="marginalizedparent"><a href="#pnum-108" id="pnum-108" class="marginalized">(2.2)</a></span> Otherwise, let
 <code class="sourceCode default cpp">it</code> be an lvalue designating
 the target iterator object of
 <code class="sourceCode default cpp">x</code>, and
 <code class="sourceCode default cpp">st</code> be an lvalue designating
-the target sentinel object of
+the target sentinel object of either
+<code class="sourceCode default cpp">x</code> or
 <code class="sourceCode default cpp">y</code>,</p>
 <ul>
-<li><p><span class="marginalizedparent"><a href="#pnum-99" id="pnum-99" class="marginalized">(2.2.1)</a></span> If
+<li><p><span class="marginalizedparent"><a href="#pnum-109" id="pnum-109" class="marginalized">(2.2.1)</a></span> If
 <code class="sourceCode default cpp">sentinel_for&lt;decay_t&lt;decltype(st)&gt;, decay_t&lt;decltype(it)&gt;&gt;</code>
 is <code class="sourceCode default cpp">false</code>, the return value
 is unspecified.</p></li>
-<li><p><span class="marginalizedparent"><a href="#pnum-100" id="pnum-100" class="marginalized">(2.2.2)</a></span> Otherwise,
+<li><p><span class="marginalizedparent"><a href="#pnum-110" id="pnum-110" class="marginalized">(2.2.2)</a></span> Otherwise,
 equivalent to:</p>
-<div class="sourceCode" id="cb84"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>return it == st;</span></code></pre></div></li>
+<div class="sourceCode" id="cb87"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a>return it == st;</span></code></pre></div></li>
 </ul></li>
 </ul>
 </div>
@@ -3684,7 +3731,7 @@ header
 synopsis, with the value selected by the editor to reflect the date of
 adoption of this paper:</p>
 <div class="add">
-<div class="sourceCode" id="cb85"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>#define __cpp_lib_any_view  20XXXXL // also in &lt;ranges&gt;</span></code></pre></div>
+<div class="sourceCode" id="cb88"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>#define __cpp_lib_any_view  20XXXXL // also in &lt;ranges&gt;</span></code></pre></div>
 </div>
 <style>
 .bq{
