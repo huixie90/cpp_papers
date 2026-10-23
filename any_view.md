@@ -1031,9 +1031,9 @@ Add the following subclause to [range.utility]{.sref}
 
 [These rules ensure that `any_view::@*iterator*@` models `indirectly_readable`.]{.note}
 
-[#]{.pnum} Recommended practice: Implementations should avoid the use of dynamically allocated memory for a small contained target view object of type `T` which satisfies `is_nothrow_move_constructible_v<T>`.
+[#]{.pnum} Recommended practice: Implementations should avoid the use of dynamically allocated memory for a small target view object of type `T` which satisfies `is_nothrow_move_constructible_v<T>`.
 
-[#]{.pnum} The `any_view::@*iterator*@` wraps an iterator `@*i*@` of type `@*I*@` referred to as the *target iterator object*. Either `any_view::@*iterator*@` or `any_view::@*sentinel*@` wraps a single sentinel `@*s*@` of type `@*S*@`, that models `sentinel_for<@*S*@, @*I*@>`, referred to as the *target sentinel object*. If an `any_view::@*iterator*@` holds both a target iterator object and a target sentinel object, it is *self contained*.
+[#]{.pnum} An `any_view::@*iterator*@` object wraps an iterator object referred to as the *target iterator object*. Either an `any_view::@*iterator*@` object or an `any_view::@*sentinel*@` object wraps a single sentinel object, referred to as the *target sentinel object*. When an `any_view::@*iterator*@` object holds both a target iterator object and a target sentinel object, it is said to be *self contained*.
 
 :::
 
@@ -1541,7 +1541,7 @@ friend constexpr bool operator==(const @*iterator*@& x, const @*iterator*@& y);
 return it1 == it2; 
 ```
 
-, where `it1` and `it2` designate the target iterator objects of `x` and `y` respectively.
+where `it1` and `it2` designate the target iterator objects of `x` and `y` respectively.
 
 - [#.#]{.pnum} Otherwise, if neither `x` nor `y` contains a target iterator object, equivalent to:
 
@@ -1580,7 +1580,7 @@ friend constexpr bool operator>=(const @*iterator*@& x, const @*iterator*@& y);
   return it1 op it2;
   ```
 
-, where `it1` and `it2` designate the target iterator objects of `x` and `y` respectively.
+where `it1` and `it2` designate the target iterator objects of `x` and `y` respectively.
 
 - [#.#]{.pnum} *Effects*: Otherwise, equivalent to:
 
@@ -1614,7 +1614,7 @@ friend constexpr strong_ordering operator<=>(const @*iterator*@& x, const @*iter
   }
   ```
 
-, where `it1` and `it2` designate the target iterator objects of `x` and `y` respectively, and `It` is `remove_cvref_t<decltype(it1)>`.
+where `it1` and `it2` designate the target iterator objects of `x` and `y` respectively, and `It` is `remove_cvref_t<decltype(it1)>`.
 
 - [#.#]{.pnum} Otherwise, equivalent to:
 
@@ -1694,7 +1694,7 @@ friend constexpr difference_type operator-(const @*iterator*@& x, const @*iterat
   return it1 - it2;
   ```
 
-, where `it1` and `it2` designate the target iterator objects of `x` and `y` respectively.
+where `it1` and `it2` designate the target iterator objects of `x` and `y` respectively.
 
 - [#.#]{.pnum} Otherwise, equivalent to:
 
@@ -1761,7 +1761,7 @@ friend constexpr bool operator==(const @*iterator*@& x, const @*sentinel*@& y);
   return it == st;
   ```
 
-  , where `it` designates the target iterator object of `x` and `st` desinates the target sentinel object of `x` if `x` is self contained, or the target sentinel object of `y` otherwise.
+  where `it` designates the target iterator object of `x` and `st` desinates the target sentinel object of `x` if `x` is self contained, or the target sentinel object of `y` otherwise.
 
 - [#.#]{.pnum} Otherwise, if either `x` has no target iterator object, or both `x` and `y` have no target sentinel object, equivalent to:
 

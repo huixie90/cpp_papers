@@ -2969,26 +2969,22 @@ models
 <code class="sourceCode default cpp">indirectly_readable</code>.<span> —
 <em>end note</em> ]</span></span></p>
 <p><span class="marginalizedparent"><a href="#pnum-11" id="pnum-11" class="marginalized">3</a></span> Recommended practice: Implementations
-should avoid the use of dynamically allocated memory for a small
-contained target view object of type
-<code class="sourceCode default cpp">T</code> which satisfies
+should avoid the use of dynamically allocated memory for a small target
+view object of type <code class="sourceCode default cpp">T</code> which
+satisfies
 <code class="sourceCode default cpp">is_nothrow_move_constructible_v&lt;T&gt;</code>.</p>
-<p><span class="marginalizedparent"><a href="#pnum-12" id="pnum-12" class="marginalized">4</a></span> The
+<p><span class="marginalizedparent"><a href="#pnum-12" id="pnum-12" class="marginalized">4</a></span> An
 <code class="sourceCode default cpp">any_view::<em>iterator</em></code>
-wraps an iterator <code class="sourceCode default cpp"><em>i</em></code>
-of type <code class="sourceCode default cpp"><em>I</em></code> referred
-to as the <em>target iterator object</em>. Either
+object wraps an iterator object referred to as the <em>target iterator
+object</em>. Either an
 <code class="sourceCode default cpp">any_view::<em>iterator</em></code>
-or
+object or an
 <code class="sourceCode default cpp">any_view::<em>sentinel</em></code>
-wraps a single sentinel
-<code class="sourceCode default cpp"><em>s</em></code> of type
-<code class="sourceCode default cpp"><em>S</em></code>, that models
-<code class="sourceCode default cpp">sentinel_for&lt;<em>S</em>, <em>I</em>&gt;</code>,
-referred to as the <em>target sentinel object</em>. If an
+object wraps a single sentinel object, referred to as the <em>target
+sentinel object</em>. When an
 <code class="sourceCode default cpp">any_view::<em>iterator</em></code>
-holds both a target iterator object and a target sentinel object, it is
-<em>self contained</em>.</p>
+object holds both a target iterator object and a target sentinel object,
+it is said to be <em>self contained</em>.</p>
 </div>
 <h4 class="unnumbered" id="enum-class-any_view_options-range.any.options">?.?.?.2 Enum class
 <code class="sourceCode default cpp">any_view_options</code>
@@ -3560,7 +3556,7 @@ is <code class="sourceCode default cpp">true</code>.</p>
 objects of the same type, equivalent to:</li>
 </ul>
 <div class="sourceCode" id="cb67"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a>return it1 == it2; </span></code></pre></div>
-<p>, where <code class="sourceCode default cpp">it1</code> and
+<p>where <code class="sourceCode default cpp">it1</code> and
 <code class="sourceCode default cpp">it2</code> designate the target
 iterator objects of <code class="sourceCode default cpp">x</code> and
 <code class="sourceCode default cpp">y</code> respectively.</p>
@@ -3600,7 +3596,7 @@ range.</p>
 object, equivalent to:</p>
 <div class="sourceCode" id="cb71"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a>return it1 op it2;</span></code></pre></div></li>
 </ul>
-<p>, where <code class="sourceCode default cpp">it1</code> and
+<p>where <code class="sourceCode default cpp">it1</code> and
 <code class="sourceCode default cpp">it2</code> designate the target
 iterator objects of <code class="sourceCode default cpp">x</code> and
 <code class="sourceCode default cpp">y</code> respectively.</p>
@@ -3636,7 +3632,7 @@ object, equivalent to:</p>
 <span id="cb74-6"><a href="#cb74-6" aria-hidden="true" tabindex="-1"></a>  return strong_ordering::equal;</span>
 <span id="cb74-7"><a href="#cb74-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div></li>
 </ul>
-<p>, where <code class="sourceCode default cpp">it1</code> and
+<p>where <code class="sourceCode default cpp">it1</code> and
 <code class="sourceCode default cpp">it2</code> designate the target
 iterator objects of <code class="sourceCode default cpp">x</code> and
 <code class="sourceCode default cpp">y</code> respectively, and
@@ -3695,7 +3691,7 @@ range.</p>
 object, equivalent to:</p>
 <div class="sourceCode" id="cb83"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>return it1 - it2;</span></code></pre></div></li>
 </ul>
-<p>, where <code class="sourceCode default cpp">it1</code> and
+<p>where <code class="sourceCode default cpp">it1</code> and
 <code class="sourceCode default cpp">it2</code> designate the target
 iterator objects of <code class="sourceCode default cpp">x</code> and
 <code class="sourceCode default cpp">y</code> respectively.</p>
@@ -3751,7 +3747,7 @@ object, either <code class="sourceCode default cpp">x</code> or
 object, and the target iterator object and the target sentinel object
 were obtained from the same range, equivalent to:</p>
 <div class="sourceCode" id="cb89"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a>return it == st;</span></code></pre></div>
-<p>, where <code class="sourceCode default cpp">it</code> designates the
+<p>where <code class="sourceCode default cpp">it</code> designates the
 target iterator object of <code class="sourceCode default cpp">x</code>
 and <code class="sourceCode default cpp">st</code> desinates the target
 sentinel object of <code class="sourceCode default cpp">x</code> if
