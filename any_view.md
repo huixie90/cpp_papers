@@ -1033,7 +1033,7 @@ Add the following subclause to [range.utility]{.sref}
 
 [#]{.pnum} Recommended practice: Implementations should avoid the use of dynamically allocated memory for a small target view object of type `T` which satisfies `is_nothrow_move_constructible_v<T>`.
 
-[#]{.pnum} An `any_view::@*iterator*@` object wraps an iterator object referred to as the *target iterator object*. Either an `any_view::@*iterator*@` object or an `any_view::@*sentinel*@` object wraps a single sentinel object, referred to as the *target sentinel object*. When an `any_view::@*iterator*@` object holds both a target iterator object and a target sentinel object, it is said to be *self contained*.
+[#]{.pnum} An `any_view::@*iterator*@` object wraps an iterator object obtained from a target view object referred to as the *target iterator object*. It may also wrap a sentinel object obtained from a target view object referred to as the *target sentinel object*. When an `any_view::@*iterator*@` object wraps a target iterator object and a target sentinel object, it is said to be *self contained*. An `any_view::@*sentinel*@` object may wrap a target sentinel object.
 
 :::
 
@@ -1246,9 +1246,9 @@ constexpr @*sentinel*@ end();
 
 :::bq
 
-[#]{.pnum} *Effects*: Let `v` be an lvalue designating the target view object of `*this`, returns an object `s` that holds a target sentinel object direct-non-list-initialized with `ranges::end(v)`, if an iterator returned by `begin` is not self contained.
+[#]{.pnum} *Effects*: Let `v` be an lvalue designating the target view object of `*this`, returns an object that holds a target sentinel object direct-non-list-initialized with `ranges::end(v)`, if an iterator returned by `begin` is not self contained. Otherwise, returns an object that does not hold a target sentinel object.
 
-[Otherwise `s` does not hold any target sentinel objects. ]{.note}
+[The latter case can be a distinct value from a value-initialized *sentinel*]{.note}
 
 :::
 
@@ -1387,7 +1387,7 @@ constexpr @*iterator*@() noexcept;
 
 [#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::forward)` is `true`.
 
-[#]{.pnum} *Postconditions*: `*this` has no target iterator object.
+[#]{.pnum} *Postconditions*: `*this` holds no target iterator object.
 
 :::
 
@@ -1397,7 +1397,7 @@ constexpr Ref operator*() const;
 
 :::bq
 
-[#]{.pnum} *Preconditions*: `*this` has a target iterator object.
+[#]{.pnum} *Preconditions*: `*this` holds a target iterator object.
 
 [#]{.pnum} *Returns*: `static_cast<Ref>(*it)`, where `it` is an lvalue designating the target iterator object of `*this`.
 
@@ -1409,7 +1409,7 @@ constexpr @*iterator*@& operator++();
 
 :::bq
 
-[#]{.pnum} *Preconditions*: `*this` has a target iterator object.
+[#]{.pnum} *Preconditions*: `*this` holds a target iterator object.
 
 [#]{.pnum} *Effects*: Equivalent to:
 
@@ -1440,7 +1440,7 @@ constexpr @*iterator*@& operator--();
 
 [#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::bidirectional)` is `true`.
 
-[#]{.pnum} *Preconditions*: `*this` has a target iterator object.
+[#]{.pnum} *Preconditions*: `*this` holds a target iterator object.
 
 [#]{.pnum} *Effects*: Equivalent to:
 
@@ -1461,7 +1461,7 @@ constexpr @*iterator*@& operator+=(difference_type n);
 
 [#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
 
-[#]{.pnum} *Preconditions*: `*this` has a target iterator object, and let `I` be the type of the target iterator object and `D` be `iter_difference_t<I>`,  `in_range<D>(n)` is `true`.
+[#]{.pnum} *Preconditions*: `*this` holds a target iterator object, and let `I` be the type of the target iterator object and `D` be `iter_difference_t<I>`,  `in_range<D>(n)` is `true`.
 
 [#]{.pnum} *Effects*: Equivalent to:
 
@@ -1482,7 +1482,7 @@ constexpr @*iterator*@& operator-=(difference_type n);
 
 [#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
 
-[#]{.pnum} *Preconditions*: `*this` has a target iterator object, and let `I` be the type of the target iterator object and `D` be `iter_difference_t<I>`,  `in_range<D>(n)` is `true`.
+[#]{.pnum} *Preconditions*: `*this` holds a target iterator object, and let `I` be the type of the target iterator object and `D` be `iter_difference_t<I>`,  `in_range<D>(n)` is `true`.
 
 [#]{.pnum} *Effects*: Equivalent to:
 
@@ -1519,7 +1519,7 @@ constexpr add_pointer_t<Ref> operator->() const;
 
 [#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::contiguous)` is `true`.
 
-[#]{.pnum} *Preconditions*: `*this` has a target iterator object.
+[#]{.pnum} *Preconditions*: `*this` holds a target iterator object.
 
 [#]{.pnum} *Returns*: `to_address(it)`, where `it` is an lvalue designating the target iterator object of `*this`.
 
@@ -1535,7 +1535,7 @@ friend constexpr bool operator==(const @*iterator*@& x, const @*iterator*@& y);
 
 [#]{.pnum} *Effects*:
 
-- [#.#]{.pnum} If `x` and `y` contain target iterator objects of the same type, equivalent to:
+- [#.#]{.pnum} If both `x` and `y` hold a target iterator object and the two target iterator objects were obtained from the same range, equivalent to:
 
 ```cpp
 return it1 == it2; 
@@ -1543,17 +1543,13 @@ return it1 == it2;
 
 where `it1` and `it2` designate the target iterator objects of `x` and `y` respectively.
 
-- [#.#]{.pnum} Otherwise, if neither `x` nor `y` contains a target iterator object, equivalent to:
+- [#.#]{.pnum} Otherwise, if both `x` and `y` hold no target iterator object, equivalent to:
 
 ```cpp
 return true;
 ```
 
-- [#.#]{.pnum} Otherwise, equivalent to:
-
-```cpp
-return false;
-```
+- [#.#]{.pnum} Otherwise, the behavior is erroneous and the effects are unspecified.
 
 :::
 
@@ -1568,25 +1564,25 @@ friend constexpr bool operator>=(const @*iterator*@& x, const @*iterator*@& y);
 
 [#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
 
-[#]{.pnum} *Preconditions*: Either both `x` and `y` have no target iterator object, or both `x` and `y` have a target iterator object and the two target iterator objects were obtained from the same range.
-
-[#]{.pnum} Let *op* be the operator.
+[#]{.pnum} Let *`op`* be the operator.
 
 [#]{.pnum} *Effects*:
 
-- [#.#]{.pnum} If both `x` and `y` have a target iterator object, equivalent to:
+- [#.#]{.pnum} If both `x` and `y` hold a target iterator object and the two target iterator objects were obtained from the same range, equivalent to:
 
   ```cpp
-  return it1 op it2;
+  return it1 @*op*@ it2;
   ```
 
 where `it1` and `it2` designate the target iterator objects of `x` and `y` respectively.
 
-- [#.#]{.pnum} *Effects*: Otherwise, equivalent to:
+- [#.#]{.pnum} Otherwise, if both `x` and `y` hold no target iterator object, equivalent to:
 
   ```cpp
-  return 0 op 0;
+  return 0 @*op*@ 0;
   ```
+
+- [#.#]{.pnum} Otherwise, the behavior is erroneous and the effects are unspecified.
 
 :::
 
@@ -1598,14 +1594,12 @@ friend constexpr strong_ordering operator<=>(const @*iterator*@& x, const @*iter
 
 [#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
 
-[#]{.pnum} *Preconditions*: Either both `x` and `y` have no target iterator object, or both `x` and `y` have a target iterator object and the two target iterator objects were obtained from the same range.
-
 [#]{.pnum} *Effects*:
 
-- [#.#]{.pnum} If both `x` and `y` have a target iterator object, equivalent to:
+- [#.#]{.pnum} If both `x` and `y` hold a target iterator object and the two target iterator objects were obtained from the same range, equivalent to:
 
   ```cpp
-  if constexpr (three_way_comparable_with<It, It>) {
+  if constexpr (three_way_comparable<It, strong_ordering>) {
     return it1 <=> it2;
   } else {
     if (it1 < it2) return strong_ordering::less;
@@ -1616,11 +1610,13 @@ friend constexpr strong_ordering operator<=>(const @*iterator*@& x, const @*iter
 
 where `it1` and `it2` designate the target iterator objects of `x` and `y` respectively, and `It` is `remove_cvref_t<decltype(it1)>`.
 
-- [#.#]{.pnum} Otherwise, equivalent to:
+- [#.#]{.pnum} Otherwise, if both `x` and `y` hold no target iterator object, equivalent to:
 
   ```cpp
   return strong_ordering::equal;
   ```
+
+- [#.#]{.pnum} Otherwise, the behavior is erroneous and the effects are unspecified.
 
 :::
 
@@ -1684,11 +1680,9 @@ friend constexpr difference_type operator-(const @*iterator*@& x, const @*iterat
 
 [#]{.pnum} *Constraints*: `@*any-view-flag-is-set*@(Opts, any_view_options::random_access)` is `true`.
 
-[#]{.pnum} *Preconditions*: Either both `x` and `y` have no target iterator object, or both `x` and `y` have a target iterator object and the two target iterator objects were obtained from the same range.
-
 [#]{.pnum} *Effects*:
 
-- [#.#]{.pnum} If both `x` and `y` have a target iterator object, equivalent to:
+- [#.#]{.pnum} If both `x` and `y` hold a target iterator object and the two target iterator objects were obtained from the same range, equivalent to:
 
   ```cpp
   return it1 - it2;
@@ -1696,11 +1690,13 @@ friend constexpr difference_type operator-(const @*iterator*@& x, const @*iterat
 
 where `it1` and `it2` designate the target iterator objects of `x` and `y` respectively.
 
-- [#.#]{.pnum} Otherwise, equivalent to:
+- [#.#]{.pnum} Otherwise, if both `x` and `y` hold no target iterator object, equivalent to:
 
   ```cpp
   return 0;
   ```
+
+- [#.#]{.pnum} Otherwise, the behavior is erroneous and the effects are unspecified.
 
 :::
 
@@ -1710,7 +1706,7 @@ friend constexpr RValueRef iter_move(const @*iterator*@& iter);
 
 :::bq
 
-[#]{.pnum} *Preconditions*: `iter` has a target iterator object.
+[#]{.pnum} *Preconditions*: `iter` holds a target iterator object.
 
 [#]{.pnum} *Returns*: `static_cast<RValueRef>(ranges::iter_move(it))`, where `it` is an lvalue designating the target iterator object of `iter`.
 
@@ -1743,7 +1739,7 @@ constexpr @*sentinel*@() noexcept;
 :::wording
 :::bq
 
-[#]{.pnum} *Postconditions*: `*this` has no target sentinel object.
+[#]{.pnum} *Postconditions*: `*this` holds no target sentinel object.
 
 :::
 
@@ -1755,21 +1751,21 @@ friend constexpr bool operator==(const @*iterator*@& x, const @*sentinel*@& y);
 
 [#]{.pnum} *Effects*:
 
-- [#.#]{.pnum} If `x` has a target iterator object, either `x` or `y` has a target sentinel object, and the target iterator object and the target sentinel object were obtained from the same range, equivalent to:
+- [#.#]{.pnum} If `x` holds a target iterator object, either `x` or `y` holds a target sentinel object, and the target iterator object and the target sentinel object were obtained from the same range, equivalent to:
 
   ```cpp
   return it == st;
   ```
 
-  where `it` designates the target iterator object of `x` and `st` desinates the target sentinel object of `x` if `x` is self contained, or the target sentinel object of `y` otherwise.
+  where `it` designates the target iterator object of `x` and `st` designates the target sentinel object of `x` if `x` is self contained, or the target sentinel object of `y` otherwise.
 
-- [#.#]{.pnum} Otherwise, if either `x` has no target iterator object, or both `x` and `y` have no target sentinel object, equivalent to:
+- [#.#]{.pnum} Otherwise, if `x` holds no target iterator object, and both `x` and `y` hold no target sentinel object, equivalent to:
 
   ```cpp
-  return false;
+  return true;
   ```
 
-- [#.#]{.pnum} Otherwise, the return value is unspecified.
+- [#.#]{.pnum} Otherwise, the behavior is erroneous and the effects are unspecified.
 
 :::
 :::
