@@ -1535,7 +1535,7 @@ friend constexpr bool operator==(const @*iterator*@& x, const @*iterator*@& y);
 
 [#]{.pnum} *Effects*:
 
-- [#.#]{.pnum} If both `x` and `y` hold a target iterator object and the two target iterator objects were obtained from the same range, equivalent to:
+- [#.#]{.pnum} If `x` and `y` hold target iterator objects of the same type, equivalent to:
 
 ```cpp
 return it1 == it2; 
@@ -1543,13 +1543,17 @@ return it1 == it2;
 
 where `it1` and `it2` designate the target iterator objects of `x` and `y` respectively.
 
-- [#.#]{.pnum} Otherwise, if both `x` and `y` hold no target iterator object, equivalent to:
+- [#.#]{.pnum} Otherwise, if neither `x` nor `y` holds a target iterator object, equivalent to:
 
 ```cpp
 return true;
 ```
 
-- [#.#]{.pnum} Otherwise, the behavior is erroneous and the effects are unspecified.
+- [#.#]{.pnum} Otherwise, equivalent to:
+
+```cpp
+return false;
+```
 
 :::
 
