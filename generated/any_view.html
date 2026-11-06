@@ -2897,7 +2897,7 @@ reference:</p>
 <div class="sourceCode" id="cb35"><pre class="sourceCode cpp"><code class="sourceCode cpp"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">+(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> i<span class="op">,</span> difference_type n<span class="op">);</span></span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">+(</span>difference_type n<span class="op">,</span> <span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> i<span class="op">);</span></span>
 <span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a><span class="kw">friend</span> <span class="kw">constexpr</span> <em>iterator</em> <span class="kw">operator</span><span class="op">-(</span><span class="kw">const</span> <em>iterator</em><span class="op">&amp;</span> i<span class="op">,</span> difference_type n<span class="op">);</span></span></code></pre></div>
-<p>The effects of these functions are: making a copy of the
+<p>The effects of these functions are: make a copy of the
 <code class="sourceCode cpp">iterator</code>, mutate the copy and return
 it. This is efficient when the parameter is indeed an lvalue,
 e.g. <code class="sourceCode cpp">it <span class="op">+</span> <span class="dv">10</span></code>.

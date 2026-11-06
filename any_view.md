@@ -966,7 +966,7 @@ friend constexpr @*iterator*@ operator+(difference_type n, const @*iterator*@& i
 friend constexpr @*iterator*@ operator-(const @*iterator*@& i, difference_type n);
 ```
 
-The effects of these functions are: making a copy of the `iterator`, mutate the copy and return it. This is efficient when the parameter is indeed an lvalue, e.g. `it + 10`. Returning the copy usually triggers NRVO. However, when the parameter is an rvalue, in theory the functions can move the parameter instead of making unnecessary copies, which can result in memory allocations.
+The effects of these functions are: make a copy of the `iterator`, mutate the copy and return it. This is efficient when the parameter is indeed an lvalue, e.g. `it + 10`. Returning the copy usually triggers NRVO. However, when the parameter is an rvalue, in theory the functions can move the parameter instead of making unnecessary copies, which can result in memory allocations.
 
 An alternative way to specify these functions is to make them take `iterator` parameter by value. However, this leads to one extra move, which is not always cheap. Because when the smaller buffer is used, the extra move will lead to a vtable dispatch on the move constructor. This is why taking by reference is preferred. Implementation is free to add another overload that takes `iterator` by rvalue reference and avoid the unnecessary copy.
 
