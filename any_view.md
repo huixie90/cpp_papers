@@ -956,6 +956,21 @@ In this design, two of the constraints of the constructor of `any_view` are:
 
 The purpose of these two constraints are to prevent dangling reference when `iterator::operator*` and `iter_move` are called. This is different from `optional<T&>`'s constructor constraint, where the `reference_converts_from_temporary_v` is to prevent the dangling reference at constructor call. This is why in this paper these two checks are constraints, whereas in `optional<T&>`, `=delete` is used.
 
+## Parameter Value Category of `iterator`'s `operator+` and `operator-`
+
+The following 3 functions are specified in the way that the `iterator` parameter is a `const` reference:
+
+```cpp
+friend constexpr @*iterator*@ operator+(const @*iterator*@& i, difference_type n);
+friend constexpr @*iterator*@ operator+(difference_type n, const @*iterator*@& i);
+friend constexpr @*iterator*@ operator-(const @*iterator*@& i, difference_type n);
+```
+
+The effects of these functions are: make a copy of the `iterator`, mutate the copy and return it. This is efficient when the parameter is indeed an lvalue, e.g. `it + 10`. Returning the copy usually triggers NRVO. However, when the parameter is an rvalue, in theory the functions can move the parameter instead of making unnecessary copies, which can result in memory allocations.
+
+An alternative way to specify these functions is to make them take `iterator` parameter by value. However, this leads to one extra move, which is not always cheap. Because when the smaller buffer is used, the extra move will lead to a vtable dispatch on the move constructor. This is why taking by reference is preferred. Implementation is free to add another overload that takes `iterator` by rvalue reference and avoid the unnecessary copy.
+
+
 # Implementation Experience
 
 `any_view` has been implemented in [@rangev3], with equivalent semantics as
@@ -1033,7 +1048,7 @@ Add the following subclause to [range.utility]{.sref}
 
 [#]{.pnum} Recommended practice: Implementations should avoid the use of dynamically allocated memory for a small target view object of type `T` which satisfies `is_nothrow_move_constructible_v<T>`.
 
-[#]{.pnum} An `any_view::@*iterator*@` object wraps an iterator object obtained from a target view object referred to as the *target iterator object*. It may also wrap a sentinel object obtained from a target view object referred to as the *target sentinel object*. When an `any_view::@*iterator*@` object wraps a target iterator object and a target sentinel object, it is said to be *self contained*. An `any_view::@*sentinel*@` object may wrap a target sentinel object.
+[#]{.pnum} An `any_view::@*iterator*@` object holds an iterator object obtained from a target view object referred to as the *target iterator object*. It may also hold a sentinel object obtained from a target view object referred to as the *target sentinel object*. When an `any_view::@*iterator*@` object holds a target iterator object and a target sentinel object, it is said to be *self contained*. An `any_view::@*sentinel*@` object may hold a target sentinel object.
 
 :::
 
@@ -1248,7 +1263,7 @@ constexpr @*sentinel*@ end();
 
 [#]{.pnum} *Effects*: Let `v` be an lvalue designating the target view object of `*this`, returns an object that holds a target sentinel object direct-non-list-initialized with `ranges::end(v)`, if an iterator returned by `begin` is not self contained. Otherwise, returns an object that does not hold a target sentinel object.
 
-[The latter case can be a distinct value from a value-initialized *sentinel*]{.note}
+[A _sentinel_ that does not hold a target sentinel object can be a distinct value from a value-initialized _sentinel_.]{.note}
 
 :::
 
@@ -1755,7 +1770,9 @@ friend constexpr bool operator==(const @*iterator*@& x, const @*sentinel*@& y);
 
 [#]{.pnum} *Effects*:
 
-- [#.#]{.pnum} If `x` holds a target iterator object, either `x` or `y` holds a target sentinel object, and the target iterator object and the target sentinel object were obtained from the same range, equivalent to:
+- [#.#]{.pnum} If both `x` and `y` hold a target sentinel object, the behavior is erroneous and the return value in unspecified.
+
+- [#.#]{.pnum} Otherwise, if `x` holds a target iterator object, either `x` or `y` holds a target sentinel object, and the target iterator object and the target sentinel object were obtained from the same range, equivalent to:
 
   ```cpp
   return it == st;
@@ -1769,7 +1786,9 @@ friend constexpr bool operator==(const @*iterator*@& x, const @*sentinel*@& y);
   return true;
   ```
 
-- [#.#]{.pnum} Otherwise, the behavior is erroneous and the effects are unspecified.
+- [#.#]{.pnum} Otherwise, if either `x` holds no target iterator object or `y` holds no target sentinel object, the behavior is erroneous and the return value is unspecified.
+
+- [#.#]{.pnum} Otherwise, the behavior is undefined.
 
 :::
 :::
