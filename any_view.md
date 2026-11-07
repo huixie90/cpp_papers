@@ -1770,7 +1770,7 @@ friend constexpr bool operator==(const @*iterator*@& x, const @*sentinel*@& y);
 
 [#]{.pnum} *Effects*:
 
-- [#.#]{.pnum} If both `x` and `y` hold a target sentinel object, the behavior is erroneous and the return value in unspecified.
+- [#.#]{.pnum} If both `x` and `y` hold a target sentinel object, the behavior is erroneous and the return value is unspecified.
 
 - [#.#]{.pnum} Otherwise, if `x` holds a target iterator object, either `x` or `y` holds a target sentinel object, and the target iterator object and the target sentinel object were obtained from the same range, equivalent to:
 
