@@ -2907,7 +2907,7 @@ making unnecessary copies, which can result in memory allocations.</p>
 <p>An alternative way to specify these functions is to make them take
 <code class="sourceCode cpp">iterator</code> parameter by value.
 However, this leads to one extra move, which is not always cheap.
-Because when the smaller buffer is used, the extra move will lead to a
+Because when the smaller buffer is used, the extra move may lead to a
 vtable dispatch on the move constructor. This is why taking by reference
 is preferred. Implementation is free to add another overload that takes
 <code class="sourceCode cpp">iterator</code> by rvalue reference and
