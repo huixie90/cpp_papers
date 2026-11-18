@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="generator" content="mpark/wg21" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
-  <meta name="dcterms.date" content="2026-05-09" />
+  <meta name="dcterms.date" content="2026-11-18" />
   <title>`any_view`</title>
   <style>
 
@@ -1513,7 +1513,7 @@ background-color: #4b6345;
   </tr>
   <tr>
     <td>Date:</td>
-    <td>2026-05-09</td>
+    <td>2026-11-18</td>
   </tr>
   <tr>
     <td style="vertical-align:top">Project:</td>
@@ -3620,8 +3620,8 @@ operator.</p>
 <li><p><span class="marginalizedparent"><a href="#pnum-89" id="pnum-89" class="marginalized">(28.1)</a></span> If both
 <code class="sourceCode default cpp">x</code> and
 <code class="sourceCode default cpp">y</code> hold a target iterator
-object and the two target iterator objects were obtained from the same
-range, equivalent to:</p>
+object and the two target iterator objects have the same type,
+equivalent to:</p>
 <div class="sourceCode" id="cb72"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>return it1 <em>op</em> it2;</span></code></pre></div></li>
 </ul>
 <p>where <code class="sourceCode default cpp">it1</code> and
@@ -3648,8 +3648,8 @@ is <code class="sourceCode default cpp">true</code>.</p>
 <li><p><span class="marginalizedparent"><a href="#pnum-94" id="pnum-94" class="marginalized">(30.1)</a></span> If both
 <code class="sourceCode default cpp">x</code> and
 <code class="sourceCode default cpp">y</code> hold a target iterator
-object and the two target iterator objects were obtained from the same
-range, equivalent to:</p>
+object and the two target iterator objects have the same type,
+equivalent to:</p>
 <div class="sourceCode" id="cb75"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>if constexpr (three_way_comparable&lt;It, strong_ordering&gt;) {</span>
 <span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>  return it1 &lt;=&gt; it2;</span>
 <span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>} else {</span>
@@ -3712,8 +3712,8 @@ is <code class="sourceCode default cpp">true</code>.</p>
 <li><p><span class="marginalizedparent"><a href="#pnum-105" id="pnum-105" class="marginalized">(38.1)</a></span> If both
 <code class="sourceCode default cpp">x</code> and
 <code class="sourceCode default cpp">y</code> hold a target iterator
-object and the two target iterator objects were obtained from the same
-range, equivalent to:</p>
+object and the two target iterator objects have the same type,
+equivalent to:</p>
 <div class="sourceCode" id="cb84"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>return it1 - it2;</span></code></pre></div></li>
 </ul>
 <p>where <code class="sourceCode default cpp">it1</code> and
