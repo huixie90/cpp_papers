@@ -1,7 +1,7 @@
 ---
 title: "`any_view`"
 document: P3411R7
-date: 2026-05-09
+date: 2026-11-18
 audience: SG9, LEWG
 author:
   - name: Hui Xie
@@ -1587,7 +1587,7 @@ friend constexpr bool operator>=(const @*iterator*@& x, const @*iterator*@& y);
 
 [#]{.pnum} *Effects*:
 
-- [#.#]{.pnum} If both `x` and `y` hold a target iterator object and the two target iterator objects were obtained from the same range, equivalent to:
+- [#.#]{.pnum} If both `x` and `y` hold a target iterator object and the two target iterator objects have the same type, equivalent to:
 
   ```cpp
   return it1 @*op*@ it2;
@@ -1615,7 +1615,7 @@ friend constexpr strong_ordering operator<=>(const @*iterator*@& x, const @*iter
 
 [#]{.pnum} *Effects*:
 
-- [#.#]{.pnum} If both `x` and `y` hold a target iterator object and the two target iterator objects were obtained from the same range, equivalent to:
+- [#.#]{.pnum} If both `x` and `y` hold a target iterator object and the two target iterator objects have the same type, equivalent to:
 
   ```cpp
   if constexpr (three_way_comparable<It, strong_ordering>) {
@@ -1701,7 +1701,7 @@ friend constexpr difference_type operator-(const @*iterator*@& x, const @*iterat
 
 [#]{.pnum} *Effects*:
 
-- [#.#]{.pnum} If both `x` and `y` hold a target iterator object and the two target iterator objects were obtained from the same range, equivalent to:
+- [#.#]{.pnum} If both `x` and `y` hold a target iterator object and the two target iterator objects have the same type, equivalent to:
 
   ```cpp
   return it1 - it2;
