@@ -3617,11 +3617,10 @@ is <code class="sourceCode default cpp">true</code>.</p>
 operator.</p>
 <p><span class="marginalizedparent"><a href="#pnum-88" id="pnum-88" class="marginalized">28</a></span> <em>Effects</em>:</p>
 <ul>
-<li><p><span class="marginalizedparent"><a href="#pnum-89" id="pnum-89" class="marginalized">(28.1)</a></span> If both
+<li><p><span class="marginalizedparent"><a href="#pnum-89" id="pnum-89" class="marginalized">(28.1)</a></span> If
 <code class="sourceCode default cpp">x</code> and
-<code class="sourceCode default cpp">y</code> hold a target iterator
-object and the two target iterator objects have the same type,
-equivalent to:</p>
+<code class="sourceCode default cpp">y</code> hold target iterator
+objects of the same type, equivalent to:</p>
 <div class="sourceCode" id="cb72"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>return it1 <em>op</em> it2;</span></code></pre></div></li>
 </ul>
 <p>where <code class="sourceCode default cpp">it1</code> and
@@ -3635,7 +3634,7 @@ iterator objects of <code class="sourceCode default cpp">x</code> and
 object, equivalent to:</p>
 <div class="sourceCode" id="cb73"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb73-1"><a href="#cb73-1" aria-hidden="true" tabindex="-1"></a>return 0 <em>op</em> 0;</span></code></pre></div></li>
 <li><p><span class="marginalizedparent"><a href="#pnum-91" id="pnum-91" class="marginalized">(28.3)</a></span> Otherwise, the behavior is
-erroneous and the effects are unspecified.</p></li>
+erroneous and the return value is unspecified.</p></li>
 </ul>
 </div>
 <div class="sourceCode" id="cb74"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>friend constexpr strong_ordering operator&lt;=&gt;(const <em>iterator</em>&amp; x, const <em>iterator</em>&amp; y);</span></code></pre></div>
@@ -3645,11 +3644,10 @@ erroneous and the effects are unspecified.</p></li>
 is <code class="sourceCode default cpp">true</code>.</p>
 <p><span class="marginalizedparent"><a href="#pnum-93" id="pnum-93" class="marginalized">30</a></span> <em>Effects</em>:</p>
 <ul>
-<li><p><span class="marginalizedparent"><a href="#pnum-94" id="pnum-94" class="marginalized">(30.1)</a></span> If both
+<li><p><span class="marginalizedparent"><a href="#pnum-94" id="pnum-94" class="marginalized">(30.1)</a></span> If
 <code class="sourceCode default cpp">x</code> and
-<code class="sourceCode default cpp">y</code> hold a target iterator
-object and the two target iterator objects have the same type,
-equivalent to:</p>
+<code class="sourceCode default cpp">y</code> hold target iterator
+objects of the same type, equivalent to:</p>
 <div class="sourceCode" id="cb75"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>if constexpr (three_way_comparable&lt;It, strong_ordering&gt;) {</span>
 <span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>  return it1 &lt;=&gt; it2;</span>
 <span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>} else {</span>
@@ -3671,7 +3669,7 @@ iterator objects of <code class="sourceCode default cpp">x</code> and
 object, equivalent to:</p>
 <div class="sourceCode" id="cb76"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>return strong_ordering::equal;</span></code></pre></div></li>
 <li><p><span class="marginalizedparent"><a href="#pnum-96" id="pnum-96" class="marginalized">(30.3)</a></span> Otherwise, the behavior is
-erroneous and the effects are unspecified.</p></li>
+erroneous and the return value is unspecified.</p></li>
 </ul>
 </div>
 <div class="sourceCode" id="cb77"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a>friend constexpr <em>iterator</em> operator+(const <em>iterator</em>&amp; i, difference_type n);</span></code></pre></div>
@@ -3709,11 +3707,10 @@ is <code class="sourceCode default cpp">true</code>.</p>
 is <code class="sourceCode default cpp">true</code>.</p>
 <p><span class="marginalizedparent"><a href="#pnum-104" id="pnum-104" class="marginalized">38</a></span> <em>Effects</em>:</p>
 <ul>
-<li><p><span class="marginalizedparent"><a href="#pnum-105" id="pnum-105" class="marginalized">(38.1)</a></span> If both
+<li><p><span class="marginalizedparent"><a href="#pnum-105" id="pnum-105" class="marginalized">(38.1)</a></span> If
 <code class="sourceCode default cpp">x</code> and
-<code class="sourceCode default cpp">y</code> hold a target iterator
-object and the two target iterator objects have the same type,
-equivalent to:</p>
+<code class="sourceCode default cpp">y</code> hold target iterator
+objects of the same type, equivalent to:</p>
 <div class="sourceCode" id="cb84"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>return it1 - it2;</span></code></pre></div></li>
 </ul>
 <p>where <code class="sourceCode default cpp">it1</code> and
@@ -3727,7 +3724,7 @@ iterator objects of <code class="sourceCode default cpp">x</code> and
 object, equivalent to:</p>
 <div class="sourceCode" id="cb85"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>return 0;</span></code></pre></div></li>
 <li><p><span class="marginalizedparent"><a href="#pnum-107" id="pnum-107" class="marginalized">(38.3)</a></span> Otherwise, the
-behavior is erroneous and the effects are unspecified.</p></li>
+behavior is erroneous and the return value is unspecified.</p></li>
 </ul>
 </div>
 <div class="sourceCode" id="cb86"><pre class="sourceCode default cpp"><code class="sourceCode default"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>friend constexpr RValueRef iter_move(const <em>iterator</em>&amp; iter);</span></code></pre></div>

@@ -1587,7 +1587,7 @@ friend constexpr bool operator>=(const @*iterator*@& x, const @*iterator*@& y);
 
 [#]{.pnum} *Effects*:
 
-- [#.#]{.pnum} If both `x` and `y` hold a target iterator object and the two target iterator objects have the same type, equivalent to:
+- [#.#]{.pnum} If `x` and `y` hold target iterator objects of the same type, equivalent to:
 
   ```cpp
   return it1 @*op*@ it2;
@@ -1601,7 +1601,7 @@ where `it1` and `it2` designate the target iterator objects of `x` and `y` respe
   return 0 @*op*@ 0;
   ```
 
-- [#.#]{.pnum} Otherwise, the behavior is erroneous and the effects are unspecified.
+- [#.#]{.pnum} Otherwise, the behavior is erroneous and the return value is unspecified.
 
 :::
 
@@ -1615,7 +1615,7 @@ friend constexpr strong_ordering operator<=>(const @*iterator*@& x, const @*iter
 
 [#]{.pnum} *Effects*:
 
-- [#.#]{.pnum} If both `x` and `y` hold a target iterator object and the two target iterator objects have the same type, equivalent to:
+- [#.#]{.pnum} If `x` and `y` hold target iterator objects of the same type, equivalent to:
 
   ```cpp
   if constexpr (three_way_comparable<It, strong_ordering>) {
@@ -1635,7 +1635,7 @@ where `it1` and `it2` designate the target iterator objects of `x` and `y` respe
   return strong_ordering::equal;
   ```
 
-- [#.#]{.pnum} Otherwise, the behavior is erroneous and the effects are unspecified.
+- [#.#]{.pnum} Otherwise, the behavior is erroneous and the return value is unspecified.
 
 :::
 
@@ -1701,7 +1701,7 @@ friend constexpr difference_type operator-(const @*iterator*@& x, const @*iterat
 
 [#]{.pnum} *Effects*:
 
-- [#.#]{.pnum} If both `x` and `y` hold a target iterator object and the two target iterator objects have the same type, equivalent to:
+- [#.#]{.pnum} If `x` and `y` hold target iterator objects of the same type, equivalent to:
 
   ```cpp
   return it1 - it2;
@@ -1715,7 +1715,7 @@ where `it1` and `it2` designate the target iterator objects of `x` and `y` respe
   return 0;
   ```
 
-- [#.#]{.pnum} Otherwise, the behavior is erroneous and the effects are unspecified.
+- [#.#]{.pnum} Otherwise, the behavior is erroneous and the return value is unspecified.
 
 :::
 
