@@ -1808,6 +1808,10 @@ of this paper:
 
 :::
 
+# Acknowledgement
+
+The author would like to thank Tomasz Kamiński for his extensive help in reviewing the wording and proposing improvements, often generously giving his time over weekends. Thanks are also due to Jonathan Wakely and the other members of LWG for their patience in reviewing many revisions of the proposed wording.
+
 ---
 references:
   - id: rangev3
